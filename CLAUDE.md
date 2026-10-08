@@ -63,7 +63,9 @@ skills/artifact-shelf/        the companion Claude skill ("shelve this"), shippe
   no delve/seamless/stunning, no exclamation marks, no invented backstory.
 - **Look at it.** The owner is visual. After UI changes, take screenshots (desktop
   1440×900, phone 390×844, light and dark) and show them instead of describing them.
-- **Never push** or create the GitHub repo unless the owner asks. He pushes releases himself.
+- **Pushing deploys.** The repo is public at github.com/dogum/artifact-shelf, and every push to
+  `main` rebuilds the live site. Greg is fine with commits and pushes when they make sense; run
+  `npm test` and `npm run check` first.
 
 ## Design tokens
 
