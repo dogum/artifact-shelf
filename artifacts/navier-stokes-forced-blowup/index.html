@@ -1,5 +1,4 @@
 <!doctype html><html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>The Navier–Stokes Affair</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
@@ -1830,5 +1829,10 @@ const fmtE = v => {
   apply();
 })();
 
+/* reduced motion: these figures start paused, so their buttons must say so */
+if (RM) ["vRun", "lRun", "bvRun", "kRun"].forEach(id => {
+  const b = document.getElementById(id);
+  if (b){ b.textContent = "Run"; b.setAttribute("aria-pressed", "false"); }
+});
 })();
 </script>
