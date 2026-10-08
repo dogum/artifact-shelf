@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here. Versions follow [semantic versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Artifacts
+- Forced Blowup for Navier–Stokes, on the Explainers shelf: the mathematics of the September 2026 forced blowup preprints, with figures for Burgers' equation, the Beale–Kato–Majda criterion, the Burgers vortex, the self-similar core and the multiscale ladder, and a filterable timeline of results from 1757 to 2026. It is the oldest piece on the shelf, so every other item number moves up by one.
+
 ## [0.1.0] - 2026-10-08
 
 The first public version.
