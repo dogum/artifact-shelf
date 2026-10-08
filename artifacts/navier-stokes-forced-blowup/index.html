@@ -439,7 +439,7 @@ button.btn.math{text-transform:none;letter-spacing:.02em}
       <div class="readout">
         <div><div class="k">time t</div><div class="v" id="bT">0.000</div></div>
         <div><div class="k">max |∂ₓu|</div><div class="v hot" id="bG">1.00</div></div>
-        <div><div class="k">energy ½∫u²</div><div class="v cool" id="bE">0.250</div></div>
+        <div><div class="k">mean energy ½⟨u²⟩</div><div class="v cool" id="bE">0.250</div></div>
         <div><div class="k">regime</div><div class="v" id="bR" style="font-size:12px">steepening</div></div>
       </div>
     </div>
@@ -1027,7 +1027,9 @@ button.btn.math{text-transform:none;letter-spacing:.02em}
 const RM = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 let TOK = {};
+let epoch = 0;           // bumps when the colours change, so paused figures repaint
 function readTokens(){
+  epoch++;
   TOK = { ink:css("--ink"), ink2:css("--ink2"), ink3:css("--ink3"), rule:css("--rule"),
           rule2:css("--rule2"), hot:css("--hot"), cool:css("--cool"), paper:css("--paper"), plate:css("--plate") };
 }
@@ -1075,6 +1077,23 @@ function fit(cv, hCss){
   const ctx = cv.getContext("2d");
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   return { ctx, w, h };
+}
+/* ---------- figure loops: work only while on screen, and only when something changed ---------- */
+const onScreen = new WeakMap();
+const io = "IntersectionObserver" in window
+  ? new IntersectionObserver(es => es.forEach(e => onScreen.set(e.target, e.isIntersecting)), { rootMargin: "200px 0px" })
+  : null;
+function watch(cv){
+  const st = { dirty: true, ep: -1 };
+  if (io) io.observe(cv);
+  const fig = cv.closest("figure") || cv.parentElement;
+  const touch = () => { st.dirty = true; };
+  fig.addEventListener("input", touch); fig.addEventListener("click", touch);
+  window.addEventListener("resize", touch);
+  // true when this frame should do work: visible, and running or changed
+  st.due = running => onScreen.get(cv) !== false && (running || st.dirty || st.ep !== epoch);
+  st.done = () => { st.dirty = false; st.ep = epoch; };
+  return st;
 }
 const fmtE = v => {
   if (!isFinite(v)) return "∞";
@@ -1276,7 +1295,8 @@ const fmtE = v => {
   }
 
   let raf;
-  function loop(){ if (running) advance(0.012); draw(); readouts(); raf = requestAnimationFrame(loop); }
+  const W = watch(cv);
+  function loop(){ if (W.due(running)){ if (running) advance(0.012); draw(); readouts(); W.done(); } raf = requestAnimationFrame(loop); }
   eNu.addEventListener("input", () => {
     nu = nuOf(+eNu.value);
     vNu.textContent = nu === 0 ? "0 (inviscid)" : nu.toFixed(5);
@@ -1489,9 +1509,10 @@ const fmtE = v => {
       for (const p of parts){ p.p += 0.0045 * p.sp * Math.min(3, 1 + (-logTau())/30); if (p.p > 1) p.p -= 1; }
       readouts();
     }
-    draw();
+    if (W.due(running)){ draw(); W.done(); }
     requestAnimationFrame(loop);
   }
+  const W = watch(cv);
   readouts(); requestAnimationFrame(loop);
   window.addEventListener("resize", ()=>{ clearTimeout(cv._to); cv._to = setTimeout(draw,150); });
 })();
@@ -1590,8 +1611,10 @@ const fmtE = v => {
   rb.addEventListener("click", ()=>{ running=!running; rb.textContent = running?"Pause":"Run"; rb.setAttribute("aria-pressed",running); });
   function loop(){
     if (running){ tt += 0.0022; if (tt > 0.99) tt = 0; eT.value = Math.round(tt*1000); }
-    draw(); requestAnimationFrame(loop);
+    if (W.due(running)){ draw(); W.done(); }
+    requestAnimationFrame(loop);
   }
+  const W = watch(cv);
   requestAnimationFrame(loop);
   window.addEventListener("resize", ()=>{ clearTimeout(cv._to); cv._to = setTimeout(draw,150); });
 })();
@@ -1685,7 +1708,8 @@ const fmtE = v => {
   rb.addEventListener("click", () => { running = !running; rb.textContent = running ? "Pause" : "Run"; rb.setAttribute("aria-pressed", running); });
   a = aOf(+eA.value); nu = nuOf(+eN.value);
   let last = 0;
-  function loop(t){ const dt = Math.min(0.05, (t - last) / 1000 || 0.016); last = t; if (running) step(dt); draw(); requestAnimationFrame(loop); }
+  const W = watch(cv);
+  function loop(t){ const dt = Math.min(0.05, (t - last) / 1000 || 0.016); last = t; if (W.due(running)){ if (running) step(dt); draw(); W.done(); } requestAnimationFrame(loop); }
   readouts(); requestAnimationFrame(loop);
 })();
 
@@ -1775,8 +1799,10 @@ const fmtE = v => {
   al = +eA.value / 100;
   function loop(){
     if (running){ s += 2.2; if (s > 1000) s = 0; eT.value = Math.round(s); readouts(); }
-    draw(); requestAnimationFrame(loop);
+    if (W.due(running)){ draw(); W.done(); }
+    requestAnimationFrame(loop);
   }
+  const W = watch(cv);
   readouts(); requestAnimationFrame(loop);
 })();
 
