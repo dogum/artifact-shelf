@@ -1,0 +1,1838 @@
+<!doctype html><html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<title>Forced Blowup for Navier–Stokes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* ============ TOKENS: full light palette on bare :root ============ */
+:root{
+  --ground:#EEF1F4;
+  --paper:#FCFDFE;
+  --plate:#F6F8FA;
+  --ink:#0E141B;
+  --ink2:#4B5A69;
+  --ink3:#77879A;
+  --rule:#CBD5DE;
+  --rule2:#E2E9EF;
+  --hot:#C43B14;          /* divergence, blowup, the forcing term */
+  --hot-soft:#F3D9CF;
+  --cool:#15607F;         /* regularity, viscosity, bounded things */
+  --cool-soft:#D3E4EC;
+  --warn:#8A6100;
+  --shadow:0 1px 2px rgba(14,20,27,.06), 0 8px 24px -12px rgba(14,20,27,.18);
+  --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --sans:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif:"Spectral", Georgia, "Times New Roman", serif;
+  --measure:68ch;
+  --pad:clamp(18px,4vw,34px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#080B10;
+    --paper:#101720;
+    --plate:#0C1219;
+    --ink:#E6ECF2;
+    --ink2:#9BAABA;
+    --ink3:#6C7C8D;
+    --rule:#26333F;
+    --rule2:#1A242E;
+    --hot:#FF7448;
+    --hot-soft:#3A1D12;
+    --cool:#4FB3DE;
+    --cool-soft:#0E2A36;
+    --warn:#D6A64A;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 32px -16px rgba(0,0,0,.8);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#080B10; --paper:#101720; --plate:#0C1219;
+  --ink:#E6ECF2; --ink2:#9BAABA; --ink3:#6C7C8D;
+  --rule:#26333F; --rule2:#1A242E;
+  --hot:#FF7448; --hot-soft:#3A1D12;
+  --cool:#4FB3DE; --cool-soft:#0E2A36;
+  --warn:#D6A64A;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 32px -16px rgba(0,0,0,.8);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--serif); font-size:17px; line-height:1.62;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+::selection{background:var(--hot); color:var(--paper)}
+
+/* ============ CHROME ============ */
+.topbar{
+  position:sticky; top:0; z-index:60;
+  display:flex; align-items:center; gap:14px;
+  padding:9px var(--pad);
+  background:var(--ground);
+  background:color-mix(in srgb, var(--ground) 88%, transparent);
+  backdrop-filter:blur(14px) saturate(1.3);
+  border-bottom:1px solid var(--rule2);
+  font-family:var(--sans); font-size:12px;
+}
+.topbar .mark{font-family:var(--mono);font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-size:11px;color:var(--ink);white-space:nowrap}
+.topbar .mark b{color:var(--hot);font-weight:600}
+.tocwrap{flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.tocwrap::-webkit-scrollbar{display:none}
+.toc{display:flex;gap:2px;white-space:nowrap}
+.toc a{
+  font-family:var(--mono);font-size:11px;color:var(--ink3);text-decoration:none;
+  padding:4px 7px;border-radius:3px;letter-spacing:.02em;
+}
+.toc a:hover{color:var(--ink);background:var(--rule2)}
+.toc a.on{color:var(--hot);background:var(--hot-soft)}
+.tgl{
+  flex:none;font-family:var(--mono);font-size:11px;cursor:pointer;
+  background:none;border:1px solid var(--rule);color:var(--ink2);
+  padding:4px 9px;border-radius:3px;
+}
+.tgl:hover{border-color:var(--hot);color:var(--hot)}
+:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+
+/* ============ LAYOUT ============ */
+.wrap{max-width:1180px;margin:0 auto;padding:0 var(--pad)}
+.col{max-width:var(--measure);margin:0 auto}
+section{padding:52px 0 8px}
+.rulehead{
+  display:flex;align-items:baseline;gap:12px;
+  border-top:2px solid var(--ink);padding-top:10px;margin:0 auto 22px;max-width:var(--measure);
+}
+.rulehead .no{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--hot);letter-spacing:.06em;flex:none}
+.rulehead h2{font-family:var(--sans);font-size:clamp(20px,3.4vw,27px);font-weight:600;letter-spacing:-.018em;margin:0;line-height:1.2;text-wrap:balance}
+h3{font-family:var(--sans);font-size:16px;font-weight:600;letter-spacing:-.005em;margin:34px 0 8px;color:var(--ink)}
+h4{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);margin:26px 0 6px}
+p{margin:0 0 15px}
+a{color:var(--cool);text-underline-offset:2px;text-decoration-thickness:1px}
+a:hover{color:var(--hot)}
+strong{font-weight:600}
+em{font-style:italic}
+.lede{font-size:19px;line-height:1.58;color:var(--ink2)}
+ul,ol{margin:0 0 15px;padding-left:22px}
+li{margin-bottom:7px}
+li::marker{color:var(--ink3)}
+
+/* ============ MATH ============ */
+.m{font-family:var(--serif);font-style:italic;white-space:nowrap}
+.m .up,.up{font-style:normal}
+.eqn{
+  font-family:var(--serif);font-size:17.5px;text-align:center;
+  margin:20px auto;padding:14px 10px;line-height:1.9;
+  overflow-x:auto;overflow-y:hidden;
+}
+.eqn .tag{float:right;font-family:var(--mono);font-size:11px;color:var(--ink3);font-style:normal}
+.frac{display:inline-block;vertical-align:-0.55em;text-align:center;margin:0 .18em;font-size:.94em}
+.frac>span{display:block;padding:0 .3em;line-height:1.25}
+.frac>span:first-child{border-bottom:1px solid currentColor}
+sub,sup{font-size:.68em;font-style:normal}
+.vec{font-weight:600}
+
+/* ============ COMPONENTS ============ */
+.callout{
+  background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--hot);
+  padding:16px 18px;margin:22px auto;max-width:var(--measure);border-radius:0 3px 3px 0;
+}
+.callout.cool{border-left-color:var(--cool)}
+.callout.flat{border-left-color:var(--rule)}
+.callout h4{margin-top:0}
+.callout p:last-child,.callout ul:last-child{margin-bottom:0}
+
+blockquote{
+  margin:20px auto;max-width:var(--measure);padding:2px 0 2px 20px;
+  border-left:2px solid var(--rule);color:var(--ink2);font-size:16.5px;
+}
+blockquote p:last-child{margin-bottom:0}
+blockquote cite{
+  display:block;margin-top:9px;font-style:normal;font-family:var(--sans);
+  font-size:12.5px;color:var(--ink3);
+}
+blockquote cite b{color:var(--ink2);font-weight:600}
+
+.thm{
+  background:var(--plate);border:1px solid var(--rule);border-radius:3px;
+  padding:16px 18px;margin:22px auto;max-width:var(--measure);
+}
+.thm .lab{font-family:var(--sans);font-weight:700;font-size:14px;letter-spacing:.01em}
+.thm .src{font-family:var(--mono);font-size:10.5px;color:var(--ink3);float:right;letter-spacing:.03em}
+.thm p{font-size:16px}
+.thm p:last-child{margin-bottom:0}
+
+code{font-family:var(--mono);font-size:.85em;background:var(--plate);border:1px solid var(--rule2);padding:1px 5px;border-radius:3px}
+pre{
+  font-family:var(--mono);font-size:12.5px;line-height:1.6;background:var(--plate);
+  border:1px solid var(--rule);border-radius:3px;padding:14px 16px;overflow-x:auto;margin:18px auto;max-width:var(--measure);
+}
+pre code{background:none;border:none;padding:0;font-size:inherit}
+
+.tablewrap{overflow-x:auto;margin:22px auto;max-width:100%}
+table{border-collapse:collapse;width:100%;font-family:var(--sans);font-size:13.5px;min-width:600px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--rule2);vertical-align:top}
+th{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink3);border-bottom:1px solid var(--rule);font-weight:600;white-space:nowrap;
+}
+tbody tr:hover{background:var(--plate)}
+td.num{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+
+.pill{
+  display:inline-block;font-family:var(--mono);font-size:10px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:2px;white-space:nowrap;
+}
+.pill.done{background:var(--cool-soft);color:var(--cool)}
+.pill.open{background:var(--hot-soft);color:var(--hot)}
+.pill.part{background:var(--rule2);color:var(--ink2)}
+
+/* ============ FIGURES / PLATES ============ */
+figure{margin:30px auto;max-width:var(--measure)}
+figure.wide{max-width:1000px}
+figcaption{
+  font-family:var(--sans);font-size:12.5px;line-height:1.5;color:var(--ink3);
+  margin-top:10px;padding-left:0;
+}
+figcaption b{color:var(--ink2);font-weight:600;font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase}
+figure svg{display:block;width:100%;height:auto;color:var(--ink2)}
+
+.plate{
+  background:var(--paper);border:1px solid var(--rule);border-radius:4px;
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.plate-hd{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  padding:9px 14px;border-bottom:1px solid var(--rule2);background:var(--plate);
+}
+.plate-hd .t{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)}
+.plate-bd{padding:14px}
+canvas{display:block;width:100%;background:transparent;touch-action:pan-y}
+
+.ctrls{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center;padding:11px 14px;border-top:1px solid var(--rule2);background:var(--plate)}
+.ctrl{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;color:var(--ink2)}
+.ctrl label{white-space:nowrap;letter-spacing:.04em}
+.ctrl .val{color:var(--hot);font-weight:600;min-width:4.5em;font-variant-numeric:tabular-nums}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;height:3px;background:var(--rule);
+  border-radius:2px;width:104px;outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--hot);cursor:pointer;border:2px solid var(--paper)}
+input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--hot);cursor:pointer;border:2px solid var(--paper)}
+button.btn{
+  font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;
+  background:var(--paper);border:1px solid var(--rule);color:var(--ink2);
+  padding:5px 11px;border-radius:3px;cursor:pointer;
+}
+button.btn:hover{border-color:var(--hot);color:var(--hot)}
+button.btn[aria-pressed=true]{background:var(--hot);border-color:var(--hot);color:var(--paper)}
+
+.readout{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:1px;
+  background:var(--rule2);border-top:1px solid var(--rule2);
+}
+.readout div{background:var(--paper);padding:9px 12px}
+.readout dt,.readout .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:2px}
+.readout .v{font-family:var(--mono);font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+.readout .v.hot{color:var(--hot)}
+.readout .v.cool{color:var(--cool)}
+
+/* ============ HERO ============ */
+.hero{position:relative;border-bottom:1px solid var(--rule);background:var(--plate);overflow:hidden}
+#heroCv{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+.hero-in{position:relative;z-index:2;padding:clamp(38px,7vw,72px) var(--pad) clamp(26px,4vw,40px);max-width:1180px;margin:0 auto}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--hot);margin-bottom:14px}
+h1{
+  font-family:var(--sans);font-weight:700;letter-spacing:-.035em;line-height:1.02;
+  font-size:clamp(38px,8.2vw,84px);margin:0 0 18px;max-width:15ch;text-wrap:balance;
+}
+h1 i{font-family:var(--serif);font-weight:400;font-style:italic;letter-spacing:-.02em;color:var(--hot)}
+.hero-sub{max-width:60ch;font-size:clamp(16px,2.2vw,19px);line-height:1.55;color:var(--ink2);margin:0 0 24px}
+.hero-meta{display:flex;flex-wrap:wrap;gap:8px 22px;font-family:var(--mono);font-size:11px;color:var(--ink3);letter-spacing:.03em}
+.hero-meta b{color:var(--ink2);font-weight:500}
+.hero-strip{
+  position:relative;z-index:2;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:1px;background:var(--rule2);border-top:1px solid var(--rule2);
+}
+.hero-strip div{background:var(--plate);padding:12px var(--pad)}
+.hero-strip .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink3)}
+.hero-strip .v{font-family:var(--mono);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:3px}
+
+/* ============ MISC ============ */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:22px auto;max-width:var(--measure)}
+.card{background:var(--paper);border:1px solid var(--rule);border-radius:3px;padding:15px 16px}
+.card h4{margin-top:0}
+.card p{font-size:15px;margin-bottom:0}
+.card p+p{margin-top:10px}
+
+.srclist{max-width:var(--measure);margin:0 auto;font-family:var(--sans);font-size:13.5px;line-height:1.5}
+.srclist .g{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin:22px 0 8px;border-bottom:1px solid var(--rule2);padding-bottom:5px}
+.srclist li{margin-bottom:9px;list-style:none}
+.srclist ul{padding-left:0}
+.srclist .note{color:var(--ink3);font-size:12.5px;display:block}
+
+footer{border-top:1px solid var(--rule);margin-top:60px;padding:26px 0 50px;font-family:var(--mono);font-size:11.5px;color:var(--ink3);line-height:1.7}
+
+@media (max-width:700px){
+  body{font-size:16.5px}
+  .eqn{font-size:15.5px;text-align:left}
+  .topbar .mark span.long{display:none}
+  section{padding:40px 0 6px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;transition-duration:.001ms!important}
+}
+</style>
+<style>
+/* ============ TIMELINE ============ */
+.tl-ctrls{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;max-width:var(--measure);margin:18px auto 6px;font-family:var(--mono);font-size:11px;color:var(--ink2)}
+.tl-ctrls .sp{flex:1}
+.tl-ctrls label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.tl{list-style:none;padding:0;margin:8px auto 0;max-width:var(--measure);border-left:2px solid var(--rule)}
+.tl li{position:relative;padding:4px 0 14px 22px;margin:0}
+.tl li::before{content:"";position:absolute;left:-6px;top:11px;width:10px;height:10px;border-radius:50%;background:var(--paper);border:2px solid var(--cool)}
+.tl li[data-kind="numerics"]::before{border-style:dashed;border-color:var(--ink3)}
+.tl li.now::before{border-color:var(--hot);background:var(--hot-soft)}
+.tl .yr{font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--ink2);letter-spacing:.04em}
+.tl .what{display:block;font-family:var(--sans);font-size:14.5px;font-weight:600;line-height:1.35;margin:1px 0 2px;color:var(--ink)}
+.tl .ref{display:block;font-family:var(--sans);font-size:12.5px;color:var(--ink3);line-height:1.45}
+.tl .tags{display:inline-flex;gap:5px;margin-left:8px;vertical-align:1px}
+.tl .tags span{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:2px;background:var(--rule2);color:var(--ink2)}
+.tl .tags span.k-num{background:transparent;border:1px dashed var(--rule);color:var(--ink3)}
+.tl .tags span.k-pre{background:var(--hot-soft);color:var(--hot)}
+.tl p{font-family:var(--serif);font-size:15px;margin:4px 0 0;color:var(--ink2)}
+/* math in labels must keep its case: uppercase turns ω into Ω and ν into N */
+.readout .k{text-transform:none;letter-spacing:.05em}
+button.btn.math{text-transform:none;letter-spacing:.02em}
+</style>
+
+<nav class="topbar" aria-label="Section navigation">
+  <div class="mark">N–S<b>·</b><span class="long">FORCED BLOWUP</span></div>
+  <div class="tocwrap"><div class="toc" id="toc">
+    <a href="#s1">01 The question</a>
+    <a href="#s2">02 Equations</a>
+    <a href="#s3">03 Four statements</a>
+    <a href="#s4">04 Breakdown</a>
+    <a href="#s5">05 The force</a>
+    <a href="#s6">06 The vortex</a>
+    <a href="#s7">07 The ladder</a>
+    <a href="#s8">08 Theorems</a>
+    <a href="#s9">09 Timeline</a>
+    <a href="#s10">10 Computation</a>
+    <a href="#s11">11 Still open</a>
+    <a href="#src">Sources</a>
+  </div></div>
+  <button class="tgl" id="themeBtn" type="button" aria-label="Toggle colour theme">◐</button>
+</nav>
+
+<header class="hero">
+  <canvas id="heroCv" aria-hidden="true"></canvas>
+  <div class="hero-in">
+    <div class="kicker">Explainer · incompressible flow · as of October 2026</div>
+    <h1>How a smooth force can <i>break</i> a fluid</h1>
+    <p class="hero-sub">The Navier–Stokes equations describe water and air. Whether their solutions can develop a singularity from smooth data is one of the Clay Millennium Problems. In September 2026 a preprint gave a construction in which a smooth force, switched on and off in finite time, drives a fluid at rest to unbounded speed at a finite time while its energy stays bounded. This page explains the mathematics: what the problem asks, what a forcing term changes, how the construction works, and what is still open.</p>
+    <div class="hero-meta">
+      <span><b>Status:</b> the September 2026 results are preprints and have not been refereed</span>
+      <span><b>Figures:</b> every number is computed from the equation printed beside it</span>
+    </div>
+  </div>
+  <div class="hero-strip">
+    <div><div class="k">Weak solutions exist</div><div class="v">1934 · Leray</div></div>
+    <div><div class="k">Breakdown criterion</div><div class="v">1984 · BKM</div></div>
+    <div><div class="k">Clay problem</div><div class="v">4 statements, A–D</div></div>
+    <div><div class="k">Forced blowup (C, D)</div><div class="v" style="color:var(--hot)">claimed 2026</div></div>
+    <div><div class="k">Unforced (A, B)</div><div class="v" style="color:var(--cool)">open</div></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ============================ 01 ============================ -->
+<section id="s1">
+  <div class="rulehead"><span class="no">01</span><h2>The question, and what was claimed</h2></div>
+  <div class="col">
+    <p class="lede">Start a fluid in a smooth state, with finite energy, and let it evolve under the Navier–Stokes equations. Does it stay smooth forever, or can the velocity become infinite somewhere at a finite time?</p>
+    <p>In two dimensions the answer has been known for decades: solutions stay smooth. In three dimensions it is open, and it is one of the seven problems the Clay Mathematics Institute set in 2000. Leray showed in 1934 that weak solutions exist for all time, but not that they stay smooth or are unique. Since then the field has collected partial results, criteria that any singularity must satisfy, and numerical candidates, but no proof either way for the equations as they stand.</p>
+    <p>In September 2026 several preprints appeared that construct singularities for fluid equations by a common route: add a smooth external force, designed together with the flow. The table separates them, because they are different theorems about different equations.</p>
+  </div>
+
+  <div class="tablewrap" style="max-width:1000px">
+    <table>
+      <thead><tr><th>Result</th><th>Equation</th><th>Force</th><th>Paper</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Blowup for Navier–Stokes</strong><br>Clay statements (C) and (D)</td><td>3D incompressible Navier–Stokes, any ν &gt; 0, on ℝ³ and 𝕋³</td><td>smooth, compactly supported in space and time</td><td>OpenAI, <em>Finite time blowup for Navier–Stokes</em>, 166 pp</td><td><span class="pill part">preprint</span> Lean formalization released</td></tr>
+        <tr><td><strong>Blowup for Euler, no force</strong></td><td>3D incompressible Euler on ℝ³</td><td>none; smooth, compactly supported data</td><td>OpenAI, <em>Finite time blowup for the Euler equation</em>, 57 pp</td><td><span class="pill part">preprint</span> Lean formalization released</td></tr>
+        <tr><td><strong>Blowup for Euler with smooth forcing</strong></td><td>3D Euler on ℝ³, axisymmetric with swirl</td><td>smooth</td><td>Alpöge &amp; Buckmaster, 112 pp</td><td><span class="pill part">preprint</span> Lean formalization released</td></tr>
+        <tr><td><strong>Blowup for Boussinesq with smooth forcing</strong></td><td>2D inviscid Boussinesq on ℝ²</td><td>smooth, compactly supported</td><td>Alpöge &amp; Buckmaster, 76 pp</td><td><span class="pill part">preprint</span> Lean formalization released</td></tr>
+        <tr><td><strong>IPM blowup with space–time smooth forcing</strong></td><td>incompressible porous medium on 𝕋²</td><td>smooth</td><td>Alpöge, Buckmaster &amp; Coiculescu, 57 pp, arXiv:2609.16470</td><td><span class="pill part">preprint</span></td></tr>
+        <tr><td><strong>A stable self-similar Euler singularity</strong></td><td>3D Euler on ℝ³</td><td>none</td><td>Ganeshram, Duruisseaux &amp; Anandkumar, 107 pp</td><td><span class="pill part">evidence</span> numerical profile and a framework for a computer-assisted proof</td></tr>
+        <tr><td><strong>Global smoothness or blowup without a force</strong><br>Clay statements (A) and (B)</td><td>3D Navier–Stokes, f ≡ 0</td><td>none</td><td>—</td><td><span class="pill open">open</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <p>Three distinctions do most of the work in reading these results, and the rest of the page is organised around them.</p>
+    <ul>
+      <li><strong>Forced or unforced.</strong> The Clay text allows a smooth force in its two breakdown statements and forbids one in its two smoothness statements (§03). A forced construction addresses the first pair, not the second.</li>
+      <li><strong>Navier–Stokes or Euler.</strong> Euler is the same equation without viscosity. It is not a Clay problem, and viscosity is exactly what a Navier–Stokes construction has to beat (§06).</li>
+      <li><strong>Proof, formal proof, refereed proof.</strong> All of the September results are preprints. Several come with Lean formalizations, which check a formal statement mechanically. None had been through peer review as of this writing.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================ 02 ============================ -->
+<section id="s2">
+  <div class="rulehead"><span class="no">02</span><h2>The equations, and the two terms that compete</h2></div>
+  <div class="col">
+    <p>Navier–Stokes is Newton's second law written for a parcel of fluid. For an incompressible flow with velocity field <span class="m">u</span>(<span class="m">x</span>,&nbsp;<span class="m">t</span>) and pressure <span class="m">p</span>:</p>
+
+    <div class="eqn">
+      ∂<sub>t</sub><span class="m vec">u</span> + (<span class="m vec">u</span>·∇)<span class="m vec">u</span> &nbsp;=&nbsp; <span style="color:var(--cool)">ν∆<span class="m vec">u</span></span> − ∇<span class="m">p</span> + <span style="color:var(--hot)"><span class="m vec">f</span></span>,
+      &nbsp;&nbsp;&nbsp; ∇·<span class="m vec">u</span> = 0
+      <span class="tag">(1)</span>
+    </div>
+
+    <ul>
+      <li><span class="m">∂<sub>t</sub><b>u</b></span>: how the velocity at a fixed point changes in time.</li>
+      <li><strong>(<span class="m">u</span>·∇)<span class="m">u</span>, advection.</strong> Velocity carrying velocity. It is quadratic in <span class="m">u</span>, which is where the difficulty comes from: it lets a fast region make itself faster.</li>
+      <li><strong><span style="color:var(--cool)">ν∆<span class="m">u</span></span>, viscosity.</strong> Linear and smoothing. It removes energy from small scales at a rate that grows like the square of the wavenumber.</li>
+      <li><span class="m">−∇p</span>, pressure. Not an independent unknown: it takes whatever value keeps <span class="m">∇·u</span> = 0, instantly and everywhere.</li>
+      <li><strong><span style="color:var(--hot)"><span class="m">f</span></span>, the external force.</strong> Gravity, a stirring rod, anything applied from outside. Setting it to zero gives the unforced problem. Allowing it changes the question, as §05 explains.</li>
+    </ul>
+
+    <p>Drop viscosity (<span class="m">ν</span> = 0) and you get the <strong>Euler equations</strong> for an ideal fluid with no friction. Euler is older, is not a Clay problem, and in three dimensions has nothing at all opposing the nonlinearity.</p>
+
+    <h3>The competition in one dimension</h3>
+    <p>Burgers' equation keeps only the advection and viscous terms:</p>
+
+    <div class="eqn">
+      ∂<sub>t</sub><span class="m">u</span> + <span class="m">u</span> ∂<sub>x</sub><span class="m">u</span> = <span style="color:var(--cool)">ν ∂<sub>x</sub><sup>2</sup><span class="m">u</span></span>
+      <span class="tag">(2)</span>
+    </div>
+
+    <p>Fast parts of the wave overtake slow parts. With <span class="m">ν</span> = 0 the profile steepens until the slope is vertical and <span class="m">∂<sub>x</sub>u</span> becomes infinite: a finite-time singularity from smooth data. With viscosity on, diffusion meets the steepening, the wave settles into a travelling front and the slope stops growing.</p>
+  </div>
+
+  <figure class="wide">
+    <div class="plate">
+      <div class="plate-hd">
+        <div class="t">Fig. 1 — Burgers equation · advection vs. viscosity</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn" id="bRun" type="button" aria-pressed="true">Pause</button>
+          <button class="btn" id="bReset" type="button">Reset</button>
+        </div>
+      </div>
+      <div class="plate-bd"><canvas id="burgCv" height="300"></canvas></div>
+      <div class="ctrls">
+        <div class="ctrl">
+          <label for="bNu">viscosity ν</label>
+          <input type="range" id="bNu" min="0" max="100" value="0" step="1">
+          <span class="val" id="bNuV">0.0000</span>
+        </div>
+        <div class="ctrl"><label>minmod–Rusanov FV · 1024 cells · periodic</label></div>
+      </div>
+      <div class="readout">
+        <div><div class="k">time t</div><div class="v" id="bT">0.000</div></div>
+        <div><div class="k">max |∂ₓu|</div><div class="v hot" id="bG">1.00</div></div>
+        <div><div class="k">mean energy ½⟨u²⟩</div><div class="v cool" id="bE">0.250</div></div>
+        <div><div class="k">regime</div><div class="v" id="bR" style="font-size:12px">steepening</div></div>
+      </div>
+    </div>
+    <figcaption><b>Figure 1</b> The same competition that defines the Millennium Problem, in one dimension. Drag viscosity to exactly zero and the slope diverges at a finite time — this is real numerical integration of equation (2), not an animation loop. Nudge <span class="m">ν</span> up and the gradient saturates instead. In three dimensions nobody knows which side wins, and that is the entire question.</figcaption>
+  </figure>
+
+  <div class="col">
+    <div class="callout cool">
+      <h4>Why three dimensions is the hard case</h4>
+      <p>In two dimensions the vorticity <span class="m">ω</span> = ∇×<span class="m">u</span> is carried along by the flow and cannot be amplified, so it stays bounded and solutions stay smooth. In three dimensions the vorticity equation has an extra term:</p>
+      <div class="eqn" style="margin:12px auto;padding:6px">(∂<sub>t</sub> + <span class="m vec">u</span>·∇)<span class="m vec">ω</span> = <span style="color:var(--hot)">(<span class="m vec">ω</span>·∇)<span class="m vec">u</span></span> + <span style="color:var(--cool)">ν∆<span class="m vec">ω</span></span></div>
+      <p style="margin-bottom:0">The first term on the right is <strong>vortex stretching</strong>. Stretch a spinning tube of fluid along its axis and, because its angular momentum is conserved while it narrows, it spins faster. Nothing in the equation stops that feedback from running away, and every blowup construction for three-dimensional flow is built around it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 03 ============================ -->
+<section id="s3">
+  <div class="rulehead"><span class="no">03</span><h2>The Clay problem is four statements</h2></div>
+  <div class="col">
+    <p>Charles Fefferman's official problem description for the Clay Institute does not pose one question. To give solvers some leeway, it asks for a proof of any one of four statements: two that solutions stay smooth, and two that they can break down. One on all of space, one on the periodic box, for each.</p>
+    <p>The smoothness statements, (A) and (B), require the force to be identically zero. The breakdown statements, (C) and (D), ask for smooth initial data and a smooth force, both decaying as the text specifies, for which no smooth solution with bounded energy exists for all time. A smooth force is permitted there.</p>
+  </div>
+
+  <figure class="wide">
+    <svg viewBox="0 0 900 400" role="img" aria-label="The four alternatives of the Clay Navier-Stokes problem arranged in a two by two grid: A and B require zero force and remain open; C and D permit a smooth force and were claimed in September 2026.">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+        </marker>
+      </defs>
+      <!-- column headers -->
+      <text x="300" y="34" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600" letter-spacing="1.4" fill="currentColor">WHOLE SPACE  ℝ³</text>
+      <text x="640" y="34" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600" letter-spacing="1.4" fill="currentColor">PERIODIC BOX  𝕋³ = ℝ³/ℤ³</text>
+      <line x1="130" y1="46" x2="880" y2="46" stroke="currentColor" stroke-width="1" opacity=".3"/>
+
+      <!-- row labels -->
+      <text x="118" y="118" text-anchor="end" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="600" fill="currentColor">Solutions stay</text>
+      <text x="118" y="135" text-anchor="end" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="600" fill="currentColor">smooth forever</text>
+      <text x="118" y="157" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity=".65">force f ≡ 0</text>
+
+      <text x="118" y="278" text-anchor="end" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="600" fill="currentColor">Solutions break</text>
+      <text x="118" y="295" text-anchor="end" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="600" fill="currentColor">down</text>
+      <text x="118" y="317" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="11" fill="#C43B14" font-weight="600">smooth f allowed</text>
+
+      <!-- A -->
+      <rect x="145" y="62" width="310" height="118" rx="3" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".55"/>
+      <text x="163" y="88" font-family="IBM Plex Mono, monospace" font-size="19" font-weight="600" fill="currentColor">A</text>
+      <text x="190" y="88" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="currentColor">Existence &amp; smoothness on ℝ³</text>
+      <text x="163" y="112" font-family="Spectral, serif" font-size="13" font-style="italic" fill="currentColor" opacity=".8">Take f(x,t) to be identically zero.</text>
+      <text x="163" y="136" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="1" fill="currentColor" opacity=".55">STATUS</text>
+      <text x="221" y="136" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="1" font-weight="600" fill="currentColor">OPEN SINCE 1934</text>
+      <text x="163" y="160" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="currentColor" opacity=".65">Still open</text>
+
+      <!-- B -->
+      <rect x="485" y="62" width="310" height="118" rx="3" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".55"/>
+      <text x="503" y="88" font-family="IBM Plex Mono, monospace" font-size="19" font-weight="600" fill="currentColor">B</text>
+      <text x="530" y="88" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="currentColor">Existence &amp; smoothness on 𝕋³</text>
+      <text x="503" y="112" font-family="Spectral, serif" font-size="13" font-style="italic" fill="currentColor" opacity=".8">we take f(x,t) to be identically zero.</text>
+      <text x="503" y="136" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="1" fill="currentColor" opacity=".55">STATUS</text>
+      <text x="561" y="136" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="1" font-weight="600" fill="currentColor">OPEN SINCE 1934</text>
+      <text x="503" y="160" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="currentColor" opacity=".65">Still open</text>
+
+      <!-- C -->
+      <rect x="145" y="222" width="310" height="118" rx="3" fill="#C43B14" fill-opacity=".07" stroke="#C43B14" stroke-width="2"/>
+      <text x="163" y="248" font-family="IBM Plex Mono, monospace" font-size="19" font-weight="600" fill="#C43B14">C</text>
+      <text x="190" y="248" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="600" fill="currentColor">Breakdown on ℝ³</text>
+      <text x="163" y="272" font-family="Spectral, serif" font-size="13" font-style="italic" fill="currentColor" opacity=".85">…there exist a smooth, divergence-free u°</text>
+      <text x="163" y="289" font-family="Spectral, serif" font-size="13" font-style="italic" fill="currentColor" opacity=".85">and a smooth f(x,t)…</text>
+      <text x="163" y="313" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="1" fill="currentColor" opacity=".55">STATUS</text>
+      <text x="221" y="313" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="1" font-weight="600" fill="#C43B14">CLAIMED SEP 2026 · PREPRINT</text>
+      <text x="163" y="330" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="currentColor" opacity=".7">OpenAI, Theorem 1.1</text>
+
+      <!-- D -->
+      <rect x="485" y="222" width="310" height="118" rx="3" fill="#C43B14" fill-opacity=".07" stroke="#C43B14" stroke-width="2"/>
+      <text x="503" y="248" font-family="IBM Plex Mono, monospace" font-size="19" font-weight="600" fill="#C43B14">D</text>
+      <text x="530" y="248" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="600" fill="currentColor">Breakdown on 𝕋³</text>
+      <text x="503" y="272" font-family="Spectral, serif" font-size="13" font-style="italic" fill="currentColor" opacity=".85">…and a smooth f(x,t) satisfying (8),(9),</text>
+      <text x="503" y="289" font-family="Spectral, serif" font-size="13" font-style="italic" fill="currentColor" opacity=".85">for which there exist no solutions…</text>
+      <text x="503" y="313" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="1" fill="currentColor" opacity=".55">STATUS</text>
+      <text x="561" y="313" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="1" font-weight="600" fill="#C43B14">CLAIMED SEP 2026 · PREPRINT</text>
+      <text x="503" y="330" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="currentColor" opacity=".7">OpenAI, Corollary 10.6</text>
+
+      <!-- the asymmetry callout -->
+      <line x1="470" y1="196" x2="470" y2="206" stroke="#C43B14" stroke-width="0" />
+      <text x="470" y="203" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5" font-weight="600" letter-spacing="1.2" fill="#C43B14">THE ASYMMETRY:  A &amp; B FORBID THE FORCE.  C &amp; D DO NOT.</text>
+      <text x="470" y="378" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12.5" fill="currentColor" opacity=".7">Prove any one of the four and Fefferman's text says the problem is resolved.</text>
+    </svg>
+    <figcaption><b>Figure 2</b> Fefferman's four statements, with short phrases quoted from the official Clay problem description. (A) and (B) stipulate a zero force; (C) and (D) allow any smooth <span class="m">f</span> meeting the decay conditions. A forced construction can only address the right-hand column.</figcaption>
+  </figure>
+
+  <div class="col">
+    <p>So a forced blowup construction is, on the text, a proof of (C) or (D). The OpenAI Navier–Stokes paper states that its Theorem 1.1 establishes (C) and its Corollary 10.6 establishes (D). The question most people have in mind, whether an unforced fluid can break down on its own, is (A) and (B), and a forced construction does not address it.</p>
+    <p>The same description adds, right after the four statements, that the corresponding questions for the Euler equations are also open and important, but that Euler is not on the Clay prize list. An unforced Euler blowup, however significant, does not bear on the prize.</p>
+    <h3>The prize itself</h3>
+    <p>Clay's rules require a solution to be published in a refereed journal of worldwide repute, at least two years to pass after publication, and the solution to be generally accepted, with the Institute deciding whether the official problem has been answered. OpenAI's announcement says it does not intend to claim the prize for this result.</p>
+  </div>
+</section>
+
+<!-- ============================ 04 ============================ -->
+<section id="s4">
+  <div class="rulehead"><span class="no">04</span><h2>When does a smooth solution break?</h2></div>
+  <div class="col">
+    <p>A singularity has to announce itself. The cleanest criterion is due to Beale, Kato and Majda (1984), stated for the Euler equations: a smooth solution on <span class="m">[0, T)</span> can be continued smoothly past <span class="m">T</span> if and only if</p>
+    <div class="eqn">
+      ∫<sub>0</sub><sup><span class="m">T</span></sup> ‖<span class="m vec">ω</span>(<span class="m">t</span>)‖<sub>L<sup>∞</sup></sub> d<span class="m">t</span> &nbsp;&lt;&nbsp; ∞
+      <span class="tag">(3)</span>
+    </div>
+    <p>So it is not enough for the maximum vorticity to grow without bound. It has to grow fast enough that its time integral diverges. If ‖<span class="m">ω</span>‖<sub>∞</sub> grows like (<span class="m">T</span> − <span class="m">t</span>)<sup>−α</sup>, the integral is finite for α &lt; 1 and infinite for α ≥ 1. The borderline is exactly the rate that self-similar collapse produces: a velocity scale <span class="m">U</span> over a length scale <span class="m">L</span> gives a gradient <span class="m">U/L</span>, and for a structure that shrinks in a time comparable to <span class="m">L/U</span>, that gradient is of order 1/(<span class="m">T</span> − <span class="m">t</span>).</p>
+  </div>
+
+  <figure class="wide">
+    <div class="plate">
+      <div class="plate-hd">
+        <div class="t">Fig. 3 — Beale–Kato–Majda · does the integral stay finite?</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn" id="kRun" type="button" aria-pressed="true">Pause</button>
+        </div>
+      </div>
+      <div class="plate-bd"><canvas id="bkmCv" height="300"></canvas></div>
+      <div class="ctrls">
+        <div class="ctrl">
+          <label for="kA">growth rate α</label>
+          <input type="range" id="kA" min="30" max="160" value="80" step="1">
+          <span class="val" id="kAV">0.80</span>
+        </div>
+        <div class="ctrl">
+          <label for="kT">time to T</label>
+          <input type="range" id="kT" min="0" max="1000" value="0" step="1">
+          <span class="val" id="kTV">10^0.0</span>
+        </div>
+        <div class="ctrl" style="gap:6px">
+          <button class="btn math" type="button" data-alpha="0.5">α = ½</button>
+          <button class="btn math" type="button" data-alpha="1">α = 1</button>
+          <button class="btn math" type="button" data-alpha="1.01">core of §06</button>
+        </div>
+      </div>
+      <div class="readout">
+        <div><div class="k">‖ω(t)‖<sub>∞</sub></div><div class="v hot" id="kW">1.00</div></div>
+        <div><div class="k">∫<sub>0</sub><sup>t</sup> ‖ω‖<sub>∞</sub> ds</div><div class="v" id="kI">0</div></div>
+        <div><div class="k">limit as t → T</div><div class="v" id="kL">5.00</div></div>
+        <div><div class="k">verdict</div><div class="v" id="kV">continues past T</div></div>
+      </div>
+    </div>
+    <figcaption><b>Figure 3</b> A model growth law ‖<span class="m">ω</span>(<span class="m">t</span>)‖<sub>∞</sub> = (<span class="m">T</span> − <span class="m">t</span>)<sup>−α</sup> with <span class="m">T</span> = 1. Left: the vorticity on a log scale against the time remaining, down to 10<sup>−12</sup>. Right: its running integral, computed in closed form. Below α = 1 the integral levels off and the solution would continue past <span class="m">T</span>; at α = 1 it grows like −ln(<span class="m">T</span> − <span class="m">t</span>), slowly but without bound. The "core of §06" button sets α to the gradient rate of the vortex in the Navier–Stokes construction, 1 + <span class="m">h</span> (rounded to 1.01 here).</figcaption>
+  </figure>
+
+  <div class="col">
+    <p>Navier–Stokes has criteria of the same kind. Escauriaza, Seregin and Šverák (2003) showed that a solution which stays bounded in <span class="m">L</span><sup>3</sup> cannot blow up, so at a singularity the <span class="m">L</span><sup>3</sup> norm must become unbounded. Caffarelli, Kohn and Nirenberg (1982) showed that the set of singular points of a suitable weak solution is small: it has zero one-dimensional parabolic Hausdorff measure, so it cannot contain a curve in space-time. Both are reasons any blowup has to concentrate into tiny regions, which is what the constructions below do.</p>
+    <p>The OpenAI Euler paper states its theorem with the Beale–Kato–Majda integral directly: its solution has ∫‖curl <span class="m">u</span>‖<sub>∞</sub> d<span class="m">t</span> = ∞ at the breakdown time. The Alpöge–Buckmaster Euler paper states the same divergence for its forced solution.</p>
+  </div>
+</section>
+
+<!-- ============================ 05 ============================ -->
+<section id="s5">
+  <div class="rulehead"><span class="no">05</span><h2>What a forcing term changes</h2></div>
+  <div class="col">
+    <p>Given any smooth velocity field <span class="m">u</span> and pressure <span class="m">p</span> at all, you can define the force to be whatever is left over when you plug them into the equation:</p>
+    <div class="eqn">
+      ℛ(<span class="m vec">u</span>, <span class="m">p</span>) = ∂<sub>t</sub><span class="m vec">u</span> + (<span class="m vec">u</span>·∇)<span class="m vec">u</span> − ν∆<span class="m vec">u</span> + ∇<span class="m">p</span>,
+      &nbsp;&nbsp;&nbsp; <span class="m vec">f</span> := ℛ(<span class="m vec">u</span>, <span class="m">p</span>)
+      <span class="tag">(4)</span>
+    </div>
+    <p>With that choice, Navier–Stokes holds by construction. So with a force allowed, the problem is not to find a solution that blows up: any divergence-free field that blows up "solves" the equation with some force. The problem is to find a blowing-up flow whose residual ℛ stays <em>smooth</em>, with all of its space and time derivatives bounded, all the way through the singular time. The OpenAI paper defines its force exactly this way (its equation (3.1) and §10), and almost all of its length goes into making the residual smooth.</p>
+    <p>That requirement is strong. Near the singularity the velocity changes on shorter and shorter scales, and every derivative of ℛ involves derivatives of <span class="m">u</span>. A naive collapsing flow produces a residual that blows up along with it. The constructions differ in how they cancel that residual, and §06 and §07 describe the two main approaches.</p>
+    <div class="callout flat">
+      <h4>Physically, what kind of force is it?</h4>
+      <p>Not one any real stirrer produces. A fan, gravity or a pressure gradient puts energy in at large scales, and the flow passes it down to small scales where viscosity removes it. A force built as the residual of a designed flow acts at every scale the flow reaches, matched to that flow. The theorems say such a smooth force exists. They say nothing about whether a fluid can do this unaided, which is statements (A) and (B).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 06 ============================ -->
+<section id="s6">
+  <div class="rulehead"><span class="no">06</span><h2>The vortex construction for Navier–Stokes</h2></div>
+  <div class="col">
+    <p>The OpenAI Navier–Stokes paper builds its singularity around a single concentrating vortex. Before following it, it helps to see why a vortex does not normally collapse.</p>
+    <h3>Stretching against viscosity: the Burgers vortex</h3>
+    <p>The Burgers vortex is an exact, steady solution of Navier–Stokes. A straining flow draws fluid inward at radial speed <span class="m">u<sub>r</sub></span> = −<span class="m">a r</span>/2 and pushes it out along the axis at <span class="m">u<sub>z</sub></span> = <span class="m">a z</span>. That stretching concentrates the swirl, while viscosity spreads it out. The two balance at a core radius <span class="m">r<sub>c</sub></span> = √(4ν/<span class="m">a</span>), and the swirl is</p>
+    <div class="eqn">
+      <span class="m">u<sub>θ</sub></span>(<span class="m">r</span>) = <span class="frac"><span>Γ</span><span>2π<span class="m">r</span></span></span>(1 − e<sup>−<span class="m">r</span>²/<span class="m">r<sub>c</sub></span>²</sup>),
+      &nbsp;&nbsp;&nbsp; <span class="m">ω<sub>z</sub></span>(0) = <span class="frac"><span>Γ</span><span>π<span class="m">r<sub>c</sub></span>²</span></span> = <span class="frac"><span>Γ<span class="m">a</span></span><span>4πν</span></span>
+      <span class="tag">(5)</span>
+    </div>
+  </div>
+
+  <figure class="wide">
+    <div class="plate">
+      <div class="plate-hd">
+        <div class="t">Fig. 4 — The Burgers vortex · stretching balanced by viscosity</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn" id="bvRun" type="button" aria-pressed="true">Pause</button>
+        </div>
+      </div>
+      <div class="plate-bd"><canvas id="bvCv" height="300"></canvas></div>
+      <div class="ctrls">
+        <div class="ctrl">
+          <label for="bvA">strain a</label>
+          <input type="range" id="bvA" min="0" max="100" value="50" step="1">
+          <span class="val" id="bvAV">1.00</span>
+        </div>
+        <div class="ctrl">
+          <label for="bvN">viscosity ν</label>
+          <input type="range" id="bvN" min="0" max="100" value="60" step="1">
+          <span class="val" id="bvNV">5.0e-3</span>
+        </div>
+      </div>
+      <div class="readout">
+        <div><div class="k">core radius r<sub>c</sub> = √(4ν/a)</div><div class="v cool" id="bvR">—</div></div>
+        <div><div class="k">peak swirl ≈ 0.638 Γ/2πr<sub>c</sub></div><div class="v hot" id="bvU">—</div></div>
+        <div><div class="k">centre vorticity Γ/πr<sub>c</sub>²</div><div class="v hot" id="bvW">—</div></div>
+        <div><div class="k">in time</div><div class="v" id="bvT">steady</div></div>
+      </div>
+    </div>
+    <figcaption><b>Figure 4</b> Fluid parcels drawn inward by the strain, seen from above, with circulation Γ = 1. Their swirl follows equation (5) exactly. Raise the strain and the core narrows and spins faster; raise the viscosity and it widens. Whatever the settings, the core reaches a fixed size and stays there. Right: the swirl profile against the inviscid Γ/2π<span class="m">r</span>, which viscosity caps near the axis.</figcaption>
+  </figure>
+
+  <div class="col">
+    <p>The Burgers vortex is the obstacle in miniature. Stretching alone concentrates vorticity, and viscosity alone would win at small enough scales. A blowup construction for Navier–Stokes needs a vortex that keeps shrinking, so the stretching has to grow as the core shrinks, and viscosity has to be outpaced in at least one direction.</p>
+
+    <h3>A core that shrinks at two rates</h3>
+    <p>In the OpenAI construction, fluid spirals inward toward the axis near a mid-plane and flows outward along the axis above and below it. Write <span class="m">τ</span> = 1 − <span class="m">t</span> for the time left before the singularity at <span class="m">t</span> = 1. To leading order the core is self-similar, the same shape at each instant in shrinking units, and it shrinks at two different rates (the paper's §2.1):</p>
+    <div class="eqn">
+      ℓ<sub>r</sub> ≍ <span class="m">τ</span><sup>1/2</sup>,
+      &nbsp;&nbsp;&nbsp; ℓ<sub>z</sub> ≍ <span class="m">τ</span><sup>1/2−<span class="m">h</span></sup>,
+      &nbsp;&nbsp;&nbsp; 0 &lt; <span class="m">h</span> &lt; 1/100
+      <span class="tag">(6)</span>
+    </div>
+    <div class="eqn">
+      |<span class="m">u<sub>θ</sub></span>|, |<span class="m">u<sub>z</sub></span>| ≍ <span class="m">τ</span><sup>−1/2−<span class="m">h</span></sup>,
+      &nbsp;&nbsp;&nbsp; |<span class="m">u<sub>r</sub></span>| = <span class="up">O</span>(<span class="m">τ</span><sup>−1/2</sup>)
+      <span class="tag">(7)</span>
+    </div>
+    <p>Both lengths go to zero, but their ratio ℓ<sub>r</sub>/ℓ<sub>z</sub> ≍ <span class="m">τ<sup>h</sup></span> goes to zero too, so the core becomes a needle rather than a point. The paper records the consequences: the radial Reynolds number stays of order one, so viscosity remains fully active across the core, while the swirl Reynolds number Re<sub>θ</sub> ≍ <span class="m">τ</span><sup>−<span class="m">h</span></sup> grows without bound. Diffusion along the axis, at rate ν/ℓ<sub>z</sub>², falls behind diffusion across it, at rate ν/ℓ<sub>r</sub>², by the factor ℓ<sub>r</sub>²/ℓ<sub>z</sub>² ≍ <span class="m">τ</span><sup>2<span class="m">h</span></sup>.</p>
+    <p>Dividing the speed by the radius gives the size of the velocity gradient, <span class="m">τ</span><sup>−1/2−<span class="m">h</span></sup>/<span class="m">τ</span><sup>1/2</sup> = <span class="m">τ</span><sup>−1−<span class="m">h</span></sup>. That is just past the borderline α = 1 of Figure 3, so its time integral diverges.</p>
+
+    <div class="callout cool">
+      <h4>Unbounded speed, vanishing energy</h4>
+      <p>Kinetic energy scales like speed squared times volume. The core's volume is of order ℓ<sub>r</sub>²ℓ<sub>z</sub> ≍ <span class="m">τ</span><sup>3/2−<span class="m">h</span></sup>, so</p>
+      <div class="eqn" style="margin:10px auto;padding:4px">KE<sub>core</sub> ≍ <span class="m">τ</span><sup>−1−2<span class="m">h</span></sup> · <span class="m">τ</span><sup>3/2−<span class="m">h</span></sup> = <span class="m">τ</span><sup>1/2−3<span class="m">h</span></sup> → 0</div>
+      <p>The speed diverges in a region whose energy goes to zero. That is how the theorem can have bounded total energy, which the Clay statements require, and unbounded velocity at the same time.</p>
+    </div>
+  </div>
+
+  <figure class="wide">
+    <div class="plate">
+      <div class="plate-hd">
+        <div class="t">Fig. 5 — The self-similar core · live scaling</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn" id="vRun" type="button" aria-pressed="true">Pause</button>
+          <button class="btn" id="vReset" type="button">Restart</button>
+        </div>
+      </div>
+      <div class="plate-bd"><canvas id="vortCv" height="330"></canvas></div>
+      <div class="ctrls">
+        <div class="ctrl">
+          <label for="vH">anisotropy h</label>
+          <input type="range" id="vH" min="1" max="99" value="60" step="1">
+          <span class="val" id="vHV">0.0060</span>
+        </div>
+        <div class="ctrl">
+          <label for="vT">time to blowup τ</label>
+          <input type="range" id="vT" min="0" max="1000" value="1000" step="1">
+          <span class="val" id="vTV">1.00e+0</span>
+        </div>
+      </div>
+      <div class="readout">
+        <div><div class="k">‖u‖<sub>∞</sub> ≍ τ<sup>−½−h</sup></div><div class="v hot" id="vU">1.00</div></div>
+        <div><div class="k">core KE ≍ τ<sup>½−3h</sup></div><div class="v cool" id="vE">1.00</div></div>
+        <div><div class="k">aspect ℓ<sub>z</sub>/ℓ<sub>r</sub> ≍ τ<sup>−h</sup></div><div class="v" id="vA">1.00</div></div>
+        <div><div class="k">Re<sub>θ</sub> ≍ τ<sup>−h</sup></div><div class="v hot" id="vRe">1.00</div></div>
+        <div><div class="k">Re<sub>r</sub></div><div class="v cool" id="vRr">O(1)</div></div>
+        <div><div class="k">core volume ≍ τ<sup>3/2−h</sup></div><div class="v" id="vV">1.00</div></div>
+      </div>
+    </div>
+    <figcaption><b>Figure 5</b> Left: the contracting core in the meridional plane, drawn from the paper's own exponents — radius <span class="m">τ<sup>1/2</sup></span>, height <span class="m">τ<sup>1/2−h</sup></span>, with the pulse annulus between <span class="m">X<sub>a</sub></span> and <span class="m">X<sub>b</sub></span> where the oscillations live. Right: log–log traces of peak speed and core energy against time-to-blowup. Every number in the readout is computed from equations (6) and (7), not scripted. Watch the two traces separate: speed climbing, energy falling, both to their limits at <span class="m">τ</span> = 0.</figcaption>
+  </figure>
+
+  <div class="col">
+    <h3>Cancelling the residual</h3>
+    <p>The bare self-similar vortex does not have a smooth residual: equation (4) applied to it diverges as <span class="m">τ</span> → 0 in a ring between the core and the smooth flow outside it. The paper's fix is to add spatially oscillating pulses in that ring. Averaged over their oscillation, the pulses' quadratic self-interaction produces a stress, and the amplitudes are tuned so that this stress cancels the singular part of the residual. The correction leaves its own smaller error, which is cancelled the same way, and so on. The paper's Figure 6 describes each cycle as improving the decay exponent of the residual by 1/10, and the limit is a force that is smooth through the singular time.</p>
+    <p>The technique of cancelling an error with the averaged stress of high-frequency oscillations comes from convex integration, and the paper cites the work of Daneri and Székelyhidi on Euler and of Buckmaster and Vicol on Navier–Stokes in that line.</p>
+    <p>Finally, one construction covers every viscosity. If <span class="m">u</span>, <span class="m">p</span>, <span class="m">f</span> work for ν = 1, then <span class="m">u</span><sub>ν</sub>(<span class="m">x</span>, <span class="m">t</span>) = √ν <span class="m">u</span>(<span class="m">x</span>/√ν, <span class="m">t</span>), <span class="m">p</span><sub>ν</sub> = ν <span class="m">p</span>(<span class="m">x</span>/√ν, <span class="m">t</span>) and <span class="m">f</span><sub>ν</sub> = √ν <span class="m">f</span>(<span class="m">x</span>/√ν, <span class="m">t</span>) work for viscosity ν, with the same singular time and the support shrunk by √ν.</p>
+  </div>
+</section>
+
+<!-- ============================ 07 ============================ -->
+<section id="s7">
+  <div class="rulehead"><span class="no">07</span><h2>The multiscale ladder</h2></div>
+  <div class="col">
+    <p>The other route, used in most of the September papers, comes from a programme of Diego Córdoba and Luis Martínez-Zoroa. Over 2023 to 2025 they and coauthors proved finite-time blowup with forcing for 3D Euler, for the incompressible porous medium equation, for the 2D Boussinesq system, and for Navier–Stokes with weakened (hypodissipative) viscosity. The Alpöge–Buckmaster papers present themselves as completing steps of this programme, and the OpenAI papers cite it.</p>
+    <p>Terence Tao's blog post of 7 September 2026 describes the strategy abstractly. Write the equation as <span class="m">N</span>(<span class="m">u</span>) = <span class="m">f</span>. Suppose you have a forced solution at low frequency, <span class="m">N</span>(<span class="m">u</span><sub>lo</sub>) = <span class="m">f</span><sub>lo</sub>. Look for</p>
+    <div class="eqn">
+      <span class="m">N</span>(<span class="m">u</span><sub>lo</sub> + <span class="m">u</span><sub>hi</sub>) = <span class="m">f</span><sub>lo</sub> + <span class="m">f</span><sub>hi</sub>
+      <span class="tag">(8)</span>
+    </div>
+    <p>with <span class="m">u</span><sub>hi</sub> at a much higher frequency and relatively large, and <span class="m">f</span><sub>hi</sub> tiny. Keeping <span class="m">f</span><sub>hi</sub> small means <span class="m">u</span><sub>hi</sub> must nearly solve the equation linearised around <span class="m">u</span><sub>lo</sub>. So the background is designed to make that linearised equation unstable: a correction that starts exponentially small grows large just as it is needed, timed so the nonlinearity does not spoil the analysis. Repeat at ever higher frequencies and pass to the limit. The force stays smooth because each increment is tiny; the solution blows up because each stage amplifies gradients further.</p>
+    <p>Each stage rides on the shear of all the stages before it. In the toy below, the initial amplitudes fall off fast enough in frequency that the data are smooth, while the amplified gradients diverge at <span class="m">t</span> = 1.</p>
+  </div>
+
+  <figure class="wide">
+    <div class="plate">
+      <div class="plate-hd">
+        <div class="t">Fig. 6 — The multiscale ladder · smooth at t=0, singular at t=1</div>
+        <div style="display:flex;gap:6px"><button class="btn" id="lRun" type="button" aria-pressed="true">Pause</button></div>
+      </div>
+      <div class="plate-bd"><canvas id="ladCv" height="330"></canvas></div>
+      <div class="ctrls">
+        <div class="ctrl">
+          <label for="lN">stages k</label>
+          <input type="range" id="lN" min="1" max="9" value="6" step="1">
+          <span class="val" id="lNV">6</span>
+        </div>
+        <div class="ctrl">
+          <label for="lT">time t</label>
+          <input type="range" id="lT" min="0" max="990" value="0" step="1">
+          <span class="val" id="lTV">0.000</span>
+        </div>
+        <div class="ctrl">
+          <label for="lS">frequency ratio</label>
+          <input type="range" id="lS" min="20" max="55" value="32" step="1">
+          <span class="val" id="lSV">3.2×</span>
+        </div>
+      </div>
+      <div class="readout">
+        <div><div class="k">top frequency N<sub>k</sub></div><div class="v" id="lF">—</div></div>
+        <div><div class="k">‖u‖<sub>∞</sub></div><div class="v cool" id="lU">—</div></div>
+        <div><div class="k">‖∂ₓu‖<sub>∞</sub></div><div class="v hot" id="lG">—</div></div>
+        <div><div class="k">‖u‖<sub>H⁵</sub> at t=0</div><div class="v cool" id="lH">—</div></div>
+      </div>
+    </div>
+    <figcaption><b>Figure 6</b> A one-dimensional caricature of the Córdoba–Martínez-Zoroa ladder. Each stage <span class="m">k</span> is a wave packet at frequency <span class="m">N<sub>k</sub></span> whose amplitude is negligible at <span class="m">t</span> = 0 and is amplified toward <span class="m">t</span> = 1. Slide time to the right and watch the field stay bounded while its slope runs away. Slide it back to zero and check the <span class="m">H⁵</span> norm: still finite. Both facts at once is the whole construction.</figcaption>
+  </figure>
+
+  <div class="col">
+    <div class="callout flat">
+      <h4>How the September constructions relate</h4>
+      <ul style="margin-bottom:0">
+        <li><strong>Alpöge–Buckmaster</strong> (Euler, Boussinesq) and <strong>Alpöge–Buckmaster–Coiculescu</strong> (IPM) follow the ladder directly and credit its strategy to Córdoba and Martínez-Zoroa.</li>
+        <li><strong>OpenAI's Euler paper</strong> also builds a sequence, each "child" flow riding on its "parent". It chooses the oscillations using the equations for rapidly varying perturbations of Lifschitz–Hameiri and Friedlander–Vishik (1991), so that velocity gradients grow along particle paths. It has no force.</li>
+        <li><strong>OpenAI's Navier–Stokes paper</strong> is structured differently: one self-similar vortex (§06), with oscillatory pulses used only to cancel its residual.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 08 ============================ -->
+<section id="s8">
+  <div class="rulehead"><span class="no">08</span><h2>The theorems, as stated</h2></div>
+  <div class="col">
+    <p>The qualifiers in these statements are where the content is. They are restated from the papers, with the paper's own numbering.</p>
+  </div>
+
+  <div class="thm">
+    <span class="src">OpenAI · Navier–Stokes · Thm 1.1</span>
+    <div class="lab">Finite time blowup for Navier–Stokes</div>
+    <p>For every ν &gt; 0 there exist a force <span class="m">f</span> ∈ <span class="m">C</span><sub>c</sub><sup>∞</sup>(ℝ³ × (0, ∞); ℝ³), a compact set <span class="m">K</span> ⊂ ℝ³, and smooth velocity and pressure fields <span class="m">u</span>, <span class="m">p</span> on ℝ³ × [0, 1) satisfying</p>
+    <p style="text-align:center">∂<sub>t</sub><span class="m">u</span> + (<span class="m">u</span>·∇)<span class="m">u</span> − ν∆<span class="m">u</span> + ∇<span class="m">p</span> = <span class="m">f</span>, &nbsp; ∇·<span class="m">u</span> = 0, &nbsp; <span class="m">u</span>(·, 0) = 0,</p>
+    <p>with the supports of <span class="m">u</span>(·, <span class="m">t</span>) and <span class="m">p</span>(·, <span class="m">t</span>) inside <span class="m">K</span> for 0 ≤ <span class="m">t</span> &lt; 1, the energy sup<sub>t&lt;1</sub>‖<span class="m">u</span>(<span class="m">t</span>)‖<sub>L²</sub> finite, and lim sup<sub>t↑1</sub>‖<span class="m">u</span>(<span class="m">t</span>)‖<sub>L∞</sub> = ∞. Consequently there is no smooth solution on ℝ³ × [0, ∞) with the same force and initial datum whose kinetic energy stays uniformly bounded.</p>
+  </div>
+  <div class="col">
+    <p>The fluid starts at rest. The force is compactly supported in space and time (the paper realises it inside <span class="m">K</span> × [0, 2]), so it switches on, acts and switches off. The singular time is fixed at <span class="m">t</span> = 1 for every viscosity, by the rescaling in §06.</p>
+  </div>
+
+  <div class="thm">
+    <span class="src">OpenAI · Navier–Stokes · Cor 10.6</span>
+    <div class="lab">The periodic case, statement (D)</div>
+    <p>For every ν &gt; 0 there is a smooth force on 𝕋³ × [0, ∞), compactly supported in time, for which the periodic solution with zero initial velocity is smooth on [0, 1) and lim sup<sub>t↑1</sub>‖<span class="m">U</span>(<span class="m">t</span>)‖<sub>L∞(𝕋³)</sub> = ∞, so no global smooth periodic solution exists for that force. It comes from the whole-space construction, scaled to fit inside the unit cube.</p>
+  </div>
+
+  <div class="thm">
+    <span class="src">OpenAI · Euler · Thm 1.1</span>
+    <div class="lab">Finite time blowup for the Euler equation, without a force</div>
+    <p>There exist smooth, compactly supported, divergence-free initial data <span class="m">u</span><sub>0</sub> on ℝ³ whose smooth Euler solution has a finite maximal lifespan <span class="m">T</span>*, with lim sup<sub>t↑T*</sub>‖∇<span class="m">u</span>(<span class="m">t</span>)‖<sub>L∞</sub> = ∞ and ∫<sub>0</sub><sup>T*</sup>‖curl <span class="m">u</span>(<span class="m">t</span>)‖<sub>L∞</sub> d<span class="m">t</span> = ∞.</p>
+  </div>
+
+  <div class="col">
+    <p>For comparison, the paper sets out the earlier unforced Euler results it extends. Elgindi (2021) proved blowup on all of ℝ³ for velocities in <span class="m">C</span><sup>1,α</sup>, below smooth. Córdoba, Martínez-Zoroa and Zheng (2025) used data smooth everywhere except one point. Chen and Hou proved blowup from smooth data, but in a cylinder with a solid wall, combining analysis with rigorous computer-verified estimates. The new claim is smooth, compactly supported data with no boundary.</p>
+
+    <div class="thm">
+      <span class="src">Alpöge–Buckmaster · Euler · Thm 1.1</span>
+      <div class="lab">Blowup for the Euler equations with smooth forcing</div>
+      <p>For axisymmetric 3D Euler on ℝ³ with nonzero swirl and zero initial meridional velocity, there are data and a force, both supported in a fixed solid torus around a prescribed ring, with the force smooth up to and including the singular time <span class="m">T</span>*, such that ‖<span class="m">ω</span>‖<sub>∞</sub> → ∞ and ∫<sub>0</sub><sup>T*</sup>‖<span class="m">ω</span>‖<sub>∞</sub> d<span class="m">t</span> = ∞, while the circulation and meridional velocity stay bounded.</p>
+    </div>
+
+    <h3>Formal proofs</h3>
+    <p>Both groups released Lean 4 formalizations: <a href="https://github.com/openai/NavierStokesAndEuler">openai/NavierStokesAndEuler</a> covers the two OpenAI results, and <a href="https://github.com/tristanbuckmaster/fluid_lean">tristanbuckmaster/fluid_lean</a> covers forced Boussinesq and forced Euler. Each says its proofs use only Lean's standard axioms and are set up for <a href="https://github.com/leanprover/comparator">Comparator</a>, a checker that confirms a submitted proof proves a given challenge statement.</p>
+    <p>A formal proof certifies the formal statement. Whether that statement says the same thing as the theorem in the paper is a separate check, made by reading both. As of this writing that comparison, and refereeing of the papers, were still to be done.</p>
+  </div>
+</section>
+
+<!-- ============================ 09 ============================ -->
+<section id="s9">
+  <div class="rulehead"><span class="no">09</span><h2>A timeline of results</h2></div>
+  <div class="col">
+    <p>The September 2026 papers sit at the end of a long line. Filter it by equation, or hide the numerical work to see only theorems. Model equations are simpler systems with the same kind of nonlinearity (Boussinesq, the porous medium equation, an averaged Navier–Stokes).</p>
+  </div>
+  <div class="tl-ctrls" role="group" aria-label="Filter the timeline">
+    <button class="btn" type="button" data-tl="all" aria-pressed="true">All</button>
+    <button class="btn" type="button" data-tl="ns">Navier–Stokes</button>
+    <button class="btn" type="button" data-tl="euler">Euler</button>
+    <button class="btn" type="button" data-tl="model">Model equations</button>
+    <span class="sp"></span>
+    <label><input type="checkbox" id="tlProof"> proofs only</label>
+    <span id="tlCount" aria-live="polite"></span>
+  </div>
+  <ol class="tl" id="tl">
+    <li data-eq="euler" data-kind="proof"><span class="yr">1757</span><span class="tags"><span>Euler</span></span><span class="what">Euler writes down the equations of an ideal fluid</span><span class="ref">L. Euler, "Principes généraux du mouvement des fluides", 1757</span></li>
+    <li data-eq="ns" data-kind="proof"><span class="yr">1822–1845</span><span class="tags"><span>N–S</span></span><span class="what">Navier and Stokes add viscosity</span><span class="ref">C.-L. Navier, 1822 memoir, published 1827 · G. G. Stokes, 1845</span></li>
+    <li data-eq="ns" data-kind="proof"><span class="yr">1934</span><span class="tags"><span>N–S</span></span><span class="what">Weak solutions exist for all time</span><span class="ref">J. Leray, <a href="https://doi.org/10.1007/BF02547354">Acta Math. 63 (1934)</a></span><p>Every finite-energy initial state has a global weak solution. Whether it is smooth or unique is left open, and still is.</p></li>
+    <li data-eq="ns" data-kind="proof"><span class="yr">1982</span><span class="tags"><span>N–S</span></span><span class="what">Singularities, if any, are rare</span><span class="ref">Caffarelli, Kohn &amp; Nirenberg, <a href="https://doi.org/10.1002/cpa.3160350604">Comm. Pure Appl. Math. 35 (1982)</a></span><p>The singular set of a suitable weak solution has zero one-dimensional parabolic Hausdorff measure.</p></li>
+    <li data-eq="euler" data-kind="proof"><span class="yr">1984</span><span class="tags"><span>Euler</span></span><span class="what">The Beale–Kato–Majda criterion</span><span class="ref">Beale, Kato &amp; Majda, <a href="https://doi.org/10.1007/BF01212349">Comm. Math. Phys. 94 (1984)</a></span><p>A smooth solution breaks down at <span class="m">T</span> exactly when ∫‖<span class="m">ω</span>‖<sub>∞</sub> d<span class="m">t</span> diverges there (§04).</p></li>
+    <li data-eq="euler" data-kind="proof"><span class="yr">1991</span><span class="tags"><span>Euler</span></span><span class="what">Short-wave instability criteria</span><span class="ref">Lifschitz &amp; Hameiri, <a href="https://doi.org/10.1063/1.858153">Phys. Fluids A 3 (1991)</a> · Friedlander &amp; Vishik, <a href="https://doi.org/10.1103/PhysRevLett.66.2204">Phys. Rev. Lett. 66 (1991)</a></span><p>Follow a rapidly oscillating perturbation along fluid paths to decide whether a flow is unstable. Used by the OpenAI Euler construction.</p></li>
+    <li data-eq="ns" data-kind="proof"><span class="yr">2000</span><span class="tags"><span>N–S</span></span><span class="what">The Clay Millennium Problem is posed</span><span class="ref">C. Fefferman, <a href="https://www.claymath.org/wp-content/uploads/2022/06/navierstokes.pdf">official problem description</a></span><p>Four statements, (A)–(D), with the force allowed only in the breakdown pair (§03).</p></li>
+    <li data-eq="ns" data-kind="proof"><span class="yr">2003</span><span class="tags"><span>N–S</span></span><span class="what">Bounded in L³ means smooth</span><span class="ref">Escauriaza, Seregin &amp; Šverák, <a href="https://doi.org/10.1070/RM2003v058n02ABEH000609">Russian Math. Surveys 58 (2003)</a></span></li>
+    <li data-eq="model ns" data-kind="proof"><span class="yr">2014</span><span class="tags"><span>Model</span></span><span class="what">Blowup for an averaged Navier–Stokes</span><span class="ref">T. Tao, <a href="https://doi.org/10.1090/jams/838">J. Amer. Math. Soc. 29 (2016)</a>, arXiv:1402.0290</span><p>A modified nonlinearity with the same energy identity can blow up, so energy arguments alone cannot settle regularity.</p></li>
+    <li data-eq="euler" data-kind="numerics"><span class="yr">2014</span><span class="tags"><span>Euler</span><span class="k-num">numerics</span></span><span class="what">A candidate singularity at a wall</span><span class="ref">Luo &amp; Hou, <a href="https://doi.org/10.1073/pnas.1405238111">PNAS 111 (2014)</a></span><p>Simulations in a cylinder with a solid wall show vorticity apparently blowing up on a ring at the boundary.</p></li>
+    <li data-eq="euler" data-kind="proof"><span class="yr">2017</span><span class="tags"><span>Euler</span></span><span class="what">Convex integration for Hölder Euler solutions</span><span class="ref">Daneri &amp; Székelyhidi, <a href="https://doi.org/10.1007/s00205-017-1081-8">Arch. Ration. Mech. Anal. 224 (2017)</a></span></li>
+    <li data-eq="ns" data-kind="proof"><span class="yr">2019</span><span class="tags"><span>N–S</span></span><span class="what">Weak solutions need not be unique</span><span class="ref">Buckmaster &amp; Vicol, Ann. of Math. 189 (2019)</span><p>Convex integration applied to very weak Navier–Stokes solutions.</p></li>
+    <li data-eq="euler" data-kind="proof"><span class="yr">2019</span><span class="tags"><span>Euler</span></span><span class="what">Blowup on ℝ³ for C<sup>1,α</sup> velocities</span><span class="ref">T. Elgindi, <a href="https://doi.org/10.4007/annals.2021.194.3.2">Ann. of Math. 194 (2021)</a>, arXiv:1904.04795</span></li>
+    <li data-eq="ns" data-kind="proof"><span class="yr">2022</span><span class="tags"><span>N–S</span></span><span class="what">Leray solutions with a force need not be unique</span><span class="ref">Albritton, Brué &amp; Colombo, Ann. of Math. 196 (2022)</span></li>
+    <li data-eq="euler model" data-kind="proof"><span class="yr">2022</span><span class="tags"><span>Euler</span><span>Model</span></span><span class="what">Smooth-data blowup with a boundary, computer-assisted</span><span class="ref">Chen &amp; Hou, arXiv:2210.07191 (Part I), Part II in <a href="https://doi.org/10.1137/23M1580395">Multiscale Model. Simul. 23 (2025)</a></span><p>A rigorous version of the Luo–Hou scenario for 2D Boussinesq and 3D axisymmetric Euler in a cylinder.</p></li>
+    <li data-eq="euler ns" data-kind="numerics"><span class="yr">2022</span><span class="tags"><span>Euler</span><span>N–S</span><span class="k-num">numerics</span></span><span class="what">Candidate singularities away from any wall</span><span class="ref">T. Hou, <a href="https://doi.org/10.1007/s10208-022-09585-5">Euler</a> and <a href="https://doi.org/10.1007/s10208-022-09578-4">Navier–Stokes</a>, Found. Comput. Math. 23 (2023)</span></li>
+    <li data-eq="euler" data-kind="numerics"><span class="yr">2023</span><span class="tags"><span>Euler</span><span class="k-num">numerics</span></span><span class="what">A self-similar profile found with neural networks</span><span class="ref">Wang, Lai, Gómez-Serrano &amp; Buckmaster, <a href="https://doi.org/10.1103/PhysRevLett.130.244002">Phys. Rev. Lett. 130 (2023)</a></span></li>
+    <li data-eq="euler" data-kind="proof"><span class="yr">2023</span><span class="tags"><span>Euler</span></span><span class="what">Blowup for data smooth except at one point</span><span class="ref">Córdoba, Martínez-Zoroa &amp; Zheng, arXiv:2308.12197, <a href="https://doi.org/10.1007/s40818-025-00214-2">Ann. PDE 11 (2025)</a></span></li>
+    <li data-eq="euler" data-kind="proof"><span class="yr">2023</span><span class="tags"><span>Euler</span></span><span class="what">Forced Euler blowup, force in C<sup>1,1/2−ε</sup></span><span class="ref">Córdoba &amp; Martínez-Zoroa, <a href="https://arxiv.org/abs/2309.08495">arXiv:2309.08495</a></span><p>The start of the forced-blowup programme (§07).</p></li>
+    <li data-eq="ns" data-kind="proof"><span class="yr">2024</span><span class="tags"><span>N–S</span></span><span class="what">Forced blowup for hypodissipative Navier–Stokes</span><span class="ref">Córdoba, Martínez-Zoroa &amp; Zheng, arXiv:2407.06776, <a href="https://doi.org/10.1007/s00205-026-02198-0">Arch. Ration. Mech. Anal. 250 (2026)</a></span><p>Navier–Stokes with a weakened, fractional viscosity.</p></li>
+    <li data-eq="model" data-kind="proof"><span class="yr">2024</span><span class="tags"><span>Model</span></span><span class="what">IPM blowup with a smooth source</span><span class="ref">Córdoba &amp; Martínez-Zoroa, <a href="https://arxiv.org/abs/2410.22920">arXiv:2410.22920</a></span></li>
+    <li data-eq="model" data-kind="proof"><span class="yr">2025</span><span class="tags"><span>Model</span></span><span class="what">Boussinesq blowup via degenerate pendula</span><span class="ref">Córdoba, Laín-Sanclemente &amp; Martínez-Zoroa, Adv. Math. 480 (2025), <a href="https://arxiv.org/abs/2505.20988">arXiv:2505.20988</a></span></li>
+    <li data-eq="euler model" data-kind="numerics"><span class="yr">2025</span><span class="tags"><span>Euler</span><span>Model</span><span class="k-num">numerics</span></span><span class="what">Unstable self-similar singularities, computed</span><span class="ref">Wang et al., <a href="https://arxiv.org/abs/2509.14185">Discovery of Unstable Singularities, arXiv:2509.14185</a></span></li>
+    <li class="now" data-eq="euler" data-kind="proof"><span class="yr">Sep 2026</span><span class="tags"><span>Euler</span><span class="k-pre">preprint</span></span><span class="what">Forced Euler blowup, smooth force</span><span class="ref">Alpöge &amp; Buckmaster, <a href="https://cims.nyu.edu/~tristanb/euler.pdf">Blowup for the Euler Equations with Smooth Forcing</a></span></li>
+    <li class="now" data-eq="model" data-kind="proof"><span class="yr">Sep 2026</span><span class="tags"><span>Model</span><span class="k-pre">preprint</span></span><span class="what">Forced Boussinesq and IPM blowup, smooth forcing</span><span class="ref">Alpöge &amp; Buckmaster, <a href="https://cims.nyu.edu/~tristanb/boussinesq.pdf">Boussinesq</a> · Alpöge, Buckmaster &amp; Coiculescu, <a href="https://arxiv.org/abs/2609.16470">IPM, arXiv:2609.16470</a></span></li>
+    <li class="now" data-eq="ns" data-kind="proof"><span class="yr">Sep 2026</span><span class="tags"><span>N–S</span><span class="k-pre">preprint</span></span><span class="what">Forced Navier–Stokes blowup on ℝ³ and 𝕋³</span><span class="ref">OpenAI, <a href="https://cdn.openai.com/pdf/32d9f210-8b73-45e0-91bc-82a30aef8a9a/navier-stokes.pdf">Finite time blowup for Navier–Stokes</a></span><p>Clay statements (C) and (D), with a force compactly supported in space and time.</p></li>
+    <li class="now" data-eq="euler" data-kind="proof"><span class="yr">Sep 2026</span><span class="tags"><span>Euler</span><span class="k-pre">preprint</span></span><span class="what">Unforced Euler blowup from smooth, compactly supported data</span><span class="ref">OpenAI, <a href="https://cdn.openai.com/pdf/315b36cd-ec98-4023-8342-93345194ece1/euler.pdf">Finite time blowup for the Euler equation</a></span></li>
+    <li class="now" data-eq="euler" data-kind="numerics"><span class="yr">Sep 2026</span><span class="tags"><span>Euler</span><span class="k-num">numerics</span></span><span class="what">A stable self-similar Euler singularity on ℝ³, with a proof framework</span><span class="ref">Ganeshram, Duruisseaux &amp; Anandkumar, <a href="https://anima-ai.org/wp-content/uploads/2026/09/Euler.pdf">Stable Singularity of the Euler Equations on ℝ³</a></span><p>Its main theorem is conditional on certified numerical estimates still to be completed.</p></li>
+  </ol>
+</section>
+
+<!-- ============================ 10 ============================ -->
+<section id="s10">
+  <div class="rulehead"><span class="no">10</span><h2>What it means for computing flows</h2></div>
+  <div class="col">
+    <p>Directly, very little. Computational fluid dynamics has integrated these equations numerically since the 1960s, and its limits are set by grid resolution, turbulence models, boundary conditions and measurement, not by whether smooth solutions exist for all time. A solver discretises and runs, and its errors come from modelling choices far larger than anything a regularity theorem would touch.</p>
+    <p>A forced construction is further still from application, because of where its force acts.</p>
+  </div>
+
+  <figure class="wide">
+    <svg viewBox="0 0 900 320" role="img" aria-label="Comparison of energy input across scales: a real driven fluid receives forcing only at large scales and dissipates at the Kolmogorov scale, whereas the theorem's constructed force injects a tuned contribution at every scale down to the singularity.">
+      <defs>
+        <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+        </marker>
+        <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#C43B14"/>
+        </marker>
+      </defs>
+
+      <!-- LEFT: real fluid -->
+      <text x="40" y="28" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" letter-spacing="1.3" fill="currentColor">A REAL DRIVEN FLUID</text>
+      <line x1="40" y1="212" x2="410" y2="212" stroke="currentColor" stroke-width="1.3" opacity=".5" marker-end="url(#ar2)"/>
+      <text x="40" y="234" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="currentColor" opacity=".65">large scales</text>
+      <text x="400" y="234" text-anchor="end" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="currentColor" opacity=".65">small scales</text>
+      <text x="225" y="252" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" letter-spacing=".8" fill="currentColor" opacity=".55">WAVENUMBER k →</text>
+      <!-- kolmogorov spectrum -->
+      <path d="M 70 90 L 130 108 L 190 128 L 250 150 L 300 172 L 330 192 L 348 206" fill="none" stroke="currentColor" stroke-width="2" opacity=".75"/>
+      <text x="196" y="120" font-family="Spectral, serif" font-size="13" font-style="italic" fill="currentColor" opacity=".8">E(k) ~ k</text>
+      <text x="252" y="114" font-family="Spectral, serif" font-size="11" fill="currentColor" opacity=".8">−5/3</text>
+      <!-- injection -->
+      <line x1="70" y1="60" x2="70" y2="84" stroke="currentColor" stroke-width="2" marker-end="url(#ar2)"/>
+      <text x="78" y="66" font-family="IBM Plex Sans, sans-serif" font-size="11.5" font-weight="600" fill="currentColor">forcing enters here only</text>
+      <text x="78" y="80" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="currentColor" opacity=".65">fan, gravity, pressure gradient</text>
+      <!-- dissipation -->
+      <line x1="348" y1="206" x2="348" y2="182" stroke="currentColor" stroke-width="2" opacity=".6"/>
+      <text x="356" y="176" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="currentColor" opacity=".7">viscosity</text>
+      <text x="356" y="190" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="currentColor" opacity=".7">destroys it</text>
+      <text x="120" y="176" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="currentColor" opacity=".7">energy cascades downward</text>
+
+      <!-- divider -->
+      <line x1="450" y1="20" x2="450" y2="290" stroke="currentColor" stroke-width="1" opacity=".22"/>
+
+      <!-- RIGHT: theorem fluid -->
+      <text x="490" y="28" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" letter-spacing="1.3" fill="#C43B14">A FORCED BLOWUP CONSTRUCTION</text>
+      <line x1="490" y1="212" x2="860" y2="212" stroke="currentColor" stroke-width="1.3" opacity=".5" marker-end="url(#ar2)"/>
+      <text x="490" y="234" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="currentColor" opacity=".65">large scales</text>
+      <text x="850" y="234" text-anchor="end" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="currentColor" opacity=".65">→ the singularity</text>
+      <text x="675" y="252" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" letter-spacing=".8" fill="currentColor" opacity=".55">WAVENUMBER k →</text>
+      <path d="M 520 96 L 580 106 L 640 118 L 700 132 L 760 150 L 810 172 L 840 196" fill="none" stroke="#C43B14" stroke-width="2"/>
+      <!-- injection at every scale -->
+      <g stroke="#C43B14" stroke-width="1.7">
+        <line x1="520" y1="66" x2="520" y2="90" marker-end="url(#ar3)"/>
+        <line x1="580" y1="76" x2="580" y2="100" marker-end="url(#ar3)"/>
+        <line x1="640" y1="88" x2="640" y2="112" marker-end="url(#ar3)"/>
+        <line x1="700" y1="102" x2="700" y2="126" marker-end="url(#ar3)"/>
+        <line x1="760" y1="120" x2="760" y2="144" marker-end="url(#ar3)"/>
+        <line x1="810" y1="142" x2="810" y2="166" marker-end="url(#ar3)"/>
+      </g>
+      <text x="516" y="58" font-family="IBM Plex Sans, sans-serif" font-size="11.5" font-weight="600" fill="#C43B14">the constructed force enters at every scale</text>
+      <text x="516" y="290" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="currentColor" opacity=".75">Each increment is chosen in advance to cancel exactly the momentum residual</text>
+      <text x="516" y="306" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="currentColor" opacity=".75">the previous stage left behind. No stirrer, pump or field does this.</text>
+      <text x="40" y="290" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="currentColor" opacity=".75">This is the fluid CFD models. Its behaviour is</text>
+      <text x="40" y="306" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="currentColor" opacity=".75">empirically well characterised, theorem or no theorem.</text>
+    </svg>
+    <figcaption><b>Figure 7</b> Where the force acts. A physical fluid is driven at large scales and drained by viscosity at small ones. The force in a blowup construction is built from the flow's own residual, so it acts at every scale the flow reaches. The theorems show such a smooth force exists; they do not show that a fluid does this by itself.</figcaption>
+  </figure>
+
+  <div class="col">
+    <p>The longer-term interest is in the methods. Weak solutions, partial regularity and the Beale–Kato–Majda criterion all came out of work on this problem and are used far beyond it. If the multiscale ladder turns out to be a general way of building singularities in nonlinear evolution equations, that would matter more widely than any one theorem.</p>
+  </div>
+</section>
+
+<!-- ============================ 11 ============================ -->
+<section id="s11">
+  <div class="rulehead"><span class="no">11</span><h2>What is still open</h2></div>
+  <div class="col">
+    <p>The obvious next question is whether the force can be removed. One scaling heuristic, posted by Stan Palasek in reply to Tao on 8 September 2026, suggests a ladder of instabilities cannot do it for Navier–Stokes. At stage <span class="m">k</span>, at frequency <span class="m">N<sub>k</sub></span>, the new component can grow by at most a factor of ∫‖∇<span class="m">u</span><sub>&lt;k</sub>‖<sub>∞</sub> d<span class="m">t</span> from the stages below it. Bernstein's inequality and the energy bound make that factor <span class="up">O</span>(<span class="m">N<sub>k</sub></span><sup>3/2</sup>), while viscosity drains the stage at a rate of order <span class="m">N<sub>k</sub></span>². Without a force to top it up, the drain wins.</p>
+    <p>The argument is a heuristic about one kind of construction, not a theorem about all of them. It also says nothing against Euler, which has no viscous drain, and it does not apply in high dimensions, as Palasek notes.</p>
+  </div>
+
+  <div class="tablewrap" style="max-width:860px">
+    <table>
+      <thead><tr><th>Question</th><th>Status, October 2026</th></tr></thead>
+      <tbody>
+        <tr><td>(A) and (B): global smoothness for unforced Navier–Stokes</td><td><span class="pill open">open</span></td></tr>
+        <tr><td>Can the force be removed from a Navier–Stokes blowup?</td><td><span class="pill open">open</span> The scaling heuristic above argues against the ladder route.</td></tr>
+        <tr><td>Are the September 2026 constructions correct?</td><td><span class="pill part">unrefereed</span> Preprints, several with Lean formalizations.</td></tr>
+        <tr><td>Do the formal statements match the papers' theorems?</td><td><span class="pill part">unchecked</span> A reading-level comparison that anyone with the papers and the repositories can make.</td></tr>
+        <tr><td>Is there a stable self-similar Euler singularity on ℝ³?</td><td><span class="pill part">evidence</span> Numerical profile; the computer-assisted proof is not finished.</td></tr>
+        <tr><td>Unforced Navier–Stokes blowup in some modified or higher-dimensional setting</td><td><span class="pill part">partial</span> Averaged equations (Tao 2016), hypodissipative with force (2024).</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <div class="callout cool">
+      <h4>What will not change</h4>
+      <p>Whatever happens to the September preprints, some of this page is fixed: Fefferman's four statements and the asymmetry between them, the Beale–Kato–Majda criterion, the Burgers vortex, and the scaling arithmetic of §06, which follows from the exponents alone.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ SOURCES ============================ -->
+<section id="src">
+  <div class="rulehead"><span class="no">§</span><h2>Sources</h2></div>
+  <div class="srclist">
+    <div class="g">The September 2026 papers</div>
+    <ul>
+      <li><a href="https://cdn.openai.com/pdf/32d9f210-8b73-45e0-91bc-82a30aef8a9a/navier-stokes.pdf">OpenAI — Finite time blowup for Navier–Stokes</a><span class="note">166 pp. Theorem 1.1, Corollary 10.6, the scaling in §2.1, the residual (3.1) and the rescaling (10.22).</span></li>
+      <li><a href="https://cdn.openai.com/pdf/315b36cd-ec98-4023-8342-93345194ece1/euler.pdf">OpenAI — Finite time blowup for the Euler equation</a><span class="note">57 pp. The unforced result, Theorem 1.1, and the prior-art comparison.</span></li>
+      <li><a href="https://openai.com/index/navier-stokes-solution/">OpenAI — On the Navier–Stokes Millennium Prize Problem</a><span class="note">Announcement, 8 September 2026, including the statement that the prize will not be claimed.</span></li>
+      <li><a href="https://cims.nyu.edu/~tristanb/euler.pdf">Alpöge &amp; Buckmaster — Blowup for the Euler Equations with Smooth Forcing</a><span class="note">112 pp.</span></li>
+      <li><a href="https://cims.nyu.edu/~tristanb/boussinesq.pdf">Alpöge &amp; Buckmaster — Blowup for the Boussinesq Equations with Smooth Forcing</a><span class="note">76 pp.</span></li>
+      <li><a href="https://arxiv.org/abs/2609.16470">Alpöge, Buckmaster &amp; Coiculescu — Extending the Córdoba–Martínez-Zoroa IPM Blow-Up to Uniformly Space-Time Smooth Forcing</a><span class="note">57 pp, arXiv:2609.16470.</span></li>
+      <li><a href="https://anima-ai.org/wp-content/uploads/2026/09/Euler.pdf">Ganeshram, Duruisseaux &amp; Anandkumar — Stable Singularity of the Euler Equations on ℝ³</a><span class="note">107 pp. Numerical evidence and a conditional theorem.</span></li>
+      <li><a href="https://github.com/openai/NavierStokesAndEuler">openai/NavierStokesAndEuler</a> · <a href="https://github.com/tristanbuckmaster/fluid_lean">tristanbuckmaster/fluid_lean</a> · <a href="https://github.com/leanprover/comparator">leanprover/comparator</a><span class="note">The Lean 4 formalizations and the checker they are set up for.</span></li>
+    </ul>
+    <div class="g">The problem</div>
+    <ul>
+      <li><a href="https://www.claymath.org/wp-content/uploads/2022/06/navierstokes.pdf">C. Fefferman — Existence and smoothness of the Navier–Stokes equation</a><span class="note">The official Clay description: statements (A)–(D) and the note on Euler.</span></li>
+      <li><a href="https://www.claymath.org/wp-content/uploads/2022/03/millennium_prize_rules_0.pdf">Clay Mathematics Institute — Millennium Prize rules</a></li>
+    </ul>
+    <div class="g">Exposition</div>
+    <ul>
+      <li><a href="https://terrytao.wordpress.com/2026/09/07/finite-time-blowup-with-smooth-forcing-term-for-the-incompressible-porous-medium-boussinesq-and-incompressible-euler-equations/">T. Tao — Finite time blowup with smooth forcing term for the incompressible porous medium, Boussinesq, and incompressible Euler equations</a><span class="note">7 September 2026. The abstract form of the ladder in §07.</span></li>
+      <li><a href="https://mathstodon.xyz/@palasek/117235270483911935">S. Palasek — scaling heuristic against removing the force</a><span class="note">8 September 2026, a reply to Tao. The argument in §11.</span></li>
+    </ul>
+    <div class="g">Earlier work</div>
+    <ul>
+      <li>Every entry in the timeline (§09) links to its journal or arXiv record. The Burgers vortex (§06) is a textbook exact solution; Figure 4 plots its formula directly.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="col">
+    Written as an explainer on the mathematics, October 2026. The September 2026 results are preprints and had not been refereed at the time of writing.
+    Theorem statements are restated from the papers with their numbering; every figure computes its numbers from the equations beside it.
+  </div>
+</footer>
+
+</main>
+
+<script>
+(function(){
+"use strict";
+const RM = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+let TOK = {};
+let epoch = 0;           // bumps when the colours change, so paused figures repaint
+function readTokens(){
+  epoch++;
+  TOK = { ink:css("--ink"), ink2:css("--ink2"), ink3:css("--ink3"), rule:css("--rule"),
+          rule2:css("--rule2"), hot:css("--hot"), cool:css("--cool"), paper:css("--paper"), plate:css("--plate") };
+}
+readTokens();
+
+/* ---------- theme toggle ---------- */
+const btn = document.getElementById("themeBtn");
+btn.addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme");
+  let next;
+  if (cur === "dark") next = "light";
+  else if (cur === "light") next = "dark";
+  else next = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  try { localStorage.setItem("ns-theme", next); } catch(e){}
+  setTimeout(readTokens, 30);
+});
+try { const t = localStorage.getItem("ns-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch(e){}
+if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => setTimeout(readTokens,30));
+setTimeout(readTokens, 60);
+
+/* ---------- scroll spy ---------- */
+const links = Array.from(document.querySelectorAll("#toc a"));
+const secs = links.map(a => document.getElementById(a.getAttribute("href").slice(1))).filter(Boolean);
+const spy = new IntersectionObserver(es => {
+  es.forEach(e => {
+    if (!e.isIntersecting) return;
+    links.forEach(l => l.classList.toggle("on", l.getAttribute("href") === "#" + e.target.id));
+    const on = document.querySelector("#toc a.on");
+    if (on && on.parentElement.parentElement.scrollWidth > on.parentElement.parentElement.clientWidth) {
+      on.parentElement.parentElement.scrollTo({ left: on.offsetLeft - 60, behavior: "smooth" });
+    }
+  });
+}, { rootMargin: "-15% 0px -70% 0px" });
+secs.forEach(s => spy.observe(s));
+
+/* ---------- canvas helper ---------- */
+function fit(cv, hCss){
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = cv.clientWidth || cv.parentElement.clientWidth;
+  const h = hCss || cv.height;
+  cv.width = Math.max(1, Math.round(w * dpr));
+  cv.height = Math.max(1, Math.round(h * dpr));
+  cv.style.height = h + "px";
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, w, h };
+}
+/* ---------- figure loops: work only while on screen, and only when something changed ---------- */
+const onScreen = new WeakMap();
+const io = "IntersectionObserver" in window
+  ? new IntersectionObserver(es => es.forEach(e => onScreen.set(e.target, e.isIntersecting)), { rootMargin: "200px 0px" })
+  : null;
+function watch(cv){
+  const st = { dirty: true, ep: -1 };
+  if (io) io.observe(cv);
+  const fig = cv.closest("figure") || cv.parentElement;
+  const touch = () => { st.dirty = true; };
+  fig.addEventListener("input", touch); fig.addEventListener("click", touch);
+  window.addEventListener("resize", touch);
+  // true when this frame should do work: visible, and running or changed
+  st.due = running => onScreen.get(cv) !== false && (running || st.dirty || st.ep !== epoch);
+  st.done = () => { st.dirty = false; st.ep = epoch; };
+  return st;
+}
+const fmtE = v => {
+  if (!isFinite(v)) return "∞";
+  if (v === 0) return "0";
+  const e = Math.floor(Math.log10(Math.abs(v)));
+  if (e >= -3 && e <= 4) return v.toFixed(Math.max(0, 3 - e));
+  return (v / Math.pow(10, e)).toFixed(2) + "e" + (e >= 0 ? "+" : "") + e;
+};
+
+/* ================================================================
+   HERO — spiralling core, ambient
+   ================================================================ */
+(function(){
+  const cv = document.getElementById("heroCv");
+  if (!cv) return;
+  let W = 0, H = 0, ctx = null, dpr = 1, P = [];
+  function reset(){
+    const r = cv.parentElement.getBoundingClientRect();
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = r.width; H = r.height;
+    cv.width = Math.max(1, W * dpr); cv.height = Math.max(1, H * dpr);
+    ctx = cv.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+    const n = Math.min(620, Math.round(W * H / 1500));
+    P = [];
+    for (let i = 0; i < n; i++) P.push(seed(true));
+  }
+  function seed(any){
+    const a = Math.random() * Math.PI * 2;
+    const rr = any ? (0.12 + Math.random() * 0.95) : (0.85 + Math.random() * 0.25);
+    return { a, r: rr, px: 0, py: 0, init: true };
+  }
+  // 2D projection of the meridional/azimuthal flow: inward spiral, spin-up as r shrinks
+  function step(p, dt){
+    const r = Math.max(0.012, p.r);
+    const ur = -0.34 * r;                 // radial inflow, linear near axis
+    const ut = 0.55 / Math.pow(r, 0.55);  // angular momentum transport -> spin up
+    p.r += ur * dt;
+    p.a += ut * dt / Math.max(0.05, r);
+    if (p.r < 0.02) { const q = seed(false); p.a = q.a; p.r = q.r; p.init = true; }
+  }
+  let raf = 0, last = 0;
+  function frame(t){
+    if (!ctx) return;
+    const dt = Math.min(0.05, (t - last) / 1000 || 0.016); last = t;
+    ctx.fillStyle = TOK.plate || "#F6F8FA";
+    ctx.globalAlpha = 0.14; ctx.fillRect(0,0,W,H); ctx.globalAlpha = 1;
+    const cx = W * 0.5, cy = H * 0.52, S = Math.max(W, H) * 0.62;
+    ctx.lineCap = "round";
+    for (const p of P){
+      const x0 = cx + Math.cos(p.a) * p.r * S, y0 = cy + Math.sin(p.a) * p.r * S * 0.42;
+      step(p, dt);
+      const x1 = cx + Math.cos(p.a) * p.r * S, y1 = cy + Math.sin(p.a) * p.r * S * 0.42;
+      if (p.init){ p.init = false; p.px = x1; p.py = y1; continue; }
+      const spd = Math.hypot(x1 - x0, y1 - y0);
+      const hot = Math.min(1, spd / 5.2);
+      ctx.strokeStyle = hot > 0.5 ? TOK.hot : TOK.cool;
+      ctx.globalAlpha = 0.05 + 0.20 * hot;
+      ctx.lineWidth = 0.6 + 1.5 * hot;
+      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    raf = requestAnimationFrame(frame);
+  }
+  reset();
+  if (RM){ ctx.fillStyle = TOK.plate; ctx.fillRect(0,0,W,H); for(let i=0;i<220;i++){ for(const p of P) step(p, 0.02);} frame(0); cancelAnimationFrame(raf); }
+  else raf = requestAnimationFrame(frame);
+  let to; window.addEventListener("resize", () => { clearTimeout(to); to = setTimeout(reset, 180); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => setTimeout(reset, 60));
+})();
+
+/* ================================================================
+   FIG 1 — Burgers equation, real finite-volume integration
+   u_t + (u^2/2)_x = nu u_xx  on [0,2pi), periodic, u0 = sin x
+   Rusanov flux + minmod limiter, explicit diffusion
+   ================================================================ */
+(function(){
+  const cv = document.getElementById("burgCv"); if (!cv) return;
+  const N = 1024, L = 2*Math.PI, dx = L/N;
+  let u = new Float64Array(N), t = 0, nu = 0, running = true;
+  let hist = [];                       // [t, maxgrad]
+  const eNu = document.getElementById("bNu"), vNu = document.getElementById("bNuV");
+  const oT = document.getElementById("bT"), oG = document.getElementById("bG"),
+        oE = document.getElementById("bE"), oR = document.getElementById("bR");
+
+  function nuOf(s){ return s === 0 ? 0 : 1e-4 * Math.pow(10, (s/100) * 2.6); }
+  function init(){ for (let i=0;i<N;i++) u[i] = Math.sin((i+0.5)*dx); t = 0; hist = []; }
+  init();
+
+  const mm = (a,b) => (a*b <= 0) ? 0 : (Math.abs(a) < Math.abs(b) ? a : b);
+  const _uL = new Float64Array(N), _uR = new Float64Array(N), _F = new Float64Array(N), _un = new Float64Array(N);
+  function stepOnce(dt){
+    const uL = _uL, uR = _uR;
+    for (let i=0;i<N;i++){
+      const im = (i-1+N)%N, ip = (i+1)%N;
+      const s = mm(u[i]-u[im], u[ip]-u[i]);
+      uL[i] = u[i] - 0.5*s;   // left edge value of cell i
+      uR[i] = u[i] + 0.5*s;   // right edge value of cell i
+    }
+    const F = _F;                       // flux at right face of cell i
+    for (let i=0;i<N;i++){
+      const ip = (i+1)%N;
+      const a = uR[i], b = uL[ip];
+      const al = Math.max(Math.abs(a), Math.abs(b));
+      F[i] = 0.5*(0.5*a*a + 0.5*b*b) - 0.5*al*(b - a);
+    }
+    const un = _un;
+    for (let i=0;i<N;i++){
+      const im = (i-1+N)%N, ip = (i+1)%N;
+      const adv = -(F[i] - F[im]) / dx;
+      const dif = nu * (u[ip] - 2*u[i] + u[im]) / (dx*dx);
+      un[i] = u[i] + dt*(adv + dif);
+    }
+    u.set(un); t += dt;
+  }
+  function maxAbs(){ let m=0; for(let i=0;i<N;i++) m = Math.max(m, Math.abs(u[i])); return m; }
+  function maxGrad(){ let m=0; for(let i=0;i<N;i++){ const ip=(i+1)%N; m = Math.max(m, Math.abs(u[ip]-u[i])/dx);} return m; }
+  function energy(){ let s=0; for(let i=0;i<N;i++) s += u[i]*u[i]; return 0.5*s*dx/L; }
+
+  function advance(wall){
+    let acc = 0;
+    for (let k=0;k<220 && acc<wall;k++){
+      const um = Math.max(1e-6, maxAbs());
+      let dt = 0.35*dx/um;
+      if (nu > 0) dt = Math.min(dt, 0.22*dx*dx/nu);
+      dt = Math.min(dt, 0.004);
+      stepOnce(dt); acc += dt;
+      if (t > 3.2) { init(); break; }
+    }
+    hist.push([t, maxGrad()]);
+    if (hist.length > 1400) hist.shift();
+  }
+
+  function draw(){
+    const { ctx, w, h } = fit(cv, 300);
+    ctx.clearRect(0,0,w,h);
+    const gap = 26, wL = Math.round(w*0.62) - gap, wR = w - wL - gap;
+    const pad = { t: 14, b: 30, l: 34 };
+    // ---- left: profile
+    const px = i => pad.l + (i/N) * (wL - pad.l - 6);
+    const py = v => pad.t + (1 - (v+1.35)/2.7) * (h - pad.t - pad.b);
+    ctx.strokeStyle = TOK.rule2; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, py(0)); ctx.lineTo(wL-6, py(0)); ctx.stroke();
+    ctx.setLineDash([2,4]);
+    [-1,1].forEach(v=>{ ctx.beginPath(); ctx.moveTo(pad.l, py(v)); ctx.lineTo(wL-6, py(v)); ctx.stroke(); });
+    ctx.setLineDash([]);
+    ctx.font = '10px "IBM Plex Mono", monospace'; ctx.fillStyle = TOK.ink3; ctx.textAlign = "right";
+    ctx.fillText("+1", pad.l-5, py(1)+3); ctx.fillText("0", pad.l-5, py(0)+3); ctx.fillText("−1", pad.l-5, py(-1)+3);
+    ctx.textAlign = "left"; ctx.fillText("u(x, t)   x ∈ [0, 2π)", pad.l+2, h-10);
+    // gradient-coloured line
+    ctx.lineWidth = 2; ctx.lineJoin = "round";
+    for (let i=0;i<N-1;i++){
+      const g = Math.abs(u[i+1]-u[i])/dx;
+      const hotness = Math.min(1, Math.log10(1+g)/2.4);
+      ctx.strokeStyle = hotness > 0.42 ? TOK.hot : TOK.cool;
+      ctx.globalAlpha = 0.35 + 0.65*hotness;
+      ctx.beginPath(); ctx.moveTo(px(i), py(u[i])); ctx.lineTo(px(i+1), py(u[i+1])); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    // ---- right: log gradient trace
+    const rx0 = wL + gap;
+    const tx = tt => rx0 + 30 + (tt/3.2) * (wR - 40);
+    const gy = g => { const lg = Math.log10(Math.max(1, g)); return pad.t + (1 - lg/3.2) * (h - pad.t - pad.b); };
+    ctx.strokeStyle = TOK.rule2; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(rx0+30, gy(1)); ctx.lineTo(rx0+30, pad.t); ctx.lineTo(rx0+30, gy(1)); ctx.lineTo(rx0+wR-10, gy(1)); ctx.stroke();
+    ctx.setLineDash([2,4]);
+    for (const d of [10,100,1000]){ ctx.beginPath(); ctx.moveTo(rx0+30, gy(d)); ctx.lineTo(rx0+wR-10, gy(d)); ctx.stroke(); }
+    ctx.setLineDash([]);
+    ctx.font = '10px "IBM Plex Mono", monospace'; ctx.fillStyle = TOK.ink3; ctx.textAlign="right";
+    ["1","10","10²","10³"].forEach((s,k)=>ctx.fillText(s, rx0+26, gy(Math.pow(10,k))+3));
+    ctx.textAlign="left"; ctx.fillText("max |∂ₓu|  vs  t", rx0+30, h-10);
+    // grid-resolution ceiling
+    const ceil = 1/dx * 1.6;
+    ctx.strokeStyle = TOK.ink3; ctx.setLineDash([4,3]); ctx.globalAlpha=.6;
+    ctx.beginPath(); ctx.moveTo(rx0+30, gy(ceil)); ctx.lineTo(rx0+wR-10, gy(ceil)); ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha=1;
+    ctx.font = '9px "IBM Plex Mono", monospace'; ctx.fillStyle = TOK.ink3;
+    ctx.fillText("grid ceiling", rx0+34, gy(ceil)-4);
+    // shock time marker
+    ctx.strokeStyle = TOK.rule; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(tx(1), pad.t); ctx.lineTo(tx(1), gy(1)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = TOK.ink3; ctx.fillText("t = 1", tx(1)+3, pad.t+10);
+    // trace
+    ctx.strokeStyle = TOK.hot; ctx.lineWidth = 1.8; ctx.beginPath();
+    hist.forEach((p,i) => { const X = tx(p[0]), Y = gy(p[1]); i ? ctx.lineTo(X,Y) : ctx.moveTo(X,Y); });
+    ctx.stroke();
+  }
+
+  function readouts(){
+    const g = maxGrad(), ceil = 1/dx*1.6;
+    oT.textContent = t.toFixed(3);
+    oG.textContent = fmtE(g);
+    oE.textContent = energy().toFixed(4);
+    const shocked = (nu === 0 && t >= 1.0);
+    if (t < 0.02) oR.textContent = "smooth";
+    else if (shocked) oR.textContent = "shock · grid-limited";
+    else if (nu > 0 && t > 1.05) oR.textContent = "viscous front";
+    else oR.textContent = "steepening";
+    oR.style.color = shocked ? TOK.hot : TOK.ink;
+  }
+
+  let raf;
+  const W = watch(cv);
+  function loop(){ if (W.due(running)){ if (running) advance(0.012); draw(); readouts(); W.done(); } raf = requestAnimationFrame(loop); }
+  eNu.addEventListener("input", () => {
+    nu = nuOf(+eNu.value);
+    vNu.textContent = nu === 0 ? "0 (inviscid)" : nu.toFixed(5);
+    init();
+  });
+  vNu.textContent = "0 (inviscid)";
+  const bRun = document.getElementById("bRun");
+  bRun.addEventListener("click", () => { running = !running; bRun.textContent = running ? "Pause" : "Run"; bRun.setAttribute("aria-pressed", running); });
+  document.getElementById("bReset").addEventListener("click", init);
+  window.addEventListener("resize", () => { clearTimeout(cv._to); cv._to = setTimeout(draw, 150); });
+  if (RM){ running = false; bRun.textContent = "Run"; bRun.setAttribute("aria-pressed","false"); for(let k=0;k<60;k++) advance(0.012); }
+  raf = requestAnimationFrame(loop);
+})();
+
+/* ================================================================
+   FIG 3 — self-similar core.  All numbers from the paper's exponents:
+   l_r ~ tau^(1/2), l_z ~ tau^(1/2-h), |u| ~ tau^(-1/2-h),
+   KE ~ tau^(1/2-3h), Re_theta ~ tau^(-h), vol ~ tau^(3/2-h)
+   ================================================================ */
+(function(){
+  const cv = document.getElementById("vortCv"); if (!cv) return;
+  const eH = document.getElementById("vH"), eT = document.getElementById("vT");
+  const vH = document.getElementById("vHV"), vT = document.getElementById("vTV");
+  const oU=document.getElementById("vU"), oE=document.getElementById("vE"), oA=document.getElementById("vA"),
+        oRe=document.getElementById("vRe"), oV=document.getElementById("vV");
+  const LOGMIN = -60;
+  let h = 0.006, s = 1000, running = !RM;
+  let parts = [];
+  for (let i=0;i<32;i++) parts.push({ p: Math.random(), sp: 0.55+Math.random()*0.5 });
+
+  const logTau = () => LOGMIN * (1 - s/1000);
+  function q(){
+    const lt = logTau();
+    return {
+      lt,
+      tau: Math.pow(10, lt),
+      lu:  (-0.5 - h) * lt,
+      lke: ( 0.5 - 3*h) * lt,
+      lasp:(-h) * lt,
+      lvol:( 1.5 - h) * lt,
+      llr: 0.5 * lt
+    };
+  }
+  function draw(){
+    const { ctx, w, hh } = (()=>{ const f = fit(cv, 330); return { ctx:f.ctx, w:f.w, hh:f.h }; })();
+    ctx.clearRect(0,0,w,hh);
+    const Q = q();
+    const gap = 24, wL = Math.round(w*0.50) - gap, wR = w - wL - gap;
+    if (wL < 60 || hh < 60) return;
+
+    /* ---------- LEFT: meridional section ---------- */
+    const cx = wL/2, cy = hh/2;
+    const perLr = (wL/2) / 6.2;                       // px per l_r
+    const aspTrue = Math.pow(10, Q.lasp);
+    const aspDraw = Math.min(6.0, Math.pow(aspTrue, 3));
+    const coreW = perLr, coreH = perLr * aspDraw;
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 20, wL, hh - 40); ctx.clip();
+
+    // symmetry axis
+    ctx.strokeStyle = TOK.rule; ctx.lineWidth = 1; ctx.setLineDash([5,5]);
+    ctx.beginPath(); ctx.moveTo(cx, 22); ctx.lineTo(cx, hh-22); ctx.stroke(); ctx.setLineDash([]);
+
+    // pulse annulus (Xa < X < Xb), both sides
+    ctx.fillStyle = TOK.cool; ctx.globalAlpha = 0.13;
+    ctx.fillRect(cx + 1.45*perLr, 22, 0.62*perLr, hh-44);
+    ctx.fillRect(cx - 2.07*perLr, 22, 0.62*perLr, hh-44);
+    ctx.globalAlpha = 1;
+
+    // streamlines: radial inflow near the mid-plane, axial outflow along the axis
+    const sm3 = z => z<=0?0 : z>=1?1 : z*z*(3-2*z);
+    const SL = [];
+    for (const side of [-1, 1]) for (const up of [-1, 1]) for (const R0 of [5.9, 4.3, 2.9]){
+      const pts = [];
+      for (let k=0;k<=48;k++){
+        const q1 = k/48;
+        const wr = sm3(q1/0.8), wz = sm3((q1-0.38)/0.62);
+        const r = R0*(1-wr) + 0.34*wr;
+        pts.push([cx + side*r*perLr, cy + up*wz*coreH*2.4 + up*2]);
+      }
+      SL.push(pts);
+    }
+    ctx.strokeStyle = TOK.cool; ctx.globalAlpha = 0.30; ctx.lineWidth = 1.1;
+    for (const pts of SL){ ctx.beginPath(); pts.forEach((q1,k)=>k?ctx.lineTo(q1[0],q1[1]):ctx.moveTo(q1[0],q1[1])); ctx.stroke(); }
+    ctx.globalAlpha = 1;
+    // travelling markers
+    for (let n=0;n<SL.length;n++){
+      const pts = SL[n];
+      for (let m=0;m<2;m++){
+        const ph = (parts[n*2+m] ? parts[n*2+m].p : 0) + m*0.5;
+        const q1 = (ph % 1 + 1) % 1;
+        const k = Math.min(47, Math.floor(q1*48));
+        const a = pts[k], b = pts[k+1];
+        const dx = b[0]-a[0], dy = b[1]-a[1], nl = Math.hypot(dx,dy)||1;
+        const hot = q1;
+        ctx.strokeStyle = hot > 0.55 ? TOK.hot : TOK.cool;
+        ctx.globalAlpha = 0.85; ctx.lineWidth = 1.8; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(a[0]+dx/nl*7, a[1]+dy/nl*7); ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1; ctx.lineCap = "butt";
+
+    // core
+    const grad = ctx.createLinearGradient(cx - coreW, 0, cx + coreW, 0);
+    grad.addColorStop(0, TOK.cool); grad.addColorStop(0.5, TOK.hot); grad.addColorStop(1, TOK.cool);
+    ctx.globalAlpha = 0.20; ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.ellipse(cx, cy, coreW, coreH, 0, 0, Math.PI*2); ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = TOK.hot; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.ellipse(cx, cy, coreW, coreH, 0, 0, Math.PI*2); ctx.stroke();
+
+    // swirl out of / into the page  (u_theta)
+    ctx.lineWidth = 1.2; ctx.strokeStyle = TOK.hot; ctx.fillStyle = TOK.hot;
+    for (let k=-2;k<=2;k++){
+      const yy = cy + k * Math.min(coreH*0.42, 46);
+      if (yy < 30 || yy > hh-30) continue;
+      const rr = 5.2;
+      // right of the axis: out of the page
+      ctx.beginPath(); ctx.arc(cx + 0.55*perLr, yy, rr, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx + 0.55*perLr, yy, 1.6, 0, Math.PI*2); ctx.fill();
+      // left of the axis: into the page
+      ctx.beginPath(); ctx.arc(cx - 0.55*perLr, yy, rr, 0, Math.PI*2); ctx.stroke();
+      const d = rr*0.68;
+      ctx.beginPath();
+      ctx.moveTo(cx - 0.55*perLr - d, yy - d); ctx.lineTo(cx - 0.55*perLr + d, yy + d);
+      ctx.moveTo(cx - 0.55*perLr + d, yy - d); ctx.lineTo(cx - 0.55*perLr - d, yy + d);
+      ctx.stroke();
+    }
+    // dividing layer
+    ctx.strokeStyle = TOK.hot; ctx.globalAlpha=.45; ctx.setLineDash([4,4]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx-coreW*1.25, cy+2); ctx.lineTo(cx+coreW*1.25, cy+2); ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha=1;
+    ctx.restore();
+
+    // scale ruler for l_r
+    ctx.strokeStyle = TOK.ink3; ctx.lineWidth = 1;
+    const ry = hh - 26, rx0 = 12;
+    ctx.beginPath(); ctx.moveTo(rx0, ry); ctx.lineTo(rx0 + perLr, ry);
+    ctx.moveTo(rx0, ry-3); ctx.lineTo(rx0, ry+3);
+    ctx.moveTo(rx0+perLr, ry-3); ctx.lineTo(rx0+perLr, ry+3); ctx.stroke();
+
+    // labels
+    ctx.font = '10px "IBM Plex Mono", monospace'; ctx.textAlign = "left";
+    ctx.fillStyle = TOK.ink3;
+    ctx.fillText("meridional section (r, z)", 12, 14);
+    ctx.fillText("ℓ_r = " + fmtE(Math.pow(10, Q.llr)), 12, hh - 10);
+    ctx.textAlign = "center";
+    ctx.fillStyle = TOK.cool; ctx.fillText("pulses", cx + 1.76*perLr, hh - 30);
+    ctx.fillText("pulses", cx - 1.76*perLr, hh - 30);
+    ctx.textAlign = "right";
+    ctx.fillStyle = TOK.ink3;
+    ctx.fillText("⊙ swirl out of page    ⊗ into page", wL - 10, 14);
+    ctx.fillText("aspect exaggerated   ·   zoom ×" + fmtE(Math.pow(10, -Q.llr)), wL - 10, hh - 10);
+    ctx.textAlign = "left";
+
+    /* ---------- RIGHT: log–log ---------- */
+    const rx = wL + gap, pad = { l: 34, r: 8, t: 16, b: 30 };
+    const X = lt => rx + pad.l + (lt/LOGMIN) * (wR - pad.l - pad.r);
+    const YMIN = -34, YMAX = 34;
+    const Y = ly => pad.t + (1 - (ly - YMIN)/(YMAX - YMIN)) * (hh - pad.t - pad.b);
+    ctx.strokeStyle = TOK.rule2; ctx.lineWidth = 1; ctx.setLineDash([2,4]);
+    for (let ly = -30; ly <= 30; ly += 15){ ctx.beginPath(); ctx.moveTo(X(0), Y(ly)); ctx.lineTo(X(LOGMIN), Y(ly)); ctx.stroke(); }
+    ctx.setLineDash([]);
+    ctx.strokeStyle = TOK.rule; ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(LOGMIN), Y(0)); ctx.stroke();
+    ctx.font = '9.5px "IBM Plex Mono", monospace'; ctx.fillStyle = TOK.ink3; ctx.textAlign = "right";
+    for (let ly = -30; ly <= 30; ly += 15) ctx.fillText((ly>0?"10^":"10^") + ly, rx + pad.l - 4, Y(ly)+3);
+    ctx.textAlign = "center";
+    [0,-20,-40].forEach(lt => ctx.fillText(lt===0 ? "τ=1" : "10^"+lt, X(lt), hh - 16));
+    ctx.textAlign = "right"; ctx.fillText("10^-60", X(-60), hh - 16); ctx.textAlign = "center";
+    ctx.textAlign = "left"; ctx.fillText("← time to blowup  τ = 1 − t", rx + pad.l, hh - 4);
+    const line = (slope, col, dash, lab, labY) => {
+      ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.setLineDash(dash);
+      ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(LOGMIN), Y(slope*LOGMIN)); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = col; ctx.font = '10px "IBM Plex Mono", monospace';
+      ctx.fillText(lab, X(LOGMIN*0.52), labY);
+    };
+    line(0.5 - 3*h, TOK.cool, [], "core KE", Y((0.5-3*h)*LOGMIN*0.52) - 6);
+    line(-h, TOK.ink3, [4,3], "Re_θ", Y((-h)*LOGMIN*0.52) - 6);
+    line(-0.5 - h, TOK.hot, [], "‖u‖∞", Y((-0.5-h)*LOGMIN*0.52) - 6);
+    // marker
+    [[Q.lu, TOK.hot],[Q.lke, TOK.cool],[Q.lasp, TOK.ink3]].forEach(([ly,c])=>{
+      const yy = Math.max(pad.t, Math.min(hh-pad.b, Y(ly)));
+      ctx.fillStyle = c; ctx.beginPath(); ctx.arc(X(Q.lt), yy, 3.6, 0, Math.PI*2); ctx.fill();
+    });
+    ctx.strokeStyle = TOK.ink3; ctx.globalAlpha=.45; ctx.setLineDash([2,3]);
+    ctx.beginPath(); ctx.moveTo(X(Q.lt), pad.t); ctx.lineTo(X(Q.lt), hh-pad.b); ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha=1;
+  }
+  function readouts(){
+    const Q = q();
+    vH.textContent = h.toFixed(4);
+    vT.textContent = "10^" + Q.lt.toFixed(1);
+    oU.textContent = fmtE(Math.pow(10, Q.lu));
+    oE.textContent = fmtE(Math.pow(10, Q.lke));
+    oA.textContent = fmtE(Math.pow(10, Q.lasp));
+    oRe.textContent = fmtE(Math.pow(10, Q.lasp));
+    oV.textContent = fmtE(Math.pow(10, Q.lvol));
+  }
+  eH.addEventListener("input", ()=>{ h = (+eH.value/100)*0.01; readouts(); draw(); });
+  eT.addEventListener("input", ()=>{ s = +eT.value; running = false; rb.textContent="Run"; rb.setAttribute("aria-pressed","false"); readouts(); draw(); });
+  const rb = document.getElementById("vRun");
+  rb.addEventListener("click", ()=>{ running = !running; rb.textContent = running?"Pause":"Run"; rb.setAttribute("aria-pressed",running); });
+  document.getElementById("vReset").addEventListener("click", ()=>{ s = 1000; eT.value = 1000; readouts(); draw(); });
+  function loop(){
+    if (running){
+      s -= 1.15;
+      if (s < 0){ s = 1000; }
+      eT.value = Math.round(s);
+      for (const p of parts){ p.p += 0.0045 * p.sp * Math.min(3, 1 + (-logTau())/30); if (p.p > 1) p.p -= 1; }
+      readouts();
+    }
+    if (W.due(running)){ draw(); W.done(); }
+    requestAnimationFrame(loop);
+  }
+  const W = watch(cv);
+  readouts(); requestAnimationFrame(loop);
+  window.addEventListener("resize", ()=>{ clearTimeout(cv._to); cv._to = setTimeout(draw,150); });
+})();
+
+/* ================================================================
+   FIG 4 — the multiscale ladder.
+   u(x,t) = sum_k A_k(t) sin(N_k x + phi_k),  N_k lacunary,
+   A_k(0) = N_k^-6  (smooth data),  A_k(1) = N_k^(-1+eps)  (bounded sup,
+   diverging gradient).  Norms are measured from the samples.
+   ================================================================ */
+(function(){
+  const cv = document.getElementById("ladCv"); if (!cv) return;
+  const eN=document.getElementById("lN"), eT=document.getElementById("lT"), eS=document.getElementById("lS");
+  const vN=document.getElementById("lNV"), vT=document.getElementById("lTV"), vS=document.getElementById("lSV");
+  const oF=document.getElementById("lF"), oU=document.getElementById("lU"), oG=document.getElementById("lG"), oH=document.getElementById("lH");
+  const M = 4096, EPS = 0.5, S0 = 6, CAP = 400;
+  let K = 6, tt = 0, ratio = 3.2, running = !RM;
+  const u = new Float64Array(M), du = new Float64Array(M);
+  const PH = []; for (let i=0;i<12;i++) PH.push(Math.random()*Math.PI*2);
+
+  function stages(){
+    const out = []; let N = 1;
+    for (let k = 0; k < K; k++){
+      N = Math.round(Math.pow(ratio, k));
+      if (N > CAP) break;
+      out.push({ N, t0: 1 - Math.pow(0.62, k+1), phi: PH[k] });
+    }
+    return out;
+  }
+  const smooth = z => z<=0 ? 0 : z>=1 ? 1 : z*z*(3-2*z);
+  function amp(st, t){
+    const A0 = Math.pow(st.N, -S0), A1 = Math.pow(st.N, -1 + EPS);
+    const w = 0.30;
+    const g = smooth((t - (st.t0 - w)) / w);
+    return A0 * Math.pow(A1/A0, g);
+  }
+  function build(){
+    const S = stages();
+    u.fill(0); du.fill(0);
+    for (const st of S){
+      const A = amp(st, tt);
+      for (let i=0;i<M;i++){
+        const x = i/M * 2*Math.PI;
+        u[i]  += A * Math.sin(st.N * x + st.phi);
+        du[i] += A * st.N * Math.cos(st.N * x + st.phi);
+      }
+    }
+    let h5 = 0;
+    for (const st of S) h5 += Math.pow(Math.pow(st.N,-S0),2) * Math.pow(st.N, 10);
+    return { S, h5: Math.sqrt(h5 * Math.PI) };
+  }
+  function draw(){
+    const f = fit(cv, 330), ctx = f.ctx, w = f.w, hh = f.h;
+    ctx.clearRect(0,0,w,hh);
+    const R = build();
+    let umax = 0, gmax = 0;
+    for (let i=0;i<M;i++){ umax = Math.max(umax, Math.abs(u[i])); gmax = Math.max(gmax, Math.abs(du[i])); }
+    const pad = { l: 46, r: 10, t: 12, b: 26 }, mid = 12;
+    const paneH = (hh - pad.t - pad.b - mid) / 2;
+    const px = i => pad.l + (i/M) * (w - pad.l - pad.r);
+
+    function pane(y0, arr, peak, col, label, unit){
+      ctx.strokeStyle = TOK.rule2; ctx.lineWidth = 1;
+      ctx.strokeRect(pad.l, y0, w - pad.l - pad.r, paneH);
+      const P = Math.max(peak, 1e-9);
+      const yv = v => y0 + paneH/2 - (v/P) * (paneH/2 - 5);
+      ctx.strokeStyle = TOK.rule2; ctx.setLineDash([2,4]);
+      ctx.beginPath(); ctx.moveTo(pad.l, yv(0)); ctx.lineTo(w-pad.r, yv(0)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.strokeStyle = col; ctx.lineWidth = 1.4; ctx.beginPath();
+      for (let i=0;i<M;i+=2){ const X = px(i), Y = yv(arr[i]); i ? ctx.lineTo(X,Y) : ctx.moveTo(X,Y); }
+      ctx.stroke();
+      ctx.font = '10px "IBM Plex Mono", monospace'; ctx.fillStyle = TOK.ink3; ctx.textAlign = "right";
+      ctx.fillText(unit, pad.l - 5, y0 + 10);
+      ctx.fillText("0", pad.l - 5, yv(0) + 3);
+      ctx.fillText("−" + unit, pad.l - 5, y0 + paneH - 3);
+      ctx.textAlign = "left"; ctx.fillStyle = col;
+      ctx.fillText(label, pad.l + 6, y0 + 12);
+    }
+    // fixed scales so the contrast between the two panes is visible
+    pane(pad.t, u, 2.4, TOK.cool, "u(x, t)   — stays bounded", "2.4");
+    pane(pad.t + paneH + mid, du, 55, TOK.hot, "∂ₓu(x, t)  — runs away", "55");
+    ctx.font = '10px "IBM Plex Mono", monospace'; ctx.fillStyle = TOK.ink3; ctx.textAlign = "left";
+    ctx.fillText("x ∈ [0, 2π)   ·   " + R.S.length + " active stage" + (R.S.length===1?"":"s") +
+                 (R.S.length < K ? "  (frequency cap reached)" : ""), pad.l, hh - 8);
+
+    oF.textContent = R.S.length ? R.S[R.S.length-1].N : "—";
+    oU.textContent = umax.toFixed(3);
+    oG.textContent = fmtE(gmax);
+    oH.textContent = R.h5.toFixed(3);
+    vN.textContent = K; vT.textContent = tt.toFixed(3); vS.textContent = ratio.toFixed(1) + "×";
+  }
+  eN.addEventListener("input", ()=>{ K = +eN.value; draw(); });
+  eS.addEventListener("input", ()=>{ ratio = +eS.value/10; draw(); });
+  eT.addEventListener("input", ()=>{ tt = +eT.value/1000; running=false; rb.textContent="Run"; rb.setAttribute("aria-pressed","false"); draw(); });
+  const rb = document.getElementById("lRun");
+  rb.addEventListener("click", ()=>{ running=!running; rb.textContent = running?"Pause":"Run"; rb.setAttribute("aria-pressed",running); });
+  function loop(){
+    if (running){ tt += 0.0022; if (tt > 0.99) tt = 0; eT.value = Math.round(tt*1000); }
+    if (W.due(running)){ draw(); W.done(); }
+    requestAnimationFrame(loop);
+  }
+  const W = watch(cv);
+  requestAnimationFrame(loop);
+  window.addEventListener("resize", ()=>{ clearTimeout(cv._to); cv._to = setTimeout(draw,150); });
+})();
+
+/* ================================================================
+   FIG — Burgers vortex: an exact steady Navier–Stokes solution.
+   Strain: u_r = -a r/2, u_z = a z.  Swirl:
+   u_θ(r) = Γ/(2π r) · (1 − exp(−r²/r_c²)),   r_c = sqrt(4ν/a)
+   Stretching (a) thins and spins up the core; viscosity (ν) sets its size.
+   ================================================================ */
+(function(){
+  const cv = document.getElementById("bvCv"); if (!cv) return;
+  const eA = document.getElementById("bvA"), eN = document.getElementById("bvN");
+  const vA = document.getElementById("bvAV"), vN = document.getElementById("bvNV");
+  const oR = document.getElementById("bvR"), oU = document.getElementById("bvU"), oW = document.getElementById("bvW"), oT = document.getElementById("bvT");
+  const G = 1;                          // circulation Γ (units)
+  let a = 1, nu = 0.01, running = !RM;
+  const P = [];
+  for (let i = 0; i < 260; i++) P.push(seed(true));
+  function seed(any){ return { r: any ? 0.04 + Math.random() * 0.96 : 0.92 + Math.random() * 0.08, th: Math.random() * Math.PI * 2, age: 0 }; }
+  const rc = () => Math.sqrt(4 * nu / a);
+  const uth = r => r < 1e-6 ? 0 : G / (2 * Math.PI * r) * (1 - Math.exp(-r * r / (rc() * rc())));
+  const aOf = s => Math.pow(10, -1 + 2 * s / 100);          // 0.1 … 10
+  const nuOf = s => Math.pow(10, -3.3 + 1.8 * s / 100);     // ~5e-4 … 3e-2
+  function step(dt){
+    for (const p of P){
+      const sub = 4;
+      for (let k = 0; k < sub; k++){
+        const h = dt / sub;
+        p.th += uth(p.r) / Math.max(p.r, 1e-3) * h;
+        p.r += -0.5 * a * p.r * h;
+      }
+      p.age += dt;
+      if (p.r < 0.15 * rc() && Math.random() < 0.05) Object.assign(p, seed(false));
+      if (p.age > 14) Object.assign(p, seed(false));
+    }
+  }
+  function draw(){
+    const f = fit(cv, 300), ctx = f.ctx, w = f.w, hh = f.h;
+    ctx.clearRect(0, 0, w, hh);
+    const gap = 22, wL = Math.min(hh + 40, Math.round(w * 0.46)), wR = w - wL - gap;
+    // LEFT: top view
+    const cx = wL / 2, cy = hh / 2, R = Math.min(wL, hh) / 2 - 12;
+    if (R < 8 || wR < 60) return;
+    ctx.strokeStyle = TOK.rule2; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+    const umax = 0.6382 * G / (2 * Math.PI * rc());
+    for (const p of P){
+      const x = cx + Math.cos(p.th) * p.r * R, y = cy + Math.sin(p.th) * p.r * R;
+      const sp = uth(p.r) / umax;
+      ctx.fillStyle = sp > 0.55 ? TOK.hot : TOK.cool;
+      ctx.globalAlpha = 0.25 + 0.65 * Math.min(1, sp);
+      ctx.beginPath(); ctx.arc(x, y, 1.3 + 1.1 * Math.min(1, sp), 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    const rcPx = Math.min(R, rc() * R);
+    ctx.strokeStyle = TOK.hot; ctx.setLineDash([3, 3]); ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.arc(cx, cy, rcPx, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+    ctx.font = '10px "IBM Plex Mono", monospace'; ctx.fillStyle = TOK.ink3; ctx.textAlign = "left";
+    ctx.fillText("top view · fluid drawn inward, stretched along z", 8, 12);
+    ctx.fillStyle = TOK.hot; ctx.fillText("r_c", cx + rcPx * 0.72 + 4, cy - rcPx * 0.72);
+    // RIGHT: swirl profile u_θ(r)
+    const x0 = wL + gap, pad = { l: 40, r: 10, t: 18, b: 30 };
+    const X = r => x0 + pad.l + r * (wR - pad.l - pad.r);
+    const YMAX = 3;                                            // fixed scale so changes are visible
+    const Y = v => pad.t + (1 - Math.min(v, YMAX) / YMAX) * (hh - pad.t - pad.b);
+    ctx.strokeStyle = TOK.rule; ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(1), Y(0)); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(0), Y(YMAX)); ctx.stroke();
+    // potential vortex Γ/2πr for reference
+    ctx.strokeStyle = TOK.ink3; ctx.setLineDash([4, 3]); ctx.beginPath();
+    for (let i = 1; i <= 200; i++){ const r = i / 200, v = G / (2 * Math.PI * r); i > 1 ? ctx.lineTo(X(r), Y(v)) : ctx.moveTo(X(r), Y(v)); }
+    ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle = TOK.hot; ctx.lineWidth = 2; ctx.beginPath();
+    for (let i = 0; i <= 400; i++){ const r = i / 400, v = uth(r); i ? ctx.lineTo(X(r), Y(v)) : ctx.moveTo(X(r), Y(v)); }
+    ctx.stroke(); ctx.lineWidth = 1;
+    ctx.fillStyle = TOK.ink3; ctx.textAlign = "right";
+    ctx.fillText(String(YMAX), X(0) - 5, Y(YMAX) + 4); ctx.fillText("0", X(0) - 5, Y(0) + 3);
+    ctx.textAlign = "center"; ctx.fillText("radius r →", X(0.5), hh - 6);
+    ctx.textAlign = "left"; ctx.fillStyle = TOK.hot; ctx.fillText("u_θ(r), Burgers vortex", X(0.30), Y(YMAX) + 10);
+    ctx.fillStyle = TOK.ink3; ctx.fillText("Γ/2πr, no viscosity", X(0.30), Y(YMAX) + 24);
+  }
+  function readouts(){
+    vA.textContent = a.toFixed(2); vN.textContent = nu.toExponential(1);
+    oR.textContent = rc().toFixed(3);
+    oU.textContent = (0.6382 * G / (2 * Math.PI * rc())).toFixed(2);
+    oW.textContent = (G / (Math.PI * rc() * rc())).toFixed(1);
+    oT.textContent = "steady";
+  }
+  eA.addEventListener("input", () => { a = aOf(+eA.value); readouts(); });
+  eN.addEventListener("input", () => { nu = nuOf(+eN.value); readouts(); });
+  const rb = document.getElementById("bvRun");
+  rb.addEventListener("click", () => { running = !running; rb.textContent = running ? "Pause" : "Run"; rb.setAttribute("aria-pressed", running); });
+  a = aOf(+eA.value); nu = nuOf(+eN.value);
+  let last = 0;
+  const W = watch(cv);
+  function loop(t){ const dt = Math.min(0.05, (t - last) / 1000 || 0.016); last = t; if (W.due(running)){ if (running) step(dt); draw(); W.done(); } requestAnimationFrame(loop); }
+  readouts(); requestAnimationFrame(loop);
+})();
+
+/* ================================================================
+   FIG — Beale–Kato–Majda: does ∫‖ω‖∞ dt stay finite?
+   Model growth ‖ω(t)‖∞ = (1 − t)^(−α), blowup candidate at T = 1.
+   ∫_0^t = (1 − (1−t)^(1−α)) / (1 − α)   (α ≠ 1),   −ln(1 − t)  (α = 1)
+   ================================================================ */
+(function(){
+  const cv = document.getElementById("bkmCv"); if (!cv) return;
+  const eA = document.getElementById("kA"), eT = document.getElementById("kT");
+  const vA = document.getElementById("kAV"), vT = document.getElementById("kTV");
+  const oW = document.getElementById("kW"), oI = document.getElementById("kI"), oL = document.getElementById("kL"), oV = document.getElementById("kV");
+  const LOGMIN = -12;
+  let al = 0.8, s = 0, running = !RM;
+  const integ = (al, tau) => Math.abs(al - 1) < 1e-9 ? -Math.log(tau) : (1 - Math.pow(tau, 1 - al)) / (1 - al);
+  const tauOf = s => Math.pow(10, LOGMIN * s / 1000);
+  function draw(){
+    const narrow = (cv.clientWidth || cv.parentElement.clientWidth) < 600;
+    const f = fit(cv, narrow ? 520 : 300), ctx = f.ctx, w = f.w, H = f.h;
+    ctx.clearRect(0, 0, w, H);
+    const gap = 26;
+    // two panels: side by side, or stacked on narrow screens
+    const P1 = narrow ? { x: 0, y: 0, w: w, h: H / 2 } : { x: 0, y: 0, w: Math.round((w - gap) / 2), h: H };
+    const P2 = narrow ? { x: 0, y: H / 2, w: w, h: H / 2 } : { x: P1.w + gap, y: 0, w: w - P1.w - gap, h: H };
+    const pad = { l: 44, r: 14, t: 22, b: 34 };
+    const tau = tauOf(s);
+    // x axis is log10(τ) from 0 to LOGMIN, i.e. t → T to the right
+    function axes(P, ymin, ymax, ylab, ticks){
+      const X = lt => P.x + pad.l + (lt / LOGMIN) * (P.w - pad.l - pad.r);
+      const Y = v => P.y + pad.t + (1 - (v - ymin) / (ymax - ymin)) * (P.h - pad.t - pad.b);
+      ctx.strokeStyle = TOK.rule; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(X(0), Y(ymin)); ctx.lineTo(X(LOGMIN), Y(ymin)); ctx.moveTo(X(0), Y(ymin)); ctx.lineTo(X(0), Y(ymax)); ctx.stroke();
+      ctx.font = '9.5px "IBM Plex Mono", monospace'; ctx.fillStyle = TOK.ink3; ctx.textAlign = "right";
+      for (const [v, lab] of ticks) ctx.fillText(lab, X(0) - 4, Y(v) + 3);
+      const xt = (P.w < 360) ? [0, -6, -12] : [0, -4, -8, -12];
+      const yb = P.y + P.h - pad.b + 14;
+      xt.forEach(lt => { ctx.textAlign = lt === 0 ? "left" : lt === LOGMIN ? "right" : "center"; ctx.fillText(lt === 0 ? "T−t = 1" : "10^" + lt, X(lt) + (lt === LOGMIN ? 4 : lt === 0 ? -4 : 0), yb); });
+      ctx.textAlign = "left"; ctx.fillText(ylab, P.x + pad.l + 4, P.y + pad.t - 8);
+      ctx.textAlign = "right"; ctx.fillText("t → T", P.x + P.w - pad.r, yb + 13);
+      return { X, Y };
+    }
+    // TOP/LEFT: log10 ‖ω‖∞ = α · (−log10 τ)
+    const L = axes(P1, 0, 19.2, "log₁₀ ‖ω(t)‖∞", [[0, "0"], [6, "6"], [12, "12"], [18, "18"]]);
+    const curve = (A, lt) => A * -lt;
+    ctx.strokeStyle = TOK.rule; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(L.X(0), L.Y(0)); ctx.lineTo(L.X(LOGMIN), L.Y(curve(1, LOGMIN))); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = TOK.ink3; ctx.textAlign = "left"; ctx.fillText("α = 1", L.X(LOGMIN * 0.82), L.Y(curve(1, LOGMIN * 0.82)) - 6);
+    const col = al < 1 ? TOK.cool : TOK.hot;
+    ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
+    for (let i = 0; i <= 120; i++){ const lt = LOGMIN * i / 120, y = Math.min(19.2, curve(al, lt)); i ? ctx.lineTo(L.X(lt), L.Y(y)) : ctx.moveTo(L.X(lt), L.Y(y)); }
+    ctx.stroke(); ctx.lineWidth = 1;
+    const ltNow = Math.log10(tau);
+    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(L.X(ltNow), L.Y(Math.min(19.2, curve(al, ltNow))), 3.5, 0, Math.PI * 2); ctx.fill();
+    // BOTTOM/RIGHT: running integral, linear scale capped
+    const CAP = 40;
+    const Rr = axes(P2, 0, CAP, "∫₀ᵗ ‖ω‖∞ ds", [[0, "0"], [10, "10"], [20, "20"], [30, "30"], [40, "40"]]);
+    if (al < 1){
+      const lim = 1 / (1 - al);
+      if (lim <= CAP){
+        ctx.strokeStyle = TOK.cool; ctx.setLineDash([4, 3]);
+        ctx.beginPath(); ctx.moveTo(Rr.X(0), Rr.Y(lim)); ctx.lineTo(Rr.X(LOGMIN), Rr.Y(lim)); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle = TOK.cool; ctx.textAlign = "right"; ctx.fillText("limit " + lim.toFixed(2), Rr.X(LOGMIN), Rr.Y(lim) - 5);
+      }
+    }
+    ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
+    for (let i = 0; i <= 160; i++){ const lt = LOGMIN * i / 160, y = Math.min(CAP, integ(al, Math.pow(10, lt))); i ? ctx.lineTo(Rr.X(lt), Rr.Y(y)) : ctx.moveTo(Rr.X(lt), Rr.Y(y)); }
+    ctx.stroke(); ctx.lineWidth = 1;
+    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(Rr.X(ltNow), Rr.Y(Math.min(CAP, integ(al, tau))), 3.5, 0, Math.PI * 2); ctx.fill();
+  }
+  function readouts(){
+    const tau = tauOf(s);
+    vA.textContent = al.toFixed(2);
+    vT.textContent = "10^" + Math.log10(tau).toFixed(1);
+    oW.textContent = fmtE(Math.pow(tau, -al));
+    oI.textContent = fmtE(integ(al, tau));
+    oL.textContent = al < 1 ? (1 / (1 - al)).toFixed(2) : "∞";
+    oV.textContent = al < 1 ? "continues past T" : "breaks down at T";
+    oV.className = "v " + (al < 1 ? "cool" : "hot");
+    oL.className = "v " + (al < 1 ? "cool" : "hot");
+  }
+  eA.addEventListener("input", () => { al = +eA.value / 100; readouts(); });
+  eT.addEventListener("input", () => { s = +eT.value; running = false; rb.textContent = "Run"; rb.setAttribute("aria-pressed", "false"); readouts(); });
+  document.querySelectorAll("[data-alpha]").forEach(b => b.addEventListener("click", () => { al = +b.dataset.alpha; eA.value = Math.round(al * 100); readouts(); }));
+  const rb = document.getElementById("kRun");
+  rb.addEventListener("click", () => { running = !running; rb.textContent = running ? "Pause" : "Run"; rb.setAttribute("aria-pressed", running); });
+  al = +eA.value / 100;
+  function loop(){
+    if (running){ s += 2.2; if (s > 1000) s = 0; eT.value = Math.round(s); readouts(); }
+    if (W.due(running)){ draw(); W.done(); }
+    requestAnimationFrame(loop);
+  }
+  const W = watch(cv);
+  readouts(); requestAnimationFrame(loop);
+})();
+
+/* ================================================================
+   TIMELINE — filter by equation and by kind of result
+   ================================================================ */
+(function(){
+  const list = document.getElementById("tl"); if (!list) return;
+  const items = Array.from(list.querySelectorAll("li"));
+  const chips = Array.from(document.querySelectorAll("[data-tl]"));
+  const proofOnly = document.getElementById("tlProof");
+  const count = document.getElementById("tlCount");
+  let eq = "all";
+  function apply(){
+    let n = 0;
+    for (const li of items){
+      const ok = (eq === "all" || li.dataset.eq.split(" ").includes(eq)) && (!proofOnly.checked || li.dataset.kind === "proof");
+      li.hidden = !ok; if (ok) n++;
+    }
+    chips.forEach(c => c.setAttribute("aria-pressed", String(c.dataset.tl === eq)));
+    count.textContent = n + " of " + items.length;
+  }
+  chips.forEach(c => c.addEventListener("click", () => { eq = c.dataset.tl; apply(); }));
+  proofOnly.addEventListener("change", apply);
+  apply();
+})();
+
+/* reduced motion: these figures start paused, so their buttons must say so */
+if (RM) ["vRun", "lRun", "bvRun", "kRun"].forEach(id => {
+  const b = document.getElementById(id);
+  if (b){ b.textContent = "Run"; b.setAttribute("aria-pressed", "false"); }
+});
+})();
+</script>
