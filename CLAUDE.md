@@ -12,6 +12,7 @@ npm test               # build, then check every internal link, JSON-LD block an
 npm run test:browser   # same, plus open every page in headless Chromium; fails on script errors
 npm run check          # lint artifacts + writeups (errors block the deploy)
 npm run capture        # posters + share cards for new/changed artifacts (Playwright)
+npm run capture -- --cards   # redraw share cards only (after numbers shift)
 npm run add -- f.html --shelf toys   # put a new artifact on the shelf (starts as draft)
 npm run build:portable # dist/ that opens from disk (file://) or any subpath
 ```
@@ -33,7 +34,8 @@ src/lib/                      frontmatter, markdown, detect (tech sniffing), col
 src/templates/                layout.mjs, pages.mjs, parts.mjs (cards, tags, header, footer)
 src/assets/                   shelf.css (all styling, design tokens at the top), shelf.js, fonts
 tools/                        add, check, capture, serve, smoke
-skill/artifact-shelf/         the companion Claude skill ("shelve this")
+skills/artifact-shelf/        the companion Claude skill ("shelve this"), shipped as a plugin
+.claude-plugin/               plugin.json + marketplace.json for that plugin
 ```
 
 ## Rules

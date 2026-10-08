@@ -24,7 +24,7 @@ export function loadShelf(root, config, { includeDrafts = false } = {}) {
   const shelfIds = new Set(config.shelves.map((s) => s.id));
   const report = (slug, level, msg) => problems.push({ slug, level, msg });
 
-  for (const slug of fs.readdirSync(dir).sort()) {
+  for (const slug of fs.existsSync(dir) ? fs.readdirSync(dir).sort() : []) {
     const folder = path.join(dir, slug);
     if (slug.startsWith('.') || slug.startsWith('_') || !fs.statSync(folder).isDirectory()) continue;
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) report(slug, 'error', 'folder name must be a lowercase-hyphenated slug');

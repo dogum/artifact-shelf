@@ -1,0 +1,26 @@
+{
+  "name": "artifact-shelf",
+  "description": "Marketplace for artifact-shelf: a Claude skill that puts single-file HTML artifacts on a static gallery site.",
+  "owner": {
+    "name": "dogum",
+    "url": "https://github.com/dogum"
+  },
+  "plugins": [
+    {
+      "name": "artifact-shelf",
+      "displayName": "Artifact Shelf",
+      "description": "Put a single-file HTML artifact on your Artifact Shelf: vet it for anything private, add it, write the label, capture its poster and show you the page. Say \"shelve this\".",
+      "source": "./",
+      "version": "0.1.0",
+      "author": {
+        "name": "dogum",
+        "url": "https://github.com/dogum"
+      },
+      "homepage": "https://dogum.github.io/artifact-shelf/",
+      "repository": "https://github.com/dogum/artifact-shelf",
+      "license": "MIT",
+      "keywords": ["artifacts", "html", "single-file", "gallery", "static-site", "github-pages"],
+      "category": "productivity"
+    }
+  ]
+}
