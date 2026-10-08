@@ -59,7 +59,7 @@ button kbd { font-family: var(--body); font-size: 11px; color: var(--ink-dim); b
 #tip .no { color: #f0a090; }
 #tip svg { vertical-align: -1px; margin-right: 6px; }
 
-.drawer { position: fixed; top: calc(62px + env(safe-area-inset-top, 0px)); right: 16px; width: min(380px, calc(100vw - 32px)); max-height: calc(100% - 150px); overflow: auto; padding: 16px 18px; }
+.drawer { position: fixed; top: calc(62px + env(safe-area-inset-top, 0px)); right: 16px; box-sizing: border-box; width: min(380px, calc(100vw - 32px)); max-height: calc(100% - 150px); overflow: auto; padding: 16px 18px; }
 .drawer h2 { margin: 0 0 8px; font-family: var(--display); font-weight: 400; font-size: 18px; letter-spacing: 0.1em; }
 .drawer h3 { margin: 16px 0 6px; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brass); font-weight: 700; }
 .drawer p, .drawer li { font-size: 14.5px; line-height: 1.5; color: var(--ink); margin: 0 0 8px; }

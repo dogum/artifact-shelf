@@ -2141,7 +2141,8 @@ function start(){
     Promise.race([Promise.all(fl.map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 4000))])
       .then(() => { fontsOK = true; computeFrame(); requestRender(false); });
   }
-  if (!savedLoc) locate(false);
+  // Shelf copy: only read the position on load if this site already has permission; otherwise wait for Use my location.
+  if (!savedLoc && navigator.permissions) navigator.permissions.query({name: 'geolocation'}).then(st => { if (st.state === 'granted') locate(false); }, () => {});
   wake();
 }
 start();

@@ -37,3 +37,5 @@ Each panel is a subdivided mesh with a front and a back material. The page count
 ## Notes
 
 There is a false lead on the sheet as well, and the key will show it once you ask. The plan needs WebGL. Adding `#lite` to the artifact's own address lowers the texture sizes, shadow resolution and pixel ratio for slower machines. Type is set in IM Fell English, EB Garamond and Alegreya Sans from Google Fonts.
+
+This copy fixes the **How to fold** and **Cartographer’s key** drawers, which ran about 20 px off the left edge of narrow phones.

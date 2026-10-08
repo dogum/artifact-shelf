@@ -1,6 +1,7 @@
 {
-  "hash": "7f9255d26afedcbd",
-  "captured": "2026-10-07T23:21:00.698Z",
+  "hash": "dc0aabe0fb0a4a62",
+  "captured": "2026-10-08T02:27:02.523Z",
   "wait": 2500,
-  "click": "#mValley"
+  "click": "#mValley",
+  "time": null
 }

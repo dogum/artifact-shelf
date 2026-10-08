@@ -33,3 +33,5 @@ The simulation lives in a mutable ref and is stepped and drawn on every animatio
 ## Notes
 
 The page's own heading calls it Infestation.tsx. The text you see is the component's TypeScript source; the page runs a compiled build of it with React bundled in. With reduced motion requested, the file appears already assembled.
+
+The original was a page fragment; this copy wraps it in a complete HTML document so it runs on its own.

@@ -39,3 +39,5 @@ The sundial is a horizontal dial. Its quarter-hour lines, from 4 am to 8 pm sola
 ## Notes
 
 Until you set a position, the desk uses a fixed default one and your device's time zone. **Use my location** rounds the position to about a kilometre; if the browser blocks location, the button hides itself, and **Find a city** or typed coordinates work instead. Your position, screen direction and window choice are kept in this browser. The Year slider's track is a small daylight map, one column per day and one row per half hour of clock time, so the switch to and from daylight saving shows as a step. The motto on the dial, SINE SOLE SILEO, means "without the sun I am silent".
+
+This copy differs from the original in two ways: its default position is one of the cities from its own list, and it reads your location only after you press **Use my location** (or on load, if you have already allowed it for this site).
