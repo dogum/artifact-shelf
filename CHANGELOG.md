@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here. Versions follow [semantic versioning](https://semver.org/).
 
-## [0.1.0] - 2026-10-07
+## [0.1.0] - 2026-10-08
 
 The first public version.
 
@@ -26,6 +26,6 @@ The first public version.
 - `skills/artifact-shelf`, packaged as a Claude Code plugin: say "shelve this" and it vets, adds, writes up, captures and shows a new artifact.
 
 ### Artifacts
-- Twelve on six shelves: Desk, by daylight; Catching Booster 12; Shortest-Path Bound Explorer; ORDINAL; Benthos; Masis & Sis; Merrow Pocket Plan; Infestation; Benthos reef; Lamplight Shadow Theater; Stave; Mirror Cube Solver.
+- Thirteen on six shelves: Desk, by daylight; Catching Booster 12; Shortest-Path Bound Explorer; ORDINAL; Benthos; Masis & Sis; Merrow Pocket Plan; Infestation; Benthos reef; Lamplight Shadow Theater; Stave; Recipe Diagram; Mirror Cube Solver.
 
 [0.1.0]: https://github.com/dogum/artifact-shelf/releases/tag/v0.1.0

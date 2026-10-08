@@ -30,7 +30,7 @@ I make small interactive pages in claude.ai and elsewhere, and an artifact link 
 | Generative Art | [ORDINAL](https://dogum.github.io/artifact-shelf/a/ordinal/): connect-the-dots puzzles, times tables, roses and fractals<br>[Benthos](https://dogum.github.io/artifact-shelf/a/benthos-gallery/): 34 sea creatures made of parametric points<br>[Masis & Sis](https://dogum.github.io/artifact-shelf/a/masis/): Ararat from real elevation data in six print styles, from [procedural-art](https://github.com/dogum/procedural-art) |
 | Games | [Merrow Pocket Plan](https://dogum.github.io/artifact-shelf/a/merrow-pocket-plan/): a city map you fold like paper in 3D<br>[Infestation](https://dogum.github.io/artifact-shelf/a/infestation/): bugs eat the page's own source code, token by token<br>[Benthos reef](https://dogum.github.io/artifact-shelf/a/benthos-reef/): a one-minute predator-and-prey game |
 | Toys | [Lamplight Shadow Theater](https://dogum.github.io/artifact-shelf/a/lamplight-shadow-theater/): hand shadows on a webcam come alive as animals<br>[Stave](https://dogum.github.io/artifact-shelf/a/stave/): a typeface drawn on twelve tuned strings |
-| Tools | [Mirror Cube Solver](https://dogum.github.io/artifact-shelf/a/mirror-cube-solver/): paint a mirror cube's shape, get a solution on a 3D model |
+| Tools | [Recipe Diagram](https://dogum.github.io/artifact-shelf/a/recipe-diagram/): a plain-text recipe drawn as a flow table, with scaling and a cook mode<br>[Mirror Cube Solver](https://dogum.github.io/artifact-shelf/a/mirror-cube-solver/): paint a mirror cube's shape, get a solution on a 3D model |
 
 ## What each artifact gets
 
