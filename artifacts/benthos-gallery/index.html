@@ -1,0 +1,2455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Benthos — a point-cloud bestiary</title>
+<style>
+  :root{--bg:#07090b;--ink:#eae6dc;--muted:#928e86;--dim:#63615c;--rule:#1c2027;--amber:#e0a75e;--cyan:#7fb6c6}
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);
+    font-family:ui-serif,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(ellipse 90% 45% at 50% -6%, #10151b 0%, transparent 70%)}
+  .wrap{max-width:1120px;margin:0 auto;padding:42px 20px 80px}
+  code,pre{font-family:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace}
+  header{border-bottom:1px solid var(--rule);padding-bottom:24px;margin-bottom:30px}
+  .kicker{font:500 11px/1 ui-monospace,monospace;letter-spacing:.24em;text-transform:uppercase;color:var(--amber);margin-bottom:14px}
+  h1{font-size:clamp(30px,6.5vw,50px);line-height:1.04;margin:0 0 14px;font-weight:600;letter-spacing:-.025em}
+  h1 em{font-style:italic;color:var(--muted);font-weight:400}
+  .lede{color:var(--muted);margin:0;max-width:64ch}
+  .count{font:11px/1 ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:22px 0 12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+  .card{background:#0b0e12;border:1px solid var(--rule);border-radius:3px;overflow:hidden;cursor:pointer;
+        transition:border-color .18s,transform .18s}
+  .card:hover{border-color:#39414c;transform:translateY(-2px)}
+  .card canvas{width:100%;height:auto;display:block;background:#05070a}
+  .meta{padding:11px 13px 14px}
+  .meta h3{margin:0;font-size:18px;font-weight:600;letter-spacing:-.01em}
+  .meta .lat{font:italic 12px/1.4 ui-serif,Georgia,serif;color:var(--dim);margin:2px 0 6px}
+  .meta p{margin:0;font-size:13px;line-height:1.5;color:var(--muted)}
+  .open{margin-top:9px;font:10px/1 ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);opacity:.7}
+  .stage{position:fixed;inset:0;background:rgba(5,6,8,.95);z-index:50;overflow-y:auto;display:none;padding:22px 16px 60px}
+  .stage.on{display:block}
+  .stagebox{max-width:900px;margin:0 auto}
+  .stagetop{display:flex;align-items:baseline;gap:13px;flex-wrap:wrap;margin-bottom:15px}
+  .stagetop h2{margin:0;font-size:26px;font-weight:600;letter-spacing:-.02em}
+  .stagetop .lat{font:italic 14px/1 ui-serif,Georgia,serif;color:var(--dim)}
+  .x{margin-left:auto;background:transparent;border:1px solid var(--rule);color:var(--muted);cursor:pointer;
+     font:12px/1 ui-monospace,monospace;padding:8px 12px;border-radius:2px}
+  .x:hover{color:var(--ink);border-color:#3b434e}
+  .panes{display:grid;grid-template-columns:400px 1fr;gap:24px;align-items:start}
+  @media(max-width:760px){.panes{grid-template-columns:1fr}}
+  .screen{background:#05070a;border:1px solid var(--rule);padding:7px;line-height:0;touch-action:none}
+  .screen canvas{width:100%;height:auto;display:block;cursor:grab}
+  .screen canvas:active{cursor:grabbing}
+  .row{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+  button.b{background:transparent;border:1px solid var(--rule);color:var(--muted);cursor:pointer;
+    font:11px/1 ui-monospace,monospace;letter-spacing:.06em;padding:8px 11px;border-radius:2px;transition:.15s}
+  button.b:hover{color:var(--ink);border-color:#3b434e}
+  button.b[aria-pressed=true]{background:var(--amber);border-color:var(--amber);color:#07090b;font-weight:600}
+  .sl{display:grid;grid-template-columns:112px 1fr 38px;gap:10px;align-items:center;margin-bottom:10px;
+      font:11px/1 ui-monospace,monospace;color:var(--dim);letter-spacing:.04em}
+  .sl input{accent-color:var(--amber);height:4px;min-width:0}
+  .sl .val{color:var(--muted);text-align:right}
+  .blurb{color:var(--muted);font-size:15.5px;margin:0 0 18px}
+  .blurb b{color:var(--ink)} .blurb code{color:var(--cyan);font-size:12.5px;background:#12161b;padding:1px 5px;border-radius:2px}
+  pre.src{background:#05070a;border:1px solid var(--rule);padding:14px;overflow:auto;max-height:340px;
+    font-size:11px;line-height:1.65;margin:14px 0 0;color:#a9b3bd;display:none;white-space:pre}
+  pre.src.on{display:block}
+  .said{font:11px/1 ui-monospace,monospace;color:var(--amber);opacity:0;transition:.2s;align-self:center}
+  .said.on{opacity:1}
+  footer{margin-top:52px;padding-top:20px;border-top:1px solid var(--rule);font-size:13.5px;color:var(--dim);max-width:70ch}
+  footer code{color:var(--cyan);font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">a point-cloud bestiary · thirty-four species · phase five</div>
+    <h1>Benthos<br><em>no meshes, no lighting, no textures</em></h1>
+    <p class="lede">Every animal here is a loop of parametric points, shaded only by how many land in the same pixel and how far away they are. Nothing is imported, nothing is sculpted — each one is a few dozen lines of trigonometry that happens to be shaped like an animal. Tap a card to orbit it, tune it, and read the source that drew it.</p>
+  </header>
+  <div class="count">cephalopods</div><div class="grid" id="g-ceph"></div>
+  <div class="count">crustaceans</div><div class="grid" id="g-crust"></div>
+  <div class="count">echinoderms &amp; cnidarians</div><div class="grid" id="g-echino"></div>
+  <div class="count">fish, and one reptile</div><div class="grid" id="g-verts"></div>
+  <div class="count">plankton &amp; larvae</div><div class="grid" id="g-plank"></div>
+  <footer>
+    Drag any stage canvas to orbit. The source panel prints the function actually being executed — pulled live via <code>Function.prototype.toString()</code>, so it can never drift from what you're looking at. <b>Copy sketch</b> emits a standalone p5.js file with the helpers, the camera and your current slider values baked in.
+  </footer>
+</div>
+
+<div class="stage" id="stage"><div class="stagebox">
+  <div class="stagetop"><h2 id="s-name"></h2><span class="lat" id="s-lat"></span>
+    <button class="x" id="s-close">close ✕</button></div>
+  <div class="panes">
+    <div>
+      <div class="screen"><canvas id="s-cv" width="400" height="400"></canvas></div>
+      <div class="row" id="s-views"></div>
+      <div class="row">
+        <button class="b" id="s-play">❚❚</button>
+        <button class="b" id="s-spin" aria-pressed="true">auto-orbit</button>
+        <button class="b" id="s-code">show code</button>
+        <button class="b" id="s-copy">copy sketch</button>
+        <span class="said" id="s-said">copied</span>
+      </div>
+    </div>
+    <div><p class="blurb" id="s-blurb"></p><div id="s-sliders"></div></div>
+  </div>
+  <pre class="src" id="s-src"></pre>
+</div></div>
+
+<script>
+/* ===== shared helpers ===================================================== */
+var TAU = Math.PI * 2, HP = Math.PI / 2;
+
+/* Catmull-Rom through control points -> s in [0,1] => [x,y,z] */
+function crv(P) {
+  var n = P.length;
+  return function (s) {
+    var f = s * (n - 1), i = Math.min(n - 2, Math.floor(f)), u = f - i;
+    var p0 = P[Math.max(0, i - 1)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(n - 1, i + 2)];
+    var u2 = u * u, u3 = u2 * u, o = [0, 0, 0];
+    for (var k = 0; k < 3; k++) {
+      o[k] = 0.5 * ((2 * p1[k]) + (-p0[k] + p2[k]) * u +
+        (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * u2 +
+        (-p0[k] + 3 * p1[k] - 3 * p2[k] + p3[k]) * u3);
+    }
+    return o;
+  };
+}
+
+/* swept tube along a path; rad(s) is the local radius */
+function limb(st, path, rad, NS, NA, boost, arc) {
+  var ns = Math.max(7, Math.round(NS / st.step)), h = 0.004;
+  var a0 = arc ? arc[0] : 0, a1 = arc ? arc[1] : TAU;
+  for (var a = 0; a < ns; a++) {
+    var s = a / (ns - 1), p = path(s);
+    var p1 = path(Math.min(1, s + h)), p0 = path(Math.max(0, s - h));
+    var tx = p1[0] - p0[0], ty = p1[1] - p0[1], tz = p1[2] - p0[2];
+    var tl = Math.sqrt(tx * tx + ty * ty + tz * tz) || 1; tx /= tl; ty /= tl; tz /= tl;
+    var ux = 0, uy = 1, uz = 0;
+    if (Math.abs(ty) > 0.94) { ux = 1; uy = 0; uz = 0; }
+    var ex = ty * uz - tz * uy, ey = tz * ux - tx * uz, ez = tx * uy - ty * ux;
+    var el = Math.sqrt(ex * ex + ey * ey + ez * ez) || 1; ex /= el; ey /= el; ez /= el;
+    var fx = ty * ez - tz * ey, fy = tz * ex - tx * ez, fz = tx * ey - ty * ex;
+    for (var b = 0; b < NA; b++) {
+      var w = a0 + (a1 - a0) * (b / NA), c = Math.cos(w), n = Math.sin(w), r = rad(s, w);
+      var bo = (typeof boost === 'function') ? boost(s, w) : boost;
+      st.cast(p[0] + r * (c * ex + n * fx), p[1] + r * (c * ey + n * fy),
+              p[2] + r * (c * ez + n * fz), bo);
+    }
+  }
+}
+
+/* flat blade / fin / paddle in a plane, with optional twist */
+function blade(st, N, fn, boost) {
+  var n = Math.max(6, Math.round(N / st.step));
+  for (var a = 0; a < n; a++) {
+    for (var b = 0; b < 13; b++) {
+      var p = fn(a / (n - 1), b / 12);
+      st.cast(p[0], p[1], p[2], boost);
+    }
+  }
+}
+
+function ball(st, cx, cy, cz, r, N, boost, sq) {
+  var n = Math.max(80, Math.round(N / st.step));
+  for (var i = 0; i < n; i++) {
+    var u = i * 2.399963229728653, v = 1 - 2 * (i + 0.5) / n;
+    var sr = Math.sqrt(1 - v * v);
+    st.cast(cx + r * sr * Math.cos(u), cy + r * v * (sq || 1), cz + r * sr * Math.sin(u), boost);
+  }
+}
+
+/* ===== 1. OCTOPUS ========================================================= */
+function octopus(st, P, T) {
+  var s3 = st.step, i, v, o, r, a, s, w;
+  var mR = function (v) { return 43 * Math.pow(Math.sin(Math.PI * (0.11 + 0.85 * v)), 0.62); };
+  var mY = function (v) { return 158 - 142 * v; };
+
+  for (i = 0; i < 7200; i += s3) {                     // mantle sac
+    v = ((i / 100) | 0) / 71; o = (i % 100) / 100 * TAU;
+    r = mR(v) * (1 + 0.055 * P.pulse * Math.sin(v * 6 - T * 1.6));
+    st.cast(r * Math.cos(o), mY(v), 0.84 * r * Math.sin(o));
+  }
+  for (i = 0; i < 2400; i += s3) {                     // head / neck
+    v = ((i / 80) | 0) / 29; o = (i % 80) / 80 * TAU;
+    r = 27 - 9 * Math.pow(v, 1.6) + 5 * Math.sin(v * 3.1);
+    st.cast(r * Math.cos(o), 16 - 40 * v, 0.9 * r * Math.sin(o));
+  }
+  ball(st, 25, 2, 0, 15, 620, 1.0, 0.82);              // eye bulges
+  ball(st, -25, 2, 0, 15, 620, 1.0, 0.82);
+  for (i = 0; i < 260; i += s3) {                      // horizontal slit pupils
+    s = i / 259; w = Math.sin(s * Math.PI);
+    st.cast(31, 3 + 3.6 * Math.sin(s * TAU) * 0.35, (s - 0.5) * 17, 2.6);
+    st.cast(-31, 3 + 3.6 * Math.sin(s * TAU) * 0.35, (s - 0.5) * 17, 2.6);
+  }
+
+  function armPhi(a, s) {
+    return a * TAU / 8 + 0.62 * P.curl * Math.pow(s, 1.7)
+         + 0.24 * P.wave * Math.sin(s * 6 - T * 2.2 + a * 2.1) * s;
+  }
+  function armRho(s) { return 15 + 49 * Math.sin(s * 1.3) + 58 * Math.pow(s, 2.4) - 40 * Math.pow(s, 5); }
+  function armY(s) { return -26 - 254 * s + 108 * Math.pow(s, 3); }
+
+  for (a = 0; a < 8; a++) {                            // eight arms
+    (function (a) {
+      limb(st, function (s) {
+        var p = armPhi(a, s), R = armRho(s);
+        return [R * Math.cos(p), armY(s), R * Math.sin(p) * 0.94];
+      }, function (s) { return 10 * Math.pow(1 - s, 0.85) + 0.4; }, 74, 11);
+    })(a);
+  }
+  for (i = 0; i < 8 * 150; i += s3) {                  // two sucker rows per arm
+    a = (i / 150) | 0; s = (i % 150) / 149;
+    if (Math.sin(s * 165) < 0.35) continue;
+    var p = armPhi(a, s), R = armRho(s), tr = (10 * Math.pow(1 - s, 0.85) + 0.4) * 0.96;
+    for (var k = -1; k <= 1; k += 2) {
+      var ps = p + k * 0.34;
+      st.cast((R - tr) * Math.cos(ps), armY(s), (R - tr) * Math.sin(ps) * 0.94, 2.3);
+    }
+  }
+  for (i = 0; i < 4200; i += s3) {                     // interbrachial web
+    a = (i / 525) | 0; var j = i % 525;
+    s = ((j / 15) | 0) / 34 * 0.33; w = (j % 15) / 14;
+    var pa = armPhi(a, s), pb = armPhi(a + 1, s);
+    var pw = pa + (pb - pa) * w, Rw = armRho(s) * (1 - 0.2 * Math.sin(Math.PI * w));
+    var yw = armY(s) + 30 * Math.sin(Math.PI * w) * (1 - s / 0.33);
+    st.cast(Rw * Math.cos(pw), yw, Rw * Math.sin(pw) * 0.94, 0.8);
+  }
+}
+
+/* ===== 2. CUTTLEFISH ====================================================== */
+function cuttlefish(st, P, T) {
+  var s3 = st.step, i, v, o, r, j, s, g, a, p, R, Y, q, w;
+  var mR = function (v) { return 41 * Math.pow(Math.sin(Math.PI * (0.06 + 0.92 * v)), 0.40); };
+  var mY = function (v) { return 152 - 152 * v; };
+
+  for (i = 0; i < 7040; i += s3) {                     // flattened shield mantle
+    v = ((i / 110) | 0) / 63; o = (i % 110) / 110 * TAU;
+    r = mR(v) * (1 + 0.055 * P.pulse * Math.sin(v * 9 - T * 1.7));
+    st.cast(r * Math.cos(o), mY(v), 0.40 * r * Math.sin(o));
+  }
+  if (P.chrom > 0.01) for (i = 0; i < 3680; i += s3) { // chromatophore waves
+    var b = (i / 460) | 0;
+    v = ((b / 8 + 0.10 * T * P.chrom) % 1) * 0.84 + 0.05;
+    o = (i % 460) / 460 * TAU; r = mR(v) * 1.012;
+    st.cast(r * Math.cos(o), mY(v), 0.40 * r * Math.sin(o), 1.15);
+  }
+  for (i = 0; i < 4400; i += s3) {                     // continuous fin skirt
+    j = (i / 22) | 0; v = j / 199 * 0.97 + 0.015; s = (i % 22) / 21; g = (j % 2) ? -1 : 1;
+    var fw = 31 * Math.pow(Math.sin(Math.PI * (0.02 + 0.96 * v)), 0.30);
+    st.cast(g * (mR(v) * 0.96 + s * fw), mY(v),
+            0.40 * mR(v) * 0 + 19 * P.fin * Math.sin(v * 15 - T * 3.1 + (g > 0 ? 1.1 : 0)) * Math.pow(s, 1.35));
+  }
+  for (a = 0; a < 8; a++) {                            // eight short arms
+    (function (a) {
+      limb(st, function (s) {
+        var p = a * TAU / 8 + 0.4 + 0.26 * P.arm * Math.sin(s * 6 - T * 2.3 + a * 1.9) * s;
+        var R = 9 + 20 * Math.sin(s * 1.5) + 20 * Math.pow(s, 2.4);
+        return [R * Math.cos(p), mY(1) - 96 * s + 34 * Math.pow(s, 3), R * Math.sin(p) * 0.8];
+      }, function (s) { return 6.4 * Math.pow(1 - s, 0.85) + 0.35; }, 42, 10);
+    })(a);
+  }
+  for (a = 0; a < 2; a++) {                            // two feeding tentacles + clubs
+    (function (a) {
+      var base = -HP + (a - 0.5) * 0.85;
+      limb(st, function (s) {
+        var p = base + 0.10 * P.arm * Math.sin(s * 7 - T * 2.3 + a * 2) * s;
+        var R = 8 + 7 * Math.sin(s * 1.4) + 8 * Math.pow(s, 2.6);
+        return [R * Math.cos(p), mY(1) - 205 * s + 66 * Math.pow(s, 3.2), R * Math.sin(p) * 0.8];
+      }, function (s) {
+        return 2.1 * Math.pow(1 - s, 0.5) + 6.2 * Math.exp(-Math.pow((s - 0.9) / 0.075, 2));
+      }, 60, 10);
+    })(a);
+  }
+  var ey = mY(0.90), ex = mR(0.90) * 0.80;
+  ball(st, ex + 3, ey, 0, 11.5, 560, 1.1, 1);
+  ball(st, -ex - 3, ey, 0, 11.5, 560, 1.1, 1);
+  for (i = 0; i < 460; i += s3) {                      // W-shaped pupils
+    p = (i % 460) / 459 * 4;
+    var wy = Math.abs(Math.abs(p - 2) - 1) * 4.6 - 2.3, wz = (p - 2) * 4.6;
+    st.cast(ex + 8, ey + wy, wz, 3.0);
+    st.cast(-ex - 8, ey + wy, wz, 3.0);
+  }
+}
+
+/* ===== 3. LOBSTER ========================================================= */
+function lobster(st, P, T) {
+  var s3 = st.step, i, k, u, s, g, prof, ry, rz, x;
+  var step = Math.sin(T * 2.2);
+
+  for (i = 0; i < 5600; i += s3) {                     // carapace
+    u = ((i / 80) | 0) / 69; var th = (i % 80) / 80 * TAU;
+    prof = Math.pow(Math.sin(Math.PI * (0.10 + 0.84 * u)), 0.36);
+    ry = 23 * prof; rz = 20 * prof;
+    x = -46 + 82 * u;
+    st.cast(x, ry * Math.sin(th) + 3 * Math.pow(Math.max(0, Math.sin(th)), 3), rz * Math.cos(th));
+  }
+  limb(st, crv([[-46, 6, 0], [-62, 11, 0], [-80, 14, 0], [-96, 15, 0]]),   // rostrum
+       function (s) { return 6 * (1 - s) + 0.6; }, 26, 9);
+
+  for (k = 0; k < 6; k++) {                            // six abdominal segments
+    for (i = 0; i < 900; i += s3) {
+      u = ((i / 60) | 0) / 14; var t2 = (i % 60) / 60 * 4.8 - 2.4;
+      var sc = 1 - 0.093 * k, ax = 36 + (k + u * 0.9) * 14.2;
+      var dy = -P.flex * 26 * Math.pow((k + u) / 6, 1.9);
+      st.cast(ax, dy + 21 * sc * Math.sin(t2) * 0.94, 18.5 * sc * Math.cos(t2));
+      if (u > 0.72) st.cast(ax, dy - 4 - 15 * sc, 20 * sc * (t2 > 0 ? 1 : -1) * Math.abs(Math.sin(t2 * 0.5)));
+    }
+  }
+  for (g = -2; g <= 2; g++) {                          // tail fan: telson + uropods
+    (function (g) {
+      var ang = g * (0.34 + 0.22 * P.flex), L = g === 0 ? 50 : 46 - 3 * Math.abs(g);
+      var bx = 120, by = -P.flex * 26 - 1;
+      var ca = Math.cos(ang), sa = Math.sin(ang);
+      blade(st, 30, function (s, t) {
+        var wdt = (g === 0 ? 9 : 8.5) * Math.sin(Math.PI * (0.12 + 0.82 * s));
+        var along = L * s, across = (t - 0.5) * 2 * wdt;
+        return [bx + along * ca - across * sa, by + 3 * Math.sin(s * 2.6),
+                (along * sa + across * ca) + g * 5 * ca];
+      }, 0.95);
+    })(g);
+  }
+  for (g = -1; g <= 1; g += 2) {                       // chelipeds (right = crusher)
+    (function (g) {
+      var big = g > 0 ? 1.24 : 0.86, op = 0.24 + 0.5 * P.claw;
+      var arm = crv([[-24, -4, g * 15], [-44, -9, g * 30], [-66, -6, g * 33], [-84, -2, g * 27]]);
+      limb(st, arm, function (s) { return (7.5 + 5 * Math.sin(s * 2.6)) * big; }, 40, 11);
+      var palmA = [-84, -2, g * 27], palmB = [-116, 2, g * 22];
+      limb(st, crv([palmA, [-98, 0, g * 25], palmB]),
+           function (s) { return (10 + 5 * Math.sin(Math.PI * s)) * big; }, 26, 12);
+      [-1, 1].forEach(function (f) {
+        var ang = f * op;
+        limb(st, crv([palmB,
+          [-132 + 4 * Math.cos(ang), 2 + 13 * Math.sin(ang) * f * 0, g * 22 + 12 * Math.sin(ang)],
+          [-150, 2 + 20 * Math.sin(ang), g * 22 + 20 * Math.sin(ang)]]),
+          function (s) { return (6.5 * (1 - s * 0.85) + 0.5) * big; }, 22, 9);
+      });
+    })(g);
+  }
+  for (k = 0; k < 4; k++) for (g = -1; g <= 1; g += 2) {   // walking legs
+    (function (k, g) {
+      var bx = -14 + k * 15, ph = step * P.step * (k % 2 ? 1 : -1) * 8;
+      limb(st, crv([[bx, -10, g * 16], [bx - 4, -8, g * 40], [bx + 8 + ph, -20, g * 62],
+                    [bx + 12 + ph, -44, g * 66]]),
+           function (s) { return 4.6 * (1 - 0.75 * s) + 0.4; }, 26, 8);
+    })(k, g);
+  }
+  for (g = -1; g <= 1; g += 2) {                       // antennae + antennules
+    (function (g) {
+      var sw = P.ant * 0.30;
+      limb(st, crv([[-50, 4, g * 9], [-84, 16, g * 24], [-112, 24 + 11 * Math.sin(T * 1.4 + g) * sw, g * 42],
+                    [-134, 18, g * 64], [-148, 4 + 20 * Math.sin(T * 1.1 + g) * sw, g * 86]]),
+           function (s) { return 3.4 * (1 - 0.9 * s) + 0.35; }, 46, 7);
+      limb(st, crv([[-52, 0, g * 6], [-74, -6, g * 14], [-92, -16, g * 22]]),
+           function (s) { return 2.4 * (1 - 0.7 * s) + 0.3; }, 18, 6);
+    })(g);
+  }
+  ball(st, -52, 12, 9, 5, 240, 2.2); ball(st, -52, 12, -9, 5, 240, 2.2);
+}
+
+/* ===== 4. CRAB ============================================================ */
+function crab(st, P, T) {
+  var s3 = st.step, i, f, th, g, k, rr, step = Math.sin(T * 2.6);
+
+  for (i = 0; i < 7800; i += s3) {                     // carapace dome
+    f = ((i / 120) | 0) / 64; th = (i % 120) / 120 * TAU;
+    var sw = 1 + 0.045 * Math.sin(th * 9) * (Math.cos(th) < 0 ? 1 : 0.25);
+    var xx = 66 * f * Math.sin(th) * sw, zz = 46 * f * Math.cos(th) * sw;
+    st.cast(xx, 17 * Math.sqrt(Math.max(0, 1 - f * f)) - 2, zz);
+    if (f > 0.965) st.cast(xx, -9 + 6 * Math.sqrt(Math.max(0, 1 - f * f)), zz, 0.8);
+  }
+  for (g = -1; g <= 1; g += 2) {                       // eyestalks
+    limb(st, crv([[g * 13, 6, -40], [g * 15, 13, -49], [g * 16, 17, -55]]),
+         function (s) { return 3.2; }, 14, 8);
+    ball(st, g * 16, 19, -57, 5.4, 280, 2.4);
+  }
+  for (g = -1; g <= 1; g += 2) {                       // chelipeds
+    (function (g) {
+      var op = 0.2 + 0.55 * P.claw;
+      var a = crv([[g * 44, -2, -22], [g * 62, -10, -40], [g * 56, -4, -62]]);
+      limb(st, a, function (s) { return 7 - 2 * s; }, 26, 10);
+      var palm = crv([[g * 56, -4, -62], [g * 50, -1, -78], [g * 44, 1, -90]]);
+      limb(st, palm, function (s) { return 9 - 3 * s; }, 22, 11);
+      [-1, 1].forEach(function (fg) {
+        limb(st, crv([[g * 44, 1, -90], [g * 40 + fg * 4, 1 + fg * 6 * op, -102],
+                      [g * 36, 1 + fg * 13 * op, -113]]),
+             function (s) { return 4.6 * (1 - 0.8 * s) + 0.4; }, 18, 8);
+      });
+    })(g);
+  }
+  for (k = 0; k < 4; k++) for (g = -1; g <= 1; g += 2) {   // eight walking legs
+    (function (k, g) {
+      var bz = -18 + k * 20, ph = step * P.step * (k % 2 ? 1 : -1);
+      var out = 58 + 6 * Math.sin(k), dn = 6 + 3 * ph;
+      limb(st, crv([[g * 46, -4, bz],
+                    [g * (out + 14), 16 + dn, bz + 6],
+                    [g * (out + 40), 2 + dn * 0.5, bz + 12 + 8 * ph],
+                    [g * (out + 46), -34, bz + 16 + 10 * ph]]),
+           function (s) { return 5.2 * (1 - 0.82 * s) + 0.35; }, 30, 8);
+    })(k, g);
+  }
+  for (i = 0; i < 900; i += s3) {                      // abdominal flap, tucked under
+    f = ((i / 30) | 0) / 29; th = (i % 30) / 29;
+    st.cast((th - 0.5) * 30 * (1 - f * 0.75), -11 - 2 * f, 20 + 26 * f, 0.75);
+  }
+}
+
+/* ===== 5. NAUTILUS ======================================================== */
+/* r(th) = A*exp(b*th); tube radius = tanh(PI*b)*r keeps successive whorls
+   exactly tangent, so the "tightness" slider never breaks the shell.       */
+function nautilus(st, P, T) {
+  var s3 = st.step, i, k, th, r, rho, ps, q, ang;
+  var b = 0.115 + 0.125 * P.tight, c = Math.tanh(Math.PI * b);
+  var A = 96, TH0 = -P.whorls * TAU, E0 = Math.exp(b * TH0);
+  var thAt = function (u) { return Math.log(E0 + u * (1 - E0)) / b; };   // uniform arc length
+  var lim = 1 - 1.35 * P.cut;
+  var keep = function (a) { return !(P.cut > 0.02 && Math.cos(a) > lim); };
+
+  var NST = 240, NAR = 72;
+  for (i = 0; i < NST * NAR; i += s3) {                // shell wall
+    th = thAt(((i / NAR) | 0) / (NST - 1)); r = A * Math.exp(b * th); rho = c * r;
+    ps = (i % NAR) / NAR * TAU;
+    if (!keep(ps)) continue;
+    var band = Math.sin(th * 10.5) > 0.1 ? 1.8 : 0.75;
+    var rr = r + rho * Math.sin(ps);
+    st.cast(rr * Math.cos(th), rr * Math.sin(th), rho * Math.cos(ps), band);
+  }
+  var NSEP = 33;
+  for (k = 1; k <= NSEP; k++) {                        // chambers
+    th = TH0 * (1 - k / (NSEP + 1)) - 0.42;
+    r = A * Math.exp(b * th); rho = c * r;
+    for (i = 0; i < 560; i += s3) {
+      q = Math.sqrt((((i / 40) | 0)) / 13); ang = (i % 40) / 40 * TAU;
+      if (!keep(ang) && q > 0.42) continue;
+      var rr2 = r + rho * q * Math.sin(ang) - 0.26 * rho * (1 - q * q);
+      st.cast(rr2 * Math.cos(th), rr2 * Math.sin(th), rho * q * Math.cos(ang), 1.6);
+    }
+  }
+  for (i = 0; i < 1000; i += s3) {                     // siphuncle
+    th = thAt(i / 999); r = A * Math.exp(b * th);
+    var rs = r - c * r * 0.52, tr = c * r * 0.10, an = (i % 10) / 10 * TAU;
+    var rr3 = rs + tr * Math.sin(an);
+    st.cast(rr3 * Math.cos(th), rr3 * Math.sin(th), tr * Math.cos(an), 1.7);
+  }
+  var ar = A, arho = c * A;
+  for (i = 0; i < 1500; i += s3) {                     // body in the living chamber
+    q = Math.sqrt((((i / 50) | 0)) / 29); ang = (i % 50) / 50 * TAU;
+    if (!keep(ang) && q > 0.5) continue;
+    st.cast(ar + arho * 0.12 * q, arho * q * Math.sin(ang) * 0.94, arho * q * Math.cos(ang) * 0.94, 0.6);
+  }
+  for (k = 0; k < 38; k++) {                           // tentacle crown
+    (function (k) {
+      var u = k / 38 * TAU, sp = 0.46 + 0.32 * Math.sin(k * 2.7);
+      var wob = P.tent * Math.sin(T * 1.8 + k * 0.85);
+      limb(st, crv([
+        [ar + arho * 0.05, arho * 0.24 * Math.sin(u), arho * 0.24 * Math.cos(u)],
+        [ar + arho * 0.34, arho * sp * Math.sin(u), arho * sp * Math.cos(u)],
+        [ar + arho * (0.58 + 0.09 * wob), arho * (sp + 0.42) * Math.sin(u) + arho * 0.06 * wob,
+         arho * (sp + 0.42) * Math.cos(u)]]),
+        function (s) { return arho * 0.05 * (1 - 0.6 * s) + 0.3; }, 13, 6, 1.2);
+    })(k);
+  }
+  ball(st, ar + arho * 0.22, -arho * 0.12, arho * 0.62, arho * 0.14, 360, 2.6);
+  ball(st, ar + arho * 0.22, -arho * 0.12, -arho * 0.62, arho * 0.14, 360, 2.6);
+  for (i = 0; i < 1000; i += s3) {                     // hood over the crown
+    var hu = ((i / 40) | 0) / 24, hv = (i % 40) / 39;
+    var ha = (hv - 0.5) * 2.9, hr = arho * (0.5 + 0.55 * hu);
+    st.cast(ar + arho * (0.02 + 0.5 * hu) - arho * 0.1 * Math.cos(ha),
+            arho * 0.55 + hr * 0.42 * Math.cos(ha) - arho * 0.1 * hu,
+            hr * Math.sin(ha), 0.9);
+  }
+}
+</script>
+<script>
+/* ===== 6. SEAHORSE ======================================================== */
+function seahorse(st, P, T) {
+  var s3 = st.step, i, k, s;
+  var sway = 0.09 * P.sway * Math.sin(T * 1.25);
+  var rot = function (p) {                              // gentle whole-body sway
+    return [p[0] * Math.cos(sway) - p[1] * Math.sin(sway),
+            p[0] * Math.sin(sway) + p[1] * Math.cos(sway), p[2]];
+  };
+  var trunk = crv([[-2, 104, 0], [6, 84, 0], [4, 58, 0], [-8, 30, 0], [-6, 4, 0], [6, -18, 0]]);
+  limb(st, function (s) { return rot(trunk(s)); },
+       function (s, w) {
+         return (16 - 6.5 * s) * (1 + 0.075 * Math.abs(Math.sin(s * 11 * Math.PI))
+                                    + 0.055 * Math.cos(w * 7));
+       }, 130, 18);
+
+  var CO = 0.55 + 0.95 * P.curl, cx = 6, cy = -62, R0 = 44;   // prehensile tail coil
+  var tail = function (s) {
+    var a = Math.PI / 2 - s * TAU * CO, R = R0 * (1 - 0.74 * s);
+    return rot([cx + R * Math.cos(a), cy + R * Math.sin(a), 0]);
+  };
+  limb(st, tail, function (s, w) {
+    return (10.5 * Math.pow(1 - s, 0.85) + 1.1) *
+           (1 + 0.10 * Math.abs(Math.sin(s * 30 * Math.PI)) + 0.06 * Math.cos(w * 6));
+  }, 172, 14);
+
+  var head = crv([[-2, 100, 0], [-14, 110, 0], [-30, 112, 0], [-46, 108, 0], [-58, 102, 0]]);
+  limb(st, function (s) { return rot(head(s)); },
+       function (s) { return 15 - 11 * Math.pow(s, 0.75); }, 62, 15);
+  for (k = -1; k <= 1; k += 2) {                        // eyes
+    var e = rot([-19, 108, 0]); ball(st, e[0], e[1], k * 10.5, 6.2, 340, 2.3);
+  }
+  for (k = 0; k < 4; k++) {                             // coronet
+    var c0 = rot([-4, 112, 0]), c1 = rot([-2 + k * 1.5, 128 - k * 2, 0]);
+    limb(st, crv([[c0[0], c0[1], (k - 1.5) * 5], [c1[0], c1[1], (k - 1.5) * 7]]),
+         function (s) { return 2.6 * (1 - 0.8 * s) + 0.3; }, 9, 6, 1.6);
+  }
+  blade(st, 56, function (s, t) {                       // dorsal fin, fluttering fast
+    var y = 52 - 66 * s, xb = 10 + 6 * Math.sin(s * 2.4);
+    var wdt = 22 * Math.pow(Math.sin(Math.PI * (0.06 + 0.88 * s)), 0.5);
+    var p = rot([xb + t * wdt, y, 0]);
+    return [p[0], p[1], 7 * P.flutter * Math.sin(s * 11 - T * 9) * Math.pow(t, 1.2)];
+  }, 1.05);
+  for (k = -1; k <= 1; k += 2) blade(st, 20, function (s, t) {   // pectoral fins
+    var p = rot([-4 + s * 6, 94 - s * 12, 0]);
+    var wdt = 15 * Math.sin(Math.PI * (0.1 + 0.85 * s));
+    return [p[0], p[1], k * (13 + t * wdt) + 3 * P.flutter * Math.sin(t * 4 - T * 8) * k];
+  }, 1.0);
+}
+
+/* ===== 7. SQUID =========================================================== */
+function squid(st, P, T) {
+  var s3 = st.step, i, v, o, r, a, j, s, g;
+  var mR = function (v) { return 35 * Math.pow(Math.sin(Math.PI * (0.02 + 0.62 * v)), 0.60); };
+  var mY = function (v) { return 176 - 168 * v; };
+
+  for (i = 0; i < 7800; i += s3) {                      // torpedo mantle
+    v = ((i / 100) | 0) / 77; o = (i % 100) / 100 * TAU;
+    r = mR(v) * (1 + 0.07 * P.pulse * Math.sin(v * 6 - T * 2.0));
+    st.cast(r * Math.cos(o), mY(v), 0.88 * r * Math.sin(o));
+  }
+  for (g = -1; g <= 1; g += 2) blade(st, 46, function (s, t) {  // terminal rhombic fins
+    var v = 0.015 + 0.40 * s, wdt = 40 * Math.pow(Math.sin(Math.PI * s), 0.75);
+    return [g * (mR(v) * 0.88 + t * wdt), mY(v),
+            10 * P.fin * Math.sin(s * 4.5 - T * 3.2 + (g > 0 ? 1.2 : 0)) * Math.pow(t, 1.3)];
+  }, 0.95);
+  for (i = 0; i < 2600; i += s3) {                      // head
+    v = ((i / 80) | 0) / 32; o = (i % 80) / 80 * TAU;
+    r = 25 - 5 * v + 4 * Math.sin(v * 3);
+    st.cast(r * Math.cos(o), 10 - 32 * v, 0.92 * r * Math.sin(o));
+  }
+  ball(st, 24, -2, 0, 12.5, 620, 1.3); ball(st, -24, -2, 0, 12.5, 620, 1.3);
+  for (i = 0; i < 300; i += s3) {                       // pupils
+    s = i / 299;
+    st.cast(33, -2 + 6 * Math.sin(s * TAU), 6 * Math.cos(s * TAU), 3.0);
+    st.cast(-33, -2 + 6 * Math.sin(s * TAU), 6 * Math.cos(s * TAU), 3.0);
+  }
+  limb(st, crv([[0, -4, 20], [0, -18, 26], [0, -30, 22]]),      // funnel
+       function (s) { return 8 - 3 * s; }, 16, 10, 1.1);
+  for (a = 0; a < 8; a++) (function (a) {               // eight arms
+    limb(st, function (s) {
+      var p = a * TAU / 8 + 0.32 * P.arm * Math.sin(s * 6 - T * 2.6 + a * 1.9) * s
+            + 0.30 * P.spread * Math.pow(s, 1.6);
+      var R = 10 + 16 * Math.sin(s * 1.4) + 30 * Math.pow(s, 2.2) * P.spread;
+      return [R * Math.cos(p), -22 - 112 * s + 26 * Math.pow(s, 3), R * Math.sin(p) * 0.92];
+    }, function (s) { return 7.5 * Math.pow(1 - s, 0.9) + 0.35; }, 46, 10);
+  })(a);
+  for (a = 0; a < 2; a++) (function (a) {               // two tentacles + clubs
+    var base = -Math.PI / 2 + (a - 0.5) * 0.7;
+    limb(st, function (s) {
+      var p = base + 0.14 * P.arm * Math.sin(s * 7 - T * 2.6 + a * 2) * s;
+      var R = 9 + 9 * Math.sin(s * 1.3) + 16 * Math.pow(s, 2.4) * P.spread;
+      return [R * Math.cos(p), -22 - 230 * s + 62 * Math.pow(s, 3.2), R * Math.sin(p) * 0.92];
+    }, function (s) {
+      return 2.3 * Math.pow(1 - s, 0.45) + 7 * Math.exp(-Math.pow((s - 0.9) / 0.08, 2));
+    }, 64, 10);
+  })(a);
+}
+
+/* ===== 8. SHRIMP ========================================================== */
+function shrimp(st, P, T) {
+  var s3 = st.step, i, k, g, s;
+  var beat = function (ph) { return Math.sin(T * 4.2 - ph); };
+  var cara = crv([[-58, 20, 0], [-40, 15, 0], [-18, 8, 0], [4, 1, 0]]);
+  limb(st, cara, function (s, w) {
+    return (13 + 8 * Math.sin(Math.PI * (0.15 + 0.7 * s))) * (1 + 0.05 * Math.cos(w * 5));
+  }, 48, 15);
+  limb(st, crv([[-52, 24, 0], [-74, 30, 0], [-94, 34, 0], [-110, 35, 0]]),   // rostrum
+       function (s, w) { return (4.2 * (1 - 0.85 * s) + 0.4) * (1 + 0.5 * Math.max(0, Math.sin(w)) * (Math.sin(s * 26) > 0 ? 1 : 0)); },
+       34, 9, 1.2);
+  var abd = crv([[4, 1, 0], [26, -5, 0], [48, -18, 0], [68, -38, 0], [82, -64, 0], [88, -88, 0]]);
+  var flex = 1;
+  for (k = 0; k < 6; k++) {                             // six abdominal segments
+    (function (k) {
+      var s0 = k / 6, s1 = (k + 0.92) / 6;
+      limb(st, function (u) { return abd(s0 + (s1 - s0) * u); },
+           function (u, w) {
+             var sc = 1 - 0.10 * k;
+             return (18 * sc) * (1 + 0.10 * Math.pow(Math.abs(Math.sin(w)), 2)) *
+                    (0.82 + 0.28 * Math.sin(Math.PI * u));
+           }, 22, 15);
+    })(k);
+  }
+  for (g = -2; g <= 2; g++) (function (g) {             // tail fan
+    var ang = g * (0.30 + 0.16 * P.fan), L = g === 0 ? 40 : 38 - 2 * Math.abs(g);
+    var b = abd(1), ca = Math.cos(ang), sa = Math.sin(ang);
+    blade(st, 26, function (s, t) {
+      var wdt = (g === 0 ? 8 : 7.5) * Math.sin(Math.PI * (0.12 + 0.8 * s));
+      var al = L * s, ac = (t - 0.5) * 2 * wdt;
+      return [b[0] + al * 0.55 * ca - ac * sa, b[1] - al * 0.84, (al * sa * 0.6 + ac * ca) + g * 4];
+    }, 0.95);
+  })(g);
+  for (k = 0; k < 5; k++) for (g = -1; g <= 1; g += 2) {  // pleopods, metachronal wave
+    (function (k, g) {
+      var bs = abd(0.06 + k * 0.155), ph = k * 1.15, sw = beat(ph) * P.swim;
+      limb(st, crv([[bs[0], bs[1] - 12, g * 5],
+                    [bs[0] + 8 * sw, bs[1] - 26, g * 12],
+                    [bs[0] + 16 * sw, bs[1] - 36, g * 15]]),
+           function (s) { return 3.4 * (1 - 0.6 * s) + 0.4; }, 14, 7, 1.1);
+    })(k, g);
+  }
+  for (k = 0; k < 5; k++) for (g = -1; g <= 1; g += 2) {  // walking legs
+    (function (k, g) {
+      var bx = -36 + k * 10, sw = beat(k * 0.9) * P.swim * 0.4;
+      limb(st, crv([[bx, -6, g * 8], [bx + 4, -22, g * 18], [bx + 12 + 8 * sw, -40, g * 22],
+                    [bx + 16 + 10 * sw, -56, g * 20]]),
+           function (s) { return 3 * (1 - 0.75 * s) + 0.35; }, 22, 7);
+    })(k, g);
+  }
+  for (g = -1; g <= 1; g += 2) {                        // antennae
+    (function (g) {
+      var w = P.ant * 12 * Math.sin(T * 1.5 + g);
+      limb(st, crv([[-54, 14, g * 8], [-86, 6 + w * 0.3, g * 22], [-124, -6 + w, g * 40],
+                    [-158, -26 + w * 1.4, g * 54], [-182, -54, g * 62]]),
+           function (s) { return 2.6 * (1 - 0.85 * s) + 0.3; }, 44, 6);
+      ball(st, -54, 20, g * 11, 5.4, 260, 2.4);
+    })(g);
+  }
+}
+
+/* ===== 9. STARFISH ======================================================== */
+function starfish(st, P, T) {
+  var s3 = st.step, i, k, u, th, g;
+  var reach = function (t) { return 27 + 78 * Math.pow(Math.abs(Math.cos(2.5 * t)), 1.7); };
+  var armness = function (t) { return Math.pow(Math.abs(Math.cos(2.5 * t)), 0.9); };
+  var lift = function (u, t) { return P.curl * 34 * Math.pow(u, 2.8) * armness(t); };
+
+  for (i = 0; i < 15000; i += s3) {                     // aboral + oral surfaces
+    u = ((i / 150) | 0) / 99; th = (i % 150) / 150 * TAU;
+    var R = reach(th), rho = u * R;
+    var thick = 15 * Math.pow(1 - u, 0.5) * (0.40 + 0.62 * armness(th));
+    var y = lift(u, th);
+    var x = rho * Math.cos(th), z = rho * Math.sin(th);
+    st.cast(x, y + thick, z);
+    st.cast(x, y - thick * 0.52, z, 0.8);
+  }
+  for (i = 0; i < 3400; i += s3) {                      // dorsal tubercles
+    u = ((i / 34) | 0) / 99; th = (i % 34) / 34 * TAU;
+    if (Math.sin(u * 46) < 0.55) continue;
+    var R2 = reach(th), rho2 = u * R2;
+    if (armness(th) < 0.25 && u > 0.5) continue;
+    var t2 = 15 * Math.pow(1 - u, 0.5) * (0.40 + 0.62 * armness(th));
+    st.cast(rho2 * Math.cos(th), lift(u, th) + t2 * 1.1, rho2 * Math.sin(th), 2.2);
+  }
+  for (k = 0; k < 5; k++) for (g = -1; g <= 1; g += 2) {  // tube feet in the grooves
+    (function (k, g) {
+      var base = k * TAU / 5;
+      for (i = 0; i < 220; i += s3) {
+        var s = (i % 22) / 21, m = ((i / 22) | 0) / 9;
+        var th2 = base + g * (0.055 + 0.05 * m);
+        var rho3 = 20 + m * (reach(base) - 24);
+        var wig = P.feet * 4.5 * Math.sin(m * 9 - T * 3.4 + k);
+        var f3 = Math.min(0.995, rho3 / reach(th2));
+        var t3 = 15 * Math.pow(1 - f3, 0.5) * 0.9;
+        st.cast(rho3 * Math.cos(th2) + wig * s * 0.4,
+                lift(f3, th2) - t3 * 0.5 - s * 11,
+                rho3 * Math.sin(th2) + wig * s * 0.4, 1.5);
+      }
+    })(k, g);
+  }
+  ball(st, 15, 13, -13, 5.5, 320, 2.6);                 // madreporite
+}
+
+/* ===== 10. JELLYFISH ====================================================== */
+function jellyfish(st, P, T) {
+  var s3 = st.step, i, k, v, th, ang, r, y;
+  var ph = Math.sin(T * 2.0), sq = 1 - 0.17 * P.pulse * ph, tl = 1 + 0.32 * P.pulse * ph;
+  var bell = function (v, th) {
+    var a = v * (Math.PI * 0.53);
+    var rr = 92 * sq * Math.sin(a) - 15 * P.pulse * Math.max(0, ph) * Math.pow(v, 7);
+    return [rr * Math.cos(th), 54 * tl * Math.cos(a) - 8, rr * Math.sin(th)];
+  };
+  for (i = 0; i < 11000; i += s3) {                     // translucent bell
+    v = ((i / 110) | 0) / 99; th = (i % 110) / 110 * TAU;
+    var p = bell(v, th);
+    st.cast(p[0], p[1], p[2], 0.85);
+  }
+  for (k = 0; k < 16; k++) for (i = 0; i < 60; i += s3) {  // radial canals
+    var p2 = bell(0.12 + 0.88 * (i / 59), k * TAU / 16);
+    st.cast(p2[0], p2[1] - 1.5, p2[2], 1.7);
+  }
+  for (k = 0; k < 4; k++) for (i = 0; i < 900; i += s3) {  // four horseshoe gonads
+    var q = (i % 30) / 29, m = ((i / 30) | 0) / 29;
+    var sp = (m - 0.5) * 2.5, rr2 = 0.34 + 0.16 * q + 0.05 * Math.cos(sp * 1.6);
+    var p3 = bell(rr2, k * TAU / 4 + sp * 0.42);
+    st.cast(p3[0], p3[1] - 3, p3[2], 1.9);
+  }
+  for (k = 0; k < 88; k++) {                            // marginal tentacles
+    (function (k) {
+      var th2 = k / 88 * TAU, m = bell(1, th2);
+      var lag = Math.sin(T * 2.0 - 1.1) * P.pulse;
+      var dl = 34 + 22 * Math.sin(k * 2.3);
+      limb(st, crv([[m[0], m[1], m[2]],
+                    [m[0] * (1 + 0.10 * lag), m[1] - dl * 0.5, m[2] * (1 + 0.10 * lag)],
+                    [m[0] * (1 + 0.16 * lag), m[1] - dl, m[2] * (1 + 0.16 * lag)]]),
+           function (s) { return 1.7 * (1 - 0.7 * s) + 0.25; }, 10, 5, 1.0);
+    })(k);
+  }
+  for (k = 0; k < 4; k++) blade(st, 44, function (s, t) {  // four frilly oral arms
+    var a2 = k * TAU / 4 + 0.35 * P.arm * Math.sin(s * 3.4 - T * 1.6 + k);
+    var rr3 = 10 + 26 * Math.pow(s, 0.7);
+    var frill = (t - 0.5) * 20 * Math.sin(Math.PI * s) * (1 + 0.5 * Math.sin(s * 22 + k));
+    var yy = -14 - 150 * s + 22 * Math.pow(s, 3);
+    return [rr3 * Math.cos(a2) + frill * Math.cos(a2 + HP),
+            yy + 5 * Math.sin(s * 12 + t * 3 - T * 1.8),
+            rr3 * Math.sin(a2) + frill * Math.sin(a2 + HP)];
+  }, 0.95);
+}
+
+/* ===== 11. HERMIT CRAB ==================================================== */
+function hermit(st, P, T) {
+  var s3 = st.step, i, k, g, th, r, rho, ps;
+  var b = 0.20 + 0.07 * P.spire, c = 0.44, rise = 0.30 + 0.42 * P.spire;
+  var A = 60, TH0 = -4.1 * TAU, E0 = Math.exp(b * TH0);
+  var put = function (u, v, w, bo) {                    // spiral in XY, spire toward viewer
+    st.cast(u, v, w * 0.80 - 24, bo);
+  };
+  var NST = 210, NAR = 54;
+  for (i = 0; i < NST * NAR; i += s3) {                 // gastropod shell
+    var t = Math.log(E0 + (((i / NAR) | 0) / (NST - 1)) * (1 - E0)) / b;
+    r = A * Math.exp(b * t); rho = c * r; ps = (i % NAR) / NAR * TAU;
+    var band = Math.sin(t * 8.5) > 0.2 ? 1.75 : 0.7;
+    var knob = 1 + 0.10 * Math.max(0, Math.sin(t * 8.5)) * Math.max(0, Math.cos(ps));
+    var rr = r + rho * knob * Math.sin(ps);
+    put(rr * Math.cos(t), rr * Math.sin(t), rise * r + rho * knob * Math.cos(ps), band);
+  }
+  var ax = A, arho = c * A;                             // aperture, roughly at (A,0)
+  var HX = 74, HY = -12;
+  for (i = 0; i < 2600; i += s3) {                      // cephalothorax poking out
+    var u = ((i / 60) | 0) / 42, o = (i % 60) / 60 * TAU;
+    var rr2 = 20 * Math.pow(Math.sin(Math.PI * (0.16 + 0.74 * u)), 0.45);
+    st.cast(HX + 4 - 34 * (1 - u), HY + rr2 * 0.72 * Math.sin(o) + 4, rr2 * Math.cos(o));
+  }
+  for (g = -1; g <= 1; g += 2) {                        // eyestalks + antennae
+    limb(st, crv([[HX + 4, HY + 8, g * 7], [HX + 16, HY + 16, g * 9], [HX + 24, HY + 20, g * 10]]),
+         function (s) { return 2.8; }, 12, 7);
+    ball(st, HX + 27, HY + 22, g * 10, 4.6, 280, 2.6);
+    var sw = P.wave * 7 * Math.sin(T * 1.7 + g);
+    limb(st, crv([[HX + 6, HY + 4, g * 10], [HX + 26, HY + 10 + sw * 0.4, g * 20],
+                  [HX + 48, HY + 4 + sw, g * 30], [HX + 64, HY - 10, g * 34]]),
+         function (s) { return 2.2 * (1 - 0.8 * s) + 0.3; }, 26, 6);
+  }
+  (function () {                                        // right cheliped: the door
+    var op = 0.16 + 0.42 * P.claw;
+    var arm = crv([[HX - 2, HY - 4, 16], [HX + 14, HY - 14, 30], [HX + 30, HY - 6, 30]]);
+    limb(st, arm, function (s) { return 10 - 2 * s; }, 26, 11);
+    var palm = crv([[HX + 30, HY - 6, 30], [HX + 46, HY - 2, 26], [HX + 58, HY + 2, 20]]);
+    limb(st, palm, function (s, w) { return (13 - 3 * s) * (1 + 0.09 * Math.cos(w * 6)); }, 26, 13);
+    [-1, 1].forEach(function (f) {
+      limb(st, crv([[HX + 58, HY + 2, 20], [HX + 70, HY + 2 + f * 7 * op, 17],
+                    [HX + 80, HY + 2 + f * 15 * op, 13]]),
+           function (s) { return 5.5 * (1 - 0.8 * s) + 0.4; }, 18, 8);
+    });
+  })();
+  (function () {                                        // left cheliped: small
+    var op = 0.16 + 0.42 * P.claw;
+    limb(st, crv([[HX - 2, HY - 6, -16], [HX + 16, HY - 16, -26], [HX + 34, HY - 12, -24]]),
+         function (s) { return 6.5 - 1.5 * s; }, 22, 9);
+    limb(st, crv([[HX + 34, HY - 12, -24], [HX + 46, HY - 8, -21], [HX + 55, HY - 5, -17]]),
+         function (s) { return 8 - 2 * s; }, 20, 10);
+    [-1, 1].forEach(function (f) {
+      limb(st, crv([[HX + 55, HY - 5, -17], [HX + 64, HY - 5 + f * 5 * op, -15],
+                    [HX + 72, HY - 5 + f * 10 * op, -12]]),
+           function (s) { return 3.6 * (1 - 0.8 * s) + 0.3; }, 14, 7);
+    });
+  })();
+  for (k = 0; k < 2; k++) for (g = -1; g <= 1; g += 2) {  // two pairs of walking legs
+    (function (k, g) {
+      var st2 = P.step * 9 * Math.sin(T * 2.6 - k * 1.4 + (g > 0 ? 0 : Math.PI));
+      limb(st, crv([[HX - 8 - k * 8, HY - 8, g * 14],
+                    [HX + 6 - k * 6, HY - 26, g * 30],
+                    [HX + 18 + st2 - k * 4, HY - 40, g * 38],
+                    [HX + 24 + st2 * 1.4, HY - 62, g * 34]]),
+           function (s) { return 4.4 * (1 - 0.78 * s) + 0.35; }, 26, 8);
+    })(k, g);
+  }
+}
+</script>
+<script>
+/* ===== 12. STINGRAY ======================================================= */
+function stingray(st, P, T) {
+  var s3 = st.step, i, s, t, k, g;
+  var Wd = function (s) { return 132 * Math.pow(Math.sin(Math.PI * Math.pow(s, 0.92)), 0.72); };
+  var Zd = function (s, t) { return -118 + 246 * s + 54 * Math.abs(t) * Math.pow(s, 0.42); };
+  var wav = function (s, t) {
+    return P.flap * 30 * Math.sin(s * 4.4 - T * 2.7) * Math.pow(Math.abs(t), 1.85)
+         + (P.arch - 1) * 30 * Math.pow(Math.abs(t), 2.1);
+  };
+  var Th = function (s, t) {
+    return 18 * Math.pow(Math.max(0, 1 - t * t), 0.72) * Math.pow(Math.sin(Math.PI * (0.04 + 0.92 * s)), 0.45);
+  };
+  for (i = 0; i < 13200; i += s3) {                     // the disc, both surfaces
+    s = ((i / 110) | 0) / 119; t = (i % 110) / 54.5 - 1;
+    var x = t * Wd(s), z = Zd(s, t), y = wav(s, t), th = Th(s, t);
+    st.cast(x, y + th, z);
+    st.cast(x, y - th * 0.62, z, 0.75);
+  }
+  for (i = 0; i < 1900; i += s3) {                      // wing margin, drawn bright
+    s = ((i / 2) | 0) / 949; g = (i % 2) ? 1 : -1;
+    st.cast(g * Wd(s), wav(s, g), Zd(s, g), 1.5);
+  }
+  limb(st, function (u) {                               // whip tail
+    return [22 * P.flap * Math.sin(u * 3.1 - T * 2.7) * u,
+            wav(1, 0) - 6 * u + 14 * P.flap * Math.sin(u * 2.6 - T * 2.7) * u,
+            180 + 158 * u];
+  }, function (u) { return 9.5 * Math.pow(1 - u, 0.62) + 0.5; }, 66, 9);
+  blade(st, 14, function (u, w) {                       // caudal barb
+    var uu = 0.30 + 0.16 * u;
+    return [(w - 0.5) * 7 * (1 - u), wav(1, 0) - 6 * uu + 3, 180 + 158 * uu + 24 * u];
+  }, 1.8);
+  for (g = -1; g <= 1; g += 2) {                        // eyes and spiracles
+    ball(st, g * 27, Th(0.22, 0.2) + 4, Zd(0.22, 0.2) - 6, 8.5, 340, 2.2);
+    for (i = 0; i < 120; i += s3) {
+      var a = i / 119 * TAU;
+      st.cast(g * (30 + 9 * Math.cos(a)), Th(0.30, 0.25) + 1, Zd(0.30, 0.25) + 7 * Math.sin(a), 1.6);
+    }
+  }
+  for (k = 0; k < 5; k++) for (g = -1; g <= 1; g += 2) { // five gill slits, underside
+    for (i = 0; i < 60; i += s3) {
+      var q = i / 59, sc = 0.40 + k * 0.055;
+      st.cast(g * (22 + 26 * q), -Th(sc, 0.25) * 0.62 - 1, Zd(sc, 0.25) - 8 * q, 1.5);
+    }
+  }
+}
+
+/* ===== 13. SEA TURTLE ===================================================== */
+function seaturtle(st, P, T) {
+  var s3 = st.step, i, k, g, a, th, u;
+  var stroke = Math.sin(T * 1.5) * P.stroke;
+  var CW = 94, CL = 120, CH = 30 + 26 * P.dome;
+  var shell = function (a, th) {
+    var rz = CL * (1 + 0.09 * Math.cos(th));
+    return [a * CW * Math.sin(th), CH * Math.pow(Math.max(0, 1 - a * a), 0.62) - 6, a * rz * Math.cos(th)];
+  };
+  for (i = 0; i < 13000; i += s3) {                     // carapace
+    a = ((i / 130) | 0) / 99; th = (i % 130) / 130 * TAU;
+    var p = shell(a, th);
+    st.cast(p[0], p[1], p[2]);
+    if (a > 0.97) st.cast(p[0], -12 + p[1] * 0.12, p[2], 0.8);
+  }
+  for (i = 0; i < 3600; i += s3) {                      // plastron
+    a = ((i / 60) | 0) / 59; th = (i % 60) / 60 * TAU;
+    var p2 = shell(a * 0.9, th);
+    st.cast(p2[0], -13 - 5 * Math.pow(Math.max(0, 1 - a * a), 0.5), p2[2], 0.6);
+  }
+  for (k = 0; k < 4; k++) for (i = 0; i < 460; i += s3) {  // longitudinal scute seams
+    a = i / 459; th = [0.30, -0.30, 0.86, -0.86][k];
+    var p3 = shell(a, th * (1 + 0.25 * a));
+    st.cast(p3[0], p3[1] + 1.2, p3[2], 2.0);
+  }
+  for (k = 0; k < 5; k++) for (i = 0; i < 300; i += s3) {  // transverse seams
+    th = -1.05 + (i / 299) * 2.1; a = 0.15 + k * 0.2;
+    var p4 = shell(0.98, th), p5 = shell(0.02, th);
+    var f = a;
+    st.cast(p4[0] * f + p5[0] * (1 - f), shell(f, th)[1] + 1.2, p4[2] * f + p5[2] * (1 - f), 1.6);
+  }
+  for (k = 0; k < 26; k++) for (i = 0; i < 40; i += s3) {  // marginal scutes
+    th = k / 26 * TAU; a = 0.86 + 0.13 * (i / 39);
+    var p6 = shell(a, th + 0.11);
+    st.cast(p6[0], p6[1], p6[2], 1.7);
+  }
+  limb(st, crv([[0, 6, -CL * 0.86], [0, 10, -CL * 1.06], [0, 6, -CL * 1.24]]),   // neck
+       function (s) { return 26 - 6 * s; }, 20, 13);
+  for (i = 0; i < 2200; i += s3) {                      // head + beak
+    u = ((i / 60) | 0) / 36; th = (i % 60) / 60 * TAU;
+    var r = 25 * Math.pow(Math.sin(Math.PI * (0.14 + 0.78 * u)), 0.42) * (1 - 0.35 * u);
+    st.cast(r * Math.cos(th) * 1.06, 6 + r * 0.86 * Math.sin(th), -CL * 1.16 - 42 * u);
+  }
+  for (g = -1; g <= 1; g += 2) ball(st, g * 17, 12, -CL * 1.22, 6, 300, 2.4);
+  for (g = -1; g <= 1; g += 2) blade(st, 42, function (u, w) {   // front flippers
+    var sw = stroke * (0.55 + 0.7 * u);
+    var L = 168 * u;
+    var wd = 30 * Math.pow(Math.sin(Math.PI * (0.12 + 0.8 * u)), 0.55) * (1 - 0.45 * u);
+    var ax = g * (CW * 0.62 + L * 0.80), az = -48 + L * 0.64 - 22 * u * u;
+    return [ax + (w - 0.5) * 2 * wd * 0.25, 2 + 34 * sw * Math.pow(u, 1.5) + (w - 0.5) * 4,
+            az + (w - 0.5) * 2 * wd];
+  }, 1.0);
+  for (g = -1; g <= 1; g += 2) blade(st, 24, function (u, w) {   // rear flippers
+    var L = 74 * u, wd = 22 * Math.sin(Math.PI * (0.15 + 0.8 * u)) * (1 - 0.4 * u);
+    return [g * (CW * 0.55 + L * 0.8) + (w - 0.5) * wd * 0.3,
+            -6 - 14 * stroke * 0.4 * u + (w - 0.5) * 3,
+            CL * 0.72 + L * 0.55 + (w - 0.5) * 2 * wd];
+  }, 0.95);
+}
+
+/* ===== 14. MORAY EEL ====================================================== */
+function moray(st, P, T) {
+  var s3 = st.step, i, k, g;
+  var path = function (u) {
+    return [56 * P.swim * Math.sin(u * 5.0 - T * 1.7) * Math.pow(u, 0.65),
+            24 * P.swim * Math.sin(u * 3.2 - T * 1.35) * u - 4,
+            -172 + 344 * u];
+  };
+  var rad = function (u) { return 28 - 22 * Math.pow(u, 1.25) + 0.7; };
+  var mottle = function (u, w) {                        // blotchy skin, brightness only
+    var m = Math.sin(u * 26 + 1.7 * Math.sin(w * 3)) * Math.sin(w * 2.4 + u * 9);
+    return m > 0.12 ? 1.75 : 0.62;
+  };
+  limb(st, path, function (u, w) {
+    return rad(u) * (1 + 0.42 * u * Math.abs(Math.sin(w)));    // laterally compressed tail
+  }, 240, 26, mottle);
+  blade(st, 115, function (u, w) {                      // continuous dorsal fin
+    var p = path(u), r = rad(u) * (1 + 0.42 * u);
+    var h = 15 * Math.pow(Math.sin(Math.PI * (0.08 + 0.9 * u)), 0.4) * (0.5 + 0.8 * u);
+    return [p[0], p[1] + r + w * h, p[2] + 3 * Math.sin(w * 3 + u * 20 - T * 3)];
+  }, 1.1);
+  var hd = path(0), gape = 0.16 + 0.42 * P.gape;
+  for (g = -1; g <= 1; g += 2) {                        // upper and lower jaw
+    (function (g) {
+      limb(st, crv([[hd[0], hd[1] + g * 4, hd[2] + 4],
+                    [hd[0], hd[1] + g * (10 + 22 * gape), hd[2] - 26],
+                    [hd[0], hd[1] + g * (12 + 40 * gape), hd[2] - 52]]),
+           function (s, w) { return (13 - 8 * s) * (1 + 0.25 * Math.abs(Math.cos(w))); }, 30, 12, 1.05);
+      for (k = 0; k < 13; k++) {                        // teeth
+        var s2 = 0.14 + k * 0.065;
+        var jy = hd[1] + g * (4 + (6 + 40 * gape) * s2), jz = hd[2] + 4 - 56 * s2;
+        for (var q = -1; q <= 1; q += 2) for (i = 0; i < 22; i += s3) {
+          var e = i / 21;
+          st.cast(hd[0] + q * 7 * (1 - 0.3 * s2), jy - g * 9 * e, jz + 1.5 * e, 2.4);
+        }
+      }
+    })(g);
+  }
+  for (g = -1; g <= 1; g += 2) ball(st, hd[0] + g * 13, hd[1] + 9, hd[2] - 14, 5, 300, 2.6);
+  for (g = -1; g <= 1; g += 2) for (i = 0; i < 120; i += s3) {   // gill opening
+    var a2 = i / 119 * TAU;
+    st.cast(hd[0] + g * (rad(0.16) * 0.92), hd[1] + 6 * Math.sin(a2), hd[2] + 52 + 9 * Math.cos(a2), 1.7);
+  }
+}
+
+/* ===== 15. PUFFERFISH ===================================================== */
+function pufferfish(st, P, T) {
+  var s3 = st.step, i, k, g, u, th;
+  var p = P.inflate;
+  var AZ = 86 - 22 * p, BY = 36 + 32 * p, CX = 30 + 36 * p;
+  var prof = function (u) { return Math.pow(Math.sin(Math.PI * (0.045 + 0.915 * u)), 0.58 - 0.16 * p); };
+  for (i = 0; i < 9600; i += s3) {                      // body
+    u = ((i / 96) | 0) / 99; th = (i % 96) / 96 * TAU;
+    var r = prof(u);
+    st.cast(CX * r * Math.cos(th), BY * r * Math.sin(th), -AZ + 2 * AZ * u);
+  }
+  var NS = 210, L = 3 + 26 * p;
+  for (k = 0; k < NS; k++) {                            // erectile spines, Fibonacci-spaced
+    if (k % st.step) continue;
+    var v = 1 - 2 * (k + 0.5) / NS, sr = Math.sqrt(Math.max(0, 1 - v * v)), an = k * 2.399963229728653;
+    var dx = sr * Math.cos(an), dy = v, dz = sr * Math.sin(an);
+    if (dz < -0.72) continue;                           // clear the face
+    var sx = CX * dx, sy = BY * dy, sz = AZ * dz;
+    var nx = dx / CX, ny = dy / BY, nz = dz / AZ;
+    var nl = Math.sqrt(nx * nx + ny * ny + nz * nz) || 1; nx /= nl; ny /= nl; nz /= nl;
+    for (i = 0; i < 9; i++) {
+      var e = i / 8, rr = 2.6 * (1 - e);
+      for (var q = 0; q < 4; q++) {
+        var wq = q / 4 * TAU;
+        st.cast(sx + nx * L * e + rr * Math.cos(wq) * 0.9,
+                sy + ny * L * e + rr * Math.sin(wq) * 0.9,
+                sz + nz * L * e, 1.0 + 1.4 * e);
+      }
+    }
+  }
+  for (g = -1; g <= 1; g += 2) {                        // eyes
+    ball(st, g * CX * 0.74, BY * 0.44, -AZ * 0.50, 13, 700, 1.2);
+    ball(st, g * CX * 0.90, BY * 0.46, -AZ * 0.54, 6, 320, 2.8);
+  }
+  for (i = 0; i < 340; i += s3) {                       // beak
+    var q2 = i / 339, aa = (q2 - 0.5) * 2.2;
+    st.cast(14 * Math.sin(aa), -BY * 0.30 + 7 * Math.cos(aa) * (q2 > 0.5 ? -0.5 : 1), -AZ * 0.985, 2.4);
+  }
+  for (g = -1; g <= 1; g += 2) blade(st, 20, function (u2, w) {   // pectoral fins, fast
+    var fl = 5 * P.fin * Math.sin(u2 * 3 - T * 9);
+    var wd = 20 * Math.sin(Math.PI * (0.1 + 0.85 * u2));
+    return [g * (CX * 0.86 + u2 * 34), (w - 0.5) * 2 * wd * 0.9 + fl, -AZ * 0.10 + u2 * 8];
+  }, 1.0);
+  blade(st, 18, function (u2, w) {                      // dorsal
+    var wd = 17 * Math.sin(Math.PI * (0.1 + 0.85 * u2));
+    return [(w - 0.5) * 4, BY * 0.90 + u2 * 26, AZ * 0.42 + (w - 0.5) * 2 * wd * 0.7];
+  }, 1.0);
+  blade(st, 18, function (u2, w) {                      // anal
+    var wd = 15 * Math.sin(Math.PI * (0.1 + 0.85 * u2));
+    return [(w - 0.5) * 4, -BY * 0.90 - u2 * 22, AZ * 0.44 + (w - 0.5) * 2 * wd * 0.7];
+  }, 1.0);
+  blade(st, 26, function (u2, w) {                      // caudal fan
+    var wd = 26 * Math.pow(u2, 0.6);
+    var sw = 7 * P.fin * Math.sin(-T * 4.2);
+    return [(w - 0.5) * 5 + sw * u2, (w - 0.5) * 2 * wd, AZ * 0.92 + u2 * 46];
+  }, 1.0);
+}
+
+/* ===== 16. SEA ANEMONE ==================================================== */
+function anemone(st, P, T) {
+  var s3 = st.step, i, k, u, th;
+  var con = 1 - 0.42 * P.close;
+  for (i = 0; i < 8400; i += s3) {                      // column with verrucae
+    u = ((i / 84) | 0) / 99; th = (i % 84) / 84 * TAU;
+    var r = (50 - 20 * Math.pow(u, 0.7)) * (0.55 + 0.45 * con)
+          * (1 + 0.055 * Math.sin(th * 14) * Math.sin(u * 22));
+    st.cast(r * Math.cos(th), -74 + 78 * u * con, r * Math.sin(th));
+  }
+  for (i = 0; i < 3000; i += s3) {                      // oral disc
+    u = Math.sqrt((((i / 60) | 0)) / 49); th = (i % 60) / 60 * TAU;
+    var rr = 6 + u * 40 * con;
+    st.cast(rr * Math.cos(th), 4 * con + 3 * (1 - u * u), rr * Math.sin(th), 0.85);
+  }
+  for (i = 0; i < 700; i += s3) {                       // mouth
+    u = Math.sqrt((((i / 50) | 0)) / 13); th = (i % 50) / 50 * TAU;
+    st.cast(u * 13 * Math.cos(th) * 1.5, 7 * con + 5 * (1 - u), u * 13 * Math.sin(th), 1.5);
+  }
+  var NT = 220;
+  for (k = 0; k < NT; k++) {
+    if (k % st.step) continue;
+    (function (k) {
+      var ring = k % 5, idx = (k / 5) | 0, per = NT / 5;
+      var a = idx / per * TAU + ring * 0.44 + 0.13 * Math.sin(k);
+      var rb = (11 + ring * 8.2) * con;
+      var L = (46 + 26 * Math.sin(k * 1.7) + 9 * ring) * P.len * con;
+      var sw = P.sway * Math.sin(T * 1.55 + a * 2.2 + rb * 0.05);
+      var droop = 0.34 + 0.30 * Math.sin(k * 2.3);
+      var ca = Math.cos(a), sa = Math.sin(a);
+      limb(st, crv([
+        [rb * ca, 5 * con, rb * sa],
+        [(rb + L * 0.34) * ca + sw * 5 * sa, 5 * con + L * 0.52, (rb + L * 0.34) * sa - sw * 5 * ca],
+        [(rb + L * 0.80) * ca + sw * 13 * sa, 5 * con + L * (0.86 - droop * 0.5),
+         (rb + L * 0.80) * sa - sw * 13 * ca],
+        [(rb + L * 1.06) * ca + sw * 20 * sa, 5 * con + L * (0.94 - droop),
+         (rb + L * 1.06) * sa - sw * 20 * ca]]),
+        function (s) {
+          return 3.4 * Math.pow(1 - s, 0.55) + 0.5 + 1.9 * Math.exp(-Math.pow((s - 0.95) / 0.055, 2));
+        }, 20, 7, function (s) { return s > 0.86 ? 2.2 : 1.0; });
+    })(k);
+  }
+}
+</script>
+<script>
+/* --- deterministic pseudo-random, so every frame is identical --- */
+function hsh(k) { var x = Math.sin(k * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); }
+
+/* --- orthonormal pair perpendicular to a unit vector --- */
+function perp2(d) {
+  var ux = 0, uy = 1, uz = 0;
+  if (Math.abs(d[1]) > 0.94) { ux = 1; uy = 0; uz = 0; }
+  var ex = d[1] * uz - d[2] * uy, ey = d[2] * ux - d[0] * uz, ez = d[0] * uy - d[1] * ux;
+  var el = Math.sqrt(ex * ex + ey * ey + ez * ez) || 1; ex /= el; ey /= el; ez /= el;
+  return [[ex, ey, ez], [d[1] * ez - d[2] * ey, d[2] * ex - d[0] * ez, d[0] * ey - d[1] * ex]];
+}
+
+/* ===== 17. SEA CUCUMBER =================================================== */
+function seacucumber(st, P, T) {
+  var s3 = st.step, i, k, g, u, a;
+  var path = function (u) {
+    return [15 * Math.sin(u * 2.3 - 0.8), -8 + 15 * Math.sin(Math.PI * u), -134 + 268 * u];
+  };
+  var body = function (u) {
+    return 35 * Math.pow(Math.sin(Math.PI * (0.09 + 0.82 * u)), 0.30) * (0.70 + 0.40 * P.fat)
+         * (1 + 0.11 * P.peri * Math.sin(u * 7.5 - T * 2.4));
+  };
+  limb(st, path, function (u, w) {
+    return body(u) * (1 + 0.055 * Math.sin(w * 9) * Math.sin(u * 26));
+  }, 192, 26);
+
+  for (k = 0; k < 4; k++) for (i = 0; i < 380; i += s3) {      // dorsal papillae
+    u = 0.07 + (((i / 10) | 0) / 37) * 0.86;
+    a = 1.5708 + (k - 1.5) * 0.62 + 0.10 * Math.sin(u * 9);
+    var e = (i % 10) / 9, p = path(u), r = body(u) * (1 + 0.55 * e * (0.6 + 0.5 * hsh(k * 40 + (i / 10 | 0))));
+    st.cast(p[0] + r * Math.cos(a), p[1] + r * Math.sin(a), p[2], 1.0 + 1.5 * e);
+  }
+  for (k = -1; k <= 1; k++) for (i = 0; i < 460; i += s3) {    // ventral tube feet
+    u = 0.06 + (((i / 12) | 0) / 37) * 0.88;
+    var wv = P.feet * Math.sin(u * 16 - T * 3.0 + k * 0.7);
+    a = -1.5708 + k * 0.52;
+    var e2 = (i % 12) / 11, p2 = path(u), rr = body(u);
+    st.cast(p2[0] + (rr + e2 * 15 * P.feet) * Math.cos(a) + wv * e2 * 3,
+            p2[1] + (rr + e2 * 15 * P.feet) * Math.sin(a), p2[2] + wv * e2 * 4, 1.4);
+  }
+  var mo = path(0.005);
+  for (k = 0; k < 10; k++) {                                   // branched oral tentacles
+    (function (k) {
+      var an = k / 10 * TAU, L = (34 + 9 * hsh(k)) * P.tent;
+      var tipx = mo[0] + 22 * Math.cos(an) * P.tent, tipy = mo[1] + 22 * Math.sin(an) * P.tent;
+      var tipz = mo[2] - L;
+      limb(st, crv([[mo[0], mo[1], mo[2] + 6], [mo[0] + 9 * Math.cos(an), mo[1] + 9 * Math.sin(an), mo[2] - L * 0.5],
+                    [tipx, tipy, tipz]]),
+           function (s) { return 3.4 * (1 - 0.55 * s) + 0.4; }, 16, 7, 1.1);
+      for (var j = 0; j < 6; j++) {                            // the dendritic crown
+        var b = j / 6 * TAU + k, sp = 11 * P.tent;
+        limb(st, crv([[tipx, tipy, tipz],
+                      [tipx + sp * 0.6 * Math.cos(b), tipy + sp * 0.6 * Math.sin(b), tipz - sp * 0.5],
+                      [tipx + sp * Math.cos(b) + 3 * Math.cos(b * 2), tipy + sp * Math.sin(b), tipz - sp * 0.9]]),
+             function (s) { return 1.7 * (1 - 0.6 * s) + 0.3; }, 8, 5, 1.9);
+      }
+    })(k);
+  }
+}
+
+/* ===== 18. SEA URCHIN ===================================================== */
+function urchin(st, P, T) {
+  var s3 = st.step, i, k, u, th;
+  var R = 52, FL = 0.80;
+  for (i = 0; i < 7200; i += s3) {                             // the test
+    u = ((i / 90) | 0) / 79; th = (i % 90) / 90 * TAU;
+    var aa = u * Math.PI, sr = Math.sin(aa);
+    st.cast(R * sr * Math.cos(th), R * FL * Math.cos(aa), R * sr * Math.sin(th));
+  }
+  for (k = 0; k < 5; k++) for (i = 0; i < 520; i += s3) {      // ambulacral pore pairs
+    var j = (i / 2) | 0, sgn = (i % 2) ? 1 : -1;
+    var aa2 = 0.16 + (j / 259) * 2.82, s2 = Math.sin(aa2);
+    var th2 = k * TAU / 5 + sgn * (0.10 + 0.05 * s2);
+    if (Math.sin(j * 0.55) < 0.1) continue;
+    st.cast(R * s2 * Math.cos(th2) * 1.01, R * FL * Math.cos(aa2) * 1.01, R * s2 * Math.sin(th2) * 1.01, 2.2);
+  }
+  var NSP = 190;
+  for (k = 0; k < NSP; k++) {                                  // spines on their tubercles
+    if (k % st.step) continue;
+    var v = 1 - 2 * (k + 0.5) / NSP, srr = Math.sqrt(Math.max(0, 1 - v * v)), an = k * 2.399963229728653;
+    var dx = srr * Math.cos(an), dy = v, dz = srr * Math.sin(an);
+    var nx = dx / R, ny = dy / (R * FL), nz = dz / R;
+    var nl = Math.sqrt(nx * nx + ny * ny + nz * nz) || 1; nx /= nl; ny /= nl; nz /= nl;
+    var fr = perp2([nx, ny, nz]);
+    var wob = P.sway * 0.10 * Math.sin(T * 1.5 + k * 1.9);
+    var ox2 = nx + fr[0][0] * wob, oy2 = ny + fr[0][1] * wob, oz2 = nz + fr[0][2] * wob;
+    var ol = Math.sqrt(ox2 * ox2 + oy2 * oy2 + oz2 * oz2) || 1; ox2 /= ol; oy2 /= ol; oz2 /= ol;
+    var sx = R * dx, sy = R * FL * dy, sz = R * dz;
+    var L = (46 + 44 * hsh(k)) * P.spine;
+    for (i = 0; i < 13; i++) {
+      var e = i / 12, rr2 = 2.5 * Math.pow(1 - e, 0.75) + 0.25;
+      for (var q = 0; q < 5; q++) {
+        var wq = q / 5 * TAU, cq = Math.cos(wq) * rr2, sq = Math.sin(wq) * rr2;
+        st.cast(sx + ox2 * L * e + fr[0][0] * cq + fr[1][0] * sq,
+                sy + oy2 * L * e + fr[0][1] * cq + fr[1][1] * sq,
+                sz + oz2 * L * e + fr[0][2] * cq + fr[1][2] * sq, 0.85 + 0.9 * (1 - e));
+      }
+    }
+  }
+  for (k = 0; k < 55; k++) {                                   // tube feet reaching past the spines
+    if (k % st.step) continue;
+    var kk = k * 4.7, v2 = 1 - 2 * ((k + 0.5) / 55) * 0.86, s3r = Math.sqrt(Math.max(0, 1 - v2 * v2));
+    var a3 = (k % 5) * TAU / 5 + 0.13 * (k % 2 ? 1 : -1);
+    var bx = R * s3r * Math.cos(a3), by = R * FL * v2, bz = R * s3r * Math.sin(a3);
+    var reach = (54 + 30 * hsh(kk)) * P.feet;
+    var wig = P.feet * 14 * Math.sin(T * 1.2 + k);
+    limb(st, crv([[bx, by, bz], [bx * 1.5, by * 1.4 + wig * 0.3, bz * 1.5],
+                  [bx / R * (R + reach) + wig, by * 1.7 + wig * 0.5, bz / R * (R + reach)]]),
+         function (s) { return 1.5 * (1 - 0.4 * s) + 0.3 + 1.4 * Math.exp(-Math.pow((s - 0.96) / 0.06, 2)); },
+         14, 5, 1.5);
+  }
+  for (k = 0; k < 5; k++) for (i = 0; i < 90; i += s3) {       // Aristotle's lantern
+    var e3 = i / 89, ang3 = k * TAU / 5;
+    st.cast(Math.cos(ang3) * 9 * (1 - e3 * 0.7), -R * FL - 2 - e3 * 13, Math.sin(ang3) * 9 * (1 - e3 * 0.7), 2.4);
+  }
+}
+
+/* ===== 19. FEATHER STAR =================================================== */
+function featherstar(st, P, T) {
+  var s3 = st.step, i, k, a;
+  for (i = 0; i < 1800; i += s3) {                             // calyx
+    var u = Math.sqrt((((i / 40) | 0)) / 44), th = (i % 40) / 40 * TAU;
+    st.cast(u * 17 * Math.cos(th), 6 - 11 * u * u, u * 17 * Math.sin(th), 0.9);
+  }
+  var NA = 10;
+  for (a = 0; a < NA; a++) {
+    (function (a) {
+      var A0 = a * TAU / NA;
+      var strk = P.stroke * Math.sin(T * 1.6 - a * 0.62);
+      var arm = function (s) {
+        var rr = 12 + 104 * s;
+        var yy = 3 + P.curl * 62 * Math.pow(s, 1.55) + strk * 30 * Math.pow(s, 2.1);
+        var aa = A0 + 0.20 * P.curl * Math.sin(s * 2.6);
+        return [rr * Math.cos(aa), yy, rr * Math.sin(aa)];
+      };
+      limb(st, arm, function (s) { return 3.6 * (1 - 0.62 * s) + 0.5; }, 50, 9, 1.1);
+      var NP = 34;
+      for (k = 0; k < NP; k++) {                               // pinnules, alternating sides
+        var s0 = 0.10 + k * (0.88 / NP), side = (k % 2) ? 1 : -1;
+        var p0 = arm(s0), p1 = arm(Math.min(1, s0 + 0.012));
+        var tx = p1[0] - p0[0], ty = p1[1] - p0[1], tz = p1[2] - p0[2];
+        var tl = Math.sqrt(tx * tx + ty * ty + tz * tz) || 1; tx /= tl; ty /= tl; tz /= tl;
+        var sxv = ty * 0 - tz * 1, syv = tz * 0 - tx * 0, szv = tx * 1 - ty * 0;   // t x (0,0,1)... horizontal
+        var sl = Math.sqrt(sxv * sxv + syv * syv + szv * szv) || 1;
+        sxv = sxv / sl * side; syv = syv / sl * side; szv = szv / sl * side;
+        var L = (30 - 17 * s0) * P.pinnule;
+        var m = [p0[0] + sxv * L * 0.55 + tx * L * 0.22, p0[1] + syv * L * 0.55 + ty * L * 0.22 + L * 0.16,
+                 p0[2] + szv * L * 0.55 + tz * L * 0.22];
+        var e = [p0[0] + sxv * L + tx * L * 0.42, p0[1] + syv * L + ty * L * 0.42 + L * 0.30,
+                 p0[2] + szv * L + tz * L * 0.42];
+        limb(st, crv([p0, m, e]), function (s) { return 1.55 * (1 - 0.7 * s) + 0.28; }, 10, 4, 1.35);
+      }
+    })(a);
+  }
+  for (k = 0; k < 26; k++) {                                   // cirri, gripping downward
+    (function (k) {
+      var an = k / 26 * TAU, L = 34 + 9 * hsh(k);
+      limb(st, crv([[9 * Math.cos(an), -6, 9 * Math.sin(an)],
+                    [(9 + L * 0.5) * Math.cos(an), -20 - 6 * P.cirri, (9 + L * 0.5) * Math.sin(an)],
+                    [(9 + L) * Math.cos(an), -30 - 16 * P.cirri, (9 + L) * Math.sin(an)]]),
+           function (s) { return 2.4 * (1 - 0.72 * s) + 0.3; }, 13, 6, 1.2);
+    })(k);
+  }
+}
+
+/* ===== 20. LEAFY SEADRAGON ================================================ */
+function seadragon(st, P, T) {
+  var s3 = st.step, i, k;
+  var sway = P.sway;
+  var spine = crv([[-96, 26, 0], [-64, 22, 0], [-30, 8, 0], [6, 0, 0], [42, -4, 0],
+                   [76, -16, 0], [104, -36, 0], [124, -64, 0]]);
+  var bod = function (s) {
+    var p = spine(s);
+    return [p[0], p[1] + 5 * sway * Math.sin(s * 4 - T * 1.2), p[2] + 7 * sway * Math.sin(s * 3.2 - T * 1.1)];
+  };
+  limb(st, bod, function (s, w) {
+    return (17 - 13 * Math.pow(s, 1.05)) *
+           (1 + 0.085 * Math.abs(Math.sin(s * 15 * Math.PI)) + 0.05 * Math.cos(w * 7));
+  }, 172, 18);
+  limb(st, crv([[-92, 27, 0], [-124, 31, 0], [-152, 33, 0], [-172, 32, 0]]),   // snout
+       function (s) { return 11 - 8.2 * Math.pow(s, 0.7); }, 44, 12);
+  ball(st, -104, 33, 10, 6.4, 340, 2.3); ball(st, -104, 33, -10, 6.4, 340, 2.3);
+  for (k = 0; k < 6; k++) {                                    // head crest spines
+    limb(st, crv([[-96 + k * 4, 34, 0], [-94 + k * 4, 46 + 2 * k, 0]]),
+         function (s) { return 2.2 * (1 - 0.7 * s) + 0.3; }, 8, 5, 1.5);
+  }
+  var NL = 26;
+  for (k = 0; k < NL; k++) {                                   // the leaf appendages
+    (function (k) {
+      var s0 = 0.05 + (k % 13) / 13 * 0.90;
+      var up = k < 13 ? 1 : -1;
+      var phi = up * (0.55 + 1.25 * hsh(k)) + (hsh(k + 31) - 0.5) * 0.9;
+      var dz = (hsh(k + 7) - 0.5) * 1.7;
+      var dy = Math.cos(phi), dzz = Math.sin(phi) * 0.55 + dz * 0.5;
+      var dl = Math.sqrt(dy * dy + dzz * dzz) || 1; dy /= dl; dzz /= dl;
+      var b = bod(s0), L = (26 + 26 * hsh(k + 3)) * P.leaf;
+      var dr = sway * 0.22 * Math.sin(T * 1.35 + k * 1.7);
+      blade(st, 18, function (u, w) {
+        var wd = (5 + 7 * hsh(k + 11)) * P.leaf * Math.pow(Math.sin(Math.PI * (0.08 + 0.88 * u)), 0.45)
+               * (1 + 0.5 * Math.sin(u * 10 + k));
+        var yy = b[1] + dy * L * u + dr * L * u * u * 0.5;
+        var zz = b[2] + dzz * L * u;
+        return [b[0] + (w - 0.5) * 2 * wd * 0.85 + dr * L * u * u * 0.4,
+                yy + (w - 0.5) * 2 * wd * dzz * 0.5, zz - (w - 0.5) * 2 * wd * dy * 0.5];
+      }, 1.15);
+      limb(st, crv([[b[0], b[1], b[2]], [b[0], b[1] + dy * L * 0.16, b[2] + dzz * L * 0.16]]),
+           function (s) { return 1.9 * (1 - 0.4 * s) + 0.3; }, 6, 5, 1.2);
+    })(k);
+  }
+  blade(st, 40, function (s, t) {                              // dorsal fin
+    var p = bod(0.30 + 0.42 * s);
+    var h = 17 * Math.pow(Math.sin(Math.PI * (0.07 + 0.86 * s)), 0.5);
+    return [p[0], p[1] + 11 + t * h, p[2] + 6 * P.flutter * Math.sin(s * 10 - T * 8.5) * Math.pow(t, 1.2)];
+  }, 1.0);
+  for (k = -1; k <= 1; k += 2) blade(st, 16, function (s, t) { // pectoral fins
+    var p = bod(0.10 + 0.05 * s);
+    var wd = 12 * Math.sin(Math.PI * (0.1 + 0.85 * s));
+    return [p[0] + s * 6, p[1] + 3, p[2] + k * (11 + t * wd) + 3 * P.flutter * Math.sin(t * 4 - T * 7.5) * k];
+  }, 1.0);
+}
+
+/* ===== 21. STAGHORN CORAL ================================================= */
+function coral(st, P, T) {
+  var s3 = st.step, tips = [];
+  var maxd = Math.round(P.depth);
+  function grow(p, d, len, rad, depth, seed) {
+    var sw = P.sway * 0.055 * Math.sin(T * 1.05 + seed * 0.7);
+    var fr = perp2(d);
+    var end = [p[0] + d[0] * len + fr[0][0] * sw * len, p[1] + d[1] * len, p[2] + d[2] * len + fr[0][2] * sw * len];
+    var mid = [(p[0] + end[0]) / 2 + fr[1][0] * sw * len * 0.6, (p[1] + end[1]) / 2,
+               (p[2] + end[2]) / 2 + fr[1][2] * sw * len * 0.6];
+    var pth = crv([p, mid, end]);
+    limb(st, pth, function (s) { return rad * (1 - 0.40 * s) + 0.55; },
+         Math.max(11, (len * 0.85) | 0), 12);
+    var nc = Math.max(2, (len / 7) | 0);
+    for (var c = 0; c < nc; c++) {                             // axial corallites
+      var s0 = 0.12 + (c / nc) * 0.82, cp = pth(s0), cr = (rad * (1 - 0.40 * s0) + 0.55) * 1.25;
+      var cf = perp2(d);
+      for (var q = 0; q < 7; q += (st.step > 3 ? 2 : 1)) {
+        var wq = q / 7 * TAU + c, cc = Math.cos(wq) * cr, ss = Math.sin(wq) * cr;
+        st.cast(cp[0] + cf[0][0] * cc + cf[1][0] * ss, cp[1] + cf[0][1] * cc + cf[1][1] * ss,
+                cp[2] + cf[0][2] * cc + cf[1][2] * ss, 1.9);
+      }
+    }
+    if (depth <= 1 || len < 9) { tips.push([end, d, rad]); return; }
+    var n = 2 + (hsh(seed) > 0.52 ? 1 : 0);
+    for (var i = 0; i < n; i++) {
+      var ang = (i / n) * TAU + hsh(seed + i * 2) * 2.4;
+      var spread = (0.30 + 0.55 * P.angle) * (0.65 + 0.7 * hsh(seed + i * 3));
+      var cs = Math.cos(spread), sn = Math.sin(spread), ca = Math.cos(ang), sa = Math.sin(ang);
+      var nd = [cs * d[0] + sn * (ca * fr[0][0] + sa * fr[1][0]),
+                cs * d[1] + sn * (ca * fr[0][1] + sa * fr[1][1]),
+                cs * d[2] + sn * (ca * fr[0][2] + sa * fr[1][2])];
+      var nl = Math.sqrt(nd[0] * nd[0] + nd[1] * nd[1] + nd[2] * nd[2]) || 1;
+      nd[0] /= nl; nd[1] /= nl; nd[2] /= nl;
+      grow(end, nd, len * (0.62 + 0.15 * hsh(seed + i * 5)), rad * 0.66, depth - 1, seed * 3 + i + 1);
+    }
+  }
+  grow([0, -96, 0], [0, 1, 0], 66, 12, maxd, 1);
+
+  for (var t = 0; t < tips.length; t++) {                      // polyps at every tip
+    if (t % st.step) continue;
+    (function (t) {
+      var e = tips[t][0], d = tips[t][1], r = tips[t][2], fr = perp2(d);
+      var ext = P.polyp, L = 9 * ext + 1;
+      for (var q = 0; q < 6; q++) {
+        var wq = q / 6 * TAU + t;
+        var ox = fr[0][0] * Math.cos(wq) + fr[1][0] * Math.sin(wq);
+        var oy = fr[0][1] * Math.cos(wq) + fr[1][1] * Math.sin(wq);
+        var oz = fr[0][2] * Math.cos(wq) + fr[1][2] * Math.sin(wq);
+        limb(st, crv([[e[0], e[1], e[2]],
+                      [e[0] + (ox * 0.6 + d[0] * 0.8) * L, e[1] + (oy * 0.6 + d[1] * 0.8) * L,
+                       e[2] + (oz * 0.6 + d[2] * 0.8) * L],
+                      [e[0] + (ox * 1.3 + d[0] * 0.9) * L, e[1] + (oy * 1.3 + d[1] * 0.9) * L,
+                       e[2] + (oz * 1.3 + d[2] * 0.9) * L]]),
+             function (s) { return 1.0 * (1 - 0.55 * s) + 0.25; }, 7, 4, 2.1);
+      }
+    })(t);
+  }
+}
+/* ===== 22. LIONFISH ======================================================= */
+function lionfish(st, P, T) {
+  var s3 = st.step, i, k, g;
+  var sway = P.sway;
+  var spine = crv([[-104, 0, 0], [-70, 2, 0], [-30, 4, 0], [10, 3, 0], [50, 0, 0], [84, -3, 0], [104, -4, 0]]);
+  var bod = function (s) { var p = spine(s); return [p[0], p[1], p[2] + 7 * sway * Math.sin(s * 3.5 - T * 1.6) * s]; };
+  var R = function (s) { return 33 * Math.pow(Math.sin(Math.PI * (0.04 + 0.80 * s)), 0.55) + 1; };
+  limb(st, bod, function (s, w) { return R(s) * (1 - 0.42 * Math.cos(w) * Math.cos(w)); }, 150, 22,
+       function (s, w) { return 0.7 + 0.9 * P.stripe * (Math.sin(s * 27) > 0.35 ? 1 : 0.15); }); // bands: threshold a fast sine
+  for (g = -1; g <= 1; g += 2) {                                   // eyes, plumes above them
+    ball(st, -80, 13, g * 17, 6.2, 320, 2.3);
+    blade(st, 8, function (u, w) { return [-82 + 4 * u, 20 + 16 * u + (w - .5) * 4 * u, g * (16 + 3 * u)]; }, 1.4);
+  }
+  limb(st, crv([[-104, -8, -12], [-108, -12, 0], [-104, -8, 12]]),      // mouth
+       function (s) { return 2.2; }, 14, 6, 1.5);
+  /* a fin is a fan of rays with a membrane between neighbours */
+  function fan(base, N, dir, len, memb, flut, ph) {
+    var tips = [];
+    for (k = 0; k < N; k++) {
+      (function (k) {
+        var d = dir(k), L = len(k), fl = flut * Math.sin(T * 2.4 + ph + k * 0.5);
+        limb(st, function (s) { return [base[0] + d[0] * L * s, base[1] + d[1] * L * s, base[2] + d[2] * L * s + fl * s * s]; },
+             function (s) { return 1.5 * (1 - 0.6 * s) + 0.3; }, Math.round(L / 2.4) + 5, 5, 1.7);
+        tips.push([d, L, fl]);
+      })(k);
+    }
+    for (k = 0; k < N - 1; k++) {
+      (function (a, b) {
+        blade(st, Math.round(memb * 26) + 6, function (u, w) {
+          var uu = u * memb, La = a[1] * uu, Lb = b[1] * uu;
+          return [base[0] + a[0][0] * La * (1 - w) + b[0][0] * Lb * w,
+                  base[1] + a[0][1] * La * (1 - w) + b[0][1] * Lb * w,
+                  base[2] + a[0][2] * La * (1 - w) + b[0][2] * Lb * w + (a[2] * (1 - w) + b[2] * w) * uu * uu];
+        }, 0.5);
+      })(tips[k], tips[k + 1]);
+    }
+  }
+  var ND = 13;                                                     // 13 venomous dorsal spines, membrane only at the base
+  for (k = 0; k < ND; k++) {
+    (function (k) {
+      var s0 = 0.16 + 0.54 * k / (ND - 1), b = bod(s0), L = (66 - 26 * k / ND) * P.spine;
+      var a = 1.35 - 0.55 * k / ND, fl = 5 * P.sway * Math.sin(T * 2.2 + k * 0.7);
+      limb(st, function (s) { return [b[0] + Math.cos(a) * L * s, b[1] + R(s0) * 0.9 + Math.sin(a) * L * s, b[2] + fl * s * s]; },
+           function (s) { return 1.6 * (1 - 0.65 * s) + 0.3; }, 26, 5, 1.8);
+      if (k < ND - 1) {
+        var s1 = 0.16 + 0.54 * (k + 1) / (ND - 1), b2 = bod(s1), L2 = (66 - 26 * (k + 1) / ND) * P.spine, a2 = 1.35 - 0.55 * (k + 1) / ND;
+        blade(st, 12, function (u, w) {
+          var uu = u * 0.42;
+          return [b[0] * (1 - w) + b2[0] * w + (Math.cos(a) * L * (1 - w) + Math.cos(a2) * L2 * w) * uu,
+                  (b[1] + R(s0) * 0.9) * (1 - w) + (b2[1] + R(s1) * 0.9) * w + (Math.sin(a) * L * (1 - w) + Math.sin(a2) * L2 * w) * uu,
+                  b[2] * (1 - w) + b2[2] * w + fl * uu * uu];
+        }, 0.5);
+      }
+    })(k);
+  }
+  (function () {                                                   // soft dorsal, fully webbed
+    var b = bod(0.76);
+    fan([b[0], b[1] + R(0.76) * 0.9, b[2]], 9, function (k) { var a = 1.25 - 0.9 * k / 8; return [Math.cos(a), Math.sin(a), 0]; },
+        function (k) { return (28 - 8 * Math.abs(k - 4) / 4) * P.spine; }, 0.9, 4 * P.sway, 1.0);
+  })();
+  for (g = -1; g <= 1; g += 2) {                                   // the great pectoral fans
+    (function (g) {
+      var b = bod(0.24);
+      fan([b[0], b[1] - 4, b[2] + g * R(0.24) * 0.75], 14,
+          function (k) { var a = 1.15 - 2.5 * k / 13, x = Math.cos(a) * 0.55 + 0.35, y = Math.sin(a), z = g * (0.35 + 0.85 * P.flare) * (1 - 0.35 * Math.abs(y));
+                         var l = Math.sqrt(x * x + y * y + z * z); return [x / l, y / l, z / l]; },
+          function (k) { return (56 + 26 * Math.sin(Math.PI * (0.1 + 0.8 * k / 13))) * P.flare * 0.8 + 20; },
+          0.55, 6 * P.sway, g * 1.3);
+      var pb = bod(0.34);                                          // pelvic fins
+      fan([pb[0], pb[1] - R(0.34) * 0.9, pb[2] + g * 8], 6,
+          function (k) { var a = -1.5 + 0.5 * k / 5; return [Math.cos(a) * 0.6 + 0.3, Math.sin(a), g * 0.35]; },
+          function (k) { return 30 * P.flare + 8; }, 0.8, 3 * P.sway, g * 0.6);
+    })(g);
+  }
+  (function () {                                                   // anal fin
+    var b = bod(0.72);
+    fan([b[0], b[1] - R(0.72) * 0.9, b[2]], 8, function (k) { var a = -1.35 + 0.55 * k / 7; return [Math.cos(a) * 0.7 + 0.2, Math.sin(a), 0]; },
+        function (k) { return 24 * P.spine + 4; }, 0.9, 3 * P.sway, 2.2);
+  })();
+  (function () {                                                   // rounded caudal
+    var b = bod(1);
+    fan(b, 13, function (k) { var a = 0.85 - 1.7 * k / 12; return [Math.cos(a), Math.sin(a), 0]; },
+        function (k) { return 36 + 8 * Math.cos((k - 6) / 6 * 1.4); }, 1.0, 9 * P.sway, 3.0);
+  })();
+}
+
+/* ===== 23. ANGLERFISH ===================================================== */
+function anglerfish(st, P, T) {
+  var s3 = st.step, i, k, g, x, y, z;
+  var gape = 0.12 + 0.62 * P.gape + 0.05 * Math.sin(T * 1.3), sw = P.sway;
+  var A = 72, B = 64, C = 58, HX = 16, HY = -16, SL = -0.3;           // head ellipsoid; jaw hinge; slope of the lip plane
+  var lip = function (x) { return HY + SL * (x - HX); };              // the lips rise toward the front: an upturned mouth
+  var bend = function (x) { var u = Math.max(0, (x - 30) / 100); return 10 * sw * u * u * Math.sin(u * 3 - T * 1.1); };
+  var jaw = function (x, y, z) {                                      // rotate about the hinge; the angle ramps in over 22 units,
+    var th = gape * Math.min(1, Math.max(0, (HX - x) / 22));          // so the cheek stretches instead of tearing
+    var dx = (x - HX) * (1 + 0.07 * th / gape), dy = y - HY, c = Math.cos(th), s = Math.sin(th);
+    return [HX + dx * c - dy * s, HY + dx * s + dy * c, z * (1 + 0.03 * th / gape)];
+  };
+  var put = function (x, y, z, b) {
+    if (x < HX && y < lip(x)) { var j = jaw(x, y, z); st.cast(j[0], j[1], j[2] + bend(j[0]), b); }
+    else st.cast(x, y, z + bend(x), b);
+  };
+  var N = 24000;
+  for (i = 0; i < N; i += s3) {                                       // skin: a Fibonacci sphere, split along the lip plane
+    var v = 1 - 2 * (i + 0.5) / N, r = Math.sqrt(1 - v * v), u = i * 2.399963229728653;
+    x = A * r * Math.cos(u); y = B * v; z = C * r * Math.sin(u);
+    put(x, y, z, 0.9 + 0.6 * (Math.sin(x * 0.5) * Math.sin(z * 0.45 + y * 0.3) > 0.72 ? 1 : 0));
+  }
+  var inside = function (x, y, z) { return (x * x) / (A * A) + (y * y) / (B * B) + (z * z) / (C * C) < 0.985; };
+  for (x = -A; x < HX; x += 2.4 * s3) for (z = -C; z < C; z += 2.4 * s3) {   // palate and tongue: the two faces of the cut, dim
+    y = lip(x); if (!inside(x, y, z)) continue;
+    st.cast(x, y + 0.5, z + bend(x), 0.35);
+    var jf = jaw(x, y - 0.5, z); st.cast(jf[0], jf[1], jf[2] + bend(jf[0]), 0.35);
+  }
+  var xf = HX; while (xf > -A && inside(xf - 1, lip(xf - 1), 0)) xf -= 1;   // where the lip plane leaves the head
+  var rimZ = function (x) { var y = lip(x); return C * Math.sqrt(Math.max(0, 1 - (x * x) / (A * A) - (y * y) / (B * B))); };
+  for (k = 0; k < 11; k++) for (g = -1; g <= 1; g += 2) {             // teeth, upper hanging down, lower jutting up and back
+    (function (k, g) {
+      var t = (k + 0.5) / 11, tx = HX - 10 + (xf + 2 - (HX - 10)) * t, tz = g * rimZ(tx) * 0.96, ty = lip(tx);
+      var Lu = (7 + 9 * t) * (k % 2 ? 1 : 0.6), Ll = (11 + 13 * t) * (k % 2 ? 0.65 : 1);
+      limb(st, function (s) { return [tx - 3 * s * s, ty - Lu * s, tz * (1 - 0.1 * s) + bend(tx)]; },
+           function (s) { return 1.5 * (1 - 0.8 * s) + 0.3; }, 10, 4, 2.3);
+      limb(st, function (s) { var p = jaw(tx + 6 * s * s, ty - 1 + Ll * s, tz * (1 - 0.12 * s)); return [p[0], p[1], p[2] + bend(p[0])]; },
+           function (s) { return 1.7 * (1 - 0.8 * s) + 0.3; }, 12, 4, 2.3);
+    })(k, g);
+  }
+  for (g = -1; g <= 1; g += 2) ball(st, -38, 24, g * 44, 4.5, 220, 2.1);   // tiny eyes
+  var L = P.lure, bx = -26, by = B * Math.sqrt(1 - (bx * bx) / (A * A)) - 2;
+  var nod = 6 * Math.sin(T * 0.8);                                    // illicium, arcing over the mouth, the esca dangling
+  var rod = crv([[bx, by, 0], [bx - 30 * L, by + 50 * L, 0], [bx - 70 * L, by + 58 * L + nod * 0.5, 0], [bx - 96 * L, by + 36 * L + nod, 2 * Math.sin(T)]]);
+  limb(st, rod, function (s) { return 2.4 * (1 - 0.5 * s) + 0.4; }, 90, 6, 1.3);
+  var e = rod(1), glow = 1.6 + 1.5 * P.glow * (0.5 + 0.5 * Math.sin(T * 2.6));
+  ball(st, e[0], e[1], e[2], 7, 420, glow);
+  ball(st, e[0], e[1], e[2], 14 + 3 * Math.sin(T * 2.6), 330, 0.18 * glow);   // halo: a sparse, dim shell
+  for (k = 0; k < 7; k++) {                                           // filaments on the esca
+    (function (k) { var a = k / 7 * TAU;
+      limb(st, crv([[e[0], e[1], e[2]], [e[0] + 9 * Math.cos(a), e[1] - 6 - 6 * Math.abs(Math.sin(a)) - 2 * Math.sin(T * 3 + k), e[2] + 9 * Math.sin(a)],
+                    [e[0] + 14 * Math.cos(a), e[1] - 14 - 4 * Math.sin(T * 2 + k), e[2] + 14 * Math.sin(a)]]),
+           function (s) { return 0.9 - 0.5 * s + 0.2; }, 12, 4, 1.4);
+    })(k);
+  }
+  for (g = -1; g <= 1; g += 2) {                                      // stubby pectorals
+    (function (g) {
+      blade(st, 14, function (u, w) { var a = -0.4 + 0.9 * w, px = 30 + Math.cos(a) * 24 * u;
+        return [px, -8 + Math.sin(a) * 24 * u, g * (52 + 8 * u) + bend(px)]; }, 0.9);
+    })(g);
+  }
+  blade(st, 14, function (u, w) { var a = 1.25 - 0.9 * w, px = 42 + Math.cos(a) * 24 * u;   // small dorsal
+    return [px, 50 + Math.sin(a) * 24 * u, bend(px)]; }, 0.9);
+  limb(st, function (s) { var px = 52 + 70 * s; return [px, -4 * s, bend(px)]; },           // caudal peduncle
+       function (s) { return 24 * (1 - 0.72 * Math.pow(s, 0.8)) + 1; }, 150, 30, 0.8);
+  var tx0 = 122;
+  for (k = 0; k < 9; k++) {                                           // caudal fan
+    (function (k) { var a = 0.9 - 1.8 * k / 8, Lc = 32 + 6 * Math.cos((k - 4) / 4 * 1.5);
+      limb(st, function (s) { var px = tx0 + Math.cos(a) * Lc * s; return [px, -4 + Math.sin(a) * Lc * s, bend(px) + 5 * sw * Math.sin(T * 2 + k * 0.4) * s * s]; },
+           function (s) { return 1.3 * (1 - 0.6 * s) + 0.3; }, 18, 4, 1.4);
+    })(k);
+  }
+  blade(st, 26, function (u, w) { var a = 0.9 - 1.8 * w, Lc = (32 + 6 * Math.cos((w - 0.5) * 3)) * u, px = tx0 + Math.cos(a) * Lc;
+    return [px, -4 + Math.sin(a) * Lc, bend(px) + 5 * sw * Math.sin(T * 2 + w * 3) * u * u]; }, 0.45);
+}
+
+/* ===== 24. SIPHONOPHORE =================================================== */
+function siphonophore(st, P, T) {
+  var s3 = st.step, i, k;
+  var drift = P.drift;
+  var stem = function (s) {                                            // s: 0 at the float, 1 at the bottom
+    return [22 * drift * Math.sin(s * 2.2 + T * 0.7), 180 - 300 * s, 18 * drift * Math.sin(s * 1.7 - T * 0.55)];
+  };
+  limb(st, stem, function (s) { return 2.2 + 1.2 * Math.sin(s * Math.PI); }, 300, 6, 1.15);
+  var top = stem(0);
+  ball(st, top[0], top[1] + 9, top[2], 8, 300, 1.5, 1.6);              // pneumatophore, the gas float
+  var NB = Math.round(10 * P.bells);                                    // nectophores: the swimming bells, a spiral of them
+  for (k = 0; k < NB; k++) {
+    (function (k) {
+      var s0 = 0.035 + 0.27 * k / Math.max(1, NB - 1), c = stem(s0), ang = k * 1.9;
+      var ph = T * 2.3 - k * 0.55, con = P.pulse * Math.pow(0.5 + 0.5 * Math.sin(ph), 3);
+      var rr = 15 - 3 * Math.sin(Math.PI * s0 / 0.3), cx = c[0] + Math.cos(ang) * (rr + 3), cz = c[2] + Math.sin(ang) * (rr + 3);
+      for (i = 0; i < 620; i += s3) {
+        var u = ((i / 31) | 0) / 19, v = (i % 31) / 31 * TAU, a = u * 1.25;
+        var rad = rr * Math.sin(a) * (1 - 0.28 * con * u * u), y = c[1] + rr * (Math.cos(a) - 0.25) * (1 + 0.18 * con * u);
+        st.cast(cx + rad * Math.cos(v), y, cz + rad * Math.sin(v), 0.85 + 0.9 * (u > 0.94 ? 1 : 0));
+      }
+      limb(st, crv([[c[0], c[1], c[2]], [cx, c[1] + 6, cz]]), function (s) { return 1.6; }, 8, 4, 1.3); // peduncle
+    })(k);
+  }
+  var NZ = 15;                                                          // siphosome: feeding polyps and their trailing tentacles
+  for (k = 0; k < NZ; k++) {
+    (function (k) {
+      var s0 = 0.34 + 0.64 * k / (NZ - 1), c = stem(s0), ang = k * 2.4 + 0.6;
+      var dx = Math.cos(ang), dz = Math.sin(ang);
+      ball(st, c[0] + dx * 7, c[1] - 2, c[2] + dz * 7, 4.6, 150, 1.5, 1.9);                        // gastrozooid
+      blade(st, 9, function (u, w) { var a = ang + (w - 0.5) * 1.4;                                // a bract, a little shield
+        return [c[0] + Math.cos(a) * 12 * u, c[1] + 6 + 8 * u - 8 * u * u, c[2] + Math.sin(a) * 12 * u]; }, 0.7);
+      var L = (70 + 70 * hsh(k)) * P.tent * (1.1 - 0.35 * k / NZ), ph = T * 0.9 + k * 1.3;   // lower polyps trail shorter
+      limb(st, function (u) {
+        return [c[0] + dx * (7 + 12 * u) + 11 * drift * Math.sin(u * 6.5 + ph) * u,
+                c[1] - 4 - L * u + 4 * Math.sin(u * 9 + ph),
+                c[2] + dz * (7 + 12 * u) + 11 * drift * Math.cos(u * 5.2 + ph * 0.8) * u];
+      }, function (u) { return 1.4 * (1 - 0.5 * u) + 0.4; }, Math.round(L / 1.2), 5,
+      function (u) { return Math.sin(u * 42 + k) > 0.55 ? 2.7 : 1.0; });                         // tentilla as beads
+    })(k);
+  }
+}
+
+/* ===== 25. COPEPOD ======================================================== */
+function copepod(st, P, T) {
+  var s3 = st.step, i, k, g;
+  var tw = Math.pow(Math.max(0, Math.sin(T * 2.4)), 7) * P.kick;      // a copepod moves in jerks: seventh power of a sine
+  var pro = crv([[-72, 0, 0], [-40, 1, 0], [0, 0, 0], [30, -2, 0]]);
+  limb(st, pro, function (s, w) {
+    return 26 * Math.pow(Math.sin(Math.PI * (0.06 + 0.86 * s)), 0.62) * (1 + 0.05 * Math.abs(Math.sin(s * 12))) * (1 - 0.18 * Math.pow(Math.sin(w), 2));
+  }, 110, 20, function (s, w) { return 0.85 + 1.0 * (Math.abs(Math.sin(s * 4 * Math.PI)) > 0.985 ? 1 : 0); }); // segment seams
+  var NU = 5, x0 = 30;                                                 // urosome: five short cylinders, then the forked tail
+  var uro = function (s) { var d = tw * 0.5; return [x0 + 58 * s, -2 - 22 * d * s * s, 0]; };
+  for (k = 0; k < NU; k++) {
+    (function (k) {
+      var a = k / NU, b = (k + 0.86) / NU;
+      limb(st, function (s) { return uro(a + (b - a) * s); }, function (s) { return 7.5 - 3.4 * (a + (b - a) * s); }, 12, 10, 0.95);
+    })(k);
+  }
+  var tip = uro(1), fd = 22 * tw * 0.5;
+  for (g = -1; g <= 1; g += 2) {                                       // furca, with the caudal setae
+    (function (g) {
+      limb(st, function (s) { return [tip[0] + 16 * s, tip[1] - fd * s * 0.4, tip[2] + g * (2 + 5 * s)]; }, function (s) { return 2.3 - 1.2 * s; }, 12, 6, 1.2);
+      for (k = 0; k < 4; k++) {
+        (function (k) { var a = g * (0.15 + 0.35 * k), L = 38 - 7 * k;
+          limb(st, function (s) { return [tip[0] + 16 + Math.cos(a * 0.6) * L * s, tip[1] - fd * 0.4 - 8 * k * s * 0.4 - 4 * s * s * (1 - tw), tip[2] + g * 7 + Math.sin(a) * L * s]; },
+               function (s) { return 0.8 * (1 - 0.5 * s) + 0.25; }, 20, 3, 1.5);
+        })(k);
+      }
+    })(g);
+  }
+  ball(st, -66, 8, 0, 4.2, 220, 3.0);                                 // the single naupliar eye
+  for (g = -1; g <= 1; g += 2) {                                       // first antennae: the long ones, swept back on the kick
+    (function (g) {
+      var sweep = 1 - 0.55 * tw, A = P.antenna;
+      var ant = crv([[-64, 4, g * 10], [-44 + 14 * tw, 12, g * 56 * sweep * A], [-2 + 22 * tw, 10, g * 94 * sweep * A], [34 + 30 * tw, 2, g * 112 * sweep * A]]);
+      limb(st, ant, function (s) { return 2.3 * (1 - 0.7 * s) + 0.3; }, 80, 6, 1.4);
+      for (k = 1; k < 11; k++) {                                       // setae, alternating sides
+        (function (k) { var s0 = k / 11, p = ant(s0), q = ant(s0 + 0.01), side = (k % 2 ? 1 : -1);
+          var L = 9 + 6 * Math.sin(s0 * Math.PI);
+          limb(st, function (s) { return [p[0] + side * 0.5 * L * s, p[1] + side * L * s * 0.8, p[2] + g * 0.3 * L * s]; }, function (s) { return 0.7 - 0.3 * s + 0.2; }, 7, 3, 1.3);
+        })(k);
+      }
+      var sa = crv([[-70, -4, g * 9], [-78, -12, g * 22], [-72, -24, g * 34]]);   // second antenna, short and hooked
+      limb(st, sa, function (s) { return 1.6 - 0.9 * s + 0.2; }, 20, 5, 1.2);
+    })(g);
+  }
+  for (k = 0; k < 4; k++) for (g = -1; g <= 1; g += 2) {               // four pairs of swimming legs, paddling with the twitch
+    (function (k, g) {
+      var p = pro(0.42 + 0.14 * k), r = 26 * Math.pow(Math.sin(Math.PI * (0.06 + 0.86 * (0.42 + 0.14 * k))), 0.62) * 0.85;
+      var a = -1.45 + 0.9 * tw - 0.15 * k;
+      blade(st, 9, function (u, w) { return [p[0] + Math.cos(a) * 18 * u + 3 * w, p[1] - r + Math.sin(a) * 18 * u, p[2] + g * (6 + 4 * w + 3 * u)]; }, 0.9);
+    })(k, g);
+  }
+  if (P.eggs > 0.02) for (g = -1; g <= 1; g += 2) {                    // two egg sacs slung under the urosome
+    for (k = 0; k < 16; k++) {
+      var u = k * 2.399963229728653, v = 1 - 2 * (k + 0.5) / 16, sr = Math.sqrt(1 - v * v);
+      ball(st, 46 + 9 * sr * Math.cos(u) * P.eggs + 8 * v, -14 - 6 * P.eggs + 6 * v, g * (10 + 7 * sr * Math.sin(u) * P.eggs), 3.1 * P.eggs, 70, 1.6);
+    }
+  }
+}
+
+/* ===== 26. RADIOLARIAN ==================================================== */
+function radiolarian(st, P, T) {
+  var s3 = st.step, i, j, k;
+  var rot = T * 0.10;
+  function shell(N, R0, boost) {                                       // a Fibonacci sphere, then struts between every pair of neighbours
+    var nodes = [], thr = 1.42 * 3.545 / Math.sqrt(N);
+    for (i = 0; i < N; i++) {
+      var u = i * 2.399963229728653 + rot, v = 1 - 2 * (i + 0.5) / N, sr = Math.sqrt(1 - v * v);
+      nodes.push([sr * Math.cos(u), v, sr * Math.sin(u)]);
+    }
+    for (i = 0; i < N; i++) for (j = i + 1; j < N; j++) {
+      var a = nodes[i], b = nodes[j], dx = a[0] - b[0], dy = a[1] - b[1], dz = a[2] - b[2], d = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      if (d > thr) continue;
+      var m = Math.max(2, Math.round(d * R0 / (2.2 * s3)));
+      for (k = 0; k <= m; k++) { var t = k / m; st.cast(R0 * (a[0] + (b[0] - a[0]) * t), R0 * (a[1] + (b[1] - a[1]) * t), R0 * (a[2] + (b[2] - a[2]) * t), boost); }
+    }
+    return nodes;
+  }
+  var N = Math.round(150 * P.lattice), R0 = 92;
+  var outer = shell(N, R0, 1.15);
+  if (P.shells > 0.05) {
+    var inner = shell(Math.round(N / 3), 50, 0.9 * P.shells);
+    for (i = 0; i < inner.length; i += 4) {                             // radial beams tying the shells together
+      (function (n) { limb(st, function (s) { return [n[0] * (50 + 42 * s), n[1] * (50 + 42 * s), n[2] * (50 + 42 * s)]; },
+                           function (s) { return 1.2; }, 10, 3, 0.8 * P.shells); })(inner[i]);
+    }
+  }
+  for (i = 0; i < N; i++) {                                            // by-spines: a short bristle at every node
+    (function (n) { var L = 7 + 4 * hsh(i);
+      limb(st, function (s) { return [n[0] * (R0 + L * s), n[1] * (R0 + L * s), n[2] * (R0 + L * s)]; }, function (s) { return 0.9 * (1 - 0.5 * s) + 0.25; }, 5, 3, 1.5); })(outer[i]);
+  }
+  var NS = 12;                                                         // the great radial spines, three-bladed in the real animal
+  for (k = 0; k < NS; k++) {
+    (function (k) {
+      var n = outer[Math.floor(k * N / NS)], L = (70 + 40 * hsh(k + 5)) * P.spine, tw = 5 * Math.sin(T * 1.1 + k);
+      var fr = perp2(n);
+      limb(st, function (s) { var r = R0 + L * s; return [n[0] * r + fr[0][0] * tw * s * s, n[1] * r + fr[0][1] * tw * s * s, n[2] * r + fr[0][2] * tw * s * s]; },
+           function (s, w) { return (3.2 * (1 - 0.8 * s) + 0.4) * (1 + 0.45 * Math.abs(Math.cos(w * 1.5))); }, 60, 6, 1.7);
+    })(k);
+  }
+  ball(st, 0, 0, 0, 22, 900, 0.55 * P.glow);                          // the central capsule
+  ball(st, 0, 0, 0, 12, 500, 1.2 * P.glow);
+  for (k = 0; k < 40; k++) {                                           // axopodia: fine rays from the capsule through the shell
+    var u = k * 2.399963229728653 + rot * 0.3, v = 1 - 2 * (k + 0.5) / 40, sr = Math.sqrt(1 - v * v);
+    for (i = 0; i < 40; i += s3) { var r = 22 + 100 * i / 39; st.cast(r * sr * Math.cos(u), r * v, r * sr * Math.sin(u), 0.35 * P.glow); }
+  }
+}
+
+/* ===== 27. DUMBO OCTOPUS ================================================== */
+function dumbo(st, P, T) {
+  var s3 = st.step, i, a, k, s, w, g, v, o, r, j;
+  var br = Math.sin(T * 1.1);                                    // one swim cycle: the web opens, then closes
+  var spread = 1 + 0.22 * P.web * br, lift = 7 * P.web * Math.sin(T * 1.1 - 0.9);
+  for (i = 0; i < 9000; i += s3) {                               // the bell: widest at the bottom, like a thimble
+    v = ((i / 100) | 0) / 89; o = (i % 100) / 100 * TAU;
+    r = 50 * Math.pow(Math.sin(Math.PI * (0.03 + 0.62 * v)), 0.6);
+    st.cast(r * Math.cos(o), 122 - 104 * v + lift, 0.92 * r * Math.sin(o));
+  }
+  for (g = -1; g <= 1; g += 2) {                                 // eyes
+    ball(st, g * 42, 34 + lift, 12, 11, 460, 1.0);
+    ball(st, g * 50, 35 + lift, 15, 4.6, 200, 2.8);
+  }
+  for (g = -1; g <= 1; g += 2) {                                 // the ear fins: paddles hinged on the bell
+    var al = 0.6 * P.fin * Math.sin(T * 2.2 + (g > 0 ? 0 : 0.35));
+    for (i = 0; i < 1300; i += s3) {
+      var u = ((i / 26) | 0) / 49, q = (i % 26) / 25;
+      var ch = 26 * Math.pow(Math.sin(Math.PI * (0.1 + 0.8 * u)), 0.6) * (1.15 - 0.3 * u);
+      var L = 50 * u, bend = 9 * P.fin * Math.sin(T * 2.2 - 1.1) * u * u;
+      var edge = (q < 0.05 || q > 0.95 || u > 0.97) ? 1.8 : 0.75;
+      st.cast(g * (46 + L * Math.cos(al)), 80 + lift + L * Math.sin(al) + bend + (q - 0.5) * 1.4 * ch, (q - 0.5) * 1.4 * ch, edge);   // chord tilted 45°, so the paddle shows its face
+    }
+  }
+  function phi(a, s) { return a * TAU / 8 + TAU / 16 + 0.08 * Math.sin(T * 0.9 + a * 1.7) * s; }
+  function rho(s) { return 22 + 134 * spread * s * (1 - 0.35 * s); }
+  function yy(s) { return 16 + lift - 108 * s * (1.9 - spread) + 28 * s * s * s; }
+  for (a = 0; a < 8; a++) {                                      // eight arms under the umbrella
+    (function (a) {
+      limb(st, function (s) { var p = phi(a, s), R = rho(s); return [R * Math.cos(p), yy(s), R * Math.sin(p) * 0.94]; },
+           function (s) { return 8 * Math.pow(1 - s, 0.8) + 0.6; }, 70, 9);
+    })(a);
+  }
+  for (i = 0; i < 8 * 140; i += s3) {                            // one sucker row and paired cirri: the cirrate signature
+    a = (i / 140) | 0; s = (i % 140) / 139;
+    var p = phi(a, s), R = rho(s), tr = 8 * Math.pow(1 - s, 0.8) + 0.6;
+    if (Math.sin(s * 120) > 0.55) st.cast((R - tr * 0.4) * Math.cos(p), yy(s) - tr * 0.9, (R - tr * 0.4) * Math.sin(p) * 0.94, 2.4);
+    if (Math.sin(s * 120 + 1.6) > 0.9) for (k = -1; k <= 1; k += 2) for (j = 1; j < 7; j++) {
+      var pc = p + k * 0.012 * j;
+      st.cast((R - tr - 0.9 * j) * Math.cos(pc), yy(s) - tr * 0.6 - 1.2 * j, (R - tr - 0.9 * j) * Math.sin(pc) * 0.94, 1.3);
+    }
+  }
+  for (i = 0; i < 8 * 600; i += s3) {                            // web: arm to arm almost to the tips, with a scalloped margin
+    a = (i / 600) | 0; var jj = i % 600;
+    w = (jj % 16) / 15; var se = 0.88 - 0.16 * Math.sin(Math.PI * w);
+    s = ((jj / 16) | 0) / 36 * se;
+    var pa = phi(a, s), pb = phi(a + 1, s), pw = pa + (pb - pa) * w, Rw = rho(s) * (1 - 0.06 * Math.sin(Math.PI * w));
+    st.cast(Rw * Math.cos(pw), yy(s) + 7 * Math.sin(Math.PI * w) * s * spread, Rw * Math.sin(pw) * 0.94,
+            s > se * 0.96 ? 1.7 : 0.62);
+  }
+}
+
+/* ===== 28. MANTA RAY ====================================================== */
+function manta(st, P, T) {
+  var s3 = st.step, i, k, g, SP = 188, ph = T * 1.25;
+  var bank = P.bank * 0.32 * Math.sin(T * 0.55), cb = Math.cos(bank), sb = Math.sin(bank);
+  var S = { step: s3, cast: function (x, y, z, b) { st.cast(x * cb - y * sb, x * sb + y * cb, z, b); } };  // a whole-body roll, applied by wrapping cast
+  var le = function (t) { return -92 + 92 * Math.pow(Math.abs(t), 1.5); };
+  var ch = function (t) { var a = Math.min(1, Math.abs(t)); return 168 * Math.pow(1 - a, 0.62) * (1 - 0.25 * a) + 4; };
+  var fy = function (t, c) { var a = Math.abs(t);
+    return P.flap * 62 * Math.sin(ph - 1.5 * a) * Math.pow(a, 1.5) + P.flap * 10 * a * Math.sin(ph - 2.3) * (c - 0.3); };
+  var th = function (t, c) {
+    return (22 * Math.exp(-Math.pow(t * SP / 42, 2)) + 4 * (1 - Math.abs(t))) * Math.pow(Math.max(0, Math.sin(Math.PI * (0.02 + 0.96 * c))), 0.5); };
+  for (i = 0; i < 16000; i += s3) {                              // the wing, both surfaces
+    var t = ((i / 120) | 0) / 132 * 2 - 1, c = (i % 120) / 119;
+    var x = t * SP, z = le(t) + c * ch(t), y = fy(t, c), h = th(t, c);
+    S.cast(x, y + h, z); S.cast(x, y - h * 0.6, z, 0.7);
+  }
+  for (i = 0; i < 2400; i += s3) {                               // leading and trailing edges, drawn bright
+    var tt = ((i / 2) | 0) / 1199 * 2 - 1, cc = i % 2;
+    S.cast(tt * SP, fy(tt, cc), le(tt) + cc * ch(tt), 1.5);
+  }
+  for (g = -1; g <= 1; g += 2) {                                 // cephalic lobes: a sheet rolled into a horn, unrolled into a scoop
+    var rr = 3 + 30 * P.lobes, bx = g * 30, by = fy(bx / SP, 0) + 2, bz = le(bx / SP) + 4;
+    for (i = 0; i < 900; i += s3) {
+      var u = ((i / 18) | 0) / 49, q = (i % 18) / 17, W = 18 * (1 - 0.35 * u), ang = q * W / rr;
+      S.cast(bx - g * rr * (1 - Math.cos(ang)), by - rr * Math.sin(ang), bz - 40 * u, (q > 0.94 || u > 0.97) ? 1.7 : 0.9);
+    }
+    ball(S, g * 36, 7, -80, 4.4, 180, 2.4);                      // eyes, on the sides of the head
+  }
+  for (i = 0; i < 220; i += s3) {                                // the wide terminal mouth
+    var am = i / 220 * TAU; S.cast(22 * Math.cos(am), -3 + 5 * Math.sin(am), -91, 1.7);
+  }
+  for (k = 0; k < 5; k++) for (g = -1; g <= 1; g += 2) {         // five gill slits each side, underneath
+    for (i = 0; i < 50; i += s3) {
+      var gq = i / 49, gx = g * (24 + 18 * gq), gz = -42 + k * 11 - 5 * gq, gt = gx / SP, gc = (gz - le(gt)) / ch(gt);
+      S.cast(gx, fy(gt, gc) - th(gt, gc) * 0.6 - 1, gz, 1.6);
+    }
+  }
+  blade(S, 16, function (u, w) {                                 // small dorsal fin
+    var z = 48 + 22 * w - 6 * u; return [0, th(0, 0.72) + fy(0, 0.8) + 14 * u * (1 - w), z];
+  }, 1.1);
+  limb(S, function (u) {                                         // whip tail
+    return [8 * P.flap * Math.sin(u * 3 - ph) * u, fy(0, 1) + 2 + 6 * Math.sin(u * 2.4 - ph) * u, 76 + 92 * u];
+  }, function (u) { return 3.6 * Math.pow(1 - u, 0.7) + 0.4; }, 50, 7);
+  for (g = -1; g <= 1; g += 2) blade(S, 12, function (u, w) {    // pelvic fins trailing the disc
+    return [g * (8 + 14 * w), fy(0, 1) - 4, 58 + 26 * u * (1 - 0.4 * w)];
+  }, 0.9);
+}
+
+/* ===== 29. BLACKTIP REEF SHARK ============================================ */
+function shark(st, P, T) {
+  var s3 = st.step, i, k, g, L = 320, beat = T * 2.4;
+  var mid = function (s) { return [-160 + L * s, 0, P.swim * (22 * Math.pow(s, 1.6) + 3) * Math.sin(s * 5.2 - beat) - P.swim * 3 * Math.sin(-beat)]; };
+  var Rh = function (s) {
+    var r = s < 0.4 ? 36 * Math.pow(Math.sin(HP * Math.min(1, (s + 0.012) / 0.4)), 0.62)
+                    : 5 + 31 * Math.pow(Math.cos(HP * Math.min(1, (s - 0.4) / 0.55)), 1.25);
+    return r * (0.72 + 0.28 * Math.min(1, s / 0.12));            // flatter snout
+  };
+  var Rw = function (s) { return Rh(s) * 0.84; };
+  var side = function (s) {                                      // lateral unit vector: the tangent turned 90 degrees in plan
+    var a = mid(Math.min(1, s + 0.003)), b = mid(Math.max(0, s - 0.003)), tx = a[0] - b[0], tz = a[2] - b[2], l = Math.sqrt(tx * tx + tz * tz) || 1;
+    return [-tz / l, tx / l];
+  };
+  var sp = function (s, w, k) { var c = mid(s), e = side(s); k = k || 1;
+    return [c[0] + e[0] * Rw(s) * Math.cos(w) * k, c[1] + Rh(s) * Math.sin(w) * k, c[2] + e[1] * Rw(s) * Math.cos(w) * k]; };
+  for (i = 0; i < 30000; i += s3) {                              // skin: golden-angle scatter, pale belly
+    var s = (i + 0.5) / 30000, w = i * 2.399963229728653, p = sp(s, w);
+    st.cast(p[0], p[1], p[2], Math.sin(w) > -0.15 ? 1.0 : 0.58);
+  }
+  for (g = -1; g <= 1; g += 2) {
+    var we = g > 0 ? 0.3 : Math.PI - 0.3, pe = sp(0.075, we, 1.02);
+    ball(st, pe[0], pe[1], pe[2], 3.6, 160, 2.6);                // eyes
+    for (k = 0; k < 5; k++) for (i = 0; i < 40; i += s3) {       // five gill slits
+      var gw = -0.5 + 0.8 * i / 39, pg = sp(0.165 + k * 0.017, g > 0 ? gw : Math.PI - gw, 1.02);
+      st.cast(pg[0], pg[1], pg[2], 1.9);
+    }
+  }
+  for (i = 0; i < 120; i += s3) {                                // mouth, a crescent under the snout
+    var mq = i / 119 - 0.5, pm = sp(0.07 + 0.03 * mq * mq * 4, -HP + mq * 2.2, 1.03); st.cast(pm[0], pm[1], pm[2], 1.5);
+  }
+  var tip = function (v) { return v > 0.8 ? 0.85 + 1.7 * P.tip : 0.85; };   // the black tips, as the brightest points: a photographic negative
+  function fin(N, M, fn) {                                        // a planar sheet whose points carry their own brightness
+    var n = Math.max(6, Math.round(N / s3));
+    for (var a = 0; a < n; a++) for (var b = 0; b < M; b++) { var r = fn(a / (n - 1), b / (M - 1)); st.cast(r[0], r[1], r[2], r[3]); }
+  }
+  function upright(s0, s1, sA, H, dir) {                          // dorsal / anal: root along the body, apex swept back
+    fin(30, 16, function (u, v) { var s = s0 + (s1 - s0) * u, ss = s + (sA - s) * v, c = mid(ss);
+      return [c[0] - 4 * v * (1 - v) * u * H / 20, c[1] + dir * (Rh(ss) * 0.95 + H * v * (1 - 0.35 * u)), c[2], tip(v)]; });
+  }
+  upright(0.33, 0.46, 0.50, 58, 1);                              // first dorsal
+  upright(0.72, 0.78, 0.81, 15, 1);                              // second dorsal
+  upright(0.73, 0.79, 0.82, 14, -1);                             // anal
+  var dl = 0.9 - 0.45 * P.pect + 0.06 * Math.sin(T * 1.3);
+  for (g = -1; g <= 1; g += 2) {
+    (function (g) {
+      var ca = mid(0.43), ea = side(0.43), out = Rw(0.43) + 80 * Math.cos(dl), dn = -Rh(0.43) * 0.5 - 80 * Math.sin(dl);
+      var apex = [ca[0] + ea[0] * g * out, ca[1] + dn, ca[2] + ea[1] * g * out];
+      fin(34, 18, function (u, v) {                               // pectorals
+        var r = sp(0.21 + 0.10 * u, g > 0 ? -0.62 : Math.PI + 0.62, 0.98);
+        return [r[0] + (apex[0] - r[0]) * v, r[1] + (apex[1] - r[1]) * v, r[2] + (apex[2] - r[2]) * v, tip(v)];
+      });
+      var cp = mid(0.58), ep = side(0.58);                        // pelvics
+      fin(14, 10, function (u, v) {
+        var r = sp(0.55 + 0.06 * u, g > 0 ? -1.0 : Math.PI + 1.0, 0.98);
+        return [r[0] + 14 * v, r[1] - 14 * v, r[2] + ep[1] * g * 10 * v, 0.9];
+      });
+    })(g);
+  }
+  var c1 = mid(1), h1 = Rh(1);                                   // heterocercal caudal: the long upper lobe carries the spine
+  var edge = crv([[66, 66, 0], [48, 36, 0], [32, 6, 0], [40, -18, 0], [42, -38, 0]]);
+  fin(60, 18, function (u, v) {
+    var e = edge(u), ry = h1 * 0.9 * (1 - 2 * u), lag = P.swim * 16 * Math.sin(5.2 - beat - 0.8) * v;
+    var b = (v > 0.8 && (u < 0.12 || u > 0.9)) ? 0.85 + 1.7 * P.tip : (v > 0.94 ? 1.4 : 0.85);
+    return [c1[0] + e[0] * v, c1[1] + ry + (e[1] - ry) * v, c1[2] + lag, b];
+  });
+}
+
+/* ===== 30. CLOWNFISH ====================================================== */
+function clownfish(st, P, T) {
+  var s3 = st.step, i, k, g, wag = P.waggle;
+  var mid = function (s) { return [-80 + 165 * s, 0, wag * (7 * s * s * Math.sin(s * 4 - T * 3.1) + 1.5 * Math.sin(T * 3.1))]; };
+  var Rh = function (s) { return 44 * Math.pow(Math.sin(Math.PI * (0.03 + 0.9 * s)), 0.6) + 2; };
+  var Rw = function (s) { return Rh(s) * 0.5; };                 // laterally compressed
+  var bw = 0.042 * P.bands, rim = 0.013;
+  var band = function (s, sw) {                                  // three white bars, each edged in black
+    var m = 1 - sw * sw, d = Math.min(Math.abs(s - (0.215 - 0.02 * m)), Math.abs(s - (0.535 - 0.045 * m)), Math.abs(s - 0.9));
+    return d < bw ? 2.3 : (d < bw + rim ? 0 : 1);
+  };
+  for (i = 0; i < 26000; i += s3) {
+    var s = (i + 0.5) / 26000, w = i * 2.399963229728653, b = band(s, Math.sin(w));
+    if (b === 0) continue;                                       // black is simply where no point lands
+    var c = mid(s); st.cast(c[0], c[1] + Rh(s) * Math.sin(w), c[2] + Rw(s) * Math.cos(w), b);
+  }
+  for (g = -1; g <= 1; g += 2) {                                 // big eyes
+    var ce = mid(0.12);
+    ball(st, ce[0], ce[1] + 9, ce[2] + g * Rw(0.12) * 0.82, 7.5, 330, 1.0);
+    ball(st, ce[0] - 1, ce[1] + 9, ce[2] + g * (Rw(0.12) * 0.82 + 4.5), 3.6, 150, 2.8);
+  }
+  function sheet(N, M, fn) {                                     // a fin: orange fill, a gap of black, a white margin
+    var n = Math.max(6, Math.round(N / s3));
+    for (var a = 0; a < n; a++) for (var q = 0; q < M; q++) {
+      var v = q / (M - 1); if (v > 0.8 && v < 0.88) continue;
+      var r = fn(a / (n - 1), v); st.cast(r[0], r[1], r[2], v >= 0.88 ? 2.0 : 0.75);
+    }
+  }
+  sheet(44, 18, function (u, v) {                                // dorsal: spiny front, notch, soft rear
+    var h = u < 0.42 ? 6 + 13 * Math.pow(Math.sin(Math.PI * u / 0.42), 0.5) * (1 + 0.18 * Math.abs(Math.sin(u * 42)))
+                     : 6 + 24 * Math.pow(Math.max(0, Math.sin(Math.PI * (u - 0.42) / 0.58)), 0.6);
+    var s = 0.25 + 0.6 * u, c = mid(s);
+    return [c[0] + 5 * v, c[1] + Rh(s) * 0.96 + h * v, c[2] + 3 * wag * v * v * Math.sin(T * 4 + u * 6)];
+  });
+  sheet(22, 16, function (u, v) {                                // anal
+    var s = 0.62 + 0.24 * u, c = mid(s), h = 4 + 20 * Math.pow(Math.sin(Math.PI * u), 0.6);
+    return [c[0] + 5 * v, c[1] - Rh(s) * 0.96 - h * v, c[2] + 3 * wag * v * v * Math.sin(T * 4 + u * 6 + 1)];
+  });
+  var ct = mid(1);
+  sheet(40, 18, function (u, v) {                                // rounded tail
+    var a = -0.95 + 1.9 * u, r = 38 * (0.9 + 0.1 * Math.cos(a * 1.5)), lag = wag * 9 * Math.sin(4 - T * 3.1 - 0.7) * v;
+    var ry = Rh(1) * 0.8 * Math.sin(a);
+    return [ct[0] + r * Math.cos(a) * v, ct[1] + ry + (r * Math.sin(a) - ry) * v, ct[2] + lag];
+  });
+  for (g = -1; g <= 1; g += 2) {
+    (function (g) {
+      var al = 0.35 + 0.55 * P.row * (0.5 + 0.5 * Math.sin(T * 5.5 + (g > 0 ? 0 : Math.PI)));   // pectorals row in alternation
+      var cp = mid(0.26);
+      sheet(22, 14, function (u, v) {
+        var y0 = -10 + 16 * u, Lr = 28 * Math.pow(Math.sin(Math.PI * (0.1 + 0.8 * u)), 0.5);
+        return [cp[0] + 2 + Math.cos(al) * Lr * v, cp[1] + y0 * (1 + 0.5 * v), cp[2] + g * (Rw(0.26) * 0.9 + Math.sin(al) * Lr * v)];
+      });
+      var cv = mid(0.32);
+      sheet(12, 12, function (u, v) {                            // pelvics
+        return [cv[0] + 6 * u + 12 * v, cv[1] - Rh(0.32) * 0.9 - 18 * v, cv[2] + g * (3 + 6 * v)];
+      });
+    })(g);
+  }
+}
+
+/* ===== 31. DIATOM ========================================================= */
+function diatom(st, P, T) {
+  var s3 = st.step, i, k, j, g, R = 112, rot = T * 0.12;
+  var gap = 4 + 70 * P.open, tl = 0.3 * P.open;
+  var lift = function (x, y, z) {                                // the upper valve hinges open about its far edge
+    var dy = y - gap / 2, dz = z + R;
+    return [x, gap / 2 + dy * Math.cos(tl) + dz * Math.sin(tl), -R + dz * Math.cos(tl) - dy * Math.sin(tl)];
+  };
+  function valve(sg) {                                           // one half of the pillbox; sg = +1 top, -1 bottom
+    var put = function (x, h, z, b) {
+      var p = sg > 0 ? lift(x, gap / 2 + h, z) : [x, -gap / 2 - h, z]; st.cast(p[0], p[1], p[2], b);
+    };
+    var face = function (r) { return 9 + 6 * (1 - r * r / (R * R)); };
+    var Np = Math.round(620 * P.pores);
+    for (i = 0; i < Np; i++) {                                   // areolae: little hexagons on a sunflower spiral
+      var rr = 20 + (R - 24) * Math.sqrt((i + 0.5) / Np), th = i * 2.399963229728653 + rot, pr = 2.2 + 2.2 * rr / R;
+      for (k = 0; k < 12; k += Math.min(s3, 6)) {
+        var hx = rr * Math.cos(th) + pr * Math.cos(k * TAU / 12), hz = rr * Math.sin(th) + pr * Math.sin(k * TAU / 12);
+        put(hx, face(Math.sqrt(hx * hx + hz * hz)), hz, k % 2 ? 0.6 : 1.3);   // corners bright, edge midpoints dim: a hexagon
+      }
+    }
+    var Nr = Math.round(24 * P.ribs);
+    for (k = 0; k < Nr; k++) for (i = 0; i < 70; i += s3) {       // radial costae
+      var r2 = 18 + (R - 18) * i / 69, t2 = k / Nr * TAU + rot;
+      put(r2 * Math.cos(t2), face(r2) + 0.8, r2 * Math.sin(t2), 1.6);
+    }
+    [18, 46, 78, R - 1].forEach(function (r3) {                  // concentric rings: the spider's web of Arachnoidiscus
+      for (i = 0; i < 300; i += s3) { var t3 = i / 300 * TAU; put(r3 * Math.cos(t3), face(r3) + 0.8, r3 * Math.sin(t3), 1.4); }
+    });
+    for (k = 0; k < 12; k++) for (i = 0; i < 12; i += s3) {       // central rosette
+      var r4 = 5 + i, t4 = k / 12 * TAU - rot; put(r4 * Math.cos(t4), face(r4) + 0.8, r4 * Math.sin(t4), 1.8);
+    }
+    for (i = 0; i < 3600; i += s3) {                             // mantle wall, striated
+      var t5 = ((i / 20) | 0) / 180 * TAU + rot, hq = (i % 20) / 19;
+      put(R * Math.cos(t5), face(R) * hq, R * Math.sin(t5), ((i / 20) | 0) % 3 ? 0.55 : 1.3);
+    }
+  }
+  valve(-1); valve(1);
+  for (j = 0; j <= 1; j += 1 / Math.max(1, Math.round(gap / 9))) {  // girdle bands, lofted between the two rims
+    for (i = 0; i < 260; i += s3) {
+      var t6 = i / 260 * TAU, x = R * 0.99 * Math.cos(t6), z = R * 0.99 * Math.sin(t6), U = lift(x, gap / 2, z);
+      st.cast(x, -gap / 2 + (U[1] + gap / 2) * j, z + (U[2] - z) * j, 0.7);
+    }
+  }
+  if (P.plast > 0.02) {                                          // the living cell: golden-brown chloroplasts and a nucleus
+    var top = lift(0, gap / 2, 0);
+    for (k = 0; k < 14; k++) {
+      var tk = k / 14 * TAU + 0.25 * Math.sin(T * 0.5 + k), rk = R * (0.55 + 0.3 * hsh(k)), yk = (hsh(k + 9) - 0.5) * gap * 0.6;
+      ball(st, rk * Math.cos(tk), yk + top[1] * 0.2, rk * Math.sin(tk), 7 + 4 * hsh(k + 3), 150, 1.3 * P.plast, 0.45);
+    }
+    ball(st, 0, top[1] * 0.25, 0, 13, 360, 1.1 * P.plast);
+  }
+}
+
+/* ===== 32. ZOEA =========================================================== */
+function zoea(st, P, T) {
+  var s3 = st.step, i, k, g, sp = P.spine;
+  var stroke = Math.sin(T * 3.2) * P.stroke, ab = P.flex * (0.6 + 0.4 * Math.sin(T * 3.2 - 1.2));
+  var N = 9000;
+  for (i = 0; i < N; i += s3) {                                       // the carapace: a clear helmet
+    var v = 1 - 2 * (i + 0.5) / N, r = Math.sqrt(1 - v * v), u = i * 2.399963229728653;
+    st.cast(46 * r * Math.cos(u), 44 * v + 3 * Math.max(0, v) * Math.cos(u * 0), 36 * r * Math.sin(u), 0.8);
+  }
+  var spike = function (pts, r0, bo) { limb(st, crv(pts), function (s) { return r0 * (1 - 0.88 * s) + 0.35; }, 60, 7, bo); };
+  spike([[4, 42, 0], [10, 42 + 55 * sp, 0], [22, 42 + 112 * sp, 0]], 4.6, 1.3);          // dorsal spine
+  spike([[-30, -28, 0], [-40, -28 - 50 * sp, 0], [-42, -28 - 96 * sp, 0]], 3.8, 1.3);    // rostral spine
+  for (g = -1; g <= 1; g += 2) spike([[6, -8, g * 32], [12, -10, g * (32 + 14 * sp)], [18, -12, g * (32 + 28 * sp)]], 2.6, 1.3);
+  for (g = -1; g <= 1; g += 2) {                                      // enormous sessile eyes
+    ball(st, -34, 6, g * 22, 15, 700, 0.9);
+    ball(st, -34, 6, g * 22, 15.8, 240, 2.1);                         // ommatidia: a sparse bright shell over a dense one
+    limb(st, crv([[-42, -10, g * 8], [-52, -22, g * 11], [-58, -36, g * 13]]),       // antennules
+         function (s) { return 1.8 * (1 - 0.6 * s) + 0.3; }, 16, 5, 1.2);
+  }
+  for (k = 0; k < 2; k++) for (g = -1; g <= 1; g += 2) {             // two maxilliped pairs: the swimming oars
+    (function (k, g) {
+      var a = -1.95 + 0.55 * Math.sin(T * 3.2 - k * 0.6) * P.stroke, b = [-10 + k * 16, -36, g * 12];
+      var m = [b[0] + Math.cos(a) * 30, b[1] + Math.sin(a) * 30, g * 18], t = [b[0] + Math.cos(a) * 62 + 6, b[1] + Math.sin(a) * 62, g * 22];
+      limb(st, crv([b, m, t]), function (s) { return 3.2 * (1 - 0.5 * s) + 0.6; }, 28, 7, 1.1);
+      for (var q = 0; q < 4; q++) {                                   // natatory setae fanned at the tip
+        var fa = a + 0.9 + (q - 1.5) * 0.28 - 0.4 * Math.sin(T * 3.2 - k * 0.6 - 0.5) * P.stroke;
+        limb(st, crv([t, [t[0] + Math.cos(fa) * 13, t[1] + Math.sin(fa) * 13, t[2] + g * 2], [t[0] + Math.cos(fa) * 26, t[1] + Math.sin(fa) * 26, t[2] + g * 4]]),
+             function (s) { return 0.7 * (1 - 0.5 * s) + 0.25; }, 12, 3, 1.5);
+      }
+    })(k, g);
+  }
+  var abd = crv([[36, -24, 0], [62, -40 - 10 * ab, 0], [70 - 12 * ab, -80 - 10 * ab, 0], [58 - 30 * ab, -112, 0], [38 - 50 * ab, -128 + 10 * ab, 0]]);
+  for (k = 0; k < 5; k++) {                                           // five abdominal segments, curled under
+    (function (k) {
+      var a = k / 5, b = (k + 0.86) / 5;
+      limb(st, function (s) { return abd(a + (b - a) * s); }, function (s) { return 11 - 4 * (a + (b - a) * s); }, 16, 12, 0.95);
+    })(k);
+  }
+  var E = abd(1), E0 = abd(0.97), dx = E[0] - E0[0], dy = E[1] - E0[1], dl = Math.sqrt(dx * dx + dy * dy) || 1; dx /= dl; dy /= dl;
+  for (g = -1; g <= 1; g += 2) {                                      // the forked telson
+    (function (g) {
+      var f = crv([E, [E[0] + dx * 16, E[1] + dy * 16, g * 10], [E[0] + dx * 30, E[1] + dy * 30, g * 24]]);
+      limb(st, f, function (s) { return 3.4 * (1 - 0.85 * s) + 0.35; }, 22, 6, 1.3);
+      for (var q = 0; q < 3; q++) { var p = f(0.3 + 0.2 * q);
+        limb(st, crv([p, [p[0] + dx * 6, p[1] + dy * 6, p[2] - g * 5]]), function (s) { return 0.9 * (1 - 0.6 * s) + 0.25; }, 6, 3, 1.5); }
+    })(g);
+  }
+  for (k = 0; k < 7; k++) {                                           // chromatophores: pigment spots, pseudo-random but fixed
+    var cu = hsh(k * 3) * TAU, cv = hsh(k * 3 + 1) * 1.4 - 0.7, cr = Math.sqrt(1 - cv * cv);
+    ball(st, 47 * cr * Math.cos(cu), 45 * cv, 37 * cr * Math.sin(cu), 2.6, 90, 2.6);
+  }
+}
+
+/* ===== 33. ECHINOPLUTEUS ================================================== */
+function pluteus(st, P, T) {
+  var s3 = st.step, i, k, g, A = P.arms;
+  for (i = 0; i < 6000; i += s3) {                                    // the body: a small translucent cone
+    var v = ((i / 60) | 0) / 99, th = (i % 60) / 60 * TAU;
+    var r = 30 * Math.pow(Math.sin(Math.PI * (0.08 + 0.8 * v)), 0.7) * (1 + 0.15 * Math.cos(2 * th));
+    st.cast(r * Math.cos(th), -82 + 64 * v, r * Math.sin(th) * 0.85, 0.5);
+  }
+  ball(st, 0, -50, 4, 17, 700, 0.9, 0.85);                            // stomach
+  limb(st, crv([[0, -16, -10], [0, -26, -6], [0, -38, 2]]), function (s) { return 5 - 1.5 * s; }, 16, 9, 0.8);   // oesophagus
+  ball(st, 0, -44, 22, 7, 180, 0.8);                                  // intestine
+  var arms = [                                                        // base, direction, length: four pairs
+    [[20, -30, 6], [0.42, 1, 0.22], 175, 1],                          // postoral: the long pair, fenestrated rods
+    [[22, -44, 18], [0.78, 0.6, 0.5], 118, 0],                        // posterodorsal
+    [[14, -18, -10], [0.3, 1, -0.36], 122, 0],                        // anterolateral
+    [[6, -12, -16], [0.12, 1, -0.44], 78, 0]];                        // preoral
+  for (k = 0; k < 4; k++) for (g = -1; g <= 1; g += 2) {
+    (function (k, g) {
+      var a = arms[k], d = [a[1][0] * g, a[1][1], a[1][2]], dl = Math.sqrt(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
+      d = [d[0] / dl, d[1] / dl, d[2] / dl];
+      var b = [a[0][0] * g, a[0][1], a[0][2]], L = a[2] * A, sw = 7 * P.sway * Math.sin(T * 0.9 + k * 1.3 + g);
+      var path = crv([b, [b[0] + d[0] * L * 0.5 + sw * 0.4, b[1] + d[1] * L * 0.5, b[2] + d[2] * L * 0.5],
+                         [b[0] + d[0] * L + sw, b[1] + d[1] * L, b[2] + d[2] * L]]);
+      var rad = function (s) { return 5.5 * (1 - 0.6 * s) + 1.2; };
+      var e = [d[2], 0, -d[0]], el = Math.sqrt(e[0] * e[0] + e[2] * e[2]) || 1; e = [e[0] / el, 0, e[2] / el];
+      limb(st, path, rad, 60, 8, 0.45);                               // the arm: a thin sleeve of tissue
+      var n = Math.max(20, Math.round(160 / s3));
+      for (i = 0; i < n; i++) {
+        var s = i / (n - 1), p = path(s), rr = rad(s), cil = Math.sin(s * 70 - T * 9 * P.cilia) > 0.2 ? 2.0 : 0.7;
+        for (var q = -1; q <= 1; q += 2) st.cast(p[0] + q * e[0] * rr, p[1], p[2] + q * e[2] * rr, cil);   // ciliated band, both edges, travelling
+        if (a[3]) {                                                   // fenestrated rod: a ladder, rungs where a fast sine peaks
+          for (q = -1; q <= 1; q += 2) st.cast(p[0] + q * e[0] * 1.6, p[1], p[2] + q * e[2] * 1.6, 1.7 * P.rods);
+          if (Math.sin(s * 90) > 0.93) for (var m = -3; m <= 3; m++) st.cast(p[0] + m * e[0] * 0.53, p[1], p[2] + m * e[2] * 0.53, 1.7 * P.rods);
+        } else st.cast(p[0], p[1], p[2], 1.9 * P.rods);               // plain calcite rod
+      }
+      for (i = 0; i < 40; i += s3) {                                  // body rods: every arm rod runs down to the aboral tip
+        var t = i / 39; st.cast(b[0] * (1 - t), b[1] + (-86 - b[1]) * t, b[2] * (1 - t) + 4 * t, 1.5 * P.rods);
+      }
+    })(k, g);
+  }
+  for (i = 0; i < 200; i += s3) {                                     // ciliated band across the oral hood
+    var ah = i / 200 * TAU; st.cast(20 * Math.cos(ah), -14 + 3 * Math.sin(ah * 2), -6 + 12 * Math.sin(ah), Math.sin(ah * 11 - T * 9 * P.cilia) > 0.2 ? 2.0 : 0.7);
+  }
+}
+
+/* ===== 34. EPHYRA ========================================================= */
+function ephyra(st, P, T) {
+  var s3 = st.step, i, k, j, g;
+  var c = Math.pow(0.5 + 0.5 * Math.sin(T * 2.2), 3) * P.pulse;      // the stroke: a snap, then a long relax
+  var R0 = 24, R1 = 24 + 76 * P.reach;
+  var yo = function (r) { var u = Math.max(0, (r - R0) / (R1 - R0)); return -46 * c * Math.pow(u, 1.6) + 5 * u; };
+  for (i = 0; i < 2600; i += s3) {                                    // central disc
+    var rr = (R0 + 2) * Math.sqrt((i + 0.5) / 2600), aa = i * 2.399963229728653;
+    st.cast(rr * Math.cos(aa), 4 * (1 - rr * rr / ((R0 + 2) * (R0 + 2))), rr * Math.sin(aa), 0.8);
+  }
+  var hw = function (u) { return 16 - 3 * u + 4 * Math.max(0, u - 0.7); };
+  for (k = 0; k < 8; k++) {
+    var ak = k * TAU / 8, n = Math.max(12, Math.round(60 / s3));
+    for (i = 0; i < n; i++) for (j = 0; j < 19; j++) {                // eight arms, each ending in a forked pair of lappets
+      var u = i / (n - 1), v = j / 9 - 1, gap = u > 0.72 ? 0.38 * P.fork * Math.min(1, (u - 0.72) / 0.1) : 0;
+      if (Math.abs(v) < gap) continue;
+      var lw = (1 - gap) / 2; if (u > 0.93 && Math.abs(Math.abs(v) - (1 - lw)) > lw * Math.sqrt(Math.max(0, (1 - u) / 0.07))) continue;   // round off each lappet
+      var r = R0 - 4 + (R1 - R0 + 4) * u, fl = (v > 0 ? 1 : -1) * 0.3 * P.fork * Math.max(0, u - 0.72);
+      var an = ak + v * hw(u) / r + fl;
+      st.cast(r * Math.cos(an), yo(r), r * Math.sin(an), Math.abs(v) > 0.9 ? 1.6 : 0.75);
+    }
+    for (i = 0; i < 60; i += s3) {                                    // radial canal, forking into the lappets
+      var cu = i / 59, cr = R0 * 0.4 + (R1 - R0 * 0.4) * cu * 0.94;
+      var off = cu > 0.66 ? 0.62 * (0.5 + 0.5 * P.fork) * Math.min(1, (cu - 0.66) / 0.14) * hw(cu) / cr + 0.3 * P.fork * Math.max(0, cu - 0.72) : 0;
+      for (g = -1; g <= 1; g += 2) { if (!off && g > 0) continue;
+        st.cast(cr * Math.cos(ak + g * off), yo(cr) + 0.8, cr * Math.sin(ak + g * off), 1.8); }
+    }
+    var rh = R0 + (R1 - R0) * 0.8;                                     // rhopalium: the balance organ in the notch
+    ball(st, rh * Math.cos(ak), yo(rh) + 1.5, rh * Math.sin(ak), 3.2, 90, 2.6);
+  }
+  limb(st, crv([[0, 0, 0], [0, -14, 0], [0, -26, 0]]),               // manubrium, four-cornered
+       function (s, w) { return (7 - 2 * s) * (1 + 0.22 * Math.cos(4 * w)); }, 26, 16, 1.0);
+  for (k = 0; k < 4; k++) for (j = 0; j < 3; j++) {                   // gastric filaments
+    (function (k, j) {
+      var a = k * TAU / 4 + TAU / 8 + (j - 1) * 0.18, b = [12 * Math.cos(a), -1, 12 * Math.sin(a)];
+      limb(st, crv([b, [b[0] * 1.1, -7, b[2] * 1.1], [b[0] * 1.15, -12 - 2 * Math.sin(T * 2 + k + j), b[2] * 1.15]]),
+           function (s) { return 1.0 * (1 - 0.5 * s) + 0.3; }, 8, 4, 1.5);
+    })(k, j);
+  }
+}
+
+</script>
+<script>
+(function(){
+"use strict";
+var SPECIES=[
+{id:'octopus',g:'ceph',name:'Octopus',lat:'Octopus vulgaris',fn:octopus,
+ card:'Bulbous mantle, eight coiling arms, a double row of suckers on each, and a membrane webbing the bases.',
+ blurb:'<b>The arms are the interesting part.</b> Each is a swept tube whose azimuth picks up <code>0.62·curl·s^1.7</code>, so the coil tightens toward the tip rather than bending uniformly. Suckers appear only where <code>sin(165s) &gt; 0.35</code> — thresholding a fast sine beads a continuous line into discrete discs for free.',
+ view:{yaw:.5,pitch:-.18,scale:.98,ox:0,oy:-10,oz:0},tint:[[255,238,218],[88,74,94]],
+ views:[['¾',.5,-.18],['front',0,-.05],['below',.3,-1.05]],
+ params:[['curl','arm curl',1],['wave','undulation',1],['pulse','mantle pulse',1]]},
+
+{id:'cuttlefish',g:'ceph',name:'Cuttlefish',lat:'Sepia officinalis',fn:cuttlefish,
+ card:'Flattened shield mantle, a continuous fin skirt carrying a travelling wave, W-shaped pupils.',
+ blurb:'<b>What makes it not an octopus:</b> the mantle is squashed to 40% on one axis, the arms are short, and a fin runs the entire flank with a wave travelling down it — <code>sin(15v − 3.1t)</code>, offset 1.1 radians between left and right so the sides never beat in phase. Eight short arms plus two long feeding tentacles with clubbed tips.',
+ view:{yaw:.35,pitch:-.15,scale:1.12,ox:0,oy:5,oz:0},tint:[[236,248,250],[62,102,132]],
+ views:[['dorsal',0,0],['lateral',1.57,0],['¾',.35,-.15]],
+ params:[['fin','fin wave',1],['arm','arm curl',1],['pulse','mantle pulse',1],['chrom','chromatophore',1]]},
+
+{id:'squid',g:'ceph',name:'Squid',lat:'Loligo vulgaris',fn:squid,
+ card:'Torpedo mantle with terminal rhombic fins, huge eyes, and two tentacles far longer than the arms.',
+ blurb:'<b>The mantle profile is where squid and cuttlefish diverge.</b> Here it is <code>sin(π(0.02+0.62v))^0.6</code> — the 0.62 stops the sine short of its peak, so the widest point lands at 78% toward the head and the tail runs out to a spike. Cuttlefish use 0.92 and get a blunt shield. Same expression, one constant apart. The fins are terminal rather than a full skirt.',
+ view:{yaw:.4,pitch:-.15,scale:.95,ox:0,oy:-8,oz:0},tint:[[248,240,255],[78,68,104]],
+ views:[['¾',.4,-.15],['front',0,0],['below',.3,-1.0]],
+ params:[['pulse','mantle pulse',1],['fin','fin wave',1],['arm','arm undulation',1],['spread','arm spread',1]]},
+
+{id:'nautilus',g:'ceph',name:'Nautilus',lat:'Nautilus pompilius',fn:nautilus,
+ card:'A logarithmic spiral cut away to show every chamber, the siphuncle threading through, 38 tentacles.',
+ blurb:'<b>The one with real mathematics in it.</b> The shell is <code>r = A·e^(bθ)</code>, and the tube radius is <code>tanh(πb)·r</code> — exactly the value that makes each whorl sit tangent to the one inside it. Drag tightness anywhere you like: the shell can never gap or self-intersect, because the geometry stays correct by construction. Sampling is by arc length rather than angle, so the outer whorl gets the density its size deserves.',
+ view:{yaw:0,pitch:0,scale:1.29,ox:30,oy:-23,oz:-3},tint:[[255,246,226],[74,90,110]],
+ views:[['plan',0,0],['¾',.65,-.3],['edge',1.55,0]],
+ params:[['tight','tightness',.5],['cut','cutaway',.78],['whorls','whorls',3.6,1.6,5.2],['tent','tentacles',1]]},
+
+{id:'lobster',g:'crust',name:'Lobster',lat:'Homarus americanus',fn:lobster,
+ card:'Rostrum, six abdominal plates, a five-blade tail fan, and deliberately mismatched claws.',
+ blurb:'<b>Asymmetry is the point.</b> Real lobsters carry one crusher and one cutter, so the right cheliped is scaled 1.24 and the left 0.86 — same code path, one number apart. The abdomen is six independently drawn segments whose arch scales as <code>(k/6)^1.9</code>, which is why flexing the tail curls it rather than bending it evenly.',
+ view:{yaw:.15,pitch:.42,scale:1.02,ox:10,oy:-7,oz:0},tint:[[255,224,196],[112,56,52]],
+ views:[['dorsal',0,.9],['¾',.15,.42],['lateral',1.5,.08]],
+ params:[['claw','claw gape',.5],['flex','tail flex',.4],['step','leg stride',1],['ant','antenna sway',1]]},
+
+{id:'crab',g:'crust',name:'Crab',lat:'Cancer pagurus',fn:crab,
+ card:'Serrated carapace, stalked eyes, four pairs of jointed walking legs, a folded abdomen.',
+ blurb:'<b>The carapace edge is one term.</b> The outline radius is multiplied by <code>1 + 0.045·sin(9θ)</code>, weighted four times stronger on the front half — that single factor produces the toothed anterior margin crabs are identified by. Legs alternate stride phase by parity, so odd and even pairs swing opposite, which is roughly how they walk.',
+ view:{yaw:0,pitch:.62,scale:1.33,ox:0,oy:-3,oz:-25},tint:[[255,236,202],[116,74,50]],
+ views:[['dorsal',0,.9],['¾',.4,.5],['front',0,.06]],
+ params:[['claw','claw gape',.5],['step','leg stride',1]]},
+
+{id:'shrimp',g:'crust',name:'Shrimp',lat:'Pandalus borealis',fn:shrimp,
+ card:'Serrated rostrum, deeply flexed abdomen, five pairs of swimmerets beating in sequence.',
+ blurb:'<b>Watch the swimmerets.</b> The five pleopod pairs share one beat function offset by <code>k·1.15</code> radians, which produces a metachronal wave — the back-to-front ripple real shrimp use to hover. It is one added constant, and it is the difference between five legs twitching and an animal swimming. The rostrum serrations come from gating the tube radius on <code>sin(26s) &gt; 0</code>.',
+ view:{yaw:.12,pitch:.18,scale:1.04,ox:-36,oy:-43,oz:0},tint:[[255,226,214],[118,62,74]],
+ views:[['lateral',.12,.18],['dorsal',.1,.95],['¾',.75,.4]],
+ params:[['swim','swimmeret beat',1],['ant','antenna sway',1],['fan','tail spread',.5]]},
+
+{id:'hermit',g:'crust',name:'Hermit crab',lat:'Pagurus bernhardus',fn:hermit,
+ card:'A borrowed gastropod shell — helicospiral, knobbed, ribbed — with a lopsided crab living in it.',
+ blurb:'<b>Two organisms, one function.</b> The shell is the same log spiral as the nautilus but with the whorls climbing an axis instead of staying planar, which is the whole difference between a nautiloid and a snail. The crab is deliberately lopsided: the right cheliped is oversized because a hermit crab uses it as a door, sealing the aperture behind itself when it withdraws.',
+ view:{yaw:.35,pitch:.3,scale:1.64,ox:56,oy:-23,oz:2},tint:[[255,234,206],[100,66,58]],
+ views:[['¾',.35,.3],['front',0,.1],['top',.2,1.0]],
+ params:[['spire','shell spire',.5],['claw','claw gape',.5],['step','leg stride',1],['wave','antenna sway',1]]},
+
+{id:'seahorse',g:'verts',name:'Seahorse',lat:'Hippocampus kuda',fn:seahorse,
+ card:'Bony ring segments, a fluttering dorsal fin, and a prehensile tail coiled into a spiral.',
+ blurb:'<b>The rings are in the radius function, not the geometry.</b> The body tube radius is multiplied by <code>1 + 0.075·|sin(11πs)| + 0.055·cos(7w)</code> — the first term makes the transverse bony rings, the second the longitudinal ridges, and together they give the segmented armour without a single extra point. The tail is a spiral whose radius shrinks 74% over one and a half turns.',
+ view:{yaw:.25,pitch:-.05,scale:1.41,ox:-5,oy:14,oz:0},tint:[[255,238,200],[96,80,66]],
+ views:[['¾',.25,-.05],['profile',0,0],['front',1.55,0]],
+ params:[['curl','tail curl',.6],['flutter','fin flutter',1],['sway','body sway',1]]},
+
+{id:'starfish',g:'echino',name:'Starfish',lat:'Asterias rubens',fn:starfish,
+ card:'Five arms from one cosine, spined upper surface, tube feet marching along the grooves.',
+ blurb:'<b>The whole outline is one term:</b> <code>reach(θ) = 27 + 78·|cos(2.5θ)|^1.7</code>. Because 2.5 cycles fit into 2π, the absolute value produces exactly five lobes; the 1.7 exponent sharpens them from a flower into arms. Change 2.5 to 3.5 and you get a seven-armed sunstar — which is a real animal, and one constant away.',
+ view:{yaw:.3,pitch:.8,scale:1.65,ox:8,oy:2,oz:0},tint:[[255,232,190],[122,68,44]],
+ views:[['aboral',.3,1.05],['¾',.4,.6],['edge',.2,.05]],
+ params:[['curl','arm lift',.6],['feet','tube feet',1]]},
+
+{id:'jellyfish',g:'echino',name:'Moon jelly',lat:'Aurelia aurita',fn:jellyfish,
+ card:'A bell that pulses by trading width for depth, four horseshoe gonads, 88 marginal tentacles.',
+ blurb:'<b>The pulse is volume-preserving, roughly.</b> One phase drives two coefficients in opposite directions — width <code>×(1 − 0.17φ)</code> against height <code>×(1 + 0.32φ)</code> — so contracting narrows and deepens the bell instead of just scaling it. The tentacles read the same phase one radian late, which is why they trail rather than move with the rim. That lag is the whole reason it looks alive.',
+ view:{yaw:0,pitch:-.18,scale:1.22,ox:0,oy:-42,oz:0},tint:[[232,250,255],[52,92,116]],
+ views:[['¾',0,-.18],['side',0,.05],['above',.4,1.0]],
+ params:[['pulse','bell pulse',1],['arm','oral arm sway',1]]},
+
+{id:'stingray',g:'verts',name:'Stingray',lat:'Hypanus americanus',fn:stingray,
+ card:'A swept diamond disc rippling from front to back, with a whip tail and a serrated barb.',
+ blurb:'<b>The diamond is a swept wing, not an outline.</b> The fore-aft coordinate carries <code>+54·|t|·s^0.42</code>, so the further out along the wing you go the further back the point lands — the wingtips rake backward and the leading edge straightens. Remove that one term and the animal becomes a circle. The ripple is a wave in <code>s</code> whose amplitude scales as <code>|t|^1.85</code>, which is why the body stays still while the margins do all the work.',
+ view:{yaw:.3,pitch:.75,scale:.80,ox:0,oy:0,oz:110},tint:[[240,236,224],[54,72,92]],
+ views:[['above',.3,1.05],['\u00be',.3,.55],['front',0,.05]],
+ params:[['flap','wing beat',1],['arch','wing arch',1]]},
+
+{id:'seaturtle',g:'verts',name:'Sea turtle',lat:'Chelonia mydas',fn:seaturtle,
+ card:'Domed carapace with the scute seams drawn in, a beaked head, and four flippers mid-stroke.',
+ blurb:'<b>The scutes are lines, not tiles.</b> Rather than tessellate the shell, four longitudinal seams and five transverse ones are drawn as bright curves lying on the same surface function the dome uses — so they follow the curvature exactly and cost almost nothing. The 26 marginal scutes are short radial ticks at the rim. The front flippers sweep back as they extend: <code>z = −48 + 0.64L − 22u²</code>.',
+ view:{yaw:.45,pitch:.55,scale:.89,ox:0,oy:2,oz:-25},tint:[[248,238,198],[58,88,64]],
+ views:[['\u00be',.45,.55],['above',.2,1.05],['side',1.5,.06]],
+ params:[['stroke','flipper stroke',1],['dome','shell dome',.7]]},
+
+{id:'moray',g:'verts',name:'Moray eel',lat:'Gymnothorax funebris',fn:moray,
+ card:'A sinuous body under a continuous dorsal fin, mottled skin, and a jaw that opens on demand.',
+ blurb:'<b>The blotches are brightness, not geometry.</b> The tube radius takes an angle argument and the brightness takes a function — <code>sin(26u + 1.7sin(3w))·sin(2.4w + 9u)</code> thresholded at 0.12 — so the mottling lives entirely in the alpha channel and costs no extra points. The body also thickens vertically toward the tail via <code>1 + 0.42u·|sin w|</code>, which is the lateral compression morays actually have.',
+ view:{yaw:1.5,pitch:.12,scale:.89,ox:0,oy:3,oz:-24},tint:[[250,240,208],[58,80,52]],
+ views:[['lateral',1.5,.12],['\u00be',1.1,.4],['head-on',.05,.05]],
+ params:[['swim','body wave',1],['gape','jaw gape',.6]]},
+
+{id:'pufferfish',g:'verts',name:'Pufferfish',lat:'Diodon holocanthus',fn:pufferfish,
+ card:'Drag the inflate slider. The body rounds out and 210 spines stand up as it does.',
+ blurb:'<b>One parameter runs the whole animal.</b> Inflation drives three semi-axes in opposite directions — length <code>86 − 22p</code> against height <code>36 + 32p</code> and width <code>30 + 36p</code> — so the fish trades long-and-slim for round, the way the real thing trades swimming for not being eaten. The same <code>p</code> sets spine length from 3 to 29. Spines sit on a Fibonacci sphere, then get pushed along the ellipsoid normal, so they stay evenly spaced at any inflation.',
+ view:{yaw:1.35,pitch:-.10,scale:1.51,ox:0,oy:1,oz:20},tint:[[255,240,214],[96,86,64]],
+ views:[['\u00be',1.35,-.10],['front',.05,0],['above',1.4,1.0]],
+ params:[['inflate','inflate',.7],['fin','fin flutter',1]]},
+
+{id:'anemone',g:'echino',name:'Sea anemone',lat:'Actinia equina',fn:anemone,
+ card:'220 tentacles in five concentric rings, each swaying on its own phase, over a verrucose column.',
+ blurb:'<b>The field is alive because nothing shares a phase.</b> Each tentacle sways on <code>sin(1.55t + 2.2a + 0.05r)</code> — angle and base radius both enter, so the motion crosses the crown as a slow spiral rather than everything nodding together. Length varies per tentacle through <code>sin(1.7k)</code>, an irrational-ish stride that never repeats around the ring. Contraction pulls the column, the disc and every tentacle down together.',
+ view:{yaw:.3,pitch:.35,scale:1.10,ox:8,oy:9,oz:9},tint:[[255,226,240],[96,44,84]],
+ views:[['\u00be',.3,.35],['above',.3,1.1],['side',.3,.02]],
+ params:[['len','tentacle length',1],['sway','sway',1],['close','contraction',.15]]},
+
+{id:'seacucumber',g:'echino',name:'Sea cucumber',lat:'Holothuria forskali',fn:seacucumber,
+ card:'A soft tube travelling on a peristaltic wave, warty above, tube feet below, dendritic mouth in front.',
+ blurb:'<b>It moves by squeezing.</b> The body radius carries <code>1 + 0.11·peri·sin(7.5u \u2212 2.4t)</code> \u2014 a wave in the <em>thickness</em> rather than the centreline, which is how a holothurian actually crawls. Nothing bends; the animal just gets locally fatter in a travelling band. The ten oral tentacles are two-level branches: a stalk with six branchlets, the cheapest possible dendritic feeding structure.',
+ view:{yaw:1.45,pitch:.30,scale:.93,ox:4,oy:8,oz:-23},tint:[[255,232,206],[74,58,72]],
+ views:[['lateral',1.45,.30],['above',1.4,1.05],['\u00be',0.9,.45]],
+ params:[['peri','peristalsis',1],['feet','tube feet',1],['tent','oral tentacles',1],['fat','plumpness',.6]]},
+
+{id:'urchin',g:'echino',name:'Sea urchin',lat:'Diadema setosum',fn:urchin,
+ card:'A pentaradial test under 190 spines, with tube feet reaching out past them and a five-toothed lantern below.',
+ blurb:'<b>Two point sets, two different lattices.</b> The spines sit on a Fibonacci sphere \u2014 even coverage with no seams and no poles \u2014 while the pore pairs that the tube feet emerge through follow the animal\u2019s real fivefold symmetry, ten meridians at <code>k\u00b7\u03c4/5 \u00b1 0.1</code>. Echinoderms genuinely are built this way: a five-part plan wearing an evenly distributed coat. The lantern at the bottom is five converging teeth.',
+ view:{yaw:.25,pitch:.25,scale:.86,ox:0,oy:-2,oz:-13},tint:[[248,236,255],[62,46,86]],
+ views:[['\u00be',.25,.25],['above',.3,1.1],['side',.25,.02]],
+ params:[['spine','spine length',1,.2,1.5],['sway','spine sway',1],['feet','tube feet',.8,0,1.4]]},
+
+{id:'featherstar',g:'echino',name:'Feather star',lat:'Antedon bifida',fn:featherstar,
+ card:'Ten arms, each carrying 34 pinnules on alternating sides. The one genuinely fractal animal here.',
+ blurb:'<b>Two levels of branching and it reads as infinite.</b> Each arm is a swept tube; every 0.026 along it a pinnule sprouts, side alternating with <code>k % 2</code>, length tapering as <code>30 \u2212 17s</code> so the feathering thins toward the tip. That is 340 sub-branches from one nested loop. Crinoids are the oldest body plan in the gallery \u2014 essentially unchanged since the Ordovician \u2014 and it is the one that most looks like it was generated by a rule, because it was.',
+ view:{yaw:.4,pitch:.45,scale:1.20,ox:0,oy:11,oz:0},tint:[[255,228,232],[76,52,90]],
+ views:[['\u00be',.4,.45],['above',.4,1.1],['side',.4,.03]],
+ params:[['curl','arm curl',.7,0,1.3],['pinnule','pinnule length',1,.2,1.5],['stroke','swim stroke',.6,0,1.2],['cirri','cirri',1,0,1.5]]},
+
+{id:'seadragon',g:'verts',name:'Leafy seadragon',lat:'Phycodurus eques',fn:seadragon,
+ card:'A seahorse relative wearing 26 lobed leaves, each drifting on its own phase. Camouflage as decoration.',
+ blurb:'<b>The leaves are what a seahorse is missing.</b> Same ringed body \u2014 radius \u00d7 <code>1 + 0.085\u00b7|sin(15\u03c0s)|</code> \u2014 but with 26 lobed blades hung off it at pseudo-random angles from a hash of the leaf index, so the arrangement looks organic yet is identical every frame. Each leaf drifts on <code>sin(1.35t + 1.7k)</code>: no two ever agree, which is exactly why it reads as drifting weed instead of a fish with flags on it.',
+ view:{yaw:.1,pitch:.10,scale:.98,ox:-22,oy:-2,oz:0},tint:[[255,236,210],[70,86,74]],
+ views:[['profile',.1,.10],['\u00be',.75,.25],['above',.15,1.0]],
+ params:[['leaf','leaf size',1,.2,1.5],['sway','drift',1],['flutter','fin flutter',1]]},
+
+{id:'coral',g:'echino',name:'Staghorn coral',lat:'Acropora cervicornis',fn:coral,
+ card:'A recursive colony \u2014 corallites down every branch, polyps at every tip. Drag the depth slider.',
+ blurb:'<b>Grown, not drawn.</b> One function calls itself: a branch of length <code>L</code> spawns two or three children of length <code>0.62\u20130.77L</code>, tilted by an angle drawn from a hash of the branch\u2019s own seed \u2014 deterministic, so the colony is identical every frame while looking wild. The depth slider is the number of recursions, and it is the only control here that changes the point count rather than the shape. This one is also scenery: it belongs in the aquarium behind the rest.',
+ view:{yaw:.15,pitch:.15,scale:1.26,ox:-26,oy:-19,oz:2},tint:[[255,226,232],[62,80,102]],
+ views:[['\u00be',.15,.15],['side',1.4,.05],['above',.2,1.0]],
+ params:[['angle','branch angle',1,0,1.6],['depth','recursion depth',4,2,5],['polyp','polyp extension',.6,0,1.4],['sway','current',1]]},
+{id:'lionfish',g:'verts',name:'Lionfish',lat:'Pterois volitans',fn:lionfish,
+ card:'Thirteen venomous dorsal spines, two pectoral fans of fourteen rays, and stripes that are a thresholded sine.',
+ blurb:'<b>A fish that is mostly fins.</b> Every fin here is the same object \u2014 a fan of tapered rays with a membrane stitched between neighbours \u2014 and the parameter that makes it a lionfish is how far the membrane goes: <code>0.42</code> of the way up the dorsal spines so they stand free, <code>1.0</code> on the tail so it reads as a paddle. The stripes cost one comparison: the body\u2019s brightness is <code>sin(27s) &gt; 0.35</code>, so bands appear where a fast sine is high. The pectorals flare on the slider; drag it down and the animal collapses to a plain fish.',
+ view:{yaw:.25,pitch:.15,scale:.92,ox:0,oy:0,oz:0},tint:[[255,232,214],[110,54,58]],
+ views:[['\u00be',.25,.15],['profile',0,.05],['head-on',1.55,.1],['above',.3,1.05]],
+ params:[['flare','pectoral flare',1,0,1.5],['spine','dorsal spines',1,.2,1.6],['stripe','banding',1,0,1.2],['sway','fin flutter',1,0,1.6]]},
+
+{id:'anglerfish',g:'verts',name:'Anglerfish',lat:'Melanocetus johnsonii',fn:anglerfish,
+ card:'A globe with a hinged, underslung jaw, needle teeth, and a lure that is the only bright thing in the abyss.',
+ blurb:'<b>The jaw is a rotation, the mouth is what it leaves behind.</b> The head is one Fibonacci sphere. Every point below the lip plane <code>y = \u221216 \u2212 0.3(x \u2212 16)</code> swings about the hinge by the gape angle, and that angle ramps in over 22 units so the cheek stretches like skin instead of tearing. Nothing draws the opening itself: it is the gap between the two halves, lined by a dim palate and tongue. The jaw is also stretched 7% forward as it opens, which gives <i>Melanocetus</i> its underbite. The esca is a small sphere at brightness 3 inside a large sparse one at 0.5: dense-in-dim is what a glow is, in a point cloud.',
+ view:{yaw:.45,pitch:.08,scale:.96,ox:14,oy:10,oz:0},tint:[[214,240,255],[36,38,72]],
+ views:[['\u00be',.45,.08],['profile',0,0],['head-on',1.57,.05],['below',.45,-.8]],
+ params:[['gape','gape',.7,0,1],['glow','lure glow',1,0,1.6],['lure','lure reach',1,.4,1.4],['sway','tail sway',1,0,1.5]]},
+
+{id:'siphonophore',g:'echino',name:'Siphonophore',lat:'Nanomia bijuga',fn:siphonophore,
+ card:'Not one animal but a colony on a string: a gas float, a spiral of swimming bells, and fifteen feeding polyps trailing tentacles.',
+ blurb:'<b>A stem with things attached is the whole design.</b> One curve runs from float to tail; everything else is indexed off it by <code>s</code>. The nectophores are hemispheres whose rim pulls inward on <code>pulse\u00b3</code> \u2014 cubing the sine makes each contraction a snap followed by a long relax, which is how a jet actually fires. Below them every polyp gets a tentacle whose beads are the octopus-sucker trick again, <code>sin(42u) &gt; 0.55</code>. Siphonophores are the longest animals alive; the drift slider makes this one look it.',
+ view:{yaw:.3,pitch:.12,scale:.8,ox:0,oy:-30,oz:0},tint:[[236,228,255],[46,56,92]],
+ views:[['\u00be',.3,.12],['side',1.5,.05],['above',.3,1.1]],
+ params:[['bells','swimming bells',1,.2,1.6],['pulse','bell pulse',1,0,1.6],['tent','tentacle length',1,.2,1.5],['drift','current',1,0,1.6]]},
+
+{id:'copepod',g:'plank',name:'Copepod',lat:'Calanus finmarchicus',fn:copepod,
+ card:'The most numerous animal on Earth: teardrop body, five-part tail, two enormous antennae, one eye, two egg sacs.',
+ blurb:'<b>The motion is a seventh power.</b> A copepod does not swim, it twitches: <code>max(0, sin 2.4t)\u2077</code> is zero almost all the time and then spikes, and that one scalar sweeps the antennae back, snaps the tail down and paddles the four leg pairs at once. Segment seams are the stripe trick, <code>|sin 4\u03c0s| &gt; 0.985</code> \u2014 a threshold so tight it draws a line. The egg sacs are sixteen small spheres on a Fibonacci blob; set the slider to zero for a male.',
+ view:{yaw:.55,pitch:.35,scale:1.3,ox:10,oy:0,oz:0},tint:[[255,240,220],[90,72,60]],
+ views:[['\u00be',.55,.35],['profile',0,.05],['above',.4,1.1],['front',1.55,.2]],
+ params:[['antenna','antennae',1,.3,1.4],['kick','twitch',1,0,1.6],['eggs','egg sacs',1,0,1.3]]},
+
+{id:'radiolarian',g:'plank',name:'Radiolarian',lat:'Actinomma antarcticum',fn:radiolarian,
+ card:'A glass lattice inside a glass lattice, tied by beams, pierced by twelve spines. Haeckel\u2019s favourite.',
+ blurb:'<b>The lattice is emergent.</b> Nodes are a Fibonacci sphere; struts are drawn between every pair closer than <code>1.42\u00b7\u221a(4\u03c0/N)</code>, the expected neighbour spacing. Nothing says \u201chexagon\u201d anywhere, yet a hexagonal mesh with occasional pentagons appears \u2014 the same reason radiolarian skeletons look like geodesic domes. The inner shell is the same call with a third of the nodes and half the radius; the big spines sit on every twelfth node. Rotate it and the moir\u00e9 between the two shells is the animal breathing.',
+ view:{yaw:.2,pitch:.3,scale:1.0,ox:0,oy:0,oz:0},tint:[[228,255,250],[42,78,90]],
+ views:[['\u00be',.2,.3],['axis',0,1.05],['equator',.2,0]],
+ params:[['lattice','node count',1,.4,1.6],['spine','spine length',1,0,1.6],['shells','inner shell',1,0,1.3],['glow','capsule',1,0,1.6]]},
+{id:'dumbo',g:'ceph',name:'Dumbo octopus',lat:'Grimpoteuthis sp.',fn:dumbo,
+ card:'A deep-sea octopus that swims with two ear-like fins and an umbrella of webbed arms. No ink, no suction to speak of.',
+ blurb:'<b>The octopus, rewired for open water.</b> Same arm construction as the octopus up top, but the web now runs almost to the tips and its margin is scalloped by <code>0.88 \u2212 0.16\u00b7sin(\u03c0w)</code>, so it dips between each pair of arms. One scalar, <code>sin(1.1t)</code>, opens and closes the umbrella and bobs the bell a beat later. Cirrate octopods carry a single sucker row flanked by paired cirri; both are the thresholded-sine trick at different phases along the same arm, <code>sin(120s)</code> and <code>sin(120s + 1.6)</code>.',
+ view:{yaw:.4,pitch:.18,scale:1.0,ox:0,oy:24,oz:0},tint:[[255,226,234],[98,62,92]],
+ views:[['\u00be',.4,.18],['side',0,.02],['below',.4,-1.0]],
+ params:[['fin','ear fins',1,0,1.6],['web','web stroke',1,0,1.6]]},
+
+{id:'manta',g:'verts',name:'Manta ray',lat:'Mobula birostris',fn:manta,
+ card:'Seven metres of swept wing, two cephalic lobes that roll up like horns, and a mouth as wide as the head.',
+ blurb:'<b>The stingray\u2019s disc, re-planned as a wing.</b> Leading edge <code>\u221292 + 92|t|^1.5</code> sweeps back to a point, and the flap is a wave that travels outward, <code>sin(1.25t \u2212 1.5|t|)\u00b7|t|^1.5</code>, so the tips lag the shoulders the way a real manta\u2019s do. The cephalic lobes are a flat sheet rolled around a radius: small radius and it wraps into a horn, large radius and it hangs open as a feeding scoop. Bank rolls the whole animal by wrapping <code>cast</code> in a rotation before any of the parts see it.',
+ view:{yaw:.55,pitch:.5,scale:.84,ox:0,oy:0,oz:0},tint:[[236,242,255],[40,56,86]],
+ views:[['\u00be',.55,.5],['head-on',0,.12],['profile',1.57,.08],['below',.4,-.9]],
+ params:[['flap','wingbeat',1,0,1.5],['lobes','lobes unrolled',.3,0,1],['bank','banking',1,0,1.6]]},
+
+{id:'shark',g:'verts',name:'Blacktip reef shark',lat:'Carcharhinus melanopterus',fn:shark,
+ card:'The reef\u2019s commonest shark: a fusiform body, five gill slits, and a black tip on every fin. Drawn here in light.',
+ blurb:'<b>Black tips, as the brightest points.</b> A point cloud has only one ink, so the dark markings are inverted: any fin point past 80% of the way to its apex is cast at up to 2.5\u00d7 brightness. The body is a golden-angle scatter over an elliptical tube, dimmed on the belly for countershading. Every fin is a sheet interpolated from a root on the body to an apex, sampled through <code>mid(s)</code>, so the fins ride the undulation for free. The tail is heterocercal: the upper lobe is longer because the spine turns up into it.',
+ view:{yaw:.35,pitch:.2,scale:.86,ox:30,oy:6,oz:0},tint:[[238,240,244],[56,68,84]],
+ views:[['\u00be',.35,.2],['profile',0,.02],['above',.2,1.1],['head-on',1.57,.08]],
+ params:[['swim','tail beat',1,0,1.6],['pect','pectoral spread',1,0,1.6],['tip','fin tips',1,0,1.4]]},
+
+{id:'clownfish',g:'verts',name:'Clownfish',lat:'Amphiprion ocellaris',fn:clownfish,
+ card:'Three white bars ringed in black, fins with a white margin, and two pectorals that row like oars.',
+ blurb:'<b>Black is where no point lands.</b> Each body point checks its distance to three band centres: inside <code>bw</code> it is cast bright, in a thin rim beyond that it is skipped entirely, otherwise it is orange. The bands bend with the body\u2019s cross-section, <code>0.535 \u2212 0.045(1 \u2212 sin\u00b2w)</code>, so the middle bar bulges forward at the flank as it does on the real fish. The fins reuse the idea: fill, a gap, a bright margin. Clownfish swim mostly with their pectorals, rowed out of phase, while the tail only steers.',
+ view:{yaw:.35,pitch:.12,scale:1.2,ox:20,oy:4,oz:0},tint:[[255,222,186],[122,54,32]],
+ views:[['\u00be',.35,.12],['profile',0,.02],['head-on',1.57,.1]],
+ params:[['bands','bar width',1,.4,1.6],['row','pectoral rowing',1,0,1.6],['waggle','waggle',1,0,1.6]]},
+
+{id:'diatom',g:'plank',name:'Diatom',lat:'Arachnoidiscus ehrenbergii',fn:diatom,
+ card:'A single cell in a glass pillbox: two valves, radial ribs, concentric rings, and a thousand hexagonal pores.',
+ blurb:'<b>A pillbox you can open.</b> The frustule is two nested valves, and the slider hinges the top one open about its far rim, lofting the girdle bands between the two edges so they stay attached through the tilt. The pores are hexagons placed on a sunflower spiral, <code>r \u221d \u221ai, \u03b8 = 2.39996\u00b7i</code>, the same golden angle that seeds the urchin and the anglerfish skin. Ribs and rings on top give the spider-web face this genus is named for. Open it far enough and the chloroplasts inside come into view.',
+ view:{yaw:.2,pitch:.6,scale:1.2,ox:0,oy:14,oz:-14},tint:[[255,244,212],[94,80,52]],
+ views:[['\u00be',.2,.55],['valve face',0,1.12],['girdle',.2,.02]],
+ params:[['open','valves apart',.5,0,1],['ribs','ribs',1,.3,1.6],['pores','pores',1,.2,1.5],['plast','chloroplasts',1,0,1.4]]},
+{id:'zoea',g:'plank',name:'Zoea',lat:'Carcinus maenas, larva',fn:zoea,
+ card:'What a crab looks like at two millimetres: a clear helmet, two spears, huge eyes, and oars for legs.',
+ blurb:'<b>The crab before the crab.</b> Almost nothing here survives into the adult. The spines are anti-predator: at this size a fish has to fit the whole span in its mouth, so the dorsal and rostral spines together more than triple the larva\\u2019s effective size. It swims with its maxillipeds, not its legs, and each oar ends in four fanned setae that rake on the power stroke and fold on the return, <code>fa = a + 0.9 \\u2212 0.4\\u00b7sin(3.2t \\u2212 0.5)</code>. The abdomen, which the adult tucks flat under its shell, here is a long curled tail with a forked telson.',
+ view:{yaw:.5,pitch:.12,scale:1.14,ox:4,oy:4,oz:0},tint:[[255,236,214],[104,70,64]],
+ views:[['\\u00be',.5,.12],['profile',0,.02],['front',1.57,.1]],
+ params:[['spine','spine length',1,.3,1.4],['stroke','oar stroke',1,0,1.6],['flex','tail curl',1,0,1.5]]},
+
+{id:'pluteus',g:'plank',name:'Echinopluteus',lat:'Strongylocentrotus, larva',fn:pluteus,
+ card:'A sea urchin\\u2019s larva: an easel of eight arms on glass rods, a gut, and a band of cilia running round every edge.',
+ blurb:'<b>A skeleton you can see through.</b> Each arm is three things drawn in the same loop: a faint sleeve of tissue at brightness 0.45, a calcite rod down its centre, and the ciliated band along both edges. The band is gated by <code>sin(70s \\u2212 9t) &gt; 0.2</code>, so the bright beads travel toward the tips the way the real cilia beat. The long postoral rods are fenestrated: two parallel lines with rungs wherever <code>sin(90s)</code> peaks. Every rod continues down into the body to meet at the aboral tip. The adult urchin later grows inside this larva, from a small bud on one side.',
+ view:{yaw:.5,pitch:.15,scale:1.04,ox:0,oy:30,oz:0},tint:[[244,236,255],[72,62,102]],
+ views:[['\\u00be',.5,.15],['front',0,.05],['side',1.57,.05],['above',.4,1.05]],
+ params:[['arms','arm length',1,.4,1.3],['cilia','cilia beat',1,0,2],['rods','skeleton',1,0,1.6],['sway','arm sway',1,0,1.6]]},
+
+{id:'ephyra',g:'plank',name:'Ephyra',lat:'Aurelia aurita, juvenile',fn:ephyra,
+ card:'A moon jelly at three millimetres: eight forked arms, a balance organ in every notch, beating like a flower closing.',
+ blurb:'<b>A jellyfish before it has a bell.</b> Ephyrae bud off a polyp stacked like plates, and each one starts as a flat eight-armed star. Every arm ends in a pair of lappets, cut by skipping any point whose <code>|v|</code> is inside a gap that opens over the last quarter of the arm. The rhopalium sits in that notch: a gravity sensor, one per arm. The stroke is <code>(0.5 + 0.5\\u00b7sin 2.2t)\\u00b3</code>, the same snap-and-relax curve the siphonophore bells use. Over a few weeks the spaces between the arms fill in and it becomes the moon jelly further up the page.',
+ view:{yaw:.3,pitch:.6,scale:1.3,ox:0,oy:-8,oz:0},tint:[[255,232,240],[96,62,96]],
+ views:[['\\u00be',.3,.6],['oral',.3,-1.05],['side',.3,.05]],
+ params:[['pulse','stroke',1,0,1.5],['reach','arm reach',1,.6,1.3],['fork','lappet fork',1,0,1.4]]}
+];
+
+
+
+
+function Rig(canvas,size,spec,step){
+  var ctx=canvas.getContext('2d');
+  var img=ctx.createImageData(size,size), data=img.data;
+  var R=new Float32Array(size*size),G=new Float32Array(size*size),B=new Float32Array(size*size);
+  var A0=96/255, near=spec.tint[0], far=spec.tint[1], half=size*0.5;
+  var self={T:0,step:step,yaw:spec.view.yaw,pitch:spec.view.pitch,
+            scale:spec.view.scale*size/400,ox:spec.view.ox,oy:spec.view.oy,oz:spec.view.oz||0,
+            spin:true,playing:true,P:{},spec:spec,size:size,vis:true};
+  spec.params.forEach(function(p){ self.P[p[0]]=p[2]; });
+  if(self.P.depth!==undefined) self.P.depth=Math.round(self.P.depth);
+  self.cast=function(x,y,z,b){
+    b=(b===undefined)?1:b;
+    x-=self.ox; y-=self.oy; z-=self.oz;
+    var ca=Math.cos(self.yaw), sa=Math.sin(self.yaw);
+    var u=x*ca+z*sa, d=-x*sa+z*ca;
+    var cb=Math.cos(self.pitch), sb=Math.sin(self.pitch);
+    var fx=half+(y*0+u)*self.scale, fy=half-(y*cb-d*sb)*self.scale;
+    if(!(fx>=0&&fx<size&&fy>=0&&fy<size)) return;      // also rejects NaN
+    var q=y*sb+d*cb, f=0.5+q/440; if(f<0)f=0; if(f>1)f=1;
+    var a=A0*b*(0.34+0.8*f); if(a>0.92)a=0.92;
+    var p=((fy|0)*size)+(fx|0);
+    R[p]+=(far[0]+(near[0]-far[0])*f-R[p])*a;
+    G[p]+=(far[1]+(near[1]-far[1])*f-G[p])*a;
+    B[p]+=(far[2]+(near[2]-far[2])*f-B[p])*a;
+  };
+  self.render=function(){
+    R.fill(8); G.fill(9); B.fill(11);
+    spec.fn(self,self.P,self.T);
+    for(var p=0,j=0;p<size*size;p++,j+=4){ data[j]=R[p];data[j+1]=G[p];data[j+2]=B[p];data[j+3]=255; }
+    ctx.putImageData(img,0,0);
+  };
+  return self;
+}
+
+var TILE=206, tiles=[], byId={};
+SPECIES.forEach(function(sp,idx){
+  var host=document.getElementById('g-'+sp.g);
+  var card=document.createElement('div'); card.className='card';
+  card.innerHTML='<canvas width="'+TILE+'" height="'+TILE+'"></canvas><div class="meta"><h3>'+sp.name+
+    '</h3><div class="lat">'+sp.lat+'</div><p>'+sp.card+'</p><div class="open">open ▸</div></div>';
+  host.appendChild(card);
+  var rig=Rig(card.querySelector('canvas'),TILE,sp,7);
+  rig.T=idx*1.9; rig.render(); tiles.push(rig); byId[sp.id]=rig;
+  card.addEventListener('click',function(){ openStage(idx); });
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){ rig.vis=es[0].isIntersecting; },{threshold:0}).observe(card);
+  }
+});
+
+var stage=document.getElementById('stage'), sCv=document.getElementById('s-cv');
+var stageRig=null, current=-1, drag=false, px=0, py=0;
+sCv.addEventListener('pointerdown',function(e){drag=true;px=e.clientX;py=e.clientY;sCv.setPointerCapture(e.pointerId);});
+sCv.addEventListener('pointermove',function(e){
+  if(!drag||!stageRig)return;
+  stageRig.yaw+=(e.clientX-px)*0.009;
+  stageRig.pitch=Math.max(-1.15,Math.min(1.15,stageRig.pitch-(e.clientY-py)*0.009));
+  px=e.clientX;py=e.clientY;
+  if(!stageRig.playing) stageRig.render();
+});
+['pointerup','pointercancel'].forEach(function(t){ sCv.addEventListener(t,function(){drag=false;}); });
+
+function openStage(idx){
+  var sp=SPECIES[idx]; current=idx;
+  document.getElementById('s-name').textContent=sp.name;
+  document.getElementById('s-lat').textContent=sp.lat;
+  document.getElementById('s-blurb').innerHTML=sp.blurb;
+  stageRig=Rig(sCv,400,sp,1);
+  var vb=document.getElementById('s-views'); vb.innerHTML='';
+  sp.views.forEach(function(v){
+    var b=document.createElement('button'); b.className='b'; b.textContent=v[0];
+    b.onclick=function(){ stageRig.yaw=v[1]; stageRig.pitch=v[2];
+      Array.prototype.forEach.call(vb.children,function(c){c.setAttribute('aria-pressed',String(c===b));});
+      stageRig.render(); };
+    vb.appendChild(b);
+  });
+  var sb=document.getElementById('s-sliders'); sb.innerHTML='';
+  sp.params.forEach(function(p){
+    var lo=(p[3]!==undefined)?p[3]:0, hi=(p[4]!==undefined)?p[4]:2;
+    var d=document.createElement('div'); d.className='sl';
+    d.innerHTML='<span>'+p[1]+'</span><input type="range" min="'+(lo*100)+'" max="'+(hi*100)+
+      '" value="'+(p[2]*100)+'"><span class="val">'+p[2].toFixed(2)+'</span>';
+    var inp=d.querySelector('input'), out=d.querySelector('.val');
+    inp.addEventListener('input',function(){
+      var nv=+inp.value/100; if(p[0]==='depth') nv=Math.round(nv);
+      stageRig.P[p[0]]=nv; out.textContent=(p[0]==='depth')?String(nv):nv.toFixed(2);
+      if(!stageRig.playing) stageRig.render(); });
+    sb.appendChild(d);
+  });
+  var src=document.getElementById('s-src');
+  src.textContent=sp.fn.toString(); src.classList.remove('on');
+  var cb=document.getElementById('s-code'); cb.textContent='show code'; cb.setAttribute('aria-pressed','false');
+  stage.classList.add('on'); document.body.style.overflow='hidden'; stageRig.render();
+}
+function closeStage(){ stage.classList.remove('on'); stageRig=null; current=-1; document.body.style.overflow=''; }
+document.getElementById('s-close').onclick=closeStage;
+stage.addEventListener('click',function(e){ if(e.target===stage) closeStage(); });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&current>=0) closeStage(); });
+document.getElementById('s-play').onclick=function(){ if(!stageRig)return;
+  stageRig.playing=!stageRig.playing; this.textContent=stageRig.playing?'❚❚':'▶'; };
+document.getElementById('s-spin').onclick=function(){ if(!stageRig)return;
+  stageRig.spin=!stageRig.spin; this.setAttribute('aria-pressed',String(stageRig.spin)); };
+document.getElementById('s-code').onclick=function(){
+  var s=document.getElementById('s-src'), on=s.classList.toggle('on');
+  this.textContent=on?'hide code':'show code'; this.setAttribute('aria-pressed',String(on)); };
+
+var said=document.getElementById('s-said');
+function flash(){ said.classList.add('on'); setTimeout(function(){said.classList.remove('on');},1400); }
+function fb(t){ var ta=document.createElement('textarea'); ta.value=t;
+  ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select();
+  try{document.execCommand('copy');flash();}catch(e){} document.body.removeChild(ta); }
+document.getElementById('s-copy').onclick=function(){
+  if(!stageRig)return;
+  var sp=SPECIES[current], P=stageRig.P, keys=Object.keys(P), v=sp.view;
+  var out='// '+sp.name+' — '+sp.lat+'\n// point cloud, p5.js. drag to orbit.\n\n'+
+  'let T=0, A='+stageRig.yaw.toFixed(3)+', B='+stageRig.pitch.toFixed(3)+', drag=0, px, py;\n'+
+  'const SC='+v.scale.toFixed(2)+', OX='+v.ox+', OY='+v.oy+', OZ='+(v.oz||0)+';\n'+
+  'const P={'+keys.map(function(k){return k+':'+(+P[k]).toFixed(2);}).join(', ')+'};\n'+
+  'const NEAR=['+sp.tint[0]+'], FAR=['+sp.tint[1]+'];\n\n'+
+  'function setup(){ createCanvas(400,400); }\n\n'+
+  'const st = { step:1, cast(x,y,z,b){\n'+
+  '  b = b===undefined ? 1 : b;\n'+
+  '  x-=OX; y-=OY; z-=OZ;\n'+
+  '  const u =  x*cos(A)+z*sin(A), d = -x*sin(A)+z*cos(A);\n'+
+  '  const h =  y*cos(B)-d*sin(B), q =  y*sin(B)+d*cos(B);\n'+
+  '  const f = constrain(.5+q/440, 0, 1);\n'+
+  '  stroke(lerpColor(color(...FAR), color(...NEAR), f), min(235, 96*b*(.34+.8*f)));\n'+
+  '  point(200+u*SC, 200-h*SC);\n'+
+  '} };\n\n'+
+  'function draw(){ background(8,9,11); T+=.03; if(!drag) A+=.0042; '+sp.id+'(st, P, T); }\n\n'+
+  'function mousePressed(){ drag=1; px=mouseX; py=mouseY; }\n'+
+  'function mouseReleased(){ drag=0; }\n'+
+  'function mouseDragged(){ A+=(mouseX-px)*.009; B=constrain(B-(mouseY-py)*.009,-1.15,1.15); px=mouseX; py=mouseY; }\n\n'+
+  '/* ---- helpers ---- */\nconst HP=HALF_PI;   // TAU is already a p5 constant\n'+
+  crv.toString()+'\n\n'+limb.toString()+'\n\n'+blade.toString()+'\n\n'+ball.toString()+'\n\n'+hsh.toString()+'\n\n'+perp2.toString()+
+  '\n\n/* ---- the animal ---- */\n'+sp.fn.toString()+'\n';
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(out).then(flash,function(){fb(out);});
+  } else fb(out);
+};
+
+var fc=0;
+(function loop(){
+  fc++;
+  if(stageRig){
+    if(stageRig.playing) stageRig.T+=0.03;
+    if(stageRig.spin&&!drag) stageRig.yaw+=0.0040;
+    if(stageRig.playing||stageRig.spin) stageRig.render();
+  } else if(fc%3===0){
+    for(var i=0;i<tiles.length;i++){
+      if(!tiles[i].vis) continue;
+      tiles[i].T+=0.09; tiles[i].yaw+=0.009; tiles[i].render();
+    }
+  }
+  requestAnimationFrame(loop);
+})();
+})();
+</script>
+</body>
+</html>

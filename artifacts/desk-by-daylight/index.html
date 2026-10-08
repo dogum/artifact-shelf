@@ -1,0 +1,2152 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Desk, by daylight</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#d9d2c6; --paper:#f1f2ee; --ink:#1c2533; --muted:#5c6575; --line:rgba(28,37,51,.16);
+  --lp:241,242,238; --li:28,37,51; --lm:92,101,117; --dock-shadow:0 3px 14px rgba(10,14,24,.22);
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bg:#151922; } }
+:root[data-theme="dark"]{ --bg:#151922; }
+html{ height:100%; scroll-padding-top:env(safe-area-inset-top,0px); }
+body{ margin:0; height:100%; overflow:hidden; background:var(--bg); color:var(--ink);
+  font-family:"Spectral","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; -webkit-font-smoothing:antialiased; }
+*,*::before,*::after{ box-sizing:inherit; }
+#gl{ position:fixed; inset:0; width:100%; height:100%; display:block; }
+button,input,select{ font:inherit; color:inherit; }
+:focus-visible{ outline:2px solid var(--li); outline-offset:2px; }
+
+/* the control strip: a slip of the same paper, floating ~1.4 cm above the desk */
+#dock{ position:fixed; left:50%; bottom:0; transform:translateX(-50%);
+  margin-bottom:calc(14px + env(safe-area-inset-bottom,0px)); width:min(880px, calc(100% - 24px));
+  display:flex; align-items:center; gap:18px; padding:10px 14px 10px 12px;
+  background:rgb(var(--lp)); color:rgb(var(--li)); border-radius:2px;
+  box-shadow:var(--dock-shadow), 0 0 0 .5px rgba(0,0,0,.08);
+  transition:opacity .7s ease, box-shadow .4s linear; }
+body.idle #dock{ opacity:0; pointer-events:none; }
+.now{ display:flex; align-items:center; gap:8px; background:none; border:0; padding:6px 8px; cursor:pointer;
+  font-style:italic; white-space:nowrap; min-width:7.2em; border-radius:2px; }
+.now .led{ width:7px; height:7px; border-radius:50%; background:rgb(var(--li)); opacity:.25; }
+.now.live .led{ opacity:1; }
+.now:hover{ background:rgba(var(--li),.06); }
+.sl{ flex:1; min-width:0; display:grid; grid-template-columns:auto 1fr; align-items:baseline; column-gap:10px; row-gap:2px; cursor:pointer; }
+.sl-k{ font-style:italic; color:rgb(var(--lm)); font-size:14px; }
+.sl-v{ justify-self:end; font-variant-numeric:tabular-nums; font-size:15px; }
+.sl input{ grid-column:1 / -1; width:100%; margin:0; height:26px; background:transparent; -webkit-appearance:none; appearance:none; cursor:pointer; }
+.sl input::-webkit-slider-runnable-track{ height:16px; border-radius:1px; background:var(--track) center/100% 100% no-repeat; box-shadow:inset 0 0 0 .5px rgba(var(--li),.35); }
+.sl input::-moz-range-track{ height:16px; border-radius:1px; background:var(--track) center/100% 100% no-repeat; box-shadow:inset 0 0 0 .5px rgba(var(--li),.35); }
+.sl input::-webkit-slider-thumb{ -webkit-appearance:none; width:3px; height:24px; margin-top:-4px; background:rgb(var(--li)); border-radius:1px; box-shadow:0 0 0 2px rgb(var(--lp)); }
+.sl input::-moz-range-thumb{ width:3px; height:24px; background:rgb(var(--li)); border:0; border-radius:1px; box-shadow:0 0 0 2px rgb(var(--lp)); }
+.ib{ width:38px; height:38px; flex:none; display:grid; place-items:center; background:none; border:0; border-radius:2px; cursor:pointer; color:rgb(var(--li)); }
+.ib:hover{ background:rgba(var(--li),.07); }
+.ib svg{ width:18px; height:18px; }
+
+#panel{ position:fixed; left:50%; bottom:calc(92px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%);
+  width:min(440px, calc(100% - 24px)); max-height:calc(100% - 120px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)); overflow:auto;
+  background:rgb(var(--lp)); color:rgb(var(--li)); border-radius:2px; padding:20px 22px 18px;
+  box-shadow:var(--dock-shadow), 0 0 0 .5px rgba(0,0,0,.08); }
+#panel[hidden]{ display:none; }
+#panel h2{ font-weight:400; font-size:19px; margin:0 0 6px; }
+#panel h2:not(:first-child){ margin-top:22px; }
+#panel p{ margin:0 0 10px; font-size:15px; line-height:1.5; color:rgb(var(--lm)); }
+#panel p strong{ font-weight:500; color:rgb(var(--li)); }
+.row2{ display:flex; gap:12px; }
+.row2 label{ flex:1; font-style:italic; font-size:14px; color:rgb(var(--lm)); display:grid; gap:4px; }
+.row2 input, .field input, .field select{ min-width:0; width:100%; font-style:normal; font-size:16px; padding:7px 8px; border:0; border-bottom:1px solid rgba(var(--li),.35);
+  background:rgba(var(--li),.04); border-radius:1px; color:rgb(var(--li)); font-variant-numeric:tabular-nums; }
+.field{ display:grid; gap:4px; font-style:italic; font-size:14px; color:rgb(var(--lm)); margin:6px 0 10px; }
+.field select{ -webkit-appearance:none; appearance:none; cursor:pointer; }
+.chips{ display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 6px; }
+.chip{ padding:4px 10px; border:1px solid rgba(var(--li),.28); border-radius:2px; background:none; cursor:pointer; font-size:14px; }
+.chip:hover{ background:rgba(var(--li),.06); }
+.chip[aria-pressed="true"], .seg .btn[aria-pressed="true"]{ background:rgb(var(--li)); color:rgb(var(--lp)); border-color:transparent; }
+.seg{ display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 8px; }
+.seg .btn{ flex:1 1 auto; padding:5px 10px; }
+#panel p.sub{ margin:14px 0 2px; }
+#panel p.note{ font-style:italic; margin-top:4px; }
+#panel p.keys{ font-size:14px; }
+kbd{ font:inherit; font-style:normal; padding:0 4px; border:1px solid rgba(var(--li),.25); border-radius:2px; color:rgb(var(--li)); }
+.btns{ display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 8px; }
+.btn{ padding:7px 12px; border:1px solid rgba(var(--li),.35); background:none; border-radius:2px; cursor:pointer; font-size:15px; }
+.btn:hover{ background:rgba(var(--li),.06); }
+.btn.primary{ background:rgb(var(--li)); color:rgb(var(--lp)); border-color:transparent; }
+.hdg{ display:flex; gap:16px; align-items:center; margin:8px 0 6px; }
+#compass{ width:96px; height:96px; flex:none; touch-action:none; cursor:grab; }
+.hdg-ctl{ flex:1; display:grid; gap:8px; }
+.hdg-ctl input{ width:100%; accent-color:rgb(var(--li)); }
+.quick{ display:flex; gap:6px; }
+.quick .btn{ padding:4px 0; flex:1; }
+#done{ margin-top:14px; width:100%; }
+#toast{ position:fixed; left:50%; top:calc(16px + env(safe-area-inset-top,0px)); transform:translateX(-50%); max-width:calc(100% - 32px);
+  background:rgb(var(--lp)); color:rgb(var(--li)); padding:9px 14px; border-radius:2px; font-size:15px; font-style:italic;
+  box-shadow:var(--dock-shadow); opacity:0; transition:opacity .4s; pointer-events:none; }
+#toast.on{ opacity:1; }
+#fail{ position:fixed; inset:0; display:none; place-items:center; padding:24px; text-align:center; font-size:18px; color:var(--ink); background:var(--bg); }
+@media (max-width: 680px){
+  #dock{ flex-wrap:wrap; gap:2px 14px; padding:6px 12px 10px; }
+  .sl{ order:3; flex:1 1 calc(50% - 7px); }
+  .sl-k,.sl-v{ font-size:14px; }
+  .now{ flex:1; }
+  #panel{ bottom:calc(126px + env(safe-area-inset-bottom,0px)); }
+}
+@media (prefers-reduced-motion: reduce){ #dock,#toast{ transition:none; } }
+</style>
+<canvas id="gl" aria-label="A desk lit by the real sun or moon at your location"></canvas>
+<div id="dock">
+  <button id="now" class="now live" type="button"><span class="led" aria-hidden="true"></span><span id="nowTxt">Live</span></button>
+  <label class="sl"><span class="sl-k">Day</span><span class="sl-v" id="dayV"></span><input id="day" type="range" min="0" max="1439" step="1" aria-label="Time of day"></label>
+  <label class="sl"><span class="sl-k">Year</span><span class="sl-v" id="yearV"></span><input id="year" type="range" min="0" max="364" step="1" aria-label="Day of the year"></label>
+  <button id="play" class="ib" type="button" aria-label="Play through the day" title="Play the day (Space)">
+    <svg id="playIco" viewBox="0 0 20 20"><path d="M6 4l10 6-10 6z" fill="currentColor"/></svg>
+  </button>
+  <button id="playYear" class="ib" type="button" aria-label="Play through the year at this clock time" title="Play the year at this clock time (Y)">
+    <svg id="yearIco" viewBox="0 0 20 20"></svg>
+  </button>
+  <button id="gear" class="ib" type="button" aria-label="Place, window and time" title="Place, window and time" aria-expanded="false" aria-controls="panel">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="10" cy="10" r="7.2"/><path d="M10 3.6l1.6 6.4L10 16.4 8.4 10z" fill="currentColor" stroke="none"/></svg>
+  </button>
+</div>
+<div id="panel" hidden role="dialog" aria-label="Place, window and time">
+  <h2>Where the light comes from</h2>
+  <p id="locNote"></p>
+  <label class="field">Find a city<input id="city" list="cities" autocomplete="off" placeholder="Type a city, then press Enter" enterkeyhint="go"></label>
+  <datalist id="cities"></datalist>
+  <div class="row2">
+    <label>Latitude<input id="lat" inputmode="decimal" autocomplete="off"></label>
+    <label>Longitude<input id="lon" inputmode="decimal" autocomplete="off"></label>
+  </div>
+  <div class="btns"><button id="setLoc" class="btn" type="button">Set position</button><button id="geo" class="btn" type="button">Use my location</button><button id="home" class="btn" type="button" hidden>Back home</button></div>
+  <p class="sub">Or take the desk where the light behaves differently:</p>
+  <div class="chips" id="places"></div>
+  <p id="placeNote" class="note" hidden></p>
+  <label class="field">Clock<select id="tz"></select></label>
+  <h2>Which way the screen faces</h2>
+  <p>Picture this screen lying flat on your desk. Its top edge points <strong id="hdgTxt">north</strong>. On an upright monitor, that is the direction you face while looking at it. The sundial turns itself to true north.</p>
+  <div class="hdg">
+    <svg id="compass" viewBox="-50 -50 100 100" aria-hidden="true">
+      <circle r="44" fill="none" stroke="currentColor" stroke-opacity=".35"/>
+      <g id="rose" font-size="11" text-anchor="middle" dominant-baseline="central" fill="currentColor" font-style="italic">
+        <text y="-34">N</text><text x="34">E</text><text y="34">S</text><text x="-34">W</text>
+      </g>
+      <path d="M0 -40 L5 0 L0 6 L-5 0 Z" fill="currentColor"/><circle r="2.2" fill="currentColor"/>
+    </svg>
+    <div class="hdg-ctl">
+      <input id="hdg" type="range" min="0" max="359" step="1" aria-label="Direction the top of the screen faces, in degrees">
+      <div class="quick"><button class="btn" data-h="0" type="button">N</button><button class="btn" data-h="90" type="button">E</button><button class="btn" data-h="180" type="button">S</button><button class="btn" data-h="270" type="button">W</button></div>
+    </div>
+  </div>
+  <div class="btns"><button id="ori" class="btn" type="button" hidden>Follow this phone’s compass</button></div>
+  <h2>The window</h2>
+  <p>Sun reaches the desk through a window with small panes. Choose which side of the screen it is on, or take the walls away.</p>
+  <div class="seg" id="winSeg">
+    <button class="btn" type="button" data-w="0">Ahead</button><button class="btn" type="button" data-w="270">Left</button><button class="btn" type="button" data-w="90">Right</button><button class="btn" type="button" data-w="180">Behind</button><button class="btn" type="button" data-w="none">Open sky</button>
+  </div>
+  <p id="winNote" class="note"></p>
+  <h2>Jump ahead to</h2>
+  <div class="btns" id="jumps"><button class="btn" type="button" data-jump="equinox">Equinox</button><button class="btn" type="button" data-jump="solstice">Solstice</button><button class="btn" type="button" data-jump="full">Full moon</button><button class="btn" type="button" data-jump="new">New moon</button></div>
+  <h2>Keys</h2>
+  <p class="keys"><kbd>←</kbd> <kbd>→</kbd> move ten minutes (with Shift, an hour). <kbd>↑</kbd> <kbd>↓</kbd> move a day (with Shift, a week). <kbd>Space</kbd> plays the day, <kbd>Y</kbd> plays the year, <kbd>C</kbd> turns the card, <kbd>N</kbd> returns to now. Click the card to turn it too.</p>
+  <button id="done" class="btn primary" type="button">Done</button>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="fail"></div>
+<script>
+(() => {
+'use strict';
+const SHADER_SRC = `precision highp float;
+uniform vec2 uRes;
+uniform float uPx;
+uniform vec3 uSunDir;
+uniform vec3 uSunCol;
+uniform vec3 uMoonDir;
+uniform vec3 uMoonCol;
+uniform vec3 uSky;
+uniform vec3 uBounce;
+uniform float uNight;
+uniform float uK;
+uniform vec2 uNorth;
+uniform float uTanLat;
+uniform float uHemi;
+uniform vec4 uCard;
+uniform sampler2D uCardTex;
+uniform vec4 uDial;
+uniform vec2 uDialG;
+uniform sampler2D uDialTex;
+uniform vec3 uMug;
+uniform vec3 uPlant;
+uniform vec3 uPencil;
+uniform vec3 uBall;
+uniform vec2 uVig;
+uniform vec3 uWin;
+uniform vec4 uPlot;
+uniform vec3 uPin;
+uniform sampler2D uPlotTex;
+uniform vec4 uWall;
+
+#define CAMH 200.0
+#define ZMAX 15.0
+#define PT 0.5
+#define PI 3.14159265
+#define PL 17.6
+#define PZ 0.03
+#define WIN_HW 85.5
+#define WIN_Z0 5.0
+#define WIN_Z1 176.0
+#define PANE 28.5
+#define BAR 1.15
+float gThr = 0.5;
+
+float hash12(vec2 p){ vec3 p3 = fract(vec3(p.xyx)*0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y)*p3.z); }
+float vnoise(vec2 p){
+  vec2 i = floor(p); vec2 f = fract(p); vec2 u = f*f*(3.0 - 2.0*f);
+  float a = hash12(i), b = hash12(i + vec2(1.0, 0.0)), c = hash12(i + vec2(0.0, 1.0)), d = hash12(i + vec2(1.0, 1.0));
+  return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+}
+float fbm(vec2 p){ float s = 0.0, a = 0.5; for (int i = 0; i < 4; i++){ s += a*vnoise(p); p = p*2.03 + vec2(17.1, 9.3); a *= 0.5; } return s; }
+mat2 rot(float a){ float c = cos(a), s = sin(a); return mat2(c, s, -s, c); }
+
+float sdCylZ(vec3 p, float r, float z0, float z1){
+  vec2 d = vec2(length(p.xy) - r, abs(p.z - 0.5*(z0 + z1)) - 0.5*(z1 - z0));
+  return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
+}
+float sdRCylZ(vec3 p, float r, float z0, float z1, float rr){ return sdCylZ(p, r - rr, z0 + rr, z1 - rr) - rr; }
+float sdEll(vec3 p, vec3 r){ float k0 = length(p/r); float k1 = length(p/(r*r)); return k0*(k0 - 1.0)/max(k1, 1e-4); }
+float sdHex2(vec2 p, float r){
+  const vec3 k = vec3(-0.866025404, 0.5, 0.577350269);
+  p = abs(p); p -= 2.0*min(dot(k.xy, p), 0.0)*k.xy; p -= vec2(clamp(p.x, -k.z*r, k.z*r), r);
+  return length(p)*sign(p.y);
+}
+float sdRRect(vec2 p, vec2 b, float r){ vec2 q = abs(p) - b + r; return min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - r; }
+float sdFrustum(vec3 p, float z0, float z1, float r0, float r1){
+  float t = clamp((p.z - z0)/(z1 - z0), 0.0, 1.0);
+  float sl = (r1 - r0)/(z1 - z0);
+  float dr = (length(p.xy) - mix(r0, r1, t))*inversesqrt(1.0 + sl*sl);
+  float dz = abs(p.z - 0.5*(z0 + z1)) - 0.5*(z1 - z0);
+  return max(dr, dz);
+}
+
+// ---------------- objects (units: cm, z up from the desk) ----------------
+vec2 obCard(vec3 p){
+  float d2 = sdRRect(p.xy - uCard.xy, uCard.zw, 0.3);
+  vec2 w = vec2(d2, abs(p.z - 0.16) - 0.16);
+  return vec2(min(max(w.x, w.y), 0.0) + length(max(w, 0.0)), 1.0);
+}
+vec3 dialLocal(vec3 p){
+  vec2 d = p.xy - uDial.xy;
+  vec2 pole = uNorth*uHemi;
+  vec2 xa = vec2(pole.y, -pole.x);
+  return vec3(dot(d, xa), dot(d, pole), p.z);
+}
+vec2 obDial(vec3 p){
+  vec3 q = dialLocal(p);
+  float bnd = sdCylZ(q, uDial.z + 0.1, 0.0, 9.0);
+  if (bnd > gThr) return vec2(bnd, 2.0);
+  float plate = sdRCylZ(q, uDial.z, 0.0, PT, 0.1);
+  float s = uTanLat;
+  float dst = ((q.z - PT) - (q.y - uDialG.x)*s)*inversesqrt(1.0 + s*s);
+  float g = max(max(abs(q.x) - 0.5*uDial.w, q.y - uDialG.y), max(PT - 0.02 - q.z, dst));
+  return plate < g ? vec2(plate, 2.0) : vec2(g, 3.0);
+}
+vec2 obMug(vec3 p){
+  vec3 q = vec3(rot(-uMug.z)*(p.xy - uMug.xy), p.z);
+  float bnd = sdCylZ(q - vec3(1.5, 0.0, 0.0), 5.8, 0.0, 9.8);
+  if (bnd > gThr) return vec2(bnd, 4.0);
+  float outer = sdRCylZ(q, 4.1, 0.0, 9.6, 0.32);
+  float inner = sdRCylZ(q, 3.74, 0.75, 14.0, 0.3);
+  float shell = max(outer, -inner);
+  vec3 hq = q - vec3(4.5, 0.0, 5.0);
+  float hd = length(vec2(length(hq.xz) - 2.2, hq.y*0.8)) - 0.4;
+  hd = max(hd, 3.95 - length(q.xy));
+  shell = min(shell, hd);
+  float coffee = sdCylZ(q, 3.76, 0.6, 7.6);
+  return coffee < shell ? vec2(coffee, 5.0) : vec2(shell, 4.0);
+}
+float leafField(vec3 q, out float tipOut){
+  float dl = 1e5; tipOut = 0.0;
+  for (int i = 0; i < 16; i++){
+    float fi = float(i)/15.0;
+    float a = float(i)*2.39996 + uPlant.z;
+    vec2 dir = vec2(cos(a), sin(a));
+    float tilt = mix(1.15, 0.2, fi);
+    float len = mix(1.25, 3.6, fi);
+    float wid = mix(0.7, 1.6, fi);
+    float thk = mix(0.5, 0.4, fi);
+    vec3 ax = vec3(dir*cos(tilt), sin(tilt));
+    vec3 bx = vec3(-dir.y, dir.x, 0.0);
+    vec3 nx = cross(ax, bx);
+    vec3 c = vec3(0.0, 0.0, 7.5 + (1.0 - fi)*1.1) + ax*len*0.8;
+    vec3 lq = q - c;
+    lq = vec3(dot(lq, ax), dot(lq, bx), dot(lq, nx));
+    float tp = clamp(lq.x/len*0.5 + 0.5, 0.0, 1.0);
+    float w = wid*(1.0 - 0.4*tp*tp);
+    float d = sdEll(lq, vec3(len, w, thk))*0.85;
+    if (d < dl){ dl = d; tipOut = tp; }
+  }
+  return dl;
+}
+vec2 obPlant(vec3 p){
+  vec3 q = vec3(p.xy - uPlant.xy, p.z);
+  float bnd = sdCylZ(q, 9.2, 0.0, 12.5);
+  if (bnd > gThr) return vec2(bnd, 6.0);
+  float body = sdFrustum(q, 0.0, 6.2, 4.0, 4.95);
+  float rim = sdRCylZ(q, 5.5, 5.8, 8.0, 0.22);
+  float pot = max(min(body, rim), -sdCylZ(q, 4.95, 7.25, 30.0));
+  vec2 res = vec2(pot, 6.0);
+  if (sdCylZ(q, 8.6, 6.5, 12.5) < 0.4){
+    float tp;
+    float dl = leafField(q, tp);
+    if (dl < res.x) res = vec2(dl, 8.0);
+  }
+  return res;
+}
+vec2 obPencil(vec3 p){
+  vec2 l = rot(-uPencil.z)*(p.xy - uPencil.xy);
+  vec3 q = vec3(l, p.z - 0.39);
+  float bnd = length(vec2(max(abs(q.x) - 0.5*PL, 0.0), length(q.yz))) - 0.5;
+  if (bnd > gThr) return vec2(bnd, 9.0);
+  float u = q.x + 0.5*PL;
+  float rho = length(q.yz);
+  float hex = sdHex2(q.yz, 0.36);
+  float cone = (rho - 0.21*u)*0.978;
+  float body = max(max(hex, cone), max(-u, u - (PL - 1.8)));
+  float m = 9.0;
+  if (cone > hex - 0.002) m = u < 0.45 ? 11.0 : 10.0;
+  vec2 res = vec2(body, m);
+  float fer = max(rho - (0.385 + 0.01*sin(u*30.0)), abs(u - (PL - 1.35)) - 0.52);
+  if (fer < res.x) res = vec2(fer, 12.0);
+  vec2 e = vec2(rho - 0.27, abs(u - (PL - 0.42)) - 0.34);
+  float er = min(max(e.x, e.y), 0.0) + length(max(e, 0.0)) - 0.07;
+  if (er < res.x) res = vec2(er, 13.0);
+  return res;
+}
+// the shadow plot: a sheet of graph paper with a dressmaker's pin standing in it
+vec2 obPlot(vec3 p){
+  if (uPlot.z <= 0.0) return vec2(1e5, 14.0);
+  float d2 = sdRRect(p.xy - uPlot.xy, uPlot.zw, 0.12);
+  vec2 w = vec2(d2, abs(p.z - 0.5*PZ) - 0.5*PZ);
+  vec2 res = vec2(min(max(w.x, w.y), 0.0) + length(max(w, 0.0)), 14.0);
+  vec3 q = p - vec3(uPin.xy, 0.0);
+  float bnd = sdCylZ(q, 0.4, 0.0, uPin.z + 0.4);
+  if (bnd > gThr) return vec2(min(res.x, bnd), res.x < bnd ? 14.0 : 15.0);
+  float shaft = sdCylZ(q, 0.042, 0.0, uPin.z);
+  float head = length(q - vec3(0.0, 0.0, uPin.z)) - 0.27;
+  if (shaft < res.x) res = vec2(shaft, 15.0);
+  if (head < res.x) res = vec2(head, 16.0);
+  return res;
+}
+vec2 map(vec3 p){
+  vec2 r = obCard(p);
+  vec2 t = obDial(p); if (t.x < r.x) r = t;
+  t = obMug(p); if (t.x < r.x) r = t;
+  t = obPlant(p); if (t.x < r.x) r = t;
+  t = obPencil(p); if (t.x < r.x) r = t;
+  t = obPlot(p); if (t.x < r.x) r = t;
+  return r;
+}
+float gBallAO = 1.0;
+float mapAO(vec3 p){ float d = map(p).x; return gBallAO > 0.5 ? min(d, length(p - vec3(uBall.xy, uBall.z)) - uBall.z) : d; }
+vec3 calcNormal(vec3 p){
+  const vec2 e = vec2(1.0, -1.0)*0.002;
+  return normalize(e.xyy*map(p + e.xyy).x + e.yyx*map(p + e.yyx).x + e.yxy*map(p + e.yxy).x + e.xxx*map(p + e.xxx).x);
+}
+
+// ---------------- light transport ----------------
+// Soft shadow; uK = 1/tan(half-angle of the light source incl. a little circumsolar haze)
+float shadow(vec3 ro, vec3 rd){
+  float tmax = min((ZMAX - ro.z)/max(rd.z, 0.003), 260.0);
+  float res = 1.0, t = 0.01, ph = 1e10;
+  for (int i = 0; i < 120; i++){
+    float h = map(ro + rd*t).x;
+    float y = (h < ph) ? h*h/(2.0*ph) : 0.0;
+    float d = sqrt(max(h*h - y*y, 0.0));
+    res = min(res, uK*d/max(t - y, 1e-4));
+    ph = h;
+    t += clamp(h, 0.01, 5.0);
+    if (res < 0.003 || t > tmax) break;
+  }
+  res = clamp(res, 0.0, 1.0);
+  return res*res*(3.0 - 2.0*res);
+}
+// Glass sphere: removes light inside its shadow and refocuses it into a caustic.
+// Ball lens focal distance from the centre is nR/(2(n-1)); dispersion is mildly exaggerated.
+vec3 ballTr(vec3 p, vec3 L){
+  vec3 c = vec3(uBall.xy, uBall.z);
+  float R = uBall.z;
+  vec3 oc = c - p;
+  float t = dot(oc, L);
+  if (t <= 0.0) return vec3(1.0);
+  float d = length(oc - L*t);
+  if (d > R*3.5) return vec3(1.0);
+  float pen = 0.04 + t*0.009;
+  float inSh = 1.0 - smoothstep(R - pen, R + pen, d);
+  vec3 f = R*vec3(1.478, 1.466, 1.448);
+  float Re = R*0.9;
+  vec3 w = Re*abs(1.0 - t/f) + vec3(0.05*R + t*0.0093);
+  vec3 I = min(0.8*(Re*Re)/(w*w), vec3(28.0));
+  vec3 spot = I*(1.0 - smoothstep(w*0.5, w*1.08, vec3(d)));
+  return vec3(1.0 - inSh) + spot*0.86 + vec3(0.03*inSh);
+}
+vec3 envCol(vec3 d){
+  vec3 up = uSky*1.15 + uBounce*0.9;
+  vec3 dn = uBounce*0.55 + uSky*0.3;
+  vec3 c = mix(dn, up, smoothstep(-0.25, 0.35, d.z));
+  vec2 h = d.xy; float hl = length(h);
+  if (hl > 1e-4 && uWin.z > 0.0){
+    float ca = dot(h/hl, uWin.xy);
+    float az = acos(clamp(ca, -1.0, 1.0));
+    float el = atan(d.z, hl);
+    float m = (1.0 - smoothstep(0.42, 0.50, az))*smoothstep(0.03, 0.08, el)*(1.0 - smoothstep(0.66, 0.74, el));
+    float cr = h.x*uWin.y - h.y*uWin.x;
+    float bar = (1.0 - smoothstep(0.012, 0.03, abs(cr/hl)))*0.85 + (1.0 - smoothstep(0.012, 0.03, abs(el - 0.36)))*0.85;
+    c += uSky*uWin.z*m*(1.0 - clamp(bar, 0.0, 0.9));
+  }
+  return c;
+}
+float calcAO(vec3 p, vec3 n){
+  float occ = 0.0, sca = 1.0;
+  gThr = 4.3;
+  for (int i = 0; i < 5; i++){
+    float h = 0.05 + 0.2*float(i) + 0.2*float(i)*float(i);
+    float d = mapAO(p + n*h);
+    occ += max(h - d, 0.0)*sca;
+    sca *= 0.62;
+  }
+  gThr = 0.5;
+  return clamp(1.0 - 0.5*occ, 0.0, 1.0);
+}
+// A wall at distance uWall.z along uWall.xy holds a window of small panes; light must pass through the glass.
+// The edges blur with distance from the glass, as the sun's own disc (0.53 deg) dictates.
+float windowLight(vec3 p, vec3 L){
+  if (uWall.w < 0.5) return 1.0;
+  float lw = dot(L.xy, uWall.xy);
+  if (lw <= 0.002) return 0.0;
+  float t = (uWall.z - dot(p.xy, uWall.xy))/lw;
+  if (t <= 0.0) return 1.0;
+  vec3 h = p + L*t;
+  float u = dot(h.xy, vec2(-uWall.y, uWall.x));
+  float pen = 0.12 + t*0.0047;
+  float open = smoothstep(-pen, pen, WIN_HW - abs(u))*smoothstep(-pen, pen, h.z - WIN_Z0)*smoothstep(-pen, pen, WIN_Z1 - h.z);
+  float du = abs(fract(u/PANE + 0.5) - 0.5)*PANE;
+  float dv = abs(fract((h.z - WIN_Z0)/PANE + 0.5) - 0.5)*PANE;
+  float bw = BAR*(abs(u) < PANE*0.5 ? 2.2 : 1.0);
+  float bars = smoothstep(bw - pen, bw + pen, du)*smoothstep(BAR - pen, BAR + pen, dv);
+  return open*bars;
+}
+vec3 directTerm(vec3 p, vec3 n, vec3 v, vec3 L, vec3 C, vec3 dif, vec3 f0, float rough, float wrap){
+  if (L.z <= 0.0 || C.g < 1e-5) return vec3(0.0);
+  float ndl = dot(n, L);
+  float nw = (ndl + wrap)/(1.0 + wrap);
+  if (nw <= 0.0) return vec3(0.0);
+  float wl = windowLight(p, L);
+  if (wl < 0.002) return vec3(0.0);
+  vec3 vis = wl*vec3(shadow(p + n*0.012, L))*ballTr(p, L);
+  vec3 h = normalize(L + v);
+  float nh = max(dot(n, h), 0.0), nv = max(dot(n, v), 0.2), vh = max(dot(v, h), 0.0);
+  float a = rough*rough; float a2 = a*a;
+  float dd = nh*nh*(a2 - 1.0) + 1.0;
+  float D = a2/(PI*dd*dd);
+  vec3 F = f0 + (1.0 - f0)*pow(1.0 - vh, 5.0);
+  vec3 spec = PI*D*F*0.25/nv*smoothstep(0.0, 0.08, ndl);
+  return C*vis*(dif*nw + spec);
+}
+vec3 lighting(vec3 p, vec3 n, vec3 v, vec3 alb, float rough, float metal, float ao, float wrap){
+  vec3 dif = alb*(1.0 - metal);
+  vec3 f0 = mix(vec3(0.04), alb, metal);
+  vec3 amb = (uSky*(0.55 + 0.45*n.z) + uBounce*(0.75 - 0.25*n.z))*ao;
+  vec3 col = dif*amb + f0*envCol(reflect(-v, n))*ao*(0.35 + 0.65*metal);
+  col += directTerm(p, n, v, uSunDir, uSunCol, dif, f0, rough, wrap);
+  col += directTerm(p, n, v, uMoonDir, uMoonCol, dif, f0, rough, wrap);
+  return col;
+}
+
+// ---------------- materials ----------------
+vec3 woodAlb(vec2 p){
+  float n1 = fbm(vec2(p.x*0.011, p.y*0.085));
+  float n2 = fbm(vec2(p.x*0.05, p.y*0.6) + 7.0);
+  float rings = p.y*0.38 + n1*7.0 + n2*0.5;
+  float g = abs(fract(rings) - 0.5)*2.0;
+  float late = smoothstep(0.55, 0.98, g);
+  float fine = vnoise(vec2(p.x*0.3, p.y*9.0));
+  float pore = smoothstep(0.78, 0.96, vnoise(vec2(p.x*1.1, p.y*24.0)));
+  vec3 c = mix(vec3(0.60, 0.47, 0.33), vec3(0.44, 0.32, 0.20), late*0.5 + fine*0.12);
+  c *= 1.0 - 0.09*pore;
+  c *= 0.94 + 0.09*fbm(p*0.02);
+  return c;
+}
+vec3 shadeDesk(vec3 p, vec3 v){
+  vec3 n = vec3(0.0, 0.0, 1.0);
+  return lighting(p, n, v, woodAlb(p.xy), 0.6, 0.0, calcAO(p, n), 0.0);
+}
+vec3 shadeGlass(vec3 p, vec3 rd){
+  vec3 c = vec3(uBall.xy, uBall.z);
+  vec3 n = normalize(p - c);
+  float ci = clamp(dot(n, -rd), 0.0, 1.0);
+  float F = 0.04 + 0.96*pow(1.0 - ci, 5.0);
+  vec3 r1 = refract(rd, n, 1.0/1.5);
+  vec3 p2 = p + r1*(-2.0*dot(p - c, r1));
+  vec3 r2 = refract(r1, -normalize(p2 - c), 1.5);
+  vec3 tr;
+  if (dot(r2, r2) < 0.5) tr = envCol(reflect(r1, -normalize(p2 - c)))*0.5;
+  else if (r2.z < -0.0005){ gBallAO = 0.0; tr = shadeDesk(p2 + r2*(-p2.z/r2.z), vec3(0.0, 0.0, 1.0)); gBallAO = 1.0; }
+  else tr = envCol(r2);
+  tr *= vec3(0.93, 0.98, 0.96);
+  vec3 rr = reflect(rd, n);
+  vec3 col = mix(tr, envCol(rr), F);
+  if (uSunDir.z > 0.0){ float g = max(dot(rr, uSunDir), 0.0); col += uSunCol*(pow(g, 900.0)*40.0 + pow(g, 120.0)*0.6)*shadow(p + n*0.02, uSunDir)*windowLight(p, uSunDir); }
+  if (uMoonDir.z > 0.0){ float g = max(dot(rr, uMoonDir), 0.0); col += uMoonCol*(pow(g, 900.0)*40.0 + pow(g, 120.0)*0.6)*windowLight(p, uMoonDir); }
+  return col;
+}
+vec3 shadeObject(vec3 p, vec3 v, float mat, vec2 q){
+  vec3 n = calcNormal(p);
+  float ao = calcAO(p, n);
+  vec3 alb = vec3(0.5); float rough = 0.6, metal = 0.0, wrap = 0.0;
+  if (mat < 1.5){
+    if (p.z > 0.315){
+      vec2 uv = (q - (uCard.xy - uCard.zw))/(2.0*uCard.zw);
+      alb = pow(texture2D(uCardTex, uv).rgb, vec3(2.2));
+    } else {
+      float layer = fract(p.z*31.0 + 0.13*vnoise(p.xy*0.8));
+      alb = mix(vec3(0.70, 0.71, 0.69), vec3(0.52, 0.52, 0.50), smoothstep(0.82, 0.97, layer));
+    }
+    alb *= 0.965 + 0.035*vnoise(p.xy*38.0) + 0.02*vnoise(p.xy*3.0);
+    rough = 0.85;
+  } else if (mat < 3.5){
+    vec3 dl = dialLocal(p);
+    float m = 1.0;
+    if (mat < 2.5 && p.z > PT - 0.03) m = texture2D(uDialTex, dl.xy/(2.0*uDial.z) + 0.5).r;
+    vec3 brass = vec3(0.50, 0.36, 0.16)*(0.84 + 0.22*fbm(dl.xy*0.7 + 3.0));
+    alb = mix(vec3(0.025, 0.022, 0.02), brass, m);
+    metal = 0.7*m; rough = mat < 2.5 ? 0.42 : 0.36;
+  } else if (mat < 4.5){
+    vec2 mq = rot(-uMug.z)*(p.xy - uMug.xy);
+    float sp = smoothstep(0.82, 0.9, vnoise(vec2(mq.x*5.0 + p.z*3.0, atan(mq.y, mq.x)*14.0 + p.z*5.0)));
+    alb = mix(vec3(0.70, 0.68, 0.62), vec3(0.22, 0.16, 0.12), sp*0.8);
+    rough = 0.28;
+  } else if (mat < 5.5){
+    vec2 mq = rot(-uMug.z)*(p.xy - uMug.xy);
+    alb = mix(vec3(0.012, 0.006, 0.003), vec3(0.06, 0.03, 0.013), smoothstep(3.0, 3.7, length(mq)));
+    rough = 0.07;
+  } else if (mat < 6.5){
+    vec2 pq = p.xy - uPlant.xy;
+    if (p.z < 7.32 && length(pq) < 4.97){
+      float g = vnoise(pq*9.0);
+      alb = mix(vec3(0.035, 0.026, 0.02), vec3(0.08, 0.06, 0.045), g);
+      vec2 gc = pq*4.2, gi = floor(gc), gf = fract(gc) - 0.5;
+      float gh = hash12(gi);
+      vec2 go = vec2(hash12(gi + 7.31), hash12(gi + 3.17)) - 0.5;
+      float gr = mix(0.10, 0.2, hash12(gi + 1.9));
+      float grain = step(0.7, gh)*(1.0 - smoothstep(gr - 1.2/(uPx*4.2), gr + 1.2/(uPx*4.2), length(gf - go*0.45)));
+      alb = mix(alb, vec3(0.62, 0.61, 0.58), grain);
+      rough = 0.95;
+    } else {
+      alb = vec3(0.50, 0.19, 0.09)*(0.85 + 0.25*fbm(vec2(atan(pq.y, pq.x)*6.0, p.z*1.5)));
+      rough = 0.9;
+    }
+  } else if (mat < 8.5){
+    float tp; leafField(vec3(p.xy - uPlant.xy, p.z), tp);
+    alb = mix(vec3(0.30, 0.45, 0.38), vec3(0.62, 0.30, 0.32), smoothstep(0.72, 1.0, tp));
+    rough = 0.5; wrap = 0.35;
+  } else if (mat < 9.5){
+    alb = vec3(0.012, 0.07, 0.045); rough = 0.26;
+  } else if (mat < 10.5){
+    alb = vec3(0.70, 0.44, 0.23); rough = 0.8;
+  } else if (mat < 11.5){
+    alb = vec3(0.035, 0.035, 0.04); metal = 0.5; rough = 0.4;
+  } else if (mat < 12.5){
+    alb = vec3(0.62, 0.48, 0.24); metal = 0.9; rough = 0.3;
+  } else if (mat < 13.5){
+    alb = vec3(0.68, 0.24, 0.22); rough = 0.9;
+  } else if (mat < 14.5){
+    if (p.z > PZ - 0.006){
+      vec2 uv = (p.xy - (uPlot.xy - uPlot.zw))/(2.0*uPlot.zw);
+      alb = pow(texture2D(uPlotTex, uv).rgb, vec3(2.2));
+    } else alb = vec3(0.78, 0.78, 0.75);
+    alb *= 0.97 + 0.03*vnoise(p.xy*41.0);
+    rough = 0.9;
+  } else if (mat < 15.5){
+    alb = vec3(0.66, 0.66, 0.68); metal = 1.0; rough = 0.22;
+  } else {
+    alb = vec3(0.50, 0.05, 0.05); rough = 0.2;
+  }
+  return lighting(p, n, v, alb, rough, metal, ao, wrap);
+}
+vec3 aces(vec3 x){ return clamp((x*(2.51*x + 0.03))/(x*(2.43*x + 0.59) + 0.14), 0.0, 1.0); }
+
+void main(){
+  vec2 q = (gl_FragCoord.xy - 0.5*uRes)/uPx;
+  vec3 ro = vec3(0.0, 0.0, CAMH);
+  vec3 rd = normalize(vec3(q, -CAMH));
+  float tDesk = -CAMH/rd.z;
+  float t = (ZMAX - CAMH)/rd.z;
+  float mat = -1.0;
+  float eps = 0.3/uPx;
+  for (int i = 0; i < 140; i++){
+    vec2 h = map(ro + rd*t);
+    if (h.x < eps){ mat = h.y; break; }
+    t += h.x;
+    if (t > tDesk) break;
+  }
+  vec3 bc = vec3(uBall.xy, uBall.z);
+  vec3 oc = ro - bc;
+  float b = dot(oc, rd);
+  float disc = b*b - (dot(oc, oc) - uBall.z*uBall.z);
+  float tb = disc > 0.0 ? -b - sqrt(disc) : 1e9;
+  float tHit = mat >= 0.0 ? t : tDesk;
+  float dperp = sqrt(max(dot(oc, oc) - b*b, 0.0));
+  float cov = clamp((uBall.z - dperp)*uPx + 0.5, 0.0, 1.0);
+  float tBall = disc > 0.0 ? tb : -b;
+  vec3 col;
+  if (cov > 0.0 && tBall < tHit){
+    vec3 pg = disc > 0.0 ? ro + rd*tb : bc + normalize(ro + rd*(-b) - bc)*uBall.z;
+    col = shadeGlass(pg, rd);
+    if (cov < 1.0){
+      vec3 bg = mat < 0.0 ? shadeDesk(ro + rd*tDesk, -rd) : shadeObject(ro + rd*t, -rd, mat, q);
+      col = mix(bg, col, cov);
+    }
+  }
+  else if (mat < 0.0) col = shadeDesk(ro + rd*tDesk, -rd);
+  else col = shadeObject(ro + rd*t, -rd, mat, q);
+  col *= 1.0 - 0.10*smoothstep(0.6, 1.4, length(q/uVig));
+  float lum = dot(col, vec3(0.2126, 0.7152, 0.0722));
+  col = mix(col, lum*vec3(0.56, 0.74, 1.08), uNight*0.75);
+  col = pow(aces(col), vec3(1.0/2.2));
+  col += (hash12(gl_FragCoord.xy) - 0.5)/255.0;
+  gl_FragColor = vec4(col, 1.0);
+}
+`;
+// ===================== math =====================
+const RAD = Math.PI/180, DEG = 180/Math.PI;
+const {sin, cos, tan, asin, acos, atan2, sqrt, pow, exp, abs, min, max, round, floor, PI} = Math;
+const clamp = (x, a, b) => min(b, max(a, x));
+const smooth = (a, b, x) => { const t = clamp((x - a)/(b - a), 0, 1); return t*t*(3 - 2*t); };
+const lerp = (a, b, t) => a + (b - a)*t;
+const n360 = x => ((x % 360) + 360) % 360;
+const DAY = 86400000;
+const jdOf = ms => ms/DAY + 2440587.5;
+
+// ===================== sun (NOAA / Meeus) =====================
+function sunCoords(jd){
+  const T = (jd - 2451545.0)/36525;
+  const L0 = n360(280.46646 + T*(36000.76983 + T*0.0003032));
+  const M = 357.52911 + T*(35999.05029 - 0.0001537*T);
+  const e = 0.016708634 - T*(0.000042037 + 0.0000001267*T);
+  const Mr = M*RAD;
+  const C = sin(Mr)*(1.914602 - T*(0.004817 + 0.000014*T)) + sin(2*Mr)*(0.019993 - 0.000101*T) + sin(3*Mr)*0.000289;
+  const v = M + C;
+  const R = 1.000001018*(1 - e*e)/(1 + e*cos(v*RAD));
+  const om = (125.04 - 1934.136*T)*RAD;
+  const lam = (L0 + C - 0.00569 - 0.00478*sin(om))*RAD;
+  const eps = (23 + (26 + (21.448 - T*(46.815 + T*(0.00059 - T*0.001813)))/60)/60 + 0.00256*cos(om))*RAD;
+  return {
+    ra: atan2(cos(eps)*sin(lam), cos(lam)),
+    dec: asin(sin(eps)*sin(lam)),
+    lambda: lam, dist: R*149597870.7
+  };
+}
+function gmst(jd){ const d = jd - 2451545.0, T = d/36525; return n360(280.46061837 + 360.98564736629*d + 0.000387933*T*T); }
+function altAz(ra, dec, jd, lat, lon){
+  const H = (gmst(jd) + lon)*RAD - ra, phi = lat*RAD;
+  const alt = asin(clamp(sin(phi)*sin(dec) + cos(phi)*cos(dec)*cos(H), -1, 1));
+  const az = atan2(sin(H), cos(H)*sin(phi) - tan(dec)*cos(phi)) + PI;
+  return {alt, az: (az + 2*PI) % (2*PI), H: atan2(sin(H), cos(H))};
+}
+// Bennett refraction (deg), true -> apparent
+function refraction(h){ if (h < -1.6) return 0; return (1.02/tan((h + 10.3/(h + 5.11))*RAD))/60; }
+
+// ===================== moon (Meeus ch.47, truncated) =====================
+function moonCoords(jd){
+  const T = (jd - 2451545.0)/36525;
+  const r = x => (x % 360)*RAD;
+  const Lp = 218.3164477 + 481267.88123421*T;
+  const D = r(297.8501921 + 445267.1114034*T), M = r(357.5291092 + 35999.0502909*T);
+  const Mp = r(134.9633964 + 477198.8675055*T), F = r(93.2720950 + 483202.0175233*T);
+  const E = 1 - 0.002516*T;
+  const lon = Lp + 6.288774*sin(Mp) + 1.274027*sin(2*D - Mp) + 0.658314*sin(2*D) + 0.213618*sin(2*Mp)
+    - 0.185116*E*sin(M) - 0.114332*sin(2*F) + 0.058793*sin(2*D - 2*Mp) + 0.057066*E*sin(2*D - M - Mp)
+    + 0.053322*sin(2*D + Mp) + 0.045758*E*sin(2*D - M) - 0.040923*E*sin(M - Mp) - 0.034720*sin(D)
+    - 0.030383*E*sin(M + Mp);
+  const lat = 5.128122*sin(F) + 0.280602*sin(Mp + F) + 0.277693*sin(Mp - F) + 0.173237*sin(2*D - F)
+    + 0.055413*sin(2*D - Mp + F) + 0.046271*sin(2*D - Mp - F);
+  const dist = 385000.56 - 20905.355*cos(Mp) - 3699.111*cos(2*D - Mp) - 2955.968*cos(2*D) - 569.925*cos(2*Mp);
+  const eps = (23.4392911 - 0.0130042*T)*RAD, l = lon*RAD, b = lat*RAD;
+  return {
+    ra: atan2(sin(l)*cos(eps) - tan(b)*sin(eps), cos(l)),
+    dec: asin(sin(b)*cos(eps) + cos(b)*sin(eps)*sin(l)),
+    lambda: l, dist
+  };
+}
+
+// ===================== positions =====================
+function sunAt(ms, lat, lon){
+  const jd = jdOf(ms), c = sunCoords(jd), a = altAz(c.ra, c.dec, jd, lat, lon);
+  const elTrue = a.alt*DEG;
+  return {c, elTrue, el: elTrue + refraction(elTrue), az: a.az*DEG, H: a.H};
+}
+function moonAt(ms, lat, lon){
+  const jd = jdOf(ms), c = moonCoords(jd), a = altAz(c.ra, c.dec, jd, lat, lon);
+  const par = asin(6378.14/c.dist);
+  const elTrue = (a.alt - par*cos(a.alt))*DEG;
+  return {c, elTrue, el: elTrue + refraction(elTrue), az: a.az*DEG, H: a.H};
+}
+function moonIllum(s, m, lat, H){
+  const phi = acos(clamp(sin(s.dec)*sin(m.dec) + cos(s.dec)*cos(m.dec)*cos(s.ra - m.ra), -1, 1));
+  const inc = atan2(s.dist*sin(phi), m.dist - s.dist*cos(phi));
+  const angle = atan2(cos(s.dec)*sin(s.ra - m.ra), sin(s.dec)*cos(m.dec) - cos(s.dec)*sin(m.dec)*cos(s.ra - m.ra));
+  const q = atan2(sin(H), tan(lat*RAD)*cos(m.dec) - sin(m.dec)*cos(H)); // parallactic angle
+  const elong = n360((m.lambda - s.lambda)*DEG);
+  return {fraction: (1 + cos(inc))/2, inc, waxing: elong < 180, elong, limbZenith: angle - q};
+}
+const COMPASS = ['north','north-northeast','northeast','east-northeast','east','east-southeast','southeast','south-southeast',
+  'south','south-southwest','southwest','west-southwest','west','west-northwest','northwest','north-northwest'];
+const compass16 = az => COMPASS[round(n360(az)/22.5) % 16];
+
+// ===================== events =====================
+// Find times in [t0,t1] where f crosses `level`; sampled every `step` ms then bisected.
+function crossings(f, t0, t1, level, step){
+  const out = [];
+  let ta = t0, fa = f(ta) - level;
+  for (let tb = t0 + step; tb <= t1 + 1; tb += step){
+    const fb = f(tb) - level;
+    if ((fa < 0) !== (fb < 0)){
+      let lo = ta, hi = tb, flo = fa;
+      for (let i = 0; i < 14; i++){
+        const mid = (lo + hi)/2, fm = f(mid) - level;
+        if ((fm < 0) === (flo < 0)){ lo = mid; flo = fm; } else hi = mid;
+      }
+      out.push({t: (lo + hi)/2, up: fa < 0});
+    }
+    ta = tb; fa = fb;
+  }
+  return out;
+}
+const dayCache = new Map();
+function sunDay(y, mo, d, lat, lon){
+  const key = `${y}-${mo}-${d}|${lat.toFixed(3)},${lon.toFixed(3)}`;
+  if (dayCache.has(key)) return dayCache.get(key);
+  const t0 = zoned(y, mo, d), t1 = zoned(y, mo, d + 1);
+  const fT = t => sunAt(t, lat, lon).elTrue;
+  const fA = t => sunAt(t, lat, lon).el;
+  const rs = crossings(fT, t0, t1, -0.833, 600000);
+  const gold = crossings(fA, t0, t1, 6, 600000);
+  const civ = crossings(fT, t0, t1, -6, 600000);
+  // solar noon: hour angle = 0 (Newton from local noon)
+  let tn = zoned(y, mo, d, 12);
+  for (let i = 0; i < 4; i++) tn -= sunAt(tn, lat, lon).H*DEG/15*3600000;
+  const rise = rs.find(e => e.up), set = [...rs].reverse().find(e => !e.up);
+  const noonEl = sunAt(tn, lat, lon).elTrue;
+  let len = 0;
+  if (rise && set && set.t > rise.t) len = set.t - rise.t;
+  else if (!rise && !set) len = noonEl > -0.833 ? DAY : 0;
+  else if (rise && !set) len = t1 - rise.t; else if (set && !rise) len = set.t - t0;
+  const r = {
+    rise: rise && rise.t, set: set && set.t, noon: tn, noonEl, len,
+    goldAM: (gold.find(e => e.up) || {}).t, goldPM: ([...gold].reverse().find(e => !e.up) || {}).t,
+    dawn: (civ.find(e => e.up) || {}).t, dusk: ([...civ].reverse().find(e => !e.up) || {}).t
+  };
+  if (dayCache.size > 400) dayCache.clear();
+  dayCache.set(key, r);
+  return r;
+}
+function nextMoonEvent(ms, lat, lon, up){
+  const f = t => moonAt(t, lat, lon).el + 0.26;
+  const c = crossings(f, ms, ms + 30*3600000, 0, 900000).find(e => e.up === up);
+  return c && c.t;
+}
+function nextPhase(ms, target){ // target elongation: 0 new, 180 full
+  const g = t => { const jd = jdOf(t); return n360((moonCoords(jd).lambda - sunCoords(jd).lambda)*DEG - target + 180) - 180; };
+  let ta = ms, ga = g(ta);
+  for (let i = 1; i <= 124; i++){
+    const tb = ms + i*6*3600000, gb = g(tb);
+    if (ga < 0 && gb >= 0 && gb - ga < 90){
+      let lo = ta, hi = tb;
+      for (let k = 0; k < 20; k++){ const mid = (lo + hi)/2; if (g(mid) < 0) lo = mid; else hi = mid; }
+      return (lo + hi)/2;
+    }
+    ta = tb; ga = gb;
+  }
+  return null;
+}
+
+// ===================== light model =====================
+// Zenith optical depths (R,G,B): Rayleigh + aerosol (Ångström) + ozone.
+const TAU = [0.17, 0.26, 0.40];
+function airmass(el){ const h = max(el, -1.5); return 1/(sin(h*RAD) + 0.50572*pow(h + 6.07995, -1.6364)); }
+// Diffuse sky illuminance on a horizontal plane (lux), by true solar elevation.
+const SKY_LOG = [[-90,-3.15],[-18,-3.1],[-15,-2.75],[-12,-2.05],[-10,-1.35],[-8,-0.5],[-6,0.4],[-4,1.25],[-2,2.05],[0,2.8]];
+function skyLux(h){
+  if (h >= 0) return 630 + 17000*pow(sin(h*RAD), 0.95);
+  for (let i = SKY_LOG.length - 1; i > 0; i--){
+    const [h1, v1] = SKY_LOG[i], [h0, v0] = SKY_LOG[i - 1];
+    if (h >= h0) return pow(10, v0 + (v1 - v0)*(h - h0)/(h1 - h0));
+  }
+  return pow(10, -3.15);
+}
+const SKY_TINT = [[-90,[0.62,0.76,1.30]],[-14,[0.55,0.72,1.45]],[-7,[0.52,0.72,1.75]],[-3,[0.80,0.84,1.45]],
+  [0,[1.02,0.96,1.02]],[4,[0.95,0.98,1.10]],[15,[0.82,1.0,1.25]],[90,[0.78,1.0,1.30]]];
+function skyTint(h){
+  for (let i = 1; i < SKY_TINT.length; i++){
+    const [h1, c1] = SKY_TINT[i], [h0, c0] = SKY_TINT[i - 1];
+    if (h <= h1){ const t = (h - h0)/(h1 - h0); return c0.map((v, k) => lerp(v, c1[k], t)); }
+  }
+  return SKY_TINT[SKY_TINT.length - 1][1];
+}
+const GLASS = 0.88, SKYF = 0.42, ROOM = [1.0, 0.93, 0.84], MOON_TINT = [1.06, 1.0, 0.90], MSKY = [0.7, 0.85, 1.35];
+const azElVec = (az, el) => [cos(el*RAD)*sin(az*RAD), cos(el*RAD)*cos(az*RAD), sin(el*RAD)];
+
+// `wall` (screen-space unit vector toward the window wall, or null): light from the far side of the wall never arrives
+function lightModel(ms, lat, lon, toScreen, wall){
+  const sun = sunAt(ms, lat, lon), moon = moonAt(ms, lat, lon);
+  const ill = moonIllum(sun.c, moon.c, lat, moon.H);
+  const sunDir = toScreen(azElVec(sun.az, sun.el)), moonDir = toScreen(azElVec(moon.az, moon.el));
+  const gate = d => wall ? smooth(0.0, 0.03, d[0]*wall[0] + d[1]*wall[1]) : 1;
+  const gS = gate(sunDir), gM = gate(moonDir);
+  const Ts = TAU.map(t => exp(-t*airmass(sun.el))), fadeS = smooth(-0.3, 0.3, sun.el)*gS;
+  const sunDNI = Ts.map(x => 128000*x*fadeS*GLASS);
+  const a = ill.inc*DEG, law = pow(10, -0.4*(0.026*abs(a) + 4e-9*pow(a, 4)));
+  const Tm = TAU.map(t => exp(-t*airmass(moon.el))), fadeM = smooth(-0.3, 0.3, moon.el)*gM;
+  const moonDNI = Tm.map((x, i) => 0.30*law*x*fadeM*MOON_TINT[i]*GLASS);
+  const tint = skyTint(sun.elTrue), sl = skyLux(sun.elTrue);
+  const moonSky = 0.12*moonDNI[1]*pow(max(sin(moon.el*RAD), 0), 0.6);
+  const sky = [0, 1, 2].map(i => (sl*tint[i] + moonSky*MSKY[i])*SKYF);
+  const sinS = max(sin(sun.el*RAD), 0);
+  const bounce = [0, 1, 2].map(i => 0.16*sunDNI[i]*sinS*ROOM[i] + 0.12*sky[i]);
+  const dirH = sunDNI[1]*max(sunDir[2], 0) + moonDNI[1]*max(moonDir[2], 0);
+  const La = dirH + sky[1] + 0.5*bounce[1] + 1e-6;
+  const x = clamp((Math.log10(La) + 3.4)/8.4, 0, 1);
+  const B = 0.035 + 0.965*pow(x, lerp(2.4, 1.2, x));
+  const expo = 1.53*B/La;
+  return {
+    sun, moon, ill, sunDir, moonDir, La,
+    sunCol: sunDNI.map(v => v*expo), moonCol: moonDNI.map(v => (sl > 40 ? 0 : v*expo)),
+    sky: sky.map(v => v*expo), bounce: bounce.map(v => v*expo),
+    night: clamp((1 - Math.log10(La))/2.3, 0, 1),
+    directFrac: dirH/La, sunBlocked: wall ? gS < 0.5 && sun.el > 0 : false,
+    lux: {sun: sunDNI[1]*max(sunDir[2], 0), moon: moonDNI[1]*max(moonDir[2], 0), sky: sky[1] + 0.5*bounce[1]}
+  };
+}
+// CPU replica of the shader's response for a flat, unshadowed surface (used to tint the HTML paper strip)
+const aces1 = x => clamp((x*(2.51*x + 0.03))/(x*(2.43*x + 0.59) + 0.14), 0, 1);
+function litCSS(L, srgb, fullSun){
+  const alb = srgb.map(c => pow(c/255, 2.2));
+  let c = alb.map((a, i) => a*(L.sky[i] + 0.5*L.bounce[i] + fullSun*(L.sunCol[i]*max(L.sunDir[2], 0) + L.moonCol[i]*max(L.moonDir[2], 0))));
+  const lum = 0.2126*c[0] + 0.7152*c[1] + 0.0722*c[2];
+  c = c.map((v, i) => lerp(v, lum*[0.56, 0.74, 1.08][i], L.night*0.75));
+  return c.map(v => round(255*pow(aces1(v), 1/2.2)));
+}
+
+// ===================== time zones =====================
+// Every calendar computation runs in the zone of the place on the desk, not the zone of the device.
+const DEVICE_TZ = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch (e) { return 'UTC'; } })();
+let TZ = '', fmtP = null, fmtTimeParts = null, fmtDate = null, fmtShort = null, fmtLong = null, fmtZone = null, H12 = true;
+const pCache = new Map();
+function setTZ(tz){
+  try { new Intl.DateTimeFormat('en-US', {timeZone: tz}).format(0); } catch (e) { tz = DEVICE_TZ; }
+  if (tz === TZ) return false;
+  TZ = tz;
+  fmtP = new Intl.DateTimeFormat('en-US', {timeZone: tz, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'});
+  fmtTimeParts = new Intl.DateTimeFormat(undefined, {timeZone: tz, hour: 'numeric', minute: '2-digit'});
+  H12 = fmtTimeParts.resolvedOptions().hour12 !== false;
+  fmtDate = new Intl.DateTimeFormat(undefined, {timeZone: tz, weekday: 'long', month: 'long', day: 'numeric'});
+  fmtShort = new Intl.DateTimeFormat(undefined, {timeZone: tz, month: 'short', day: 'numeric'});
+  fmtLong = new Intl.DateTimeFormat(undefined, {timeZone: tz, month: 'long', day: 'numeric'});
+  fmtZone = new Intl.DateTimeFormat('en-US', {timeZone: tz, timeZoneName: 'short'});
+  pCache.clear(); dayCache.clear();
+  return true;
+}
+function parts(ms){
+  const k = floor(ms/1000);
+  let r = pCache.get(k);
+  if (r) return r;
+  const o = {};
+  for (const x of fmtP.formatToParts(new Date(k*1000))) o[x.type] = x.value;
+  r = {y: +o.year, mo: +o.month - 1, d: +o.day, h: (+o.hour) % 24, mi: +o.minute, s: +o.second};
+  if (pCache.size > 4000) pCache.clear();
+  pCache.set(k, r);
+  return r;
+}
+const tzOff = ms => { const p = parts(ms); return Date.UTC(p.y, p.mo, p.d, p.h, p.mi, p.s) - floor(ms/1000)*1000; };
+function zoned(y, mo, d, h = 0, mi = 0){ // wall-clock time in TZ -> ms
+  const g = Date.UTC(y, mo, d, h, mi);
+  const t = g - tzOff(g);
+  return g - tzOff(t);
+}
+const midnight = ms => { const p = parts(ms); return zoned(p.y, p.mo, p.d); };
+const dayOfYear = ms => { const p = parts(ms); return round((Date.UTC(p.y, p.mo, p.d) - Date.UTC(p.y, 0, 1))/DAY); };
+const daysInYear = y => round((Date.UTC(y + 1, 0, 1) - Date.UTC(y, 0, 1))/DAY);
+const stdOffset = y => min(tzOff(Date.UTC(y, 0, 15, 12)), tzOff(Date.UTC(y, 6, 15, 12)));
+const zoneName = ms => ((fmtZone.formatToParts(new Date(ms)).find(x => x.type === 'timeZoneName') || {}).value || '');
+
+// ===================== places =====================
+// [name, lat, lon, zone, note]. Places with a note are offered as quick trips.
+const CITIES = [
+  ['Tromsø, Norway', 69.65, 18.96, 'Europe/Oslo', 'North of the Arctic Circle. The sun stays up from about May 20 to July 22 and stays down from late November to mid-January. Try the Solstice jump.'],
+  ['Reykjavík, Iceland', 64.15, -21.94, 'Atlantic/Reykjavik', 'Iceland keeps GMT all year, though the sun here runs about an hour and a half behind it. Solar noon falls near 1:30 pm.'],
+  ['Kashgar, China', 39.47, 75.99, 'Asia/Shanghai', 'All of China runs on Beijing time. Out here in the far west the sun lags the clock by nearly three hours, so solar noon comes close to 3 pm.'],
+  ['Quito, Ecuador', -0.18, -78.47, 'America/Guayaquil', 'On the equator. Days last about twelve hours all year, and near the equinoxes the noon sun stands almost straight overhead.'],
+  ['Honolulu, Hawaiʻi', 21.31, -157.86, 'Pacific/Honolulu', 'South of the Tropic of Cancer, so the noon sun passes straight overhead twice a year, in late May and mid-July, and shadows all but vanish.'],
+  ['Singapore', 1.35, 103.82, 'Asia/Singapore', 'Singapore keeps the clock of a meridian 16° to its east, so solar noon lands near 1 pm all year.'],
+  ['Sydney, Australia', -33.87, 151.21, 'Australia/Sydney', 'Southern hemisphere. The sun crosses the northern sky, the dial runs counterclockwise, and the seasons are flipped.'],
+  ['Ushuaia, Argentina', -54.80, -68.30, 'America/Argentina/Ushuaia', 'Near the southern tip of the Americas. Midsummer days pass 17 hours, and Argentina’s clock runs about an hour and a half ahead of the sun here.'],
+  ['New York, USA', 40.71, -74.01, 'America/New_York'], ['Washington, D.C., USA', 38.91, -77.04, 'America/New_York'],
+  ['Baltimore, USA', 39.29, -76.61, 'America/New_York'], ['Boston, USA', 42.36, -71.06, 'America/New_York'],
+  ['Miami, USA', 25.76, -80.19, 'America/New_York'], ['Atlanta, USA', 33.75, -84.39, 'America/New_York'],
+  ['Chicago, USA', 41.88, -87.63, 'America/Chicago'], ['Houston, USA', 29.76, -95.37, 'America/Chicago'],
+  ['Denver, USA', 39.74, -104.99, 'America/Denver'], ['Phoenix, USA', 33.45, -112.07, 'America/Phoenix'],
+  ['Los Angeles, USA', 34.05, -118.24, 'America/Los_Angeles'], ['San Francisco, USA', 37.77, -122.42, 'America/Los_Angeles'],
+  ['Seattle, USA', 47.61, -122.33, 'America/Los_Angeles'], ['Anchorage, USA', 61.22, -149.90, 'America/Anchorage'],
+  ['Utqiaġvik, Alaska', 71.29, -156.79, 'America/Anchorage'], ['Toronto, Canada', 43.65, -79.38, 'America/Toronto'],
+  ['Montreal, Canada', 45.50, -73.57, 'America/Toronto'], ['Vancouver, Canada', 49.28, -123.12, 'America/Vancouver'],
+  ['Mexico City, Mexico', 19.43, -99.13, 'America/Mexico_City'], ['Havana, Cuba', 23.11, -82.37, 'America/Havana'],
+  ['Bogotá, Colombia', 4.71, -74.07, 'America/Bogota'], ['Lima, Peru', -12.05, -77.04, 'America/Lima'],
+  ['Santiago, Chile', -33.45, -70.67, 'America/Santiago'], ['Buenos Aires, Argentina', -34.60, -58.38, 'America/Argentina/Buenos_Aires'],
+  ['São Paulo, Brazil', -23.55, -46.63, 'America/Sao_Paulo'], ['Rio de Janeiro, Brazil', -22.91, -43.17, 'America/Sao_Paulo'],
+  ['London, UK', 51.51, -0.13, 'Europe/London'], ['Edinburgh, UK', 55.95, -3.19, 'Europe/London'], ['Dublin, Ireland', 53.35, -6.26, 'Europe/Dublin'],
+  ['Paris, France', 48.86, 2.35, 'Europe/Paris'], ['Madrid, Spain', 40.42, -3.70, 'Europe/Madrid'],
+  ['Lisbon, Portugal', 38.72, -9.14, 'Europe/Lisbon'], ['Berlin, Germany', 52.52, 13.40, 'Europe/Berlin'],
+  ['Rome, Italy', 41.90, 12.50, 'Europe/Rome'], ['Amsterdam, Netherlands', 52.37, 4.90, 'Europe/Amsterdam'],
+  ['Stockholm, Sweden', 59.33, 18.07, 'Europe/Stockholm'], ['Oslo, Norway', 59.91, 10.75, 'Europe/Oslo'],
+  ['Helsinki, Finland', 60.17, 24.94, 'Europe/Helsinki'], ['Athens, Greece', 37.98, 23.73, 'Europe/Athens'],
+  ['Istanbul, Türkiye', 41.01, 28.98, 'Europe/Istanbul'], ['Moscow, Russia', 55.76, 37.62, 'Europe/Moscow'],
+  ['Cairo, Egypt', 30.04, 31.24, 'Africa/Cairo'], ['Lagos, Nigeria', 6.52, 3.38, 'Africa/Lagos'],
+  ['Nairobi, Kenya', -1.29, 36.82, 'Africa/Nairobi'], ['Johannesburg, South Africa', -26.20, 28.05, 'Africa/Johannesburg'],
+  ['Cape Town, South Africa', -33.92, 18.42, 'Africa/Johannesburg'], ['Dubai, UAE', 25.20, 55.27, 'Asia/Dubai'],
+  ['Riyadh, Saudi Arabia', 24.71, 46.68, 'Asia/Riyadh'], ['Tehran, Iran', 35.69, 51.39, 'Asia/Tehran'],
+  ['Kabul, Afghanistan', 34.56, 69.21, 'Asia/Kabul'], ['Karachi, Pakistan', 24.86, 67.01, 'Asia/Karachi'],
+  ['Delhi, India', 28.61, 77.21, 'Asia/Kolkata'], ['Mumbai, India', 19.08, 72.88, 'Asia/Kolkata'],
+  ['Kathmandu, Nepal', 27.72, 85.32, 'Asia/Kathmandu'], ['Bangkok, Thailand', 13.76, 100.50, 'Asia/Bangkok'],
+  ['Jakarta, Indonesia', -6.21, 106.85, 'Asia/Jakarta'], ['Hong Kong', 22.32, 114.17, 'Asia/Hong_Kong'],
+  ['Beijing, China', 39.90, 116.41, 'Asia/Shanghai'], ['Shanghai, China', 31.23, 121.47, 'Asia/Shanghai'],
+  ['Seoul, South Korea', 37.57, 126.98, 'Asia/Seoul'], ['Tokyo, Japan', 35.68, 139.69, 'Asia/Tokyo'],
+  ['Manila, Philippines', 14.60, 120.98, 'Asia/Manila'], ['Perth, Australia', -31.95, 115.86, 'Australia/Perth'],
+  ['Darwin, Australia', -12.46, 130.84, 'Australia/Darwin'], ['Melbourne, Australia', -37.81, 144.96, 'Australia/Melbourne'],
+  ['Auckland, New Zealand', -36.85, 174.76, 'Pacific/Auckland']
+].map(([name, lat, lon, tz, note]) => ({name, short: name.split(',')[0], lat, lon, tz, note}));
+const kmBetween = (a, b, c, d) => {
+  const p1 = a*RAD, p2 = c*RAD, dl = (d - b)*RAD;
+  return 6371*acos(clamp(sin(p1)*sin(p2) + cos(p1)*cos(p2)*cos(dl), -1, 1));
+};
+// A zone for coordinates typed by hand: the device's own when they are near its meridian, else the nearest
+// listed city's within 700 km, else plain solar hours from longitude.
+function guessTZ(lat, lon){
+  const y = new Date().getFullYear();
+  const devStd = -max(new Date(y, 0, 15).getTimezoneOffset(), new Date(y, 6, 15).getTimezoneOffset())/60*15;
+  let best = null, bd = 1e9;
+  for (const c of CITIES){ const d = kmBetween(lat, lon, c.lat, c.lon); if (d < bd){ bd = d; best = c; } }
+  if (best && bd < 700) return best.tz;
+  if (abs(((lon - devStd + 540) % 360) - 180) <= 12) return DEVICE_TZ;
+  const n = round(lon/15);
+  return n === 0 ? 'Etc/GMT' : `Etc/GMT${n > 0 ? '-' : '+'}${abs(n)}`;
+}
+
+// ===================== layout (cm on the desk) =====================
+function computeLayout(W, H){
+  const L = {};
+  const dockPx = view.dockH || 80;
+  if (W/H >= 1.05){
+    L.mode = 'wide';
+    const cw = 31, ch = 19.5;
+    let cardPx = clamp(W*0.38, 470, 780);
+    cardPx = min(cardPx, (H - dockPx)*0.5*cw/ch);
+    L.px = cardPx/cw; L.vw = W/L.px; L.vh = H/L.px;
+    // compose in the part of the desk the control strip leaves visible
+    const dockCm = dockPx/L.px, uh = L.vh - dockCm, mid = dockCm/2;
+    const f = (fx, fy) => ({x: fx*L.vw, y: mid + fy*uh});
+    L.card = {...f(-0.155, 0.07), hw: cw/2, hh: ch/2};
+    L.dial = {...f(0.245, 0.085), R: 8.5};
+    L.mug = {...f(0.405, -0.30), rot: -0.55};
+    L.plant = {...f(-0.405, 0.31), rot: 0.4};
+    L.pencil = {...f(-0.175, -0.30), rot: 3.07};
+    L.ball = {...f(0.075, -0.30), R: 2.8};
+    const m = 1.2;
+    L.card.y = clamp(L.card.y, -L.vh/2 + L.card.hh + m, L.vh/2 - L.card.hh - m);
+    L.card.x = clamp(L.card.x, -L.vw/2 + L.card.hw + m, L.vw/2 - L.card.hw - m);
+    // the shadow plot lies under the card when there is room, otherwise between the card and the dial
+    const floorY = -L.vh/2 + dockPx/L.px + 0.6, cbot = L.card.y - L.card.hh;
+    const hhA = min(6.2, (cbot - 0.9 - floorY)/2);
+    const gl0 = L.card.x + L.card.hw + 1.0, gr0 = L.dial.x - L.dial.R - 1.0;
+    const hhB = min(6.2, (gr0 - gl0)/2.4, L.card.hh - 0.5);
+    if (hhA >= 3.8 && hhA >= hhB){
+      const hh = hhA, hw = hh*1.2;
+      L.plot = {x: L.card.x - 2.5, y: cbot - 0.9 - hh, hw, hh};
+      L.pencil = {x: L.plot.x - hw - 8.4, y: L.plot.y - 0.4, rot: 2.62}; // the pencil that made the dots
+    } else if (hhB >= 3.8){
+      L.plot = {x: (gl0 + gr0)/2, y: L.card.y, hw: hhB*1.2, hh: hhB};
+    } else L.plot = {x: 0, y: 0, hw: 0, hh: 0};
+  } else {
+    L.mode = 'tall';
+    const cw = 27.2, ch = 25;
+    let cardPx = clamp(W*0.88, 300, 600);
+    cardPx = min(cardPx, H*0.38*cw/ch);
+    L.px = cardPx/cw; L.vw = W/L.px; L.vh = H/L.px;
+    const topY = L.vh/2 - (view.safeTop || 0)/L.px - 1.5;
+    L.card = {x: 0, y: topY - ch/2, hw: cw/2, hh: ch/2};
+    const cb = L.card.y - L.card.hh;
+    const floorY = -L.vh/2 + dockPx/L.px + 0.9;
+    const k = clamp((cb - floorY - 24)/4, 0, 1);       // 1 when there is room to spare
+    const R = lerp(5.1, 6.0, k), ph = lerp(4.2, 5.2, k), xr = 0.25*L.vw;
+    L.pencil = {x: 0.08*L.vw, y: cb - 1.5, rot: 0.04};
+    const r2 = cb - 2.5 - 0.4*k;
+    L.dial = {x: -0.25*L.vw, y: r2 - R, R};
+    const hw = min(ph*1.2, L.vw/2 - xr - 0.5);
+    L.plot = {x: xr, y: r2 - ph, hw, hh: ph};
+    // the bottom row rests on the strip, lifted toward the middle when the screen is tall enough to spare it
+    const lift = max(0, (r2 - 2*max(R, ph) - 1.0) - (floorY + 12.8))*0.45;
+    L.plant = {x: -0.35*L.vw, y: floorY + 6.3 + lift, rot: 0.4};
+    L.mug = {x: 0.31*L.vw, y: floorY + 4.6 + lift, rot: 0.25};
+    L.ball = {x: 0.03*L.vw, y: floorY + 2.7 + lift, R: 2.1};
+  }
+  return L;
+}
+
+// ===================== WebGL =====================
+const canvas = document.getElementById('gl');
+const gl = canvas.getContext('webgl', {antialias: false, alpha: false, depth: false, stencil: false, preserveDrawingBuffer: false});
+const VS = 'attribute vec2 a; varying vec2 v; void main(){ v = a*0.5 + 0.5; gl_Position = vec4(a, 0.0, 1.0); }';
+const BLIT = 'precision mediump float; varying vec2 v; uniform sampler2D t; void main(){ gl_FragColor = texture2D(t, v); }';
+function compile(type, src){
+  const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+function program(fs){
+  const p = gl.createProgram();
+  gl.attachShader(p, compile(gl.VERTEX_SHADER, VS)); gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs));
+  gl.bindAttribLocation(p, 0, 'a'); gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  const u = {}; const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+  for (let i = 0; i < n; i++){ const info = gl.getActiveUniform(p, i); u[info.name] = gl.getUniformLocation(p, info.name); }
+  return {p, u};
+}
+let sceneP, blitP;
+function initGL(){
+  sceneP = program(SHADER_SRC);
+  blitP = program(BLIT);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+}
+function makeTex(w, h, src){
+  const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  if (src){ gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src); }
+  else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  return t;
+}
+function uploadTex(t, src){ gl.bindTexture(gl.TEXTURE_2D, t); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src); }
+function makeTarget(w, h){
+  const tex = makeTex(w, h, null), fb = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  return {tex, fb, w, h};
+}
+function freeTarget(t){ if (t){ gl.deleteTexture(t.tex); gl.deleteFramebuffer(t.fb); } }
+
+// ===================== view state =====================
+const view = {W: 0, H: 0, dpr: 1, hiScale: 1, loScale: 0.4, L: null, hi: null, lo: null, cardTex: null, dialTex: null, plotTex: null,
+  cardCanvas: document.createElement('canvas'), dialCanvas: document.createElement('canvas'), plotCanvas: document.createElement('canvas'),
+  Pcard: 1, dockH: 0, safeTop: 0};
+
+// snap a screen-aligned slab to the hi-res pixel grid so whatever is printed on it samples 1:1
+function snapRect(r, P, cw, ch){
+  const pw = max(2, round(2*r.hw*P)), ph = max(2, round(2*r.hh*P));
+  r.hw = pw/(2*P); r.hh = ph/(2*P);
+  const left = round((r.x - r.hw)*P + cw/2), bottom = round((r.y - r.hh)*P + ch/2);
+  r.x = (left - cw/2)/P + r.hw; r.y = (bottom - ch/2)/P + r.hh;
+  return [pw, ph];
+}
+function resize(){
+  const W = innerWidth, H = innerHeight, dpr = min(devicePixelRatio || 1, 2);
+  view.W = W; view.H = H; view.dpr = dpr;
+  const cs = getComputedStyle(document.documentElement);
+  view.safeTop = parseFloat(cs.paddingTop) || 0;
+  view.dockH = dock.getBoundingClientRect().height + 14 + (parseFloat(cs.paddingBottom) || 0);
+  const full = W*H*dpr*dpr;
+  view.hiScale = min(1, sqrt(4.6e6/full));
+  view.loScale = clamp(sqrt(3.2e5/full), 0.18, 1);
+  const cw = round(W*dpr*view.hiScale), ch = round(H*dpr*view.hiScale);
+  canvas.width = cw; canvas.height = ch;
+  freeTarget(view.hi); freeTarget(view.lo);
+  view.hi = makeTarget(cw, ch);
+  view.lo = makeTarget(max(1, round(W*dpr*view.loScale)), max(1, round(H*dpr*view.loScale)));
+  const L = computeLayout(W, H);
+  const P = L.px*dpr*view.hiScale;
+  const [pw, ph] = snapRect(L.card, P, cw, ch);
+  view.cardCanvas.width = pw; view.cardCanvas.height = ph; view.Pcard = P;
+  if (L.plot.hw > 0){ const [qw, qh] = snapRect(L.plot, P, cw, ch); view.plotCanvas.width = qw; view.plotCanvas.height = qh; }
+  const ds = min(2048, round(2*L.dial.R*P*1.4));
+  view.dialCanvas.width = ds; view.dialCanvas.height = ds;
+  view.L = L;
+}
+
+// ===================== frame scheduling =====================
+let frameData = null, needLo = false, needHi = false, prog = null, lastInteract = 0, raf = 0;
+function setUniforms(F, P, w, h){
+  const u = sceneP.u, L = view.L;
+  gl.uniform2f(u.uRes, w, h);
+  gl.uniform1f(u.uPx, P);
+  gl.uniform3fv(u.uSunDir, F.sunDir); gl.uniform3fv(u.uSunCol, F.sunCol);
+  gl.uniform3fv(u.uMoonDir, F.moonDir); gl.uniform3fv(u.uMoonCol, F.moonCol);
+  gl.uniform3fv(u.uSky, F.sky); gl.uniform3fv(u.uBounce, F.bounce);
+  gl.uniform1f(u.uNight, F.night); gl.uniform1f(u.uK, 1/tan(0.42*RAD));
+  gl.uniform2fv(u.uNorth, F.north); gl.uniform1f(u.uTanLat, F.tanLat); gl.uniform1f(u.uHemi, F.hemi);
+  gl.uniform4f(u.uCard, L.card.x, L.card.y, L.card.hw, L.card.hh);
+  gl.uniform4f(u.uDial, L.dial.x, L.dial.y, L.dial.R, F.gnomonTh);
+  gl.uniform2f(u.uDialG, F.y0, F.yN);
+  gl.uniform3f(u.uMug, L.mug.x, L.mug.y, L.mug.rot);
+  gl.uniform3f(u.uPlant, L.plant.x, L.plant.y, L.plant.rot);
+  gl.uniform3f(u.uPencil, L.pencil.x, L.pencil.y, L.pencil.rot);
+  gl.uniform3f(u.uBall, L.ball.x, L.ball.y, L.ball.R);
+  gl.uniform2f(u.uVig, L.vw/2, L.vh/2);
+  gl.uniform3fv(u.uWin, F.win);
+  gl.uniform4f(u.uPlot, L.plot.x, L.plot.y, L.plot.hw, L.plot.hh);
+  gl.uniform3f(u.uPin, F.pin[0], F.pin[1], PIN_H);
+  gl.uniform4fv(u.uWall, F.wall);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, view.cardTex); gl.uniform1i(u.uCardTex, 0);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, view.dialTex); gl.uniform1i(u.uDialTex, 1);
+  gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, view.plotTex); gl.uniform1i(u.uPlotTex, 2);
+}
+function drawScene(target, scale, y0, y1){
+  gl.bindFramebuffer(gl.FRAMEBUFFER, target.fb);
+  gl.viewport(0, 0, target.w, target.h);
+  gl.enable(gl.SCISSOR_TEST); gl.scissor(0, y0, target.w, y1 - y0);
+  gl.useProgram(sceneP.p);
+  setUniforms(frameData, view.L.px*view.dpr*scale, target.w, target.h);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  gl.disable(gl.SCISSOR_TEST);
+}
+function blit(target){
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.useProgram(blitP.p);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, target.tex); gl.uniform1i(blitP.u.t, 0);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+function requestRender(interactive){
+  if (interactive){ needLo = true; lastInteract = performance.now(); }
+  needHi = true; prog = null;
+  if (!raf) raf = requestAnimationFrame(tick);
+}
+function tick(now){
+  raf = 0;
+  if (state.playing) advancePlay(now);
+  if (needLo){ drawScene(view.lo, view.loScale, 0, view.lo.h); blit(view.lo); needLo = false; }
+  else if (needHi && now - lastInteract > 140){
+    const hi = view.hi;
+    if (!prog) prog = {row: 0, rows: max(24, floor(260000/hi.w))};
+    const y1 = min(hi.h, prog.row + prog.rows);
+    drawScene(hi, view.hiScale, prog.row, y1);
+    prog.row = y1;
+    if (prog.row >= hi.h){ blit(hi); needHi = false; prog = null; }
+  }
+  if (needLo || needHi || state.playing) raf = requestAnimationFrame(tick);
+}
+
+// ===================== formatting =====================
+function timeParts(ms){
+  const p = fmtTimeParts.formatToParts(new Date(ms));
+  const main = p.filter(x => x.type !== 'dayPeriod').map(x => x.value).join('').trim();
+  const per = (p.find(x => x.type === 'dayPeriod') || {}).value || '';
+  return {main, per: per.toLowerCase().replace(/\./g, '')};
+}
+const fmtT = ms => { if (ms == null) return '—'; const t = timeParts(ms); return t.per ? `${t.main}\u00a0${t.per}` : t.main; };
+const fmtDur = ms => { const m = round(ms/60000); return `${floor(m/60)} h ${String(m % 60).padStart(2, '0')} m`; };
+const fmtDelta = ms => { const s = round(abs(ms)/1000), sign = ms < 0 ? '−' : '+'; return s < 60 ? `${sign}${s} s` : `${sign}${floor(s/60)} m ${s % 60} s`; };
+const fmtMin = m => { m = round(abs(m)); if (m === 60) return 'an hour'; return m < 60 ? `${m} minute${m === 1 ? '' : 's'}` : `${floor(m/60)} h ${String(m % 60).padStart(2, '0')} m`; };
+const ratio = el => { const r = 1/tan(max(el, 0.05)*RAD); return r < 10 ? r.toFixed(r < 1 ? 2 : 1) : String(round(r)); };
+const latStr = (lat, lon) => `${abs(lat).toFixed(2)}° ${lat >= 0 ? 'N' : 'S'}, ${abs(lon).toFixed(2)}° ${lon >= 0 ? 'E' : 'W'}`;
+function clockOf(mins){ // minutes after midnight -> "3:10 pm" / "15:10"
+  let h = ((mins/60) % 24 + 24) % 24;
+  const hh = floor(h), mm = floor((h - hh)*60);
+  if (!H12) return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+  return `${((hh + 11) % 12) + 1}:${String(mm).padStart(2, '0')} ${hh < 12 ? 'am' : 'pm'}`;
+}
+const solarClock = H => clockOf(720 + H*DEG*4); // hour angle (rad) -> apparent solar time
+const wrapMin = m => ((m % 1440) + 2160) % 1440 - 720;
+function moonName(ill){
+  const k = ill.fraction;
+  if (k < 0.02) return 'New moon';
+  if (k > 0.985) return 'Full moon';
+  if (abs(k - 0.5) < 0.035) return ill.waxing ? 'First quarter' : 'Last quarter';
+  if (k < 0.5) return ill.waxing ? 'Waxing crescent' : 'Waning crescent';
+  return ill.waxing ? 'Waxing gibbous' : 'Waning gibbous';
+}
+function fmtLux(v){
+  if (v < 0.01) return 'less than 0.01';
+  if (v >= 1000) return (round(v/(v >= 10000 ? 1000 : 100))*(v >= 10000 ? 1000 : 100)).toLocaleString('en-US');
+  if (v >= 100) return String(round(v/10)*10);
+  if (v >= 10) return String(round(v));
+  return v >= 1 ? v.toFixed(1) : v.toPrecision(1);
+}
+const where = (az, alt) => `${alt < 15 ? 'low in the ' : alt > 60 ? 'high in the ' : 'in the '}${compass16(az)}`;
+
+// ===================== planets (JPL approximate Keplerian elements, valid 1800–2050) =====================
+// a (au), e, I, L, longitude of perihelion, longitude of node: each as [value at J2000, rate per century]
+const PLANETS = {
+  Mercury: [0.38709927, 0.00000037, 0.20563593, 0.00001906, 7.00497902, -0.00594749, 252.25032350, 149472.67411175, 77.45779628, 0.16047689, 48.33076593, -0.12534081],
+  Venus: [0.72333566, 0.00000390, 0.00677672, -0.00004107, 3.39467605, -0.00078890, 181.97909950, 58517.81538729, 131.60246718, 0.00268329, 76.67984255, -0.27769418],
+  Earth: [1.00000261, 0.00000562, 0.01671123, -0.00004392, -0.00001531, -0.01294668, 100.46457166, 35999.37244981, 102.93768193, 0.32327364, 0, 0],
+  Mars: [1.52371034, 0.00001847, 0.09339410, 0.00007882, 1.84969142, -0.00813131, -4.55343205, 19140.30268499, -23.94362959, 0.44441088, 49.55953891, -0.29257343],
+  Jupiter: [5.20288700, -0.00011607, 0.04838624, -0.00013253, 1.30439695, -0.00183714, 34.39644051, 3034.74612775, 14.72847983, 0.21252668, 100.47390909, 0.20469106],
+  Saturn: [9.53667594, -0.00125060, 0.05386179, -0.00050991, 2.48599187, 0.00193609, 49.95424423, 1222.49362201, 92.59887831, -0.41897216, 113.66242448, -0.28867794]
+};
+function helio(k, T){
+  const a = k[0] + k[1]*T, e = k[2] + k[3]*T, I = (k[4] + k[5]*T)*RAD, L = k[6] + k[7]*T, wb = k[8] + k[9]*T, Om = (k[10] + k[11]*T)*RAD;
+  const w = wb*RAD - Om;
+  let M = n360(L - wb); if (M > 180) M -= 360; M *= RAD;
+  let E = M + e*sin(M);
+  for (let i = 0; i < 6; i++) E -= (E - e*sin(E) - M)/(1 - e*cos(E));
+  const xp = a*(cos(E) - e), yp = a*sqrt(1 - e*e)*sin(E);
+  const cw = cos(w), sw = sin(w), cO = cos(Om), sO = sin(Om), cI = cos(I), sI = sin(I);
+  return [(cw*cO - sw*sO*cI)*xp + (-sw*cO - cw*sO*cI)*yp, (cw*sO + sw*cO*cI)*xp + (-sw*sO + cw*cO*cI)*yp, sw*sI*xp + cw*sI*yp];
+}
+function planetAt(name, ms, lat, lon){
+  const jd = jdOf(ms), T = (jd - 2451545)/36525;
+  const P = helio(PLANETS[name], T), E = helio(PLANETS.Earth, T);
+  const x = P[0] - E[0], y = P[1] - E[1], z = P[2] - E[2], eps = 23.43928*RAD;
+  const ye = y*cos(eps) - z*sin(eps), ze = y*sin(eps) + z*cos(eps);
+  const a = altAz(atan2(ye, x), atan2(ze, Math.hypot(x, ye)), jd, lat, lon);
+  const d = Math.hypot(x, y, z), ds = Math.hypot(E[0], E[1], E[2]);
+  const elong = acos(clamp(-(x*E[0] + y*E[1] + z*E[2])/(d*ds), -1, 1))*DEG;
+  return {alt: a.alt*DEG, az: a.az*DEG, elong};
+}
+const BRIGHT = ['Venus', 'Jupiter', 'Mars', 'Saturn', 'Mercury'];
+function planetsUp(ms, lat, lon){
+  return BRIGHT.map(n => ({n, ...planetAt(n, ms, lat, lon)})).filter(q => q.alt > 4 && (q.n !== 'Mercury' || q.elong > 16));
+}
+const listAnd = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
+
+// ===================== the notes on the back pages of the card =====================
+function dialNote(ms, Lm){
+  const {lat, lon} = state, s = Lm.sun, m = Lm.moon, p = parts(ms);
+  const std = stdOffset(p.y)/60000, cur = tzOff(ms)/60000, dst = cur - std;
+  const merid = std/4, lonMin = (merid - lon)*4;
+  const why = () => {
+    const bits = [];
+    if (abs(dst) >= 1) bits.push(`Daylight saving sets the clock ${fmtMin(dst)} ahead.`);
+    if (abs(lonMin) >= 1){
+      const deg = abs(merid - lon), md = `${abs(merid).toFixed(0)}° ${merid >= 0 ? 'E' : 'W'}`;
+      bits.push(`This spot is ${deg < 10 ? deg.toFixed(1) : round(deg)}° ${lon < merid ? 'west' : 'east'} of its zone’s ${md} meridian, which puts the sun ${fmtMin(lonMin)} ${lonMin > 0 ? 'behind' : 'ahead of'} the clock.`);
+    }
+    const eot = wrapMin(720 + s.H*DEG*4 - (((ms/60000) % 1440) + lon*4));
+    if (abs(eot) >= 1) bits.push(`The equation of time has the sun ${fmtMin(eot)} ${eot > 0 ? 'ahead of' : 'behind'} its average pace today.`);
+    return bits.join(' ');
+  };
+  if (s.el > 0){
+    const dialMin = 720 + s.H*DEG*4, diff = wrapMin(p.h*60 + p.mi + p.s/60 - dialMin);
+    const head = abs(diff) < 1 ? `The dial reads ${solarClock(s.H)}, in step with the clock.` : `The dial reads ${solarClock(s.H)}, ${fmtMin(diff)} ${diff > 0 ? 'behind' : 'ahead of'} the clock.`;
+    return {title: 'Sundial and clock', body: `${head} ${why()}`};
+  }
+  if (m.el > 3 && Lm.moonCol[1] > 0){
+    const age = Lm.ill.elong/12.19;
+    const corr = n360((m.c.ra - Lm.sun.c.ra)*DEG)*4;            // minutes the moon trails the sun
+    const read = 720 + m.H*DEG*4;
+    return {title: 'Reading the dial by moonlight',
+      body: `The moon’s shadow on the dial reads ${clockOf(read)}. The moon is ${round(age)} days old and trails the sun by about 48 minutes a day, ${fmtMin(corr)} in all. Add that and the dial gives ${clockOf(read + corr)} solar time.`};
+  }
+  const d = sunDay(p.y, p.mo, p.d, lat, lon);
+  if (d.noonEl < -0.833) return {title: 'Sundial and clock', body: 'The sun stays below the horizon all day today, so the dial has nothing to read.'};
+  const noonClock = parts(d.noon), off = wrapMin(noonClock.h*60 + noonClock.mi + noonClock.s/60 - 720);
+  return {title: 'Sundial and clock',
+    body: `The dial is dark. Today the sun crossed the meridian at ${fmtT(d.noon)} by the clock, when the dial read noon, ${fmtMin(off)} ${off > 0 ? 'behind' : 'ahead of'} the clock. ${why()}`};
+}
+function lightNote(Lm){
+  const x = Lm.lux, tot = x.sun + x.moon + x.sky, win = !!frameData && frameData.wall[3] > 0.5;
+  if (x.sun > 30) return {title: 'Light on the desk',
+    body: `About ${fmtLux(tot)} lux falls on the desk: ${fmtLux(x.sun)} straight from the sun${win ? ' through the glass' : ''} and ${fmtLux(x.sky)} from the sky and the room. An office is lit to about 500 lux. Summer sun outdoors gives about 100,000.`};
+  if (tot > 30){
+    const why = Lm.sunBlocked ? 'The sun is on the other side of the wall, so this is all skylight.' : 'No direct sun reaches the desk, so this is all skylight.';
+    return {title: 'Light on the desk', body: `About ${fmtLux(tot)} lux falls on the desk. ${why} An office is lit to about 500 lux.`};
+  }
+  if (tot > 3) return {title: 'Light on the desk', body: `About ${fmtLux(tot)} lux. Print gets hard to read below about 10 lux, and colors start to drain from the desk as the eye’s cones lose their grip.`};
+  if (x.moon > tot*0.4) return {title: 'Light on the desk',
+    body: `About ${fmtLux(tot)} lux, mostly moonlight. Below a few lux the eye’s color-sensing cones give out and the rods take over, which is why the desk has gone gray-blue. A full moon high in a clear sky gives about 0.3 lux.`};
+  return {title: 'Light on the desk', body: `About ${fmtLux(tot)} lux, from the night sky alone: starlight, airglow and the last of the twilight. Only the eye’s rods are working now.`};
+}
+function skyNote(ms, Lm){
+  const {lat, lon} = state;
+  const group = qs => { const m = new Map(); for (const q of qs){ const w = where(q.az, q.alt); if (!m.has(w)) m.set(w, []); m.get(w).push(q.n); } return [...m].map(([w, ns]) => `${listAnd(ns)} ${w}`).join('; '); };
+  if (Lm.sun.elTrue < -6){
+    const up = planetsUp(ms, lat, lon);
+    if (!up.length) return {title: 'Planets up now', body: 'None of the five bright planets is above the horizon right now. The brightest points in the sky are stars.'};
+    const b = up[0];
+    return {title: 'Planets up now', body: `${listAnd(up.map(q => `${q.n} is ${round(q.alt)}° up in the ${compass16(q.az)}`))}. ${up.length > 1 ? `${b.n} is the brightest of them.` : `It is brighter than any star near it.`} Planets shine steadily where stars twinkle.`};
+  }
+  const p = parts(ms), d = sunDay(p.y, p.mo, p.d, lat, lon), n = sunDay(p.y, p.mo, p.d + 1, lat, lon);
+  const dusk = d.dusk, dawn = n.dawn;
+  if (!dusk && !dawn) return {title: 'Planets tonight', body: 'The sky never gets dark enough tonight to pick out planets. The sun stays too close to the horizon.'};
+  const eve = dusk ? planetsUp(dusk + 40*60000, lat, lon) : [], morn = dawn ? planetsUp(dawn - 40*60000, lat, lon) : [];
+  const parts2 = [];
+  if (eve.length) parts2.push(`After dusk: ${group(eve)}.`);
+  if (morn.length) parts2.push(`Before dawn: ${group(morn)}.`);
+  if (!parts2.length) parts2.push('None of the five bright planets is well placed tonight; they are all too close to the sun.');
+  return {title: 'Planets tonight', body: parts2.join(' ')};
+}
+let yearCache = {key: '', v: null};
+function yearStats(y){
+  const {lat, lon} = state, key = `${y}|${lat},${lon}|${TZ}`;
+  if (yearCache.key === key) return yearCache.v;
+  const n = daysInYear(y), rows = [];
+  const f = t => sunAt(t, lat, lon).elTrue + 0.833;
+  for (let i = 0; i < n; i++){
+    const t0 = zoned(y, 0, 1 + i), t1 = zoned(y, 0, 2 + i);
+    const c = crossings(f, t0, t1, 0, 1200000);
+    const rise = c.find(e => e.up), set = [...c].reverse().find(e => !e.up);
+    let len;
+    if (rise && set && set.t > rise.t) len = set.t - rise.t;
+    else if (!rise && !set) len = f(zoned(y, 0, 1 + i, 12)) > 0 || f(zoned(y, 0, 1 + i, 0)) > 0 ? DAY : 0;
+    else len = rise ? t1 - rise.t : set.t - t0;
+    rows.push({i, rise: rise && rise.t, set: set && set.t, len});
+  }
+  const std = stdOffset(y);
+  const tod = t => { const q = parts(t); return q.h*60 + q.mi + q.s/60; };
+  const todStd = t => tod(t) - (tzOff(t) - std)/60000;   // the same, with daylight saving taken out
+  const by = (k, better) => rows.reduce((a, r) => (r[k] != null && (a == null || better(r, a))) ? r : a, null);
+  const v = {
+    rows, longest: rows.reduce((a, r) => r.len > a.len ? r : a), shortest: rows.reduce((a, r) => r.len < a.len ? r : a),
+    earlySet: by('set', (r, a) => todStd(r.set) < todStd(a.set)), lateRise: by('rise', (r, a) => todStd(r.rise) > todStd(a.rise)),
+    lateRiseClock: by('rise', (r, a) => tod(r.rise) > tod(a.rise)),
+    polarDay: rows.filter(r => r.len >= DAY).length, polarNight: rows.filter(r => r.len === 0).length
+  };
+  yearCache = {key, v};
+  return v;
+}
+function runOf(rows, test, y){ // longest run of days passing `test`, joined across New Year
+  const n = rows.length, ok = rows.map(test);
+  if (!ok.some(Boolean)) return null;
+  let start = 0;
+  if (ok.every(Boolean)) return null;
+  while (ok[start]) start++;
+  let best = null, cur = null;
+  for (let k = 1; k <= n; k++){
+    const i = (start + k) % n;
+    if (ok[i]){ if (!cur) cur = {a: i, len: 0}; cur.len++; cur.b = i; if (!best || cur.len > best.len) best = cur; }
+    else cur = null;
+  }
+  const day = i => fmtLong.format(zoned(y, 0, 1 + i, 12));
+  return {len: best.len, from: day(best.a), to: day(best.b)};
+}
+function yearNote(ms){
+  const y = parts(ms).y, v = yearStats(y), day = r => fmtLong.format(zoned(y, 0, 1 + r.i, 12));
+  const bits = [];
+  if (v.polarDay){ const r = runOf(v.rows, q => q.len >= DAY, y); if (r) bits.push(`The sun never sets for ${r.len} days, ${r.from} to ${r.to}.`); }
+  if (v.polarNight){ const r = runOf(v.rows, q => q.len === 0, y); if (r) bits.push(`It never rises for ${r.len} days, ${r.from} to ${r.to}.`); }
+  const spread = v.longest.len - v.shortest.len;
+  if (!v.polarDay && !v.polarNight){
+    if (spread < 75*60000) bits.push(`Day length here barely moves, from ${fmtDur(v.shortest.len)} on ${day(v.shortest)} to ${fmtDur(v.longest.len)} on ${day(v.longest)}.`);
+    else bits.push(`Longest day: ${day(v.longest)}, ${fmtDur(v.longest.len)}. Shortest: ${day(v.shortest)}, ${fmtDur(v.shortest.len)}.`);
+  }
+  if (v.earlySet && v.lateRise && !v.polarNight && !v.polarDay){
+    const gap = spread >= 75*60000 && abs(v.earlySet.i - v.shortest.i) > 6 && abs(v.lateRise.i - v.shortest.i) > 6;
+    bits.push(`Sunsets are earliest on ${day(v.earlySet)} (${fmtT(v.earlySet.set)}) and sunrises latest on ${day(v.lateRise)} (${fmtT(v.lateRise.rise)})${gap ? ', weeks to either side of the shortest day; the equation of time pulls them apart' : ''}.`);
+    const c = v.lateRiseClock;
+    if (c && c.i !== v.lateRise.i && tzOff(zoned(y, 0, 2 + c.i, 12)) < tzOff(zoned(y, 0, 1 + c.i, 12)))
+      bits.push(`By the clock, though, the latest sunrise is ${day(c)} (${fmtT(c.rise)}), the last morning before the clocks fall back.`);
+  }
+  return {title: `The year ${state.place ? 'in ' + state.place.short : 'here'}`, body: bits.join(' ')};
+}
+const PAGES = ['now', 'dial', 'light', 'sky', 'year'];
+function pageNote(page, ms, Lm){
+  if (page === 'dial') return dialNote(ms, Lm);
+  if (page === 'light') return lightNote(Lm);
+  if (page === 'sky') return skyNote(ms, Lm);
+  return yearNote(ms);
+}
+
+// ===================== card content =====================
+function cardInfo(ms, Lm){
+  const {lat, lon} = state;
+  const p = parts(ms);
+  const day = sunDay(p.y, p.mo, p.d, lat, lon);
+  const yd = sunDay(p.y, p.mo, p.d - 1, lat, lon);
+  const s = Lm.sun, m = Lm.moon;
+  const sEl = s.el, mEl = m.el;
+  let s1, s2 = '';
+  if (sEl >= 6) s1 = `The sun is ${round(sEl)}° up, in the ${compass16(s.az)} (${round(s.az)}°).`;
+  else if (sEl >= 0.6) s1 = `Golden hour. The sun is ${sEl.toFixed(1)}° above the ${compass16(s.az)} horizon.`;
+  else if (sEl > -0.9) s1 = `The sun is on the ${compass16(s.az)} horizon.`;
+  else if (s.elTrue > -6){
+    const before = ms < day.noon;
+    const ref = before ? day.rise : day.set;
+    const mins = ref ? round(abs(ref - ms)/60000) : null;
+    s1 = mins != null ? (before ? `Civil twilight; sunrise in ${mins} minutes.` : `Civil twilight; the sun set ${mins} minutes ago.`) : 'Civil twilight.';
+  }
+  else if (s.elTrue > -12) s1 = `Nautical twilight. The sun is ${round(-s.elTrue)}° below the horizon.`;
+  else if (s.elTrue > -18) s1 = `Astronomical twilight. The sun is ${round(-s.elTrue)}° below the horizon.`;
+  else s1 = `Night. The sun is ${round(-s.elTrue)}° below the horizon.`;
+  if (sEl > 0.6 && Lm.sunBlocked) s2 = 'Its light is on the far side of the wall; only the sky lights the desk.';
+  else if (sEl > 0.6) s2 = `Shadows here are ${ratio(sEl)}× as long as whatever casts them.`;
+  else if (mEl > 1 && Lm.night > 0.3) s2 = `The moon is ${round(mEl)}° up in the ${compass16(m.az)}; its shadows are ${ratio(mEl)}× long.`;
+  else if (sEl <= -0.9 && mEl <= 1) s2 = 'The moon is below the horizon, so only the sky lights the desk.';
+  else if (sEl <= 0.6) s2 = 'No direct light now; the sky alone is lighting the desk.';
+  const up = mEl > -0.26;
+  const mEvt = nextMoonEvent(ms, lat, lon, !up);
+  const target = Lm.ill.waxing ? 180 : 0;
+  const ph = nextPhase(ms, target);
+  let phaseNote = '';
+  if (ph){
+    const days = (ph - ms)/DAY, which = target === 180 ? 'Full moon' : 'New moon';
+    phaseNote = days < 0.6 ? `${which} today` : days < 1.6 ? `${which} tomorrow` : `${which} in ${round(days)} days`;
+  }
+  const tp = timeParts(ms);
+  const page = PAGES[state.page % PAGES.length];
+  return {
+    date: fmtDate.format(new Date(ms)), time: tp.main, per: tp.per,
+    coords: state.place ? `${state.place.short} · ${latStr(lat, lon)}` : latStr(lat, lon),
+    s1, s2, phaseNote,
+    rise: day.rise ? fmtT(day.rise) : (day.len >= DAY ? 'Up all day' : 'None today'),
+    set: day.set ? fmtT(day.set) : (day.len >= DAY ? 'Up all day' : 'None today'),
+    len: fmtDur(day.len), delta: (day.len > 0 && yd.len > 0 && (day.len < DAY || yd.len < DAY)) ? fmtDelta(day.len - yd.len) : '',
+    gold: ms < day.noon ? (day.goldAM ? `until ${fmtT(day.goldAM)}` : '—') : (day.goldPM ? `from ${fmtT(day.goldPM)}` : '—'),
+    moonEvtLabel: up ? 'Moonset' : 'Moonrise', moonEvt: mEvt ? fmtT(mEvt) : 'Not within a day',
+    dialLabel: sEl > 0 ? 'The sundial reads' : 'Solar noon', dial: sEl > 0 ? solarClock(s.H) : fmtT(day.noon),
+    moonName: moonName(Lm.ill), pct: `${round(Lm.ill.fraction*100)}% lit`, ill: Lm.ill,
+    page: state.page % PAGES.length, note: page === 'now' ? null : pageNote(page, ms, Lm)
+  };
+}
+
+// ===================== drawing =====================
+const PAPER = '#f1f2ee', INK = '#1c2533', MUTED = '#5c6575';
+const SERIF = '"Spectral", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif';
+function moonGlyph(ctx, cx, cy, r, ill, lw){
+  const z = ill.limbZenith;
+  const rho = atan2(-cos(z), -sin(z)); // canvas direction of the bright limb, as seen in your sky
+  const k = ill.fraction, ax = r*(1 - 2*k);
+  ctx.save(); ctx.translate(cx, cy); ctx.rotate(rho);
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, 2*PI); ctx.fillStyle = INK; ctx.globalAlpha = 0.86; ctx.fill(); ctx.globalAlpha = 1;
+  ctx.beginPath();
+  for (let i = 0; i <= 48; i++){ const a = -PI/2 + PI*i/48; ctx.lineTo(r*cos(a), r*sin(a)); }
+  for (let i = 0; i <= 48; i++){ const a = PI/2 - PI*i/48; ctx.lineTo(ax*cos(a), r*sin(a)); }
+  ctx.closePath(); ctx.fillStyle = PAPER; ctx.fill();
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, 2*PI); ctx.strokeStyle = INK; ctx.lineWidth = lw; ctx.stroke();
+  ctx.restore();
+}
+function wrap(ctx, text, maxW){
+  const words = text.split(' '), lines = []; let line = '';
+  for (const w of words){ const t = line ? line + ' ' + w : w; if (ctx.measureText(t).width > maxW && line){ lines.push(line); line = w; } else line = t; }
+  if (line) lines.push(line);
+  return lines;
+}
+function drawCard(info){
+  const cv = view.cardCanvas, ctx = cv.getContext('2d'), L = view.L;
+  const W = cv.width, H = cv.height, u = W/(2*L.card.hw);
+  const F = (style, size) => `${style} ${(size*u).toFixed(2)}px ${SERIF}`;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = PAPER; ctx.fillRect(0, 0, W, H);
+  ctx.textBaseline = 'alphabetic';
+  const T = (txt, x, y, style, size, color, align) => { ctx.font = F(style, size); ctx.fillStyle = color; ctx.textAlign = align || 'left'; ctx.fillText(txt, x*u, y*u); return ctx.measureText(txt).width/u; };
+  const wide = L.mode === 'wide';
+  const cw = 2*L.card.hw, chh = 2*L.card.hh, mg = wide ? 1.85 : 1.6;
+  // header
+  T(info.date, mg, wide ? 2.6 : 2.4, 'italic 400', wide ? 0.82 : 0.95, INK);
+  T(info.coords, cw - mg, wide ? 2.6 : 2.4, '400', wide ? 0.66 : 0.8, MUTED, 'right');
+  // the time
+  const ts = wide ? 5.4 : 5.6, ty = wide ? 8.5 : 8.6;
+  const tw = T(info.time, mg - 0.12, ty, '200', ts, INK);
+  if (info.per) T(info.per, mg + tw + 0.3, ty, 'italic 300', ts*0.32, INK);
+  // moon
+  const mr = wide ? 1.6 : 1.45, mx = cw - mg - mr, my = wide ? 5.9 : 5.7;
+  moonGlyph(ctx, mx*u, my*u, mr*u, info.ill, 0.035*u);
+  if (wide){
+    T(info.moonName, mx - mr - 0.6, 5.35, '400', 0.92, INK, 'right');
+    T(info.pct, mx - mr - 0.6, 6.45, 'italic 400', 0.74, MUTED, 'right');
+    if (info.phaseNote) T(info.phaseNote, mx - mr - 0.6, 7.5, 'italic 400', 0.74, MUTED, 'right');
+  }
+  if (info.note){
+    // a back page: its title, then the note, set as large as the space allows
+    const y0 = wide ? 10.55 : 10.9, bottom = chh - (wide ? 1.55 : 1.9);
+    T(info.note.title, mg, y0, 'italic 400', wide ? 0.78 : 0.92, MUTED);
+    let ss = wide ? 0.92 : 1.08, lines;
+    for (;;){
+      ctx.font = F('400', ss);
+      lines = wrap(ctx, info.note.body, (cw - 2*mg)*u);
+      if (y0 + 0.5 + lines.length*ss*1.42 <= bottom || ss < 0.62) break;
+      ss *= 0.95;
+    }
+    lines.forEach((ln, i) => T(ln, mg, y0 + 0.4 + (i + 1)*ss*1.42, '400', ss, INK));
+  } else {
+    const ss = wide ? 0.95 : 1.1, lh = wide ? 1.3 : 1.45;
+    ctx.font = F('400', ss);
+    const lines = wrap(ctx, [info.s1, info.s2].filter(Boolean).join(' '), (cw - 2*mg)*u).slice(0, wide ? 2 : 3);
+    lines.forEach((ln, i) => T(ln, mg, (wide ? 10.55 : 10.9) + i*lh, '400', ss, INK));
+    const cell = (x, y, label, value, extra, ls, vs) => {
+      T(label, x, y, 'italic 400', ls, MUTED);
+      const w = T(value, x, y + vs*1.22, '400', vs, INK);
+      if (extra) T(extra, x + w + 0.3, y + vs*1.22, 'italic 400', ls*0.95, MUTED);
+    };
+    if (wide){
+      const xs = [mg, mg + 9.15, mg + 18.3], r1 = 13.95, r2 = 16.75, ls = 0.72, vs = 0.98;
+      cell(xs[0], r1, 'Sunrise', info.rise, '', ls, vs);
+      cell(xs[0], r2, 'Sunset', info.set, '', ls, vs);
+      cell(xs[1], r1, 'Daylight', info.len, info.delta, ls, vs);
+      cell(xs[1], r2, 'Golden hour', info.gold, '', ls, vs);
+      cell(xs[2], r1, info.moonEvtLabel, info.moonEvt, '', ls, vs);
+      cell(xs[2], r2, info.dialLabel, info.dial, '', ls, vs);
+    } else {
+      const xs = [mg, mg + 12.4], rs = [15.3, 18.35, 21.4], ls = 0.88, vs = 1.18;
+      cell(xs[0], rs[0], 'Sunrise', info.rise, '', ls, vs);
+      cell(xs[1], rs[0], 'Sunset', info.set, '', ls, vs);
+      cell(xs[0], rs[1], 'Daylight', info.len, info.delta, ls, vs);
+      cell(xs[1], rs[1], 'Golden hour', info.gold, '', ls, vs);
+      cell(xs[0], rs[2], info.moonName, info.pct, '', ls, vs);
+      cell(xs[1], rs[2], info.moonEvtLabel, info.moonEvt, '', ls, vs);
+    }
+  }
+  // page marks: one dot per side of the card, the current one filled
+  const dr = wide ? 0.13 : 0.15, gap = wide ? 0.55 : 0.62, dy = chh - (wide ? 0.85 : 1.0);
+  for (let i = 0; i < PAGES.length; i++){
+    const x = cw - mg - (PAGES.length - 1 - i)*gap;
+    ctx.beginPath(); ctx.arc(x*u, dy*u, dr*u, 0, 2*PI);
+    if (i === info.page){ ctx.fillStyle = INK; ctx.fill(); }
+    else { ctx.strokeStyle = MUTED; ctx.lineWidth = 0.035*u; ctx.stroke(); }
+  }
+}
+
+const ROMAN = ['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];
+function drawDial(F){
+  const cv = view.dialCanvas, ctx = cv.getContext('2d'), R = view.L.dial.R;
+  const S = cv.width, s = S/(2*R);
+  const P = (x, y) => [S/2 + x*s, S/2 - y*s];
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, S, S);
+  ctx.strokeStyle = '#000'; ctx.fillStyle = '#000'; ctx.lineCap = 'round';
+  const circle = (r, w) => { ctx.beginPath(); ctx.arc(S/2, S/2, r*s, 0, 2*PI); ctx.lineWidth = w*s; ctx.stroke(); };
+  circle(0.955*R, 0.045); circle(0.80*R, 0.04); circle(0.775*R, 0.02);
+  const phi = F.phiAbs, th = F.gnomonTh, y0 = F.y0, hemi = F.hemi;
+  const rayHit = (ox, oy, dx, dy, r) => { const b = ox*dx + oy*dy, c = ox*ox + oy*oy - r*r; return -b + sqrt(max(b*b - c, 0)); };
+  const line = (x1, y1, x2, y2, w) => { const a = P(x1, y1), b = P(x2, y2); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineWidth = w*s; ctx.stroke(); };
+  for (let q = 4*4; q <= 20*4; q++){ // quarter hours from 4:00 to 20:00 apparent solar time
+    const h = q/4, Hh = (h - 12)*15*RAD;
+    const th0 = atan2(sin(phi)*sin(Hh), cos(Hh));
+    const dx = hemi*sin(th0), dy = cos(th0);
+    const isNoon = q === 48;
+    const ox = isNoon ? 0 : Math.sign(dx)*th/2;
+    const kind = q % 4 === 0 ? 0 : q % 2 === 0 ? 1 : 2;
+    const tEnd = rayHit(ox, y0, dx, dy, 0.775*R);
+    if (kind === 0){
+      if (isNoon){ line(-th/2, y0, -th/2, y0 + tEnd, 0.045); line(th/2, y0, th/2, y0 + tEnd, 0.045); }
+      else line(ox, y0, ox + dx*tEnd, y0 + dy*tEnd, 0.045);
+      const tn = rayHit(ox, y0, dx, dy, 0.877*R);
+      const px = ox + dx*tn, py = y0 + dy*tn, rr = sqrt(px*px + py*py);
+      const c = P(px, py);
+      ctx.save(); ctx.translate(c[0], c[1]); ctx.rotate(atan2(px/rr, py/rr));
+      ctx.font = `500 ${(0.066*R*s).toFixed(1)}px ${SERIF}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(ROMAN[((h % 12) + 12) % 12], 0, 0); ctx.restore();
+    } else {
+      const t0 = rayHit(ox, y0, dx, dy, (kind === 1 ? 0.66 : 0.72)*R);
+      line(ox + dx*t0, y0 + dy*t0, ox + dx*tEnd, y0 + dy*tEnd, kind === 1 ? 0.035 : 0.025);
+    }
+  }
+  // motto along the south rim, and the latitude it was laid out for
+  const motto = 'SINE SOLE SILEO', rm = 0.66*R, span = 74*RAD;
+  ctx.font = `400 ${(0.05*R*s).toFixed(1)}px ${SERIF}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (let i = 0; i < motto.length; i++){
+    const a = -PI/2 - span/2 + span*i/(motto.length - 1); // local angle, left to right across the bottom
+    const c = P(rm*cos(a), rm*sin(a));
+    ctx.save(); ctx.translate(c[0], c[1]); ctx.rotate(-(a + PI/2)); ctx.fillText(motto[i], 0, 0); ctx.restore();
+  }
+  const latDeg = abs(state.lat), dd = floor(latDeg), mm = round((latDeg - dd)*60);
+  const c = P(0, -0.5*R);
+  ctx.font = `italic 400 ${(0.052*R*s).toFixed(1)}px ${SERIF}`;
+  ctx.fillText(`${dd}° ${String(mm).padStart(2, '0')}′ ${state.lat >= 0 ? 'N' : 'S'}`, c[0], c[1]);
+}
+
+// ===================== the shadow plot =====================
+// The pinhead (the nodus) is PIN_H above the desk. Where its shadow lands: pin - L.xy/L.z * (PIN_H - paper thickness).
+const PIN_H = 3.2;
+const tipOf = (F, dir) => [F.pin[0] - dir[0]/dir[2]*(PIN_H - 0.03), F.pin[1] - dir[1]/dir[2]*(PIN_H - 0.03)];
+const anaCache = new Map();
+function analemma(F, y, h){
+  const key = `${y}|${h}|${state.lat},${state.lon}|${TZ}|${F.north[0].toFixed(3)},${F.north[1].toFixed(3)}|${F.pin[0].toFixed(2)},${F.pin[1].toFixed(2)}`;
+  if (anaCache.has(key)) return anaCache.get(key);
+  const pts = [], n = daysInYear(y);
+  for (let i = 0; i < n; i += 3){
+    const s = sunAt(zoned(y, 0, 1 + i, h), state.lat, state.lon);
+    if (s.el < 2) continue;
+    pts.push(tipOf(F, toScreen(azElVec(s.az, s.el))));
+  }
+  if (anaCache.size > 40) anaCache.clear();
+  anaCache.set(key, pts);
+  return pts;
+}
+function drawPlot(F, ms){
+  const P = view.L.plot;
+  if (P.hw <= 0) return;
+  const cv = view.plotCanvas, ctx = cv.getContext('2d');
+  const Wc = cv.width, Hc = cv.height, u = Wc/(2*P.hw);
+  const X = x => (x - (P.x - P.hw))*u, Y = y => ((P.y + P.hh) - y)*u;
+  const inside = (q, m = 0) => abs(q[0] - P.x) < P.hw - m && abs(q[1] - P.y) < P.hh - m;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = '#f4f5f0'; ctx.fillRect(0, 0, Wc, Hc);
+  // grid: 5 mm squares, heavier every centimetre, centred on the pin
+  for (let k = -80; k <= 80; k++){
+    const major = k % 2 === 0;
+    ctx.strokeStyle = major ? 'rgba(48,128,118,0.34)' : 'rgba(48,128,118,0.15)';
+    ctx.lineWidth = max(1, (major ? 0.02 : 0.013)*u);
+    const gx = X(F.pin[0] + k*0.5), gy = Y(F.pin[1] + k*0.5);
+    if (gx > 0 && gx < Wc){ ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, Hc); ctx.stroke(); }
+    if (gy > 0 && gy < Hc){ ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(Wc, gy); ctx.stroke(); }
+  }
+  const GR = 'rgba(52,54,62,', p = parts(ms), {lat, lon} = state;
+  const dot = (q, r, a) => { ctx.beginPath(); ctx.arc(X(q[0]), Y(q[1]), r*u, 0, 2*PI); ctx.fillStyle = GR + a + ')'; ctx.fill(); };
+  // the meridian: where the shadow falls at solar noon, with N at its north end
+  const nv = F.north, pole = [nv[0]*F.hemi, nv[1]*F.hemi];
+  let tEdge = 1e9;
+  for (const [d, half, c] of [[pole[0], P.hw, P.x - F.pin[0]], [pole[1], P.hh, P.y - F.pin[1]]]){
+    if (abs(d) > 1e-6){ const t = ((d > 0 ? half : -half) + c)/d; if (t > 0) tEdge = min(tEdge, t); }
+  }
+  ctx.save();
+  ctx.setLineDash([0.18*u, 0.16*u]); ctx.strokeStyle = GR + '0.45)'; ctx.lineWidth = max(1, 0.022*u);
+  ctx.beginPath(); ctx.moveTo(X(F.pin[0]), Y(F.pin[1])); ctx.lineTo(X(F.pin[0] + pole[0]*tEdge), Y(F.pin[1] + pole[1]*tEdge)); ctx.stroke();
+  ctx.restore();
+  ctx.font = `italic 400 ${(0.62*u).toFixed(1)}px ${SERIF}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = GR + '0.85)';
+  const nl = max(0.8, tEdge - 0.7);
+  ctx.fillText(F.hemi > 0 ? 'N' : 'S', X(F.pin[0] + pole[0]*nl + pole[1]*0.45), Y(F.pin[1] + pole[1]*nl - pole[0]*0.45));
+  // today's path of the pinhead's shadow, sampled every four minutes
+  const day = sunDay(p.y, p.mo, p.d, lat, lon), t0 = zoned(p.y, p.mo, p.d), t1 = zoned(p.y, p.mo, p.d + 1);
+  ctx.strokeStyle = GR + '0.55)'; ctx.lineWidth = max(1, 0.024*u); ctx.lineJoin = 'round';
+  ctx.beginPath(); let pen = false;
+  for (let t = t0; t <= t1; t += 240000){
+    const s = sunAt(t, lat, lon);
+    if (s.el < 2){ pen = false; continue; }
+    const q = tipOf(F, toScreen(azElVec(s.az, s.el)));
+    if (abs(q[0] - P.x) > P.hw*3 || abs(q[1] - P.y) > P.hh*3){ pen = false; continue; }
+    if (pen) ctx.lineTo(X(q[0]), Y(q[1])); else ctx.moveTo(X(q[0]), Y(q[1]));
+    pen = true;
+  }
+  ctx.stroke();
+  // the figure eight: one clock hour, every third day of the year
+  const nowH = p.h + p.mi/60, noonP = parts(day.noon), noonH = noonP.h + noonP.mi/60;
+  const cand = [];
+  for (let h = round(nowH), k = 0; k < 24; k++){ cand.push(h); h += h < round(noonH) ? 1 : h > round(noonH) ? -1 : 0; }
+  let anaH = null, ana = null;
+  for (const h of [...new Set(cand), 12]){
+    const pts = analemma(F, p.y, h);
+    if (pts.length > 40 && pts.filter(q => inside(q, 0.3)).length > pts.length*0.75){ anaH = h; ana = pts; break; }
+  }
+  if (ana) for (const q of ana) dot(q, 0.075, 0.6);
+  // each whole hour of today, with its number
+  ctx.font = `italic 400 ${(0.56*u).toFixed(1)}px ${SERIF}`;
+  for (let h = 0; h < 24; h++){
+    const t = zoned(p.y, p.mo, p.d, h), s = sunAt(t, lat, lon);
+    if (s.el < 2) continue;
+    const q = tipOf(F, toScreen(azElVec(s.az, s.el)));
+    if (!inside(q, 0.1)) continue;
+    dot(q, 0.1, 0.9);
+    const s2 = sunAt(t + 600000, lat, lon), q2 = tipOf(F, toScreen(azElVec(s2.az, s2.el)));
+    let tx = q2[1] - q[1], ty = -(q2[0] - q[0]); const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
+    if (tx*(q[0] - F.pin[0]) + ty*(q[1] - F.pin[1]) < 0){ tx = -tx; ty = -ty; }
+    const lq = [q[0] + tx*0.5, q[1] + ty*0.5];
+    if (inside(lq, 0.3)){ ctx.fillStyle = GR + '0.85)'; ctx.fillText(H12 ? String(((h + 11) % 12) + 1) : String(h), X(lq[0]), Y(lq[1])); }
+  }
+  // a pencilled caption along the edge the shadows rarely reach
+  const eq = [-pole[0], -pole[1]], bottom = abs(eq[1]) >= abs(eq[0]) ? eq[1] < 0 : true;
+  const lines = [`Pinhead shadow, hour by hour, ${fmtShort.format(new Date(ms))}`];
+  if (anaH != null) lines.push(`Figure eight: ${H12 ? `${((anaH + 11) % 12) + 1} ${anaH < 12 ? 'am' : 'pm'}` : `${anaH}:00`} all year`);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = GR + '0.8)';
+  let fs = 0.6; ctx.font = `italic 400 ${(fs*u).toFixed(1)}px ${SERIF}`;
+  while (fs > 0.36 && max(...lines.map(l => ctx.measureText(l).width)) > (2*P.hw - 1.0)*u){ fs *= 0.94; ctx.font = `italic 400 ${(fs*u).toFixed(1)}px ${SERIF}`; }
+  lines.forEach((l, i) => {
+    const yy = bottom ? Hc - (0.45 + (lines.length - 1 - i)*fs*1.3)*u : (0.5 + fs + i*fs*1.3)*u;
+    ctx.fillText(l, 0.5*u, yy);
+  });
+  // a light bevel so the sheet reads as paper
+  ctx.strokeStyle = 'rgba(0,0,0,0.06)'; ctx.lineWidth = 1; ctx.strokeRect(0.5, 0.5, Wc - 1, Hc - 1);
+}
+
+// ===================== state =====================
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d){ try { const v = localStorage.getItem('sundesk:' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v){ try { localStorage.setItem('sundesk:' + k, JSON.stringify(v)); } catch (e) {} }
+};
+const savedLoc = store.get('loc', null);
+const state = {
+  home: savedLoc ? {lat: savedLoc.lat, lon: savedLoc.lon, src: savedLoc.src, tz: savedLoc.tz || null} : {lat: 39.29, lon: -76.61, src: 'approx', tz: 'America/New_York'},
+  place: null, lat: 0, lon: 0, locSrc: '',
+  heading: store.get('heading', 0), live: true, t: Date.now(), playing: null, lastPlay: 0, ori: null,
+  win: store.get('win', 'auto'), page: 0, yearAcc: 0, playClock: null, playYear: 0, jumpRef: null
+};
+const homeTZ = h => h.tz || (h.src === 'manual' ? guessTZ(h.lat, h.lon) : DEVICE_TZ);
+function applyPosition(){
+  const pos = state.place || state.home;
+  state.lat = pos.lat; state.lon = pos.lon; state.locSrc = state.place ? 'place' : state.home.src;
+  setTZ(state.place ? (state.place.tzOverride || state.place.tz) : homeTZ(state.home));
+  dayCache.clear();
+}
+applyPosition();
+
+function toScreen(v){
+  if (state.ori){
+    const R = state.ori.R;
+    const dx = R[0]*v[0] + R[3]*v[1] + R[6]*v[2], dy = R[1]*v[0] + R[4]*v[1] + R[7]*v[2], dz = R[2]*v[0] + R[5]*v[1] + R[8]*v[2];
+    const a = state.ori.screen*RAD;
+    return [dx*cos(a) - dy*sin(a), dx*sin(a) + dy*cos(a), dz];
+  }
+  const h = state.heading*RAD;
+  return [v[0]*cos(h) - v[1]*sin(h), v[0]*sin(h) + v[1]*cos(h), v[2]];
+}
+// the window wall: 'auto' puts it on the equator side of the room, where the sun spends most of the day
+const winAz = () => state.win === 'none' ? null : (state.win === 'auto' || state.win == null) ? (state.lat >= 0 ? 180 : 0) : +state.win;
+function wallVec(){
+  const az = winAz();
+  if (az == null) return null;
+  const v = toScreen(azElVec(az, 0)), l = Math.hypot(v[0], v[1]) || 1;
+  return [v[0]/l, v[1]/l];
+}
+
+// ===================== per-frame computation =====================
+let cardKey = '', dialKey = '', plotKey = '', fontsOK = false, lastLm = null;
+function computeFrame(){
+  if (state.live && !state.playing) state.t = Date.now();
+  const ms = state.t, L = view.L;
+  const wall = wallVec();
+  const Lm = lightModel(ms, state.lat, state.lon, toScreen, wall);
+  lastLm = Lm;
+  const nv = toScreen([0, 1, 0]), nl = Math.hypot(nv[0], nv[1]) || 1, north = [nv[0]/nl, nv[1]/nl];
+  const hemi = state.lat >= 0 ? 1 : -1;
+  const phiAbs = clamp(abs(state.lat), 5, 72)*RAD, tl = tan(phiAbs), R = L.dial.R;
+  const y0 = -0.36*R, yN = min(0.66*R, y0 + 8.0/tl);
+  // the pin stands on the equator side of the sheet, so the poleward shadows have room
+  const P = L.plot, off = 0.32*P.hh, pin = [P.x - north[0]*hemi*off, P.y - north[1]*hemi*off];
+  let wallU = [0, 0, 0, 0];
+  if (wall){
+    const ex = abs(wall[0]) > 1e-4 ? L.vw/2/abs(wall[0]) : 1e9, ey = abs(wall[1]) > 1e-4 ? L.vh/2/abs(wall[1]) : 1e9;
+    wallU = [wall[0], wall[1], min(ex, ey) + 5, 1];
+  }
+  frameData = {sunDir: Lm.sunDir, sunCol: Lm.sunCol, moonDir: Lm.moonDir, moonCol: Lm.moonCol, sky: Lm.sky, bounce: Lm.bounce,
+    win: winDir(Lm, wall), night: Lm.night, north, tanLat: tl, hemi, gnomonTh: 0.3, y0, yN, phiAbs, pin, wall: wallU};
+  const dk = `${view.dialCanvas.width}|${state.lat.toFixed(3)}|${fontsOK}`;
+  if (dk !== dialKey){ drawDial(frameData); uploadTex(view.dialTex, view.dialCanvas); dialKey = dk; }
+  const p = parts(ms);
+  const pk = `${p.y}-${p.mo}-${p.d}|${p.h}|${state.lat},${state.lon}|${TZ}|${north[0].toFixed(3)},${north[1].toFixed(3)}|${view.plotCanvas.width}x${view.plotCanvas.height}|${fontsOK}`;
+  if (P.hw > 0 && pk !== plotKey){ drawPlot(frameData, ms); uploadTex(view.plotTex, view.plotCanvas); plotKey = pk; }
+  const ck = `${floor(ms/60000)}|${state.lat},${state.lon}|${TZ}|${state.page}|${wallU[3]}|${Lm.sunBlocked}|${view.cardCanvas.width}x${view.cardCanvas.height}|${fontsOK}`;
+  if (ck !== cardKey){ drawCard(cardInfo(ms, Lm)); uploadTex(view.cardTex, view.cardCanvas); cardKey = ck; }
+  updateUI(ms, Lm);
+}
+
+// what the glossy things reflect: the window if there is one, else a bright patch on the side the light comes from
+function winDir(Lm, wall){
+  if (wall) return [wall[0], wall[1], 3.2];
+  const useMoon = Lm.sun.el < -4 && Lm.moon.el > 0;
+  const v = toScreen(azElVec(useMoon ? Lm.moon.az : Lm.sun.az, 20));
+  const l = Math.hypot(v[0], v[1]) || 1;
+  return [v[0]/l, v[1]/l, 3.2];
+}
+// ===================== the paper strip =====================
+const dock = $('dock'), dayIn = $('day'), yearIn = $('year');
+let trackKeyDay = '', trackKeyYear = '';
+function trackCanvas(w, h){ const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+function dayTrack(ms){
+  const t0 = midnight(ms), t1 = midnight(t0 + DAY*1.5), N = 288, c = trackCanvas(N, 1), ctx = c.getContext('2d');
+  for (let i = 0; i < N; i++){
+    const el = sunAt(t0 + (t1 - t0)*(i + 0.5)/N, state.lat, state.lon).el;
+    const night = 1 - smooth(-12, 1, el), gold = smooth(-4, 0, el)*(1 - smooth(4, 12, el));
+    ctx.fillStyle = `rgba(28,37,51,${(0.82*night).toFixed(3)})`; ctx.fillRect(i, 0, 1, 1);
+    if (gold > 0.01){ ctx.fillStyle = `rgba(206,132,52,${(0.55*gold).toFixed(3)})`; ctx.fillRect(i, 0, 1, 1); }
+  }
+  return c.toDataURL();
+}
+function yearTrack(y){
+  // each column is a day; each row is a half hour of local clock time, so daylight saving shows as a step
+  const n = daysInYear(y), R = 48, c = trackCanvas(n, R), ctx = c.getContext('2d'), img = ctx.createImageData(n, R);
+  for (let i = 0; i < n; i++){
+    const off = tzOff(Date.UTC(y, 0, 1 + i, 12));
+    for (let r = 0; r < R; r++){
+      const ms = Date.UTC(y, 0, 1 + i, 0, r*30 + 15) - off, el = sunAt(ms, state.lat, state.lon).el;
+      const night = 1 - smooth(-8, 0, el), gold = smooth(-3, 0, el)*(1 - smooth(5, 10, el));
+      const k = 4*(r*n + i);
+      const base = [lerp(241, 52, night), lerp(242, 62, night), lerp(238, 80, night)];
+      img.data[k] = lerp(base[0], 210, gold*0.6); img.data[k + 1] = lerp(base[1], 150, gold*0.6); img.data[k + 2] = lerp(base[2], 80, gold*0.6); img.data[k + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  ctx.fillStyle = 'rgba(28,37,51,0.28)';
+  for (let m = 1; m < 12; m++){ const x = round((Date.UTC(y, m, 1) - Date.UTC(y, 0, 1))/DAY); ctx.fillRect(x, 0, 1, R); }
+  return c.toDataURL();
+}
+function updateUI(ms, Lm){
+  let lp = litCSS(Lm, [241, 242, 238], 1), li = litCSS(Lm, [28, 37, 51], 1), lm = litCSS(Lm, [92, 101, 117], 1);
+  const Y = 0.2126*lp[0] + 0.7152*lp[1] + 0.0722*lp[2];
+  if (Y < 140){
+    const f = 140/max(Y, 1), gray = c => c.map(v => lerp(v, 0.2126*c[0] + 0.7152*c[1] + 0.0722*c[2], 0.65));
+    lp = gray(lp).map(c => min(255, round(c*f))); lm = gray(lm).map(c => min(255, round(c*f*0.85))); li = li.map(c => min(50, c));
+  }
+  const st = document.documentElement.style;
+  st.setProperty('--lp', lp.join(',')); st.setProperty('--li', li.join(',')); st.setProperty('--lm', lm.join(','));
+  // physically placed shadow for a slip of paper ~1.4 cm above the desk
+  let Ld = null;
+  if (Lm.sunDir[2] > 0.02 && Lm.sunCol[1] > 0.02) Ld = Lm.sunDir; else if (Lm.moonDir[2] > 0.02 && Lm.moonCol[1] > 0.02) Ld = Lm.moonDir;
+  let sh = '0 2px 12px rgba(10,14,24,.18)';
+  if (Ld){
+    const h = 1.4*view.L.px;
+    let ox = -Ld[0]/Ld[2]*h, oy = Ld[1]/Ld[2]*h;
+    const len = Math.hypot(ox, oy), cap = 90;
+    if (len > cap){ ox *= cap/len; oy *= cap/len; }
+    const a = (0.08 + 0.30*clamp(Lm.directFrac, 0, 1)).toFixed(3);
+    sh = `${ox.toFixed(1)}px ${oy.toFixed(1)}px ${(6 + min(len, cap)*0.18).toFixed(1)}px rgba(8,12,22,${a}), 0 1px 3px rgba(8,12,22,.10)`;
+  }
+  st.setProperty('--dock-shadow', sh);
+  const p = parts(ms);
+  if (!dayIn.matches(':active')) dayIn.value = p.h*60 + p.mi;
+  if (!yearIn.matches(':active')) yearIn.value = dayOfYear(ms);
+  $('dayV').textContent = fmtT(ms);
+  $('yearV').textContent = fmtShort.format(new Date(ms));
+  const live = state.live && !state.playing;
+  $('now').classList.toggle('live', live);
+  $('nowTxt').textContent = live ? (state.place ? `Live · ${state.place.short}` : 'Live') : 'Back to now';
+  const kd = `${midnight(ms)}|${state.lat},${state.lon}`;
+  if (kd !== trackKeyDay){ dayIn.style.setProperty('--track', `url(${dayTrack(ms)})`); trackKeyDay = kd; }
+  const ky = `${p.y}|${state.lat},${state.lon}|${TZ}`;
+  if (ky !== trackKeyYear){ yearIn.max = daysInYear(p.y) - 1; yearIn.style.setProperty('--track', `url(${yearTrack(p.y)})`); trackKeyYear = ky; }
+  if (!panel.hidden) syncWin();
+}
+
+// ===================== interaction =====================
+function scrubTo(ms){ state.live = false; state.t = ms; computeFrame(); requestRender(true); }
+dayIn.addEventListener('input', () => {
+  const v = +dayIn.value, p = parts(state.t);
+  stopPlay(); scrubTo(zoned(p.y, p.mo, p.d, floor(v/60), v % 60));
+});
+yearIn.addEventListener('input', () => {
+  const v = +yearIn.value, p = parts(state.t);
+  stopPlay(); scrubTo(zoned(p.y, 0, 1 + v, p.h, p.mi));
+});
+function goLive(){ stopPlay(); state.live = true; computeFrame(); requestRender(true); }
+$('now').addEventListener('click', goLive);
+const ICON_PLAY = '<path d="M6 4l10 6-10 6z" fill="currentColor"/>';
+const ICON_PAUSE = '<path d="M5 4h3.5v12H5zM11.5 4H15v12h-3.5z" fill="currentColor"/>';
+const ICON_YEAR = '<path d="M10 2.6c2.3 0 2.7 3.1 0 7.1-2.8 4.2-2.3 7.7 0 7.7s2.8-3.5 0-7.7C7.3 5.7 7.7 2.6 10 2.6z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12.25" cy="5.4" r="1.9" fill="currentColor"/>';
+function setPlayIcon(){
+  $('playIco').innerHTML = state.playing === 'day' ? ICON_PAUSE : ICON_PLAY;
+  $('yearIco').innerHTML = state.playing === 'year' ? ICON_PAUSE : ICON_YEAR;
+  $('play').setAttribute('aria-label', state.playing === 'day' ? 'Pause' : 'Play through the day');
+  $('playYear').setAttribute('aria-label', state.playing === 'year' ? 'Pause' : 'Play through the year at this clock time');
+}
+function startPlay(mode){
+  state.playing = mode; state.live = false; state.lastPlay = 0;
+  if (mode === 'year'){ const p = parts(state.t); state.playClock = {h: p.h, mi: p.mi}; state.playYear = p.y; state.yearAcc = 0; toast(`Holding the clock at ${fmtT(state.t)} and running the year.`); }
+  setPlayIcon(); requestRender(true);
+}
+function stopPlay(){ if (!state.playing) return; state.playing = null; setPlayIcon(); requestRender(false); }
+function togglePlay(mode){ if (state.playing === mode) stopPlay(); else { stopPlay(); startPlay(mode); } }
+function advancePlay(now){
+  const dt = state.lastPlay ? min(100, now - state.lastPlay) : 16;
+  state.lastPlay = now;
+  if (state.playing === 'day') state.t += dt*2160; // one day every 40 seconds
+  else {
+    state.yearAcc += dt*0.0085;                     // about eight and a half days a second
+    const steps = floor(state.yearAcc);
+    if (!steps) return;
+    state.yearAcc -= steps;
+    const p = parts(state.t), {h, mi} = state.playClock;
+    let t = zoned(p.y, p.mo, p.d + steps, h, mi);
+    if (parts(t).y !== state.playYear) t = zoned(state.playYear, 0, 1, h, mi);
+    state.t = t;
+  }
+  computeFrame(); needLo = true; needHi = true; prog = null; lastInteract = now;
+}
+$('play').addEventListener('click', () => togglePlay('day'));
+$('playYear').addEventListener('click', () => togglePlay('year'));
+function turnCard(d){ state.page = (state.page + d + PAGES.length) % PAGES.length; computeFrame(); requestRender(false); }
+function cardHit(e){
+  const L = view.L, x = (e.clientX - view.W/2)/L.px, y = -(e.clientY - view.H/2)/L.px;
+  return abs(x - L.card.x) < L.card.hw && abs(y - L.card.y) < L.card.hh;
+}
+canvas.addEventListener('click', e => { if (cardHit(e)) turnCard(1); });
+canvas.addEventListener('pointermove', e => { canvas.style.cursor = cardHit(e) ? 'pointer' : ''; });
+addEventListener('keydown', e => {
+  if (e.target.closest && e.target.closest('input, select, button, #panel')) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key, big = e.shiftKey;
+  if (k === 'ArrowLeft' || k === 'ArrowRight'){ stopPlay(); scrubTo(state.t + (k === 'ArrowLeft' ? -1 : 1)*(big ? 60 : 10)*60000); e.preventDefault(); }
+  else if (k === 'ArrowUp' || k === 'ArrowDown'){ stopPlay(); scrubTo(state.t + (k === 'ArrowDown' ? -1 : 1)*(big ? 7 : 1)*DAY); e.preventDefault(); }
+  else if (k === ' '){ togglePlay('day'); e.preventDefault(); }
+  else if (k === 'y' || k === 'Y') togglePlay('year');
+  else if (k === 'c' || k === 'C') turnCard(big ? -1 : 1);
+  else if (k === 'n' || k === 'N') goLive();
+});
+
+// quiet chrome: the strip fades after a few still seconds
+let idleT = 0;
+function wake(){
+  document.body.classList.remove('idle'); clearTimeout(idleT);
+  idleT = setTimeout(() => { if ($('panel').hidden && !dock.matches(':hover') && !dock.contains(document.activeElement)) document.body.classList.add('idle'); }, 6000);
+}
+['pointermove', 'pointerdown', 'keydown', 'touchstart', 'focusin'].forEach(ev => addEventListener(ev, wake, {passive: true}));
+
+let toastT = 0;
+function toast(msg){ const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 5200); }
+
+// ===================== settings panel =====================
+const panel = $('panel');
+function openPanel(open){
+  panel.hidden = !open; $('gear').setAttribute('aria-expanded', String(open));
+  if (open){ syncPanel(); wake(); }
+}
+$('gear').addEventListener('click', () => openPanel(panel.hidden));
+$('done').addEventListener('click', () => openPanel(false));
+addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) openPanel(false); });
+function syncPanel(){
+  $('lat').value = state.lat.toFixed(2); $('lon').value = state.lon.toFixed(2);
+  $('locNote').textContent = state.place ? `The desk is visiting ${state.place.name}. Your home position is kept.`
+    : state.locSrc === 'device' ? 'Position from this device, rounded to about a kilometre. It stays in this browser.'
+    : state.locSrc === 'manual' ? 'Position entered by hand. It stays in this browser.'
+    : 'Using an approximate position near Baltimore. Find your city or type coordinates for exact shadows.';
+  $('home').hidden = !state.place;
+  document.querySelectorAll('#places .chip').forEach(b => b.setAttribute('aria-pressed', String(!!state.place && state.place.name === b.dataset.name)));
+  const pn = $('placeNote');
+  pn.hidden = !(state.place && state.place.note); pn.textContent = state.place && state.place.note || '';
+  syncTZ(); syncHeading(); syncWin();
+}
+function syncTZ(){
+  const sel = $('tz');
+  const auto = state.place ? state.place.tz : (state.home.src === 'manual' ? guessTZ(state.home.lat, state.home.lon) : DEVICE_TZ);
+  const chosen = state.place ? state.place.tzOverride : state.home.tz;
+  const label = z => `${z.replace(/_/g, ' ')}`;
+  if (!sel.dataset.filled){
+    let zones = [];
+    try { zones = Intl.supportedValuesOf('timeZone'); } catch (e) {}
+    zones = [...new Set([...zones, ...CITIES.map(c => c.tz), DEVICE_TZ])].sort();
+    sel.innerHTML = '<option value="auto"></option>' + zones.map(z => `<option value="${z}">${label(z)}</option>`).join('');
+    sel.dataset.filled = '1';
+  }
+  sel.options[0].textContent = `Automatic: ${label(auto)} (${zoneName(state.t)})`;
+  sel.value = chosen || 'auto';
+  if (sel.value !== (chosen || 'auto')) sel.value = 'auto';
+}
+$('tz').addEventListener('change', e => {
+  const v = e.target.value === 'auto' ? null : e.target.value;
+  if (state.place) state.place.tzOverride = v;
+  else { state.home.tz = v; store.set('loc', state.home); }
+  applyPosition(); computeFrame(); requestRender(false); syncTZ();
+  toast(`Clock set to ${TZ.replace(/_/g, ' ')}. It is ${fmtT(state.t)} there.`);
+});
+function syncHeading(){
+  const h = round(n360(state.heading));
+  $('hdg').value = h; $('hdgTxt').textContent = `${compass16(h)} (${h}°)`;
+  $('rose').setAttribute('transform', `rotate(${-h})`);
+}
+function syncWin(){
+  const az = winAz();
+  let rel = null;
+  if (az != null){ const r = n360(az - state.heading); rel = n360(round(r/90)*90); if (abs(((r - rel + 540) % 360) - 180) > 30) rel = -1; }
+  document.querySelectorAll('#winSeg .btn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.w === 'none' ? az == null : +b.dataset.w === rel)));
+  const note = az == null ? 'No walls. The desk sits under the open sky.'
+    : `The window is in the ${compass16(az)} wall.${lastLm && lastLm.sunBlocked ? ' Right now the sun is on the other side of the house.' : ''}`;
+  if ($('winNote').textContent !== note) $('winNote').textContent = note;
+}
+document.querySelectorAll('#winSeg .btn').forEach(b => b.addEventListener('click', () => {
+  state.win = b.dataset.w === 'none' ? 'none' : n360(state.heading + +b.dataset.w);
+  store.set('win', state.win);
+  computeFrame(); requestRender(true); syncWin();
+}));
+function setHome(lat, lon, src){
+  if (!isFinite(lat) || !isFinite(lon) || abs(lat) > 90) return false;
+  state.home = {lat, lon: ((lon + 540) % 360) - 180, src, tz: null};
+  state.place = null;
+  store.set('loc', state.home);
+  applyPosition(); computeFrame(); requestRender(false);
+  if (!panel.hidden) syncPanel();
+  return true;
+}
+function travel(c){
+  state.place = {...c, tzOverride: null};
+  applyPosition(); computeFrame(); requestRender(false);
+  if (!panel.hidden) syncPanel();
+  toast(`The desk is in ${c.short}, where it is ${fmtT(state.t)} on ${fmtShort.format(new Date(state.t))}.`);
+}
+$('home').addEventListener('click', () => { state.place = null; applyPosition(); computeFrame(); requestRender(false); syncPanel(); toast(`Back home. It is ${fmtT(state.t)}.`); });
+$('setLoc').addEventListener('click', () => {
+  if (!setHome(parseFloat($('lat').value), parseFloat($('lon').value), 'manual')) toast('Latitude must be between −90 and 90; longitude between −180 and 180.');
+  else toast(`Home set. The clock follows ${TZ.replace(/_/g, ' ')}.`);
+});
+const fold = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+function findCity(){
+  const q = fold($('city').value);
+  if (!q) return;
+  const c = CITIES.find(c => fold(c.name) === q) || CITIES.find(c => fold(c.name).startsWith(q)) || CITIES.find(c => fold(c.name).includes(q));
+  if (c){ travel(c); $('city').value = ''; }
+  else toast('That city is not in the list. Type its latitude and longitude instead.');
+}
+$('city').addEventListener('change', findCity);
+$('city').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); findCity(); } });
+function locate(asked){
+  if (!navigator.geolocation){ $('geo').hidden = true; if (asked) toast('This view cannot read your location. Find your city or type coordinates instead.'); return; }
+  navigator.geolocation.getCurrentPosition(
+    p => { setHome(round(p.coords.latitude*100)/100, round(p.coords.longitude*100)/100, 'device'); if (asked) toast('Position updated from this device.'); },
+    err => { if (err && err.code === 1) $('geo').hidden = true; if (asked) toast('Location access is blocked here. Find your city or type coordinates instead.'); },
+    {timeout: 10000, maximumAge: 6*3600000});
+}
+$('geo').addEventListener('click', () => locate(true));
+function setHeading(h){
+  state.heading = n360(h); store.set('heading', state.heading);
+  if (state.ori) stopCompass();
+  syncHeading(); computeFrame(); requestRender(true);
+}
+$('hdg').addEventListener('input', e => setHeading(+e.target.value));
+document.querySelectorAll('.quick .btn').forEach(b => b.addEventListener('click', () => setHeading(+b.dataset.h)));
+const comp = $('compass');
+comp.addEventListener('pointerdown', e => {
+  comp.setPointerCapture(e.pointerId);
+  const move = ev => {
+    const r = comp.getBoundingClientRect(), x = ev.clientX - r.left - r.width/2, y = ev.clientY - r.top - r.height/2;
+    // dragging marks where north is relative to the screen's top
+    setHeading(round(-atan2(x, -y)*DEG/5)*5);
+  };
+  move(e);
+  comp.onpointermove = move;
+  comp.onpointerup = comp.onpointercancel = () => { comp.onpointermove = null; };
+});
+
+// ===================== jumps to notable days =====================
+const sunLonDeg = ms => n360(sunCoords(jdOf(ms)).lambda*DEG);
+const SEASON = {0: 'March equinox', 90: 'June solstice', 180: 'September equinox', 270: 'December solstice'};
+function nextSolar(ms, targets){
+  let best = null;
+  for (const tg of targets){
+    const g = t => ((sunLonDeg(t) - tg + 540) % 360) - 180;
+    let ta = ms, ga = g(ta);
+    for (let i = 1; i <= 380; i++){
+      const tb = ms + i*DAY, gb = g(tb);
+      if (ga < 0 && gb >= 0 && gb - ga < 10){
+        let lo = ta, hi = tb;
+        for (let k = 0; k < 30; k++){ const mid = (lo + hi)/2; if (g(mid) < 0) lo = mid; else hi = mid; }
+        const t = (lo + hi)/2;
+        if (!best || t < best.t) best = {t, tg};
+        break;
+      }
+      ta = tb; ga = gb;
+    }
+  }
+  return best;
+}
+function doJump(kind){
+  stopPlay();
+  const ref = state.jumpRef;
+  const from = (ref && ref.kind === kind && ref.at === state.t ? max(ref.ev, state.t) : state.t) + 3600000;
+  const cur = parts(state.t);
+  let t, ev, msg;
+  if (kind === 'equinox' || kind === 'solstice'){
+    const e = nextSolar(from, kind === 'equinox' ? [0, 180] : [90, 270]);
+    if (!e) return;
+    ev = e.t; const p = parts(ev);
+    t = zoned(p.y, p.mo, p.d, cur.h, cur.mi);
+    msg = `${SEASON[e.tg]}: ${fmtLong.format(new Date(ev))}, exactly at ${fmtT(ev)}. Same clock time shown.`;
+  } else if (kind === 'full'){
+    ev = nextPhase(from, 180);
+    if (!ev) return;
+    let bt = ev, be = -99;
+    for (let d = -12*3600000; d <= 12*3600000; d += 600000){ const e = moonAt(ev + d, state.lat, state.lon).el; if (e > be){ be = e; bt = ev + d; } }
+    t = bt; msg = `Full moon: ${fmtLong.format(new Date(ev))}. Shown when it stands highest, at ${fmtT(bt)}.`;
+  } else {
+    ev = nextPhase(from, 0);
+    if (!ev) return;
+    const p = parts(ev);
+    t = zoned(p.y, p.mo, p.d, 23, 0);
+    msg = `New moon: ${fmtLong.format(new Date(ev))}. Shown at 11 pm that night, with no moonlight at all.`;
+  }
+  scrubTo(t);
+  state.jumpRef = {kind, at: state.t, ev};
+  toast(msg);
+}
+document.querySelectorAll('#jumps .btn').forEach(b => b.addEventListener('click', () => doJump(b.dataset.jump)));
+
+// ===================== phone compass =====================
+let oriSm = null, oriTimer = 0, oriGot = false;
+function oriMatrix(al, be, ga){
+  const a = al*RAD, b = be*RAD, g = ga*RAD, ca = cos(a), sa = sin(a), cb = cos(b), sb = sin(b), cg = cos(g), sg = sin(g);
+  return [ca*cg - sa*sb*sg, -sa*cb, ca*sg + sa*sb*cg, sa*cg + ca*sb*sg, ca*cb, sa*sg - ca*sb*cg, -cb*sg, sb, cb*cg];
+}
+function onOri(e){
+  let alpha = null;
+  if (typeof e.webkitCompassHeading === 'number' && !isNaN(e.webkitCompassHeading)) alpha = 360 - e.webkitCompassHeading;
+  else if (e.absolute && e.alpha != null) alpha = e.alpha;
+  if (alpha == null || e.beta == null || e.gamma == null) return;
+  oriGot = true;
+  if (!oriSm) oriSm = {a: alpha, b: e.beta, g: e.gamma};
+  else {
+    const da = ((alpha - oriSm.a + 540) % 360) - 180;
+    oriSm.a = n360(oriSm.a + da*0.25); oriSm.b += (e.beta - oriSm.b)*0.25; oriSm.g += (e.gamma - oriSm.g)*0.25;
+  }
+  const screenAng = (screen.orientation && typeof screen.orientation.angle === 'number') ? screen.orientation.angle : (window.orientation || 0);
+  const prev = state.ori;
+  state.ori = {R: oriMatrix(oriSm.a, oriSm.b, oriSm.g), screen: screenAng, a: oriSm.a, b: oriSm.b, g: oriSm.g};
+  if (!prev || abs(((prev.a - oriSm.a + 540) % 360) - 180) > 0.4 || abs(prev.b - oriSm.b) > 0.4 || abs(prev.g - oriSm.g) > 0.4){ computeFrame(); requestRender(true); }
+  else state.ori = prev;
+}
+async function startCompass(){
+  try {
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'){
+      const r = await DeviceOrientationEvent.requestPermission();
+      if (r !== 'granted'){ toast('Compass access was declined. Set the direction by hand.'); return; }
+    }
+  } catch (e) { toast('This view cannot read the compass. Set the direction by hand.'); return; }
+  oriGot = false; oriSm = null;
+  addEventListener('deviceorientationabsolute', onOri, true);
+  addEventListener('deviceorientation', onOri, true);
+  $('ori').textContent = 'Stop following the compass';
+  toast('Following the compass. Lay the phone flat for the truest shadows.');
+  clearTimeout(oriTimer);
+  oriTimer = setTimeout(() => { if (!oriGot){ stopCompass(); toast('No compass reading is available in this view. Set the direction by hand.'); } }, 3000);
+}
+function stopCompass(){
+  removeEventListener('deviceorientationabsolute', onOri, true);
+  removeEventListener('deviceorientation', onOri, true);
+  state.ori = null; oriSm = null; $('ori').textContent = 'Follow this phone’s compass';
+  computeFrame(); requestRender(false);
+}
+if ('DeviceOrientationEvent' in window && matchMedia('(pointer: coarse)').matches){
+  $('ori').hidden = false;
+  $('ori').addEventListener('click', () => state.ori || oriSm ? stopCompass() : startCompass());
+}
+
+// ===================== start =====================
+function fail(msg){ const f = $('fail'); f.style.display = 'grid'; f.textContent = msg; dock.style.display = 'none'; }
+function freshTextures(){ view.cardTex = makeTex(1, 1, null); view.dialTex = makeTex(1, 1, null); view.plotTex = makeTex(1, 1, null); cardKey = dialKey = plotKey = ''; }
+function start(){
+  if (!gl){ fail('This page needs WebGL to light the desk, and it is unavailable in this browser.'); return; }
+  try { initGL(); } catch (e) { fail('The lighting shader could not start on this device: ' + e.message); console.error(e); return; }
+  freshTextures(); setPlayIcon();
+  $('cities').innerHTML = CITIES.map(c => `<option value="${c.name}"></option>`).join('');
+  $('places').innerHTML = CITIES.filter(c => c.note).map(c => `<button class="chip" type="button" aria-pressed="false" data-name="${c.name}">${c.short}</button>`).join('');
+  document.querySelectorAll('#places .chip').forEach(b => b.addEventListener('click', () => {
+    const c = CITIES.find(x => x.name === b.dataset.name);
+    if (state.place && state.place.name === c.name){ $('home').click(); return; }
+    travel(c);
+  }));
+  resize(); computeFrame(); requestRender(true);
+  let rt = 0;
+  addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { resize(); cardKey = dialKey = plotKey = ''; computeFrame(); requestRender(true); }, 120); });
+  canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); });
+  canvas.addEventListener('webglcontextrestored', () => { initGL(); freshTextures(); resize(); computeFrame(); requestRender(true); });
+  // live: re-light every 20 s, and on each new minute
+  let lastMin = floor(Date.now()/60000), lastLive = Date.now();
+  setInterval(() => {
+    if (!state.live || state.playing || document.hidden) return;
+    const now = Date.now(), m = floor(now/60000);
+    if (m !== lastMin || now - lastLive > 20000){ lastMin = m; lastLive = now; computeFrame(); requestRender(false); }
+  }, 2000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && state.live){ computeFrame(); requestRender(false); } });
+  const fl = ['200 64px Spectral', '300 64px Spectral', '400 20px Spectral', 'italic 400 20px Spectral', 'italic 300 20px Spectral', '500 20px Spectral'];
+  if (document.fonts && document.fonts.load){
+    Promise.race([Promise.all(fl.map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 4000))])
+      .then(() => { fontsOK = true; computeFrame(); requestRender(false); });
+  }
+  if (!savedLoc) locate(false);
+  wake();
+}
+start();
+
+})();
+</script>
+
+</body></html>

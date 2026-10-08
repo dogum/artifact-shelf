@@ -1,0 +1,25 @@
+{
+  "name": "artifact-shelf",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A shelf of small interactive web artifacts, each one a single HTML file. Static site generator with zero runtime dependencies.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node tools/serve.mjs --watch",
+    "build": "node src/build.mjs",
+    "build:portable": "node src/build.mjs --portable",
+    "preview": "node src/build.mjs && node tools/serve.mjs",
+    "check": "node tools/check.mjs",
+    "add": "node tools/add.mjs",
+    "capture": "node tools/capture.mjs",
+    "test": "node tools/smoke.mjs",
+    "test:browser": "node tools/smoke.mjs --browser"
+  },
+  "devDependencies": {
+    "playwright": "1.56.0"
+  }
+}

@@ -1,0 +1,3791 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lamplight Shadow Theater</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Limelight&display=swap">
+<style>
+:root {
+  /* Layout: a dark house; a carved walnut proscenium holds the lamplit paper screen, the hand-shape card is pinned to its right */
+  color-scheme: dark;
+  --house: #0f0a07;
+  --house-glow: #2b1b11;
+  --wood: #4a2c1a;
+  --wood-hi: #80502d;
+  --wood-lo: #1d0f08;
+  --brass: #c8974b;
+  --brass-hi: #f1d293;
+  --brass-lo: #6f4c22;
+  --velvet: #6e1a1e;
+  --velvet-hi: #9b2d30;
+  --velvet-lo: #260507;
+  --card: #efe0bf;
+  --card-lo: #d9c497;
+  --ink: #2b1d13;
+  --ink-soft: #6c513a;
+  --lamp: #f7b85e;
+  --font-display: "Limelight", "Rockwell", Georgia, serif;
+  --font-body: "Andika", "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: radial-gradient(ellipse 80% 70% at 42% 34%, var(--house-glow), var(--house) 72%) fixed, var(--house);
+  color: var(--card);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; }
+
+.house {
+  min-height: 100%;
+  padding-block: 18px 24px;
+  padding-inline: 16px;
+  display: flex;
+  justify-content: center;
+}
+.row {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  max-width: 1560px;
+}
+.theater {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: calc((100vh - 150px) * 1.6 + 56px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- proscenium ---------- */
+.frame {
+  position: relative;
+  padding: clamp(10px, 1.7vw, 26px);
+  border-radius: 14px 14px 6px 6px;
+  background:
+    repeating-linear-gradient(92deg, rgba(0,0,0,.0) 0 7px, rgba(0,0,0,.10) 8px, rgba(255,220,170,.035) 11px, rgba(0,0,0,0) 14px),
+    repeating-linear-gradient(88deg, rgba(0,0,0,.0) 0 23px, rgba(30,10,0,.18) 26px, rgba(0,0,0,0) 31px),
+    linear-gradient(180deg, var(--wood-hi), var(--wood) 30%, #3a2213 70%, var(--wood-lo));
+  box-shadow:
+    0 0 0 1px #000,
+    inset 0 1px 0 rgba(255,210,150,.25),
+    inset 0 -2px 0 rgba(0,0,0,.5),
+    0 30px 80px rgba(0,0,0,.65),
+    0 0 120px rgba(247,184,94,.08);
+}
+.frame::before {
+  /* brass inner trim */
+  content: "";
+  position: absolute;
+  inset: calc(clamp(10px, 1.7vw, 26px) - 5px);
+  border-radius: 6px;
+  border: 2px solid var(--brass-lo);
+  box-shadow: inset 0 0 0 1px rgba(241,210,147,.35), 0 0 0 1px rgba(0,0,0,.6);
+  pointer-events: none;
+}
+.crest {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, -38%);
+  z-index: 6;
+  padding: 4px 22px 5px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--brass-hi), var(--brass) 45%, var(--brass-lo));
+  color: #3b230f;
+  font-family: var(--font-display);
+  font-size: clamp(13px, 1.3vw, 17px);
+  letter-spacing: .14em;
+  white-space: nowrap;
+  box-shadow: 0 2px 0 rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.5);
+  text-shadow: 0 1px 0 rgba(255,240,200,.6);
+}
+.stage-wrap {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #140b06;
+  box-shadow: inset 0 0 0 1px #000;
+  touch-action: none;
+}
+#stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* valance + curtains */
+.valance {
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 9%;
+  z-index: 5;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,.25) 0 1.2%, rgba(255,120,110,.10) 3%, rgba(0,0,0,.25) 6.25%),
+    linear-gradient(180deg, var(--velvet-lo), var(--velvet) 55%, var(--velvet-hi));
+  -webkit-mask: radial-gradient(50% 100% at 50% 0, #000 97%, transparent 100%) 0 45% / 6.25% 55% repeat-x, linear-gradient(#000, #000) 0 0 / 100% 46% no-repeat;
+          mask: radial-gradient(50% 100% at 50% 0, #000 97%, transparent 100%) 0 45% / 6.25% 55% repeat-x, linear-gradient(#000, #000) 0 0 / 100% 46% no-repeat;
+  filter: drop-shadow(0 3px 2px rgba(0,0,0,.5));
+}
+.curtain {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 50.5%;
+  z-index: 4;
+  pointer-events: none;
+  transition: width 2.1s cubic-bezier(.62,.04,.22,1);
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,0) 25%, rgba(0,0,0,0) 80%, rgba(0,0,0,.45)),
+    repeating-linear-gradient(90deg, var(--velvet-lo) 0, var(--velvet) 3.2%, var(--velvet-hi) 5%, var(--velvet) 6.8%, var(--velvet-lo) 10%);
+}
+.curtain.l { left: 0; box-shadow: 8px 0 18px rgba(0,0,0,.55); }
+.curtain.r { right: 0; box-shadow: -8px 0 18px rgba(0,0,0,.55); }
+.stage-wrap.open .curtain { width: 5.5%; }
+.curtain::after {
+  /* brass tieback, only shows once gathered */
+  content: "";
+  position: absolute;
+  top: 58%;
+  left: 10%; right: 10%;
+  height: 9px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, var(--brass-hi), var(--brass) 50%, var(--brass-lo));
+  box-shadow: 0 2px 3px rgba(0,0,0,.5);
+  opacity: 0;
+  transition: opacity .6s 1.6s;
+}
+.stage-wrap.open .curtain::after { opacity: 1; }
+
+/* intro panel */
+.intro {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 16px;
+  transition: opacity .7s;
+}
+.intro[hidden] { display: none !important; }
+.intro.fade { opacity: 0; pointer-events: none; }
+.intro-inner {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  max-width: 34em;
+}
+.intro h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(26px, 4.2vw, 54px);
+  letter-spacing: .04em;
+  line-height: 1.05;
+  color: var(--brass-hi);
+  text-shadow: 0 2px 0 #2a0a06, 0 0 30px rgba(247,184,94,.35);
+  text-wrap: balance;
+}
+.intro p {
+  margin: 0;
+  color: #f2dcc0;
+  font-size: clamp(13px, 1.25vw, 16px);
+  text-shadow: 0 1px 2px #000;
+  text-wrap: balance;
+}
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+  padding: 12px 26px 12px 14px;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  background: linear-gradient(180deg, var(--brass-hi), var(--brass) 50%, var(--brass-lo));
+  color: #34200d;
+  font-family: var(--font-display);
+  font-size: clamp(16px, 1.6vw, 21px);
+  letter-spacing: .06em;
+  box-shadow: 0 4px 0 #2c1a08, 0 10px 30px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.55);
+  transition: transform .15s, box-shadow .15s;
+}
+.switch:hover { transform: translateY(-1px); }
+.switch:active { transform: translateY(3px); box-shadow: 0 1px 0 #2c1a08, 0 6px 18px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.55); }
+.switch .bulb {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fff6d8, #f7b85e 45%, #9a5a1c 80%);
+  box-shadow: 0 0 14px rgba(255,200,110,.8), inset 0 -2px 3px rgba(0,0,0,.3);
+}
+.link-btn {
+  border: 0;
+  background: none;
+  color: #e8c99a;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+}
+.status-line {
+  min-height: 1.4em;
+  font-size: 14px;
+  color: #f6cf8f;
+}
+
+/* on-stage caption and hint */
+.caption {
+  position: absolute;
+  left: 50%;
+  top: 11%;
+  z-index: 6;
+  transform: translate(-50%, -8px);
+  padding: 8px 22px 9px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #f6e8c8, #e2cc9f);
+  color: var(--ink);
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,.45), inset 0 0 0 1px rgba(80,50,20,.35), inset 0 0 0 4px #f6e8c8, inset 0 0 0 5px rgba(80,50,20,.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .5s, transform .5s;
+  max-width: 80%;
+}
+.caption.show { opacity: 1; transform: translate(-50%, 0); }
+.caption b {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(16px, 2vw, 26px);
+  letter-spacing: .04em;
+  line-height: 1.1;
+}
+.caption span { display: block; font-size: clamp(12px, 1.1vw, 15px); color: var(--ink-soft); }
+.hint {
+  position: absolute;
+  left: 50%;
+  bottom: 3.5%;
+  z-index: 6;
+  transform: translateX(-50%);
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: rgba(30, 14, 6, .55);
+  color: #f7dfb8;
+  font-size: clamp(12px, 1.1vw, 15px);
+  max-width: 92%;
+  width: max-content;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .8s;
+}
+.hint.show { opacity: 1; }
+
+/* apron: the wooden shelf under the stage */
+.apron {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin: 0 10px;
+  padding: 10px 16px 12px;
+  border-radius: 0 0 12px 12px;
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,0) 0 9px, rgba(0,0,0,.12) 10px, rgba(0,0,0,0) 13px),
+    linear-gradient(180deg, #2a170c, var(--wood) 30%, #2b180d);
+  box-shadow: 0 14px 30px rgba(0,0,0,.6), inset 0 2px 4px rgba(0,0,0,.6);
+}
+.controls { display: flex; flex-wrap: wrap; gap: 8px; }
+.knob {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 13px 6px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(241,210,147,.35);
+  background: linear-gradient(180deg, rgba(255,230,190,.10), rgba(0,0,0,.25));
+  color: #f3dcb6;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+}
+.knob:hover { border-color: var(--brass); background: linear-gradient(180deg, rgba(255,230,190,.18), rgba(0,0,0,.2)); }
+.knob[aria-pressed="true"] { border-color: var(--brass-hi); color: #fff1d6; }
+.knob .dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #5a3a22;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.6);
+}
+.knob[aria-pressed="true"] .dot { background: var(--lamp); box-shadow: 0 0 8px var(--lamp); }
+.knob:disabled { opacity: .45; cursor: default; }
+.tracking {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #d9bc92;
+  font-size: 13px;
+}
+.tracking .led {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #4b3322;
+}
+.tracking.on .led { background: #f7c46e; box-shadow: 0 0 8px #f7c46e; }
+.peek {
+  position: absolute;
+  left: 14px;
+  bottom: calc(100% + 12px);
+  z-index: 9;
+  width: clamp(150px, 18vw, 230px);
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+  border: 2px solid var(--brass);
+  box-shadow: 0 8px 24px rgba(0,0,0,.6);
+}
+.peek canvas { width: 100%; height: 100%; display: block; }
+.peek-label {
+  position: absolute;
+  left: 6px; top: 4px;
+  font-size: 11px;
+  color: #fff;
+  text-shadow: 0 1px 2px #000;
+}
+
+/* ---------- the card ---------- */
+.card {
+  position: relative;
+  flex: 0 0 338px;
+  max-height: calc(100vh - 42px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  margin-top: 6px;
+  padding: 20px 18px 18px;
+  border-radius: 4px;
+  transform: rotate(.6deg);
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(255,255,255,.35), transparent 50%),
+    radial-gradient(ellipse at 90% 95%, rgba(120,80,30,.18), transparent 55%),
+    linear-gradient(180deg, var(--card), var(--card-lo));
+  box-shadow: 0 1px 0 rgba(255,255,255,.4) inset, 0 14px 34px rgba(0,0,0,.6), 0 2px 4px rgba(0,0,0,.4);
+}
+.tack {
+  position: absolute;
+  top: 9px; left: 50%;
+  width: 14px; height: 14px;
+  margin-left: -7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff1c9, var(--brass) 45%, #5b3a14);
+  box-shadow: 0 2px 2px rgba(0,0,0,.45);
+}
+.card h2 {
+  margin: 8px 0 2px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 25px;
+  letter-spacing: .04em;
+  text-align: center;
+  color: #3a2414;
+}
+.card .lede {
+  margin: 0 0 12px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--ink-soft);
+  text-wrap: balance;
+}
+.shapes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.shape {
+  position: relative;
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr) 52px;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 8px 5px 5px;
+  border-radius: 6px;
+  background: rgba(255,255,255,.22);
+  box-shadow: inset 0 0 0 1px rgba(90,60,30,.18);
+  cursor: default;
+  overflow: hidden;
+  transition: background .3s, box-shadow .3s;
+}
+.mouse-mode .shape { cursor: pointer; }
+.mouse-mode .shape:hover { background: rgba(255,255,255,.38); }
+.shape .fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  background: linear-gradient(90deg, rgba(247,184,94,.0), rgba(247,184,94,.55));
+  pointer-events: none;
+}
+.shape.seen { background: rgba(255,240,205,.6); box-shadow: inset 0 0 0 2px rgba(200,140,60,.7); }
+.shape.born { animation: born .9s ease-out; }
+@keyframes born { 0% { box-shadow: inset 0 0 0 2px #f7b85e, 0 0 26px #f7b85e; background: #fff4d8; } 100% { } }
+.shape canvas { display: block; width: 100%; position: relative; }
+.shape .hand { height: 58px; border-radius: 4px; }
+.shape .beast { height: 44px; }
+.shape .txt { position: relative; min-width: 0; }
+.shape .txt b { display: block; font-size: 16px; line-height: 1.15; }
+.shape .txt small { display: block; font-size: 12.5px; line-height: 1.3; color: var(--ink-soft); }
+.shape .tag {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  vertical-align: 2px;
+  background: rgba(110,70,30,.15);
+  color: #6a4520;
+}
+.card h3 {
+  margin: 14px 0 6px;
+  font-size: 13px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #7a5a3c;
+}
+.tricks ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 13.5px; }
+.tricks li { display: grid; grid-template-columns: 22px 1fr; gap: 6px; align-items: start; }
+.tricks li i { font-style: normal; width: 22px; height: 18px; display: block; }
+.tricks canvas { width: 22px; height: 18px; display: block; }
+.cast ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.cast li {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  font-size: 13.5px;
+  line-height: 1.25;
+}
+.cast li canvas { width: 40px; height: 28px; display: block; }
+.cast li b { font-size: 14.5px; }
+.cast li .what { color: var(--ink-soft); font-size: 12.5px; }
+.cast .empty { margin: 0; font-size: 13.5px; color: var(--ink-soft); font-style: italic; }
+.privacy {
+  margin: 14px 0 0;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(90,60,30,.35);
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 980px) {
+  .row { flex-direction: column; align-items: center; }
+  .theater { max-width: 100%; width: 100%; }
+  .card { flex: none; width: 100%; max-width: 560px; max-height: none; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .curtain, .caption, .intro { transition: none; }
+}
+</style>
+</head>
+<body>
+<main class="house">
+  <div class="row">
+    <section class="theater" aria-label="Shadow theater stage">
+      <div class="frame">
+        <div class="crest">LAMPLIGHT</div>
+        <div class="stage-wrap" id="stageWrap">
+          <canvas id="stage" aria-label="Paper screen with shadows"></canvas>
+          <div class="curtain l"></div>
+          <div class="curtain r"></div>
+          <div class="valance"></div>
+          <div class="caption" id="caption"><b></b><span></span></div>
+          <div class="hint" id="hint"></div>
+          <div class="intro" id="intro">
+            <div class="intro-inner">
+              <h1>Lamplight Shadow Theater</h1>
+              <p>Make a hand shadow, hold it still, and watch it come alive.</p>
+              <button class="switch" id="lampBtn" type="button"><span class="bulb"></span>Light the lamp</button>
+              <div class="status-line" id="status"></div>
+              <p>Your camera is only used to find your hands. The picture stays on this computer and is never saved or sent.</p>
+              <button class="link-btn" id="mouseBtn" type="button">No camera? Play with the mouse</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="apron">
+        <div class="peek" id="peek" hidden><canvas id="peekCanvas" width="320" height="240"></canvas><span class="peek-label" id="peekLabel">camera</span></div>
+        <div class="tracking" id="tracking"><span class="led"></span><span id="trackingText">Lamp is off</span></div>
+        <div class="controls">
+          <button class="knob" id="soundBtn" type="button" aria-pressed="true"><span class="dot"></span>Sound</button>
+          <button class="knob" id="peekBtn" type="button" aria-pressed="false" disabled><span class="dot"></span>Peek at camera</button>
+          <button class="knob" id="bowBtn" type="button" disabled><span class="dot"></span>Curtain call</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="card" id="card" aria-label="Hand shapes and cast">
+      <div class="tack"></div>
+      <h2>Hand Shapes</h2>
+      <p class="lede">Make a shape and hold it still until the light gathers.</p>
+      <ul class="shapes" id="shapes"></ul>
+      <div class="tricks">
+        <h3>Then try</h3>
+        <ul id="tricks"></ul>
+      </div>
+      <div class="cast">
+        <h3>Tonight's Cast</h3>
+        <ul id="cast"></ul>
+        <p class="empty" id="castEmpty">The stage is empty. Who will come out first?</p>
+      </div>
+      <p class="privacy">Hand tracking runs inside this browser tab. The hand-tracking model downloads once from a public code library; no video ever leaves this computer.</p>
+    </aside>
+  </div>
+</main>
+<script type="module">
+// ---- 01-util.js ----
+'use strict';
+// ---------- small math + canvas helpers ----------
+const TAU = Math.PI * 2, DEG = Math.PI / 180;
+const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+const lerp = (a, b, t) => a + (b - a) * t;
+const invLerp = (a, b, v) => clamp((v - a) / (b - a), 0, 1);
+const smoothstep = (a, b, v) => { const t = invLerp(a, b, v); return t * t * (3 - 2 * t); };
+const easeOutCubic = t => 1 - Math.pow(1 - clamp(t, 0, 1), 3);
+const easeInOut = t => { t = clamp(t, 0, 1); return t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; };
+const easeOutBack = t => { t = clamp(t, 0, 1); const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+const rand = (a = 1, b) => (b === undefined ? Math.random() * a : a + Math.random() * (b - a));
+const chance = p => Math.random() < p;
+const pick = arr => arr[(Math.random() * arr.length) | 0];
+const approach = (v, target, rate, dt) => v + (target - v) * (1 - Math.exp(-rate * dt));
+const sign = v => (v < 0 ? -1 : 1);
+
+const V3 = {
+  v: (x, y, z = 0) => ({ x, y, z }),
+  sub: (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: (a.z || 0) - (b.z || 0) }),
+  add: (a, b) => ({ x: a.x + b.x, y: a.y + b.y, z: (a.z || 0) + (b.z || 0) }),
+  scale: (a, s) => ({ x: a.x * s, y: a.y * s, z: (a.z || 0) * s }),
+  dot: (a, b) => a.x * b.x + a.y * b.y + (a.z || 0) * (b.z || 0),
+  cross: (a, b) => ({ x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x }),
+  len: a => Math.hypot(a.x, a.y, a.z || 0),
+  norm: a => { const l = Math.hypot(a.x, a.y, a.z || 0) || 1; return { x: a.x / l, y: a.y / l, z: (a.z || 0) / l }; },
+  mid: (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, z: ((a.z || 0) + (b.z || 0)) / 2 }),
+};
+function angDeg(a, b) {
+  const la = V3.len(a), lb = V3.len(b);
+  if (la < 1e-9 || lb < 1e-9) return 0;
+  return Math.acos(clamp(V3.dot(a, b) / (la * lb), -1, 1)) / DEG;
+}
+const d3 = (a, b) => Math.hypot(a.x - b.x, a.y - b.y, (a.z || 0) - (b.z || 0));
+const d2 = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+function segPointDist(px, py, ax, ay, bx, by) {
+  const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+  let t = l2 > 0 ? ((px - ax) * dx + (py - ay) * dy) / l2 : 0;
+  t = clamp(t, 0, 1);
+  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+}
+function segSegDist(a, b, c, d) {
+  // 2D distance between segments ab and cd
+  const ccw = (p, q, r) => (r.y - p.y) * (q.x - p.x) - (q.y - p.y) * (r.x - p.x);
+  const d1 = ccw(a, b, c), d2_ = ccw(a, b, d), d3_ = ccw(c, d, a), d4 = ccw(c, d, b);
+  if (((d1 > 0) !== (d2_ > 0)) && ((d3_ > 0) !== (d4 > 0))) return 0;
+  return Math.min(
+    segPointDist(a.x, a.y, c.x, c.y, d.x, d.y), segPointDist(b.x, b.y, c.x, c.y, d.x, d.y),
+    segPointDist(c.x, c.y, a.x, a.y, b.x, b.y), segPointDist(d.x, d.y, a.x, a.y, b.x, b.y));
+}
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function makeCanvas(w, h) {
+  const c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(w));
+  c.height = Math.max(1, Math.round(h));
+  return c;
+}
+class OneEuro {
+  constructor(minCutoff = 1.5, beta = 6, dCutoff = 1) { this.minCutoff = minCutoff; this.beta = beta; this.dCutoff = dCutoff; this.x = null; this.dx = 0; }
+  static alpha(cutoff, dt) { const tau = 1 / (TAU * cutoff); return 1 / (1 + tau / dt); }
+  reset() { this.x = null; this.dx = 0; }
+  filter(x, dt) {
+    if (this.x === null || !(dt > 0)) { this.x = x; this.dx = 0; return x; }
+    const dx = (x - this.x) / dt;
+    this.dx += OneEuro.alpha(this.dCutoff, dt) * (dx - this.dx);
+    const cutoff = this.minCutoff + this.beta * Math.abs(this.dx);
+    this.x += OneEuro.alpha(cutoff, dt) * (x - this.x);
+    return this.x;
+  }
+}
+// smooth pseudo-random wobble in roughly [-1, 1]
+function wobble(t, seed = 0) {
+  return Math.sin(t * 1.71 + seed) * 0.5 + Math.sin(t * 2.93 + 1.3 + seed * 2.1) * 0.3 + Math.sin(t * 7.37 + 0.7 + seed * 0.7) * 0.14 + Math.sin(t * 13.1 + 2.1 + seed) * 0.06;
+}
+// blend keyframed pose parameters: keys.base plus weighted deltas
+function blendKeys(keys, weights) {
+  const base = keys.base, out = Object.assign({}, base);
+  for (const k in weights) {
+    const w = weights[k];
+    if (!w) continue;
+    const K = keys[k];
+    if (!K) continue;
+    for (const p in K) out[p] += (K[p] - base[p]) * w;
+  }
+  return out;
+}
+
+// ---- 02-handmodel.js ----
+// ---------- a small kinematic hand model ----------
+// Produces the same 21 landmarks MediaPipe reports. Used for the card illustrations,
+// the mouse hand, and for testing the recognizer without a camera.
+// Local frame: units of palm length (wrist to middle knuckle = 1), x toward the thumb,
+// y along the fingers, z out of the palm.
+const HandModel = (() => {
+  const FING = {
+    index:  { mcp: [0.27, 0.93, 0],  len: [0.46, 0.27, 0.24], dir: 7 },
+    middle: { mcp: [0.02, 1.00, 0],  len: [0.50, 0.31, 0.26], dir: 0 },
+    ring:   { mcp: [-0.21, 0.95, 0], len: [0.47, 0.29, 0.25], dir: -7 },
+    pinky:  { mcp: [-0.40, 0.83, 0], len: [0.37, 0.23, 0.22], dir: -15 },
+  };
+  const NAMES = ['index', 'middle', 'ring', 'pinky'];
+  const CMC = [0.24, 0.25, 0.06], TL = [0.40, 0.32, 0.27];
+  const v = V3.v, Z = v(0, 0, 1);
+  const arr = a => v(a[0], a[1], a[2]);
+
+  function finger(name, f = {}) {
+    const B = FING[name];
+    const a = (B.dir + (f.spread || 0)) * DEG;
+    const base = v(Math.sin(a), Math.cos(a), 0);
+    const fl = f.flex || [0, 0, 0];
+    let p = arr(B.mcp), th = 0;
+    const out = [p];
+    for (let i = 0; i < 3; i++) {
+      th += fl[i] * DEG;
+      const d = V3.add(V3.scale(base, Math.cos(th)), V3.scale(Z, Math.sin(th)));
+      p = V3.add(p, V3.scale(d, B.len[i]));
+      out.push(p);
+    }
+    return out;
+  }
+  function thumbDirect(t) {
+    const abd = (t.abd ?? 40) * DEG, opp = (t.opp ?? 10) * DEG, fl = t.flex || [10, 10];
+    const u = v(Math.sin(abd), Math.cos(abd), 0);
+    const d0 = V3.norm(V3.add(V3.scale(u, Math.cos(opp)), V3.scale(Z, Math.sin(opp))));
+    let b = v(-0.7, 0, 0.7);
+    b = V3.norm(V3.sub(b, V3.scale(d0, V3.dot(b, d0))));
+    let p = arr(CMC), th = 0;
+    const pts = [p];
+    for (let i = 0; i < 3; i++) {
+      if (i > 0) th += fl[i - 1] * DEG;
+      const d = V3.add(V3.scale(d0, Math.cos(th)), V3.scale(b, Math.sin(th)));
+      p = V3.add(p, V3.scale(d, TL[i]));
+      pts.push(p);
+    }
+    return pts;
+  }
+  function thumbTouch(target, bulge = 1) {
+    const C = arr(CMC);
+    const L = V3.len(V3.sub(target, C));
+    const K = V3.add(V3.mid(C, target), v(0.28 * L * bulge, -0.05 * L, 0.22 * L * bulge));
+    const q = t => {
+      const a = (1 - t) * (1 - t), b = 2 * (1 - t) * t, c = t * t;
+      return v(a * C.x + b * K.x + c * target.x, a * C.y + b * K.y + c * target.y, a * C.z + b * K.z + c * target.z);
+    };
+    return [C, q(0.40), q(0.72), target];
+  }
+  function build(pose) {
+    const F = pose.fingers || {};
+    const fp = {};
+    for (const n of NAMES) fp[n] = finger(n, F[n]);
+    const T = pose.thumb || {};
+    const th = T.touch ? thumbTouch(T.touch(fp), T.bulge ?? 1) : thumbDirect(T);
+    return [v(0, 0, 0), ...th, ...fp.index, ...fp.middle, ...fp.ring, ...fp.pinky];
+  }
+  function rotate(pts, view = {}, mirror = false) {
+    const r = (view.roll || 0) * DEG, p = (view.pitch || 0) * DEG, y = (view.yaw || 0) * DEG;
+    const cr = Math.cos(r), sr = Math.sin(r), cp = Math.cos(p), sp = Math.sin(p), cy = Math.cos(y), sy = Math.sin(y);
+    return pts.map(q => {
+      let x = mirror ? -q.x : q.x, yy = q.y, z = mirror ? q.z : q.z;
+      // roll about z
+      let x1 = x * cr - yy * sr, y1 = x * sr + yy * cr, z1 = z;
+      // pitch about x
+      let y2 = y1 * cp - z1 * sp, z2 = y1 * sp + z1 * cp, x2 = x1;
+      // yaw about y
+      let x3 = x2 * cy + z2 * sy, z3 = -x2 * sy + z2 * cy;
+      return v(x3, y2, z3);
+    });
+  }
+  // project (y-up model space) to screen-ish space (y down); z positive = toward viewer
+  function toScreen(pts, cx, cy, scale) {
+    return pts.map(p => ({ x: cx + p.x * scale, y: cy - p.y * scale, z: -p.z * scale }));
+  }
+  const mid = (a, b, t = 0.5) => v(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t));
+  const avg = pts => V3.scale(pts.reduce((s, p) => V3.add(s, p), v(0, 0, 0)), 1 / pts.length);
+
+  const POSES = {
+    open: {
+      fingers: { index: { spread: 4, flex: [4, 4, 2] }, middle: { flex: [3, 3, 2] }, ring: { spread: -3, flex: [4, 5, 2] }, pinky: { spread: -7, flex: [5, 6, 3] } },
+      thumb: { abd: 52, opp: 6, flex: [6, 8] }, view: { roll: 0 },
+    },
+    relaxed: {
+      fingers: { index: { spread: 2, flex: [14, 20, 10] }, middle: { flex: [16, 24, 10] }, ring: { flex: [18, 26, 12] }, pinky: { spread: -3, flex: [20, 28, 12] } },
+      thumb: { abd: 36, opp: 24, flex: [10, 16] }, view: { roll: 8, yaw: 10 },
+    },
+    rabbit: {
+      fingers: { index: { spread: 5, flex: [0, 4, 3] }, middle: { spread: -5, flex: [0, 4, 3] }, ring: { flex: [82, 100, 50] }, pinky: { flex: [82, 100, 50] } },
+      thumb: { touch: f => V3.add(mid(f.ring[1], f.ring[2]), v(0.06, 0, 0.10)), bulge: 0.6 },
+      view: { roll: 14, yaw: 15 },
+    },
+    fox: {
+      fingers: { index: { spread: 6, flex: [3, 4, 3] }, middle: { spread: -2, flex: [58, 42, 14] }, ring: { spread: 3, flex: [58, 42, 14] }, pinky: { spread: -9, flex: [3, 4, 3] } },
+      thumb: { touch: f => V3.add(mid(f.middle[3], f.ring[3]), v(0, 0, 0.03)), bulge: 0.7 },
+      view: { yaw: -45, pitch: 20, roll: 4 },
+    },
+    dog: {
+      fingers: { index: { spread: -9, flex: [2, 3, 2] }, middle: { spread: 0, flex: [2, 3, 2] }, ring: { spread: 8, flex: [2, 3, 2] }, pinky: { spread: -22, flex: [8, 6, 4] } },
+      thumb: { abd: 84, opp: -4, flex: [2, 4] },
+      view: { roll: 90 },
+    },
+    swan: {
+      fingers: { index: { spread: -11, flex: [34, 24, 12] }, middle: { spread: -2, flex: [32, 22, 10] }, ring: { spread: 7, flex: [34, 24, 12] }, pinky: { spread: 17, flex: [38, 28, 14] } },
+      thumb: { touch: f => V3.add(avg([f.index[3], f.middle[3], f.ring[3], f.pinky[3]]), v(0.02, -0.02, 0.03)), bulge: 0.5 },
+      view: { roll: -90, pitch: 72 },
+    },
+    birdHand: {
+      fingers: { index: { spread: 9, flex: [2, 3, 2] }, middle: { spread: 2, flex: [2, 3, 2] }, ring: { spread: -4, flex: [3, 4, 2] }, pinky: { spread: -11, flex: [4, 5, 3] } },
+      thumb: { abd: 82, opp: 0, flex: [0, 6] },
+    },
+    pinch: {
+      fingers: { index: { spread: 2, flex: [38, 48, 22] }, middle: { flex: [10, 10, 5] }, ring: { spread: -3, flex: [12, 12, 6] }, pinky: { spread: -7, flex: [14, 14, 6] } },
+      thumb: { touch: f => V3.add(f.index[3], v(0, 0, 0.02)), bulge: 0.9 },
+      view: { roll: 6, yaw: 25 },
+    },
+    // shapes that should NOT trigger anything (used by tests)
+    fist: {
+      fingers: { index: { flex: [85, 100, 55] }, middle: { flex: [88, 100, 55] }, ring: { flex: [88, 100, 55] }, pinky: { flex: [88, 100, 55] } },
+      thumb: { touch: f => V3.add(mid(f.index[1], f.middle[1]), v(0, -0.02, 0.12)), bulge: 0.5 },
+    },
+    point: {
+      fingers: { index: { flex: [0, 3, 2] }, middle: { flex: [85, 100, 55] }, ring: { flex: [85, 100, 55] }, pinky: { flex: [85, 100, 55] } },
+      thumb: { touch: f => V3.add(f.middle[2], v(0.02, 0, 0.1)), bulge: 0.5 },
+    },
+    thumbsUp: {
+      fingers: { index: { flex: [85, 100, 55] }, middle: { flex: [88, 100, 55] }, ring: { flex: [88, 100, 55] }, pinky: { flex: [88, 100, 55] } },
+      thumb: { abd: 10, opp: 0, flex: [0, 0] },
+    },
+    spread: {
+      fingers: { index: { spread: 14, flex: [3, 4, 2] }, middle: { spread: 2, flex: [3, 4, 2] }, ring: { spread: -10, flex: [4, 4, 2] }, pinky: { spread: -22, flex: [4, 5, 3] } },
+      thumb: { abd: 70, opp: 0, flex: [0, 4] },
+    },
+  };
+
+  // returns { pts3: rotated model points (y-up), screen: projected points }
+  function pose(name, view, mirror = false) {
+    const P = POSES[name];
+    return rotate(build(P), view || P.view || {}, mirror);
+  }
+  // Two hands hooked at the thumbs (the bird). Returns [leftPts, rightPts] in model space.
+  function birdPair(spreadRoll = 52) {
+    const base = build(POSES.birdHand);
+    const L = rotate(base, { roll: spreadRoll }, false);
+    const d = (L[4].x + L[3].x) / 2;
+    const left = L.map(p => v(p.x - d, p.y, p.z));
+    const right = rotate(base, { roll: -spreadRoll }, true).map(p => v(p.x + d, p.y, p.z + 0.05));
+    return [left, right];
+  }
+  function interpolate(a, b, t) { return a.map((p, i) => mid(p, b[i], t)); }
+  return { POSES, build, rotate, toScreen, pose, birdPair, interpolate };
+})();
+
+// ---- 03-recognize.js ----
+// ---------- hand-shape recognizer ----------
+// img: 21 points in a uniform screen unit (y down). world: 21 points in any uniform metric unit
+// (MediaPipe world landmarks, or the hand model). Angles and ratios come from world points so they
+// do not depend on how the hand is turned; orientation checks (dog) use image points.
+const Recognizer = (() => {
+  const FINGERS = { index: [5, 6, 7, 8], middle: [9, 10, 11, 12], ring: [13, 14, 15, 16], pinky: [17, 18, 19, 20] };
+  const T = { // thresholds, kept in one place for tuning
+    extBend: 62, extTotal: 90, extReach: 1.10,
+    curlBend: 92, curlTotal: 135, curlReach: 0.98,
+    foxTip: 0.52, foxTip2: 0.6,
+    swanTip: 0.52, swanTipRing: 0.6, swanTipPinky: 0.72, swanReach: 0.92,
+    dogTogether: 0.45, dogThumbOut: 0.52, dogHoriz: 1.25, dogThumbUp: 0.5,
+    pinchOn: 0.27, pinchOff: 0.42, pinchMiddle: 0.45,
+    birdThumb: 0.55, birdWrist: 0.6,
+  };
+
+  function features(img, W) {
+    const palm = d3(W[0], W[9]) || 1e-6;
+    const d = (i, j) => d3(W[i], W[j]) / palm;
+    const ang = (a, b, c) => angDeg(V3.sub(W[b], W[a]), V3.sub(W[c], W[b]));
+    const f = {};
+    for (const n in FINGERS) {
+      const [m, p, q, t] = FINGERS[n];
+      const am = ang(0, m, p), ap = ang(m, p, q), ad = ang(p, q, t);
+      const bend = ap + ad, total = am + ap + ad;
+      const reach = d(0, t) / Math.max(1e-6, d(0, p));
+      f[n] = {
+        am, ap, ad, bend, total, reach,
+        ext: bend < T.extBend && total < T.extTotal && reach > T.extReach,
+        loose: bend < 75 && reach > 1.06,
+        curled: bend > T.curlBend || total > T.curlTotal || reach < T.curlReach,
+      };
+    }
+    const tb = ang(1, 2, 3) + ang(2, 3, 4);
+    const thumb = { bend: tb, ext: tb < 55 && d(4, 5) > T.dogThumbOut };
+    // image-space orientation
+    const fd = V3.add(V3.sub(img[8], img[5]), V3.sub(img[12], img[9]));
+    const horizontal = Math.abs(fd.y) < T.dogHoriz * Math.abs(fd.x);
+    const td = V3.sub(img[4], img[2]);
+    const tl = Math.hypot(td.x, td.y) || 1e-6;
+    const thumbUp = td.y < 0 && -td.y / tl > T.dogThumbUp;
+    const imgPalm = d3(img[0], img[9]);
+    return { palm, d, f, thumb, horizontal, thumbUp, imgPalm };
+  }
+
+  function classify(img, W) {
+    const F = features(img, W);
+    const { f, d, thumb } = F;
+    const E = n => f[n].ext, L = n => f[n].loose, C = n => f[n].curled;
+    let gesture = null;
+    const tipsNear = d(4, 8) < T.swanTip && d(4, 12) < T.swanTip && d(4, 16) < T.swanTipRing && d(4, 20) < T.swanTipPinky;
+    if (tipsNear && d(0, 8) > T.swanReach && d(0, 12) > T.swanReach) gesture = 'swan';
+    else if (L('index') && L('pinky') && !E('middle') && !E('ring') && d(4, 12) < T.foxTip && d(4, 16) < T.foxTip2) gesture = 'fox';
+    else if (L('index') && L('middle') && C('ring') && C('pinky') && (E('index') || E('middle'))) gesture = 'rabbit';
+    else if (L('index') && L('middle') && L('ring') && d(8, 12) < T.dogTogether && d(12, 16) < T.dogTogether + 0.02 &&
+             thumb.ext && F.horizontal && F.thumbUp && d(4, 8) > 0.6) gesture = 'dog';
+    const pinchD = d(4, 8);
+    const pinch = gesture !== 'swan' && gesture !== 'fox' && pinchD < T.pinchOn && d(4, 12) > T.pinchMiddle;
+    const open = ['index', 'middle', 'ring', 'pinky'].filter(n => f[n].loose).length;
+    return { gesture, pinch, pinchD, open, F };
+  }
+
+  // two hands hooked at the thumbs with fingers spread: the bird
+  function isBirdPair(a, b) {
+    if (!a.cls || !b.cls) return false;
+    if (a.cls.open < 3 || b.cls.open < 3) return false;
+    const A = a.img, B = b.img;
+    const pa = d2(A[0], A[9]), pb = d2(B[0], B[9]);
+    const avg = (pa + pb) / 2 || 1e-6;
+    if (d2(A[0], B[0]) < T.birdWrist * avg) return false;
+    let m = Infinity;
+    for (const [i, j] of [[2, 3], [3, 4]]) for (const [k, l] of [[2, 3], [3, 4]]) m = Math.min(m, segSegDist(A[i], A[j], B[k], B[l]));
+    return m < T.birdThumb * avg;
+  }
+  return { features, classify, isBirdPair, T };
+})();
+
+// ---- 04-paper.js ----
+// ---------- the paper screen and the lamp behind it ----------
+const SHADOW_RGB = [44, 26, 16];          // what a full shadow multiplies the lit paper by (deep warm brown)
+const SHADOW_CSS = `rgb(${SHADOW_RGB.join(',')})`;
+const HAND_SHADOW_CSS = `rgba(${SHADOW_RGB.join(',')},0.85)`;
+
+const Paper = (() => {
+  function noiseLayer(g, w, h, cell, alpha, rnd, dark = true) {
+    const nw = Math.ceil(w / cell) + 3, nh = Math.ceil(h / cell) + 3;
+    const n = makeCanvas(nw, nh), ng = n.getContext('2d');
+    const id = ng.createImageData(nw, nh);
+    for (let i = 0; i < nw * nh; i++) {
+      const v = rnd();
+      const o = i * 4;
+      if (dark) { id.data[o] = 96; id.data[o + 1] = 60; id.data[o + 2] = 28; }
+      else { id.data[o] = 255; id.data[o + 1] = 248; id.data[o + 2] = 228; }
+      id.data[o + 3] = Math.round(255 * v * v);
+    }
+    ng.putImageData(id, 0, 0);
+    g.save();
+    g.globalAlpha = alpha;
+    g.imageSmoothingEnabled = true;
+    g.imageSmoothingQuality = 'high';
+    g.drawImage(n, -cell * 1.5, -cell * 1.5, nw * cell, nh * cell);
+    g.restore();
+  }
+
+  // Washi-like paper: mottled pulp, long wavy fibers, fine grain, one glued seam between sheets.
+  function makeTexture(w, h, seed = 7) {
+    const rnd = mulberry32(seed);
+    const c = makeCanvas(w, h), g = c.getContext('2d');
+    g.fillStyle = '#f4e6c8';
+    g.fillRect(0, 0, w, h);
+    const k = h / 900; // scale features with resolution
+    noiseLayer(g, w, h, 160 * k, 0.16, rnd, true);
+    noiseLayer(g, w, h, 46 * k, 0.12, rnd, true);
+    noiseLayer(g, w, h, 70 * k, 0.10, rnd, false);
+    noiseLayer(g, w, h, 12 * k, 0.07, rnd, true);
+    // fibers: backlit pulp shows fibers as darker threads, a few as bright ones
+    const count = Math.round((w * h) / (2400 * k * k));
+    g.lineCap = 'round';
+    for (let i = 0; i < count; i++) {
+      const x = rnd() * w, y = rnd() * h;
+      const len = (14 + rnd() * rnd() * 140) * k;
+      const a = rnd() * TAU;
+      const bend = (rnd() - 0.5) * len * 0.8;
+      const ex = x + Math.cos(a) * len, ey = y + Math.sin(a) * len;
+      const mx = (x + ex) / 2 + Math.cos(a + Math.PI / 2) * bend, my = (y + ey) / 2 + Math.sin(a + Math.PI / 2) * bend;
+      const bright = rnd() < 0.22;
+      g.strokeStyle = bright ? `rgba(255,250,232,${0.10 + rnd() * 0.16})` : `rgba(105,66,30,${0.035 + rnd() * 0.08})`;
+      g.lineWidth = (0.5 + rnd() * rnd() * 2.2) * k;
+      g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(mx, my, ex, ey); g.stroke();
+    }
+    // a few pulp clumps
+    for (let i = 0; i < count / 40; i++) {
+      const x = rnd() * w, y = rnd() * h, r = (2 + rnd() * 6) * k;
+      const gr = g.createRadialGradient(x, y, 0, x, y, r);
+      gr.addColorStop(0, `rgba(110,70,30,${0.06 + rnd() * 0.08})`);
+      gr.addColorStop(1, 'rgba(110,70,30,0)');
+      g.fillStyle = gr;
+      g.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+    // glued seam where two sheets overlap: slightly denser (darker when backlit)
+    const sx = w * 0.618;
+    const sg = g.createLinearGradient(sx - 9 * k, 0, sx + 9 * k, 0);
+    sg.addColorStop(0, 'rgba(90,55,25,0)');
+    sg.addColorStop(0.3, 'rgba(90,55,25,0.07)');
+    sg.addColorStop(0.7, 'rgba(90,55,25,0.07)');
+    sg.addColorStop(1, 'rgba(90,55,25,0)');
+    g.fillStyle = sg;
+    g.fillRect(sx - 9 * k, 0, 18 * k, h);
+    // fine grain
+    const id = g.getImageData(0, 0, w, h), d = id.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const n = (rnd() - 0.5) * 14;
+      d[i] += n; d[i + 1] += n; d[i + 2] += n * 0.8;
+    }
+    g.putImageData(id, 0, 0);
+    return c;
+  }
+
+  // The lit screen: texture multiplied by a warm lamp falloff, hot spot where the bulb sits behind.
+  function makeLit(texture, w, h, lamp = { x: 0.5, y: 0.40 }) {
+    const c = makeCanvas(w, h), g = c.getContext('2d');
+    g.drawImage(texture, 0, 0, w, h);
+    const lx = lamp.x * w, ly = lamp.y * h, R = Math.hypot(w, h) * 0.62;
+    g.globalCompositeOperation = 'multiply';
+    let gr = g.createRadialGradient(lx, ly, 0, lx, ly, R);
+    gr.addColorStop(0.00, '#fff7e4');
+    gr.addColorStop(0.18, '#ffe2ae');
+    gr.addColorStop(0.42, '#f2b06a');
+    gr.addColorStop(0.68, '#b8652e');
+    gr.addColorStop(0.88, '#6a3216');
+    gr.addColorStop(1.00, '#3a190a');
+    g.fillStyle = gr;
+    g.fillRect(0, 0, w, h);
+    // bulb glow
+    g.globalCompositeOperation = 'screen';
+    gr = g.createRadialGradient(lx, ly, 0, lx, ly, h * 0.36);
+    gr.addColorStop(0, 'rgba(255,238,200,0.42)');
+    gr.addColorStop(0.5, 'rgba(255,214,150,0.12)');
+    gr.addColorStop(1, 'rgba(255,200,120,0)');
+    g.fillStyle = gr;
+    g.fillRect(0, 0, w, h);
+    // soft darkening at the very edges where the frame meets the paper
+    g.globalCompositeOperation = 'multiply';
+    const edge = (x0, y0, x1, y1) => {
+      const lg = g.createLinearGradient(x0, y0, x1, y1);
+      lg.addColorStop(0, 'rgb(150,110,90)');
+      lg.addColorStop(1, 'rgb(255,255,255)');
+      return lg;
+    };
+    const e = h * 0.05;
+    g.fillStyle = edge(0, 0, 0, e); g.fillRect(0, 0, w, e);
+    g.fillStyle = edge(0, h, 0, h - e); g.fillRect(0, h - e, w, e);
+    g.fillStyle = edge(0, 0, e, 0); g.fillRect(0, 0, e, h);
+    g.fillStyle = edge(w, 0, w - e, 0); g.fillRect(w - e, 0, e, h);
+    g.globalCompositeOperation = 'source-over';
+    return c;
+  }
+  return { makeTexture, makeLit };
+})();
+
+// ---- 05-handdraw.js ----
+// ---------- drawing a hand (and forearm) as a solid silhouette ----------
+const HandDraw = (() => {
+  // [from, to, width at from, width at to] as fractions of hand size S
+  const SEG = [
+    [1, 2, .31, .27], [2, 3, .27, .23], [3, 4, .23, .20],
+    [5, 6, .23, .21], [6, 7, .21, .19], [7, 8, .19, .17],
+    [9, 10, .24, .22], [10, 11, .22, .20], [11, 12, .20, .18],
+    [13, 14, .22, .20], [14, 15, .20, .18], [15, 16, .18, .16],
+    [17, 18, .19, .17], [18, 19, .17, .15], [19, 20, .15, .135],
+  ];
+  const TIPS = new Set([4, 8, 12, 16, 20]);
+
+  function capsule(g, ax, ay, ra, bx, by, rb) {
+    const dx = bx - ax, dy = by - ay, d = Math.hypot(dx, dy);
+    g.beginPath();
+    if (d <= Math.abs(ra - rb) + 1e-6) {
+      if (ra > rb) g.arc(ax, ay, ra, 0, TAU); else g.arc(bx, by, rb, 0, TAU);
+      g.fill();
+      return;
+    }
+    const ang = Math.atan2(dy, dx);
+    const off = Math.acos(clamp((ra - rb) / d, -1, 1));
+    g.arc(ax, ay, ra, ang + off, ang - off + TAU, false);
+    g.arc(bx, by, rb, ang - off, ang + off, false);
+    g.closePath();
+    g.fill();
+  }
+
+  // robust hand size from 3D-ish points (in the same units as x/y)
+  function size(P) {
+    return Math.max(d3(P[0], P[9]), d3(P[5], P[17]) * 1.28, d3(P[0], P[5]) * 1.0, d3(P[0], P[17]) * 1.1);
+  }
+
+  function armPolygon(P, S, armDir) {
+    const w = P[0];
+    let hx = P[0].x - P[9].x, hy = P[0].y - P[9].y;
+    const hl = Math.hypot(hx, hy);
+    if (hl < S * 0.25) { hx = 0; hy = 1; } else { hx /= hl; hy /= hl; }
+    let k = smoothstep(-0.6, 0.15, hy);
+    let dx = 0, dy = 1;
+    if (armDir) { dx = armDir.x; dy = armDir.y; k = 1; }
+    const B0 = { x: w.x - hx * 0.15 * S, y: w.y - hy * 0.15 * S };
+    const B1 = { x: w.x + hx * 0.9 * S, y: w.y + hy * 0.9 * S };
+    const B2 = { x: w.x + hx * 1.15 * S + dx * 1.6 * S * k, y: w.y + hy * 1.15 * S + dy * 1.6 * S * k };
+    const B3 = { x: w.x + hx * (1.4 + 4.2 * (1 - k)) * S + dx * 5.6 * S * k, y: w.y + hy * (1.4 + 4.2 * (1 - k)) * S + dy * 5.6 * S * k };
+    const L = [], R = [];
+    const N = 16;
+    for (let i = 0; i <= N; i++) {
+      const t = i / N, u = 1 - t;
+      const px = u * u * u * B0.x + 3 * u * u * t * B1.x + 3 * u * t * t * B2.x + t * t * t * B3.x;
+      const py = u * u * u * B0.y + 3 * u * u * t * B1.y + 3 * u * t * t * B2.y + t * t * t * B3.y;
+      let tx = 3 * u * u * (B1.x - B0.x) + 6 * u * t * (B2.x - B1.x) + 3 * t * t * (B3.x - B2.x);
+      let ty = 3 * u * u * (B1.y - B0.y) + 6 * u * t * (B2.y - B1.y) + 3 * t * t * (B3.y - B2.y);
+      const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
+      const hw = S * (0.31 + 0.14 * t);
+      L.push({ x: px - ty * hw, y: py + tx * hw });
+      R.push({ x: px + ty * hw, y: py - tx * hw });
+    }
+    return L.concat(R.reverse());
+  }
+
+  function draw(g, P, S, opts = {}) {
+    const col = opts.color || '#000';
+    g.fillStyle = col;
+    g.strokeStyle = col;
+    g.lineJoin = 'round';
+    g.lineCap = 'round';
+    if (opts.arm !== false) {
+      const poly = armPolygon(P, S, opts.armDir);
+      g.beginPath();
+      g.moveTo(poly[0].x, poly[0].y);
+      for (let i = 1; i < poly.length; i++) g.lineTo(poly[i].x, poly[i].y);
+      g.closePath();
+      g.fill();
+    }
+    // palm: polygon through wrist edges and knuckles, rounded by a fat stroke
+    const lat = V3.sub(P[5], P[17]);
+    const ll = V3.len(lat) || 1;
+    const lx = lat.x / ll * 0.34 * S, ly = lat.y / ll * 0.34 * S;
+    const ux = P[9].x - P[0].x, uy = P[9].y - P[0].y, ul = Math.hypot(ux, uy) || 1;
+    const bx = -ux / ul * 0.05 * S, by = -uy / ul * 0.05 * S;
+    const pe = V3.sub(P[17], P[13]), pel = Math.hypot(pe.x, pe.y) || 1;
+    const poly = [
+      { x: P[0].x + lx + bx, y: P[0].y + ly + by },
+      P[1], P[2], P[5], P[9], P[13], P[17],
+      { x: P[17].x + pe.x / pel * 0.06 * S, y: P[17].y + pe.y / pel * 0.06 * S },
+      { x: P[0].x - lx + bx, y: P[0].y - ly + by },
+    ];
+    g.beginPath();
+    g.moveTo(poly[0].x, poly[0].y);
+    for (let i = 1; i < poly.length; i++) g.lineTo(poly[i].x, poly[i].y);
+    g.closePath();
+    g.fill();
+    g.lineWidth = 0.27 * S;
+    g.stroke();
+    // fingers
+    for (const [a, b, wa, wb] of SEG) {
+      let ex = P[b].x, ey = P[b].y;
+      const ra = wa * S / 2, rb = wb * S / 2;
+      if (TIPS.has(b)) { // pull the tip circle back so the finger ends at the landmark
+        const dx = P[b].x - P[a].x, dy = P[b].y - P[a].y, dl = Math.hypot(dx, dy) || 1;
+        const pull = Math.min(rb * 0.85, dl * 0.4);
+        ex -= dx / dl * pull; ey -= dy / dl * pull;
+      }
+      capsule(g, P[a].x, P[a].y, ra, ex, ey, rb);
+    }
+    if (opts.crumb) {
+      const cx = (P[4].x + P[8].x) / 2, cy = (P[4].y + P[8].y) / 2;
+      g.beginPath(); g.ellipse(cx, cy + S * 0.03, S * 0.06, S * 0.05, 0.4, 0, TAU); g.fill();
+    }
+  }
+
+  // bounding box of a drawn hand, in the same units
+  function bounds(P, S, arm = true) {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    const add = p => { if (p.x < x0) x0 = p.x; if (p.y < y0) y0 = p.y; if (p.x > x1) x1 = p.x; if (p.y > y1) y1 = p.y; };
+    P.forEach(add);
+    if (arm) armPolygon(P, S).forEach(add);
+    const m = S * 0.25;
+    return { x: x0 - m, y: y0 - m, w: x1 - x0 + 2 * m, h: y1 - y0 + 2 * m };
+  }
+  // distance from a point to the hand silhouette (negative inside); used for pokes and perches
+  function hitDist(P, S, x, y) {
+    let m = Infinity;
+    for (const [a, b, wa, wb] of SEG) {
+      const d = segPointDist(x, y, P[a].x, P[a].y, P[b].x, P[b].y) - (wa + wb) * 0.25 * S;
+      if (d < m) m = d;
+    }
+    const cx = (P[0].x + P[5].x + P[9].x + P[13].x + P[17].x) / 5, cy = (P[0].y + P[5].y + P[9].y + P[13].y + P[17].y) / 5;
+    m = Math.min(m, Math.hypot(x - cx, y - cy) - 0.42 * S);
+    // forearm, approximated by a fat segment heading away from the fingers and down
+    let hx = P[0].x - P[9].x, hy = P[0].y - P[9].y; const hl = Math.hypot(hx, hy) || 1; hx /= hl; hy /= hl;
+    const k = smoothstep(-0.6, 0.15, hy);
+    const ex = P[0].x + (hx * (1 - k * 0.6)) * 3 * S, ey = P[0].y + (hy * (1 - k * 0.6) + k * 0.8) * 3 * S;
+    m = Math.min(m, segPointDist(x, y, P[0].x, P[0].y, ex, ey) - 0.36 * S);
+    return m;
+  }
+  return { draw, size, bounds, capsule, hitDist };
+})();
+
+// ---- 06-puppets.js ----
+// ---------- creature silhouettes ----------
+// Each species draws in local units: 1 = body length, origin at the feet, +x = the way it faces,
+// y grows downward. Poses are keyframes blended by weight; gait and small motions are added on top.
+const Puppets = (() => {
+  let g = null;
+  const ell = (x, y, rx, ry, rot = 0) => { g.beginPath(); g.ellipse(x, y, Math.max(rx, 1e-4), Math.max(ry, 1e-4), rot, 0, TAU); g.fill(); };
+  const circ = (x, y, r) => { g.beginPath(); g.arc(x, y, Math.max(r, 1e-4), 0, TAU); g.fill(); };
+  const cap = (x1, y1, r1, x2, y2, r2) => HandDraw.capsule(g, x1, y1, r1, x2, y2, r2);
+  const poly = (pts) => { g.beginPath(); g.moveTo(pts[0], pts[1]); for (let i = 2; i < pts.length; i += 2) g.lineTo(pts[i], pts[i + 1]); g.closePath(); g.fill(); };
+  const limb = (pts, w) => { g.lineWidth = w; g.beginPath(); g.moveTo(pts[0], pts[1]); for (let i = 2; i < pts.length; i += 2) g.lineTo(pts[i], pts[i + 1]); g.stroke(); };
+  function hole(fn) { const op = g.globalCompositeOperation; g.globalCompositeOperation = 'destination-out'; fn(); g.globalCompositeOperation = op; }
+  // eye cut-out: light shows through the puppet
+  function eye(x, y, r, kind, blink) {
+    hole(() => {
+      if (kind === 'happy') {
+        g.lineWidth = r * 0.75; g.lineCap = 'round';
+        g.beginPath(); g.arc(x, y + r * 0.45, r * 0.9, Math.PI * 1.15, Math.PI * 1.85); g.stroke();
+      } else if (kind === 'closed' || blink) {
+        g.lineWidth = r * 0.6; g.lineCap = 'round';
+        g.beginPath(); g.moveTo(x - r * 0.9, y + r * 0.1); g.quadraticCurveTo(x, y + r * 0.7, x + r * 0.9, y + r * 0.1); g.stroke();
+      } else {
+        circ(x, y, kind === 'wide' ? r * 1.4 : r);
+      }
+    });
+  }
+  // leg with a knee; anchor -> foot, knee pushed sideways by bend
+  function leg(ax, ay, fx, fy, w, bend, paw = 0) {
+    const mx = (ax + fx) / 2, my = (ay + fy) / 2;
+    const dx = fx - ax, dy = fy - ay, l = Math.hypot(dx, dy) || 1;
+    const kx = mx + (-dy / l) * bend, ky = my + (dx / l) * bend;
+    limb([ax, ay, kx, ky, fx, fy], w);
+    if (paw) ell(fx + paw * 0.4, fy - paw * 0.25, paw, paw * 0.55);
+  }
+  // four-leg gait: returns foot offsets for a trotting or bounding animal
+  function gaitFoot(phase, off, stride, lift) {
+    const th = phase + off;
+    const s = Math.sin(th);
+    return { dx: -0.5 * stride * Math.cos(th), dy: -lift * Math.max(0, s) };
+  }
+
+  // ===== RABBIT =====
+  const RABBIT = {
+    base: { bx: 0, by: -0.30, brx: 0.36, bry: 0.24, brot: -0.12, hx: -0.17, hy: -0.27, hr: 0.27, cx: 0.20, cy: -0.33, cr: 0.19,
+      headX: 0.36, headY: -0.56, headR: 0.18, snX: 0.50, snY: -0.52, earA: -0.35, earL: 0.46, tailX: -0.44, tailY: -0.36, tailR: 0.085,
+      pawX: 0.27, pawY: -0.02, pawTX: 0.22, pawTY: -0.22, footX: -0.10, footY: -0.035, footRot: 0, eyeX: 0.41, eyeY: -0.59 },
+    stretch: { bx: -0.02, by: -0.36, brx: 0.42, bry: 0.21, brot: -0.05, hx: -0.28, hy: -0.36, cx: 0.24, cy: -0.38, headX: 0.45, headY: -0.57,
+      snX: 0.59, snY: -0.54, earA: -0.8, tailX: -0.52, tailY: -0.45, pawX: 0.50, pawY: -0.17, pawTX: 0.30, pawTY: -0.30, footX: -0.44, footY: -0.15, footRot: 0.6, eyeX: 0.50, eyeY: -0.60 },
+    upright: { bx: 0.02, by: -0.47, brx: 0.21, bry: 0.32, brot: 0.12, hx: -0.08, hy: -0.25, hr: 0.25, cx: 0.09, cy: -0.62, cr: 0.16,
+      headX: 0.16, headY: -0.86, snX: 0.29, snY: -0.82, earA: -0.12, tailX: -0.30, tailY: -0.18, pawX: 0.25, pawY: -0.60, pawTX: 0.15, pawTY: -0.66,
+      footX: -0.02, footY: -0.035, eyeX: 0.21, eyeY: -0.89 },
+    lie: { by: -0.21, brx: 0.40, bry: 0.19, brot: 0, hy: -0.21, hr: 0.21, cy: -0.21, cr: 0.16, headX: 0.40, headY: -0.29, snX: 0.53, snY: -0.25,
+      earA: -1.42, tailY: -0.24, pawX: 0.44, pawY: -0.03, pawTX: 0.30, pawTY: -0.10, eyeX: 0.44, eyeY: -0.32 },
+    eat: { headX: 0.42, headY: -0.33, snX: 0.54, snY: -0.24, earA: -0.65, eyeX: 0.46, eyeY: -0.36, cy: -0.29, brot: 0.05 },
+    bow: { headX: 0.44, headY: -0.30, snX: 0.56, snY: -0.22, earA: -0.2, eyeX: 0.48, eyeY: -0.33, cy: -0.27, hy: -0.33, brot: 0.25 },
+  };
+  function drawRabbit(P) {
+    const k = blendKeys(RABBIT, P.w);
+    const br = P.breath || 0;
+    ell(k.tailX, k.tailY, k.tailR, k.tailR * 0.95);
+    circ(k.hx, k.hy, k.hr * (1 + br * 0.02));
+    ell(k.bx, k.by, k.brx, k.bry * (1 + br * 0.03), k.brot);
+    circ(k.cx, k.cy, k.cr);
+    ell(k.footX, k.footY, 0.19, 0.05, k.footRot);
+    cap(k.pawTX, k.pawTY, 0.055, k.pawX, k.pawY, 0.045);
+    circ(k.headX, k.headY, k.headR);
+    const wig = P.nose ? Math.sin(P.t * 22) * 0.008 : 0;
+    ell(k.snX, k.snY + wig, 0.10, 0.085, 0.15);
+    // ears pivot at the top of the head
+    const ex = k.headX - 0.05, ey = k.headY - k.headR * 0.75;
+    const ears = [[k.earA - 0.2 + (P.ear2 || 0), 0.9, -0.03], [k.earA + (P.ear1 || 0), 1, 0.02]];
+    for (const [a, s, dx] of ears) {
+      const L = k.earL * s;
+      ell(ex + dx + Math.sin(a) * L / 2, ey - Math.cos(a) * L / 2, 0.085 * s, L / 2, a);
+    }
+    eye(k.eyeX, k.eyeY, 0.032, P.eye, P.blink);
+  }
+
+  // ===== FOX and DOG share a four-legged frame =====
+  const FOX = {
+    base: { bx: 0, by: -0.47, brx: 0.36, bry: 0.135, brot: -0.03, cx: 0.27, cy: -0.485, cr: 0.14, rx: -0.27, ry: -0.475, rr: 0.125,
+      nx: 0.45, ny: -0.70, hx: 0.51, hy: -0.75, hrot: 0, shX: 0.25, shY: -0.46, hipX: -0.25, hipY: -0.47, legL: 0.47,
+      tailA: -0.25, tailL: 0.66, earA: 0, sit: 0, lie: 0, frontDown: 0 },
+    run: { brx: 0.40, by: -0.45, hx: 0.58, hy: -0.68, nx: 0.48, ny: -0.64, hrot: 0.15, earA: -0.5, tailA: 0.1 },
+    sit: { by: -0.42, brot: -0.75, cx: 0.17, cy: -0.58, rx: -0.12, ry: -0.20, rr: 0.17, nx: 0.24, ny: -0.82, hx: 0.31, hy: -0.90,
+      shX: 0.18, shY: -0.52, hipX: -0.10, hipY: -0.20, tailA: -0.75, sit: 1 },
+    lie: { by: -0.19, bry: 0.12, cx: 0.25, cy: -0.21, cr: 0.13, ry: -0.19, rr: 0.13, nx: 0.42, ny: -0.27, hx: 0.55, hy: -0.22, hrot: 0.25,
+      shY: -0.18, hipY: -0.18, tailA: 0.05, earA: -0.4, lie: 1 },
+    bow: { brot: 0.42, by: -0.43, cx: 0.27, cy: -0.30, rx: -0.27, ry: -0.58, nx: 0.42, ny: -0.36, hx: 0.53, hy: -0.40, hrot: 0.1,
+      shY: -0.27, hipY: -0.55, tailA: 0.75, frontDown: 1 },
+    eat: { nx: 0.53, ny: -0.33, hx: 0.60, hy: -0.22, hrot: 0.95, earA: -0.2 },
+    look: { hx: 0.48, hy: -0.82, nx: 0.42, ny: -0.72, hrot: -0.55 },
+  };
+  const DOG = {
+    base: { bx: 0, by: -0.47, brx: 0.36, bry: 0.165, brot: -0.02, cx: 0.27, cy: -0.50, cr: 0.17, rx: -0.26, ry: -0.49, rr: 0.16,
+      nx: 0.42, ny: -0.70, hx: 0.47, hy: -0.77, hrot: 0, shX: 0.25, shY: -0.44, hipX: -0.25, hipY: -0.45, legL: 0.45,
+      tailA: -0.9, tailL: 0.3, earA: 0, sit: 0, lie: 0, frontDown: 0 },
+    run: { brx: 0.39, by: -0.46, hx: 0.55, hy: -0.70, nx: 0.46, ny: -0.65, hrot: 0.15, earA: -0.6, tailA: -0.4 },
+    sit: { by: -0.42, brot: -0.75, cx: 0.16, cy: -0.58, rx: -0.12, ry: -0.20, rr: 0.18, nx: 0.22, ny: -0.82, hx: 0.28, hy: -0.92,
+      shX: 0.17, shY: -0.52, hipX: -0.10, hipY: -0.20, tailA: 0.2, sit: 1 },
+    lie: { by: -0.20, bry: 0.14, cx: 0.25, cy: -0.22, cr: 0.15, ry: -0.20, rr: 0.15, nx: 0.42, ny: -0.28, hx: 0.53, hy: -0.24, hrot: 0.2,
+      shY: -0.18, hipY: -0.18, tailA: 0.1, earA: 0.3, lie: 1 },
+    bow: { brot: 0.42, by: -0.43, cx: 0.27, cy: -0.31, rx: -0.26, ry: -0.58, nx: 0.42, ny: -0.37, hx: 0.52, hy: -0.42, hrot: 0.1,
+      shY: -0.28, hipY: -0.55, tailA: -1.3, frontDown: 1 },
+    eat: { nx: 0.51, ny: -0.34, hx: 0.58, hy: -0.22, hrot: 0.95, earA: 0.2 },
+    look: { hx: 0.45, hy: -0.86, nx: 0.40, ny: -0.74, hrot: -0.55 },
+  };
+
+  function quadLegs(k, P, w, pawR, frontBend, hindBend) {
+    const gt = P.gait || { phase: 0, amp: 0 };
+    const stride = 0.30 * gt.amp, lift = 0.10 * gt.amp;
+    const offs = P.bound ? [0, 0.4, Math.PI, Math.PI + 0.4] : [0, Math.PI, Math.PI, 0]; // FL FR BL BR
+    const ground = 0;
+    const legs = [
+      { ax: k.shX + 0.03, ay: k.shY, off: offs[1], front: true },
+      { ax: k.hipX + 0.03, ay: k.hipY, off: offs[3], front: false },
+      { ax: k.shX, ay: k.shY, off: offs[0], front: true },
+      { ax: k.hipX, ay: k.hipY, off: offs[2], front: false },
+    ];
+    for (const L of legs) {
+      const f = gaitFoot(gt.phase, L.off, stride, lift);
+      let fx = L.ax + f.dx, fy = ground + f.dy;
+      let bend = L.front ? frontBend : hindBend;
+      if (L.front && k.frontDown > 0.01) { fx = lerp(fx, L.ax + 0.22, k.frontDown); fy = lerp(fy, -0.03, k.frontDown); bend *= 1 - k.frontDown; }
+      if (!L.front && k.sit > 0.01) { fx = lerp(fx, L.ax + 0.16, k.sit); fy = lerp(fy, -0.02, k.sit); bend = lerp(bend, -0.12, k.sit); }
+      if (k.lie > 0.01) { fx = lerp(fx, L.ax + (L.front ? 0.24 : 0.14), k.lie); fy = lerp(fy, -0.03, k.lie); bend *= 1 - k.lie; }
+      if (P.air) fy = lerp(fy, L.ay + 0.3, P.air);
+      leg(L.ax, L.ay, fx, fy, w, bend, pawR);
+    }
+  }
+  function bushyTail(bx, by, ang, len, wid, curl) {
+    // a teardrop that leaves the body pointing backwards, curling by `curl`
+    const dir = Math.PI - ang; // pointing back (-x), positive ang = up
+    const pts = [];
+    const N = 14;
+    const spine = [];
+    let x = bx, y = by, a = dir;
+    for (let i = 0; i <= N; i++) {
+      spine.push([x, y, a]);
+      const step = len / N;
+      x += Math.cos(a) * step; y -= Math.sin(a) * step;
+      a += curl / N;
+    }
+    for (let i = 0; i <= N; i++) {
+      const t = i / N, [sx, sy, sa] = spine[i];
+      const w = wid * Math.sin(Math.PI * Math.pow(t, 0.7)) * (t < 0.15 ? 0.6 + t * 2.6 : 1);
+      pts.push(sx - Math.sin(sa) * w, sy - Math.cos(sa) * w);
+    }
+    for (let i = N; i >= 0; i--) {
+      const t = i / N, [sx, sy, sa] = spine[i];
+      const w = wid * Math.sin(Math.PI * Math.pow(t, 0.7)) * (t < 0.15 ? 0.6 + t * 2.6 : 1);
+      pts.push(sx + Math.sin(sa) * w, sy + Math.cos(sa) * w);
+    }
+    poly(pts);
+  }
+  function drawFox(P) {
+    const k = blendKeys(FOX, P.w);
+    const br = P.breath || 0;
+    g.strokeStyle = g.fillStyle; g.lineCap = 'round'; g.lineJoin = 'round';
+    quadLegs(k, P, 0.062, 0.035, 0.03, -0.06);
+    bushyTail(k.rx - 0.08, k.ry - 0.02, k.tailA + (P.tail || 0), k.tailL, 0.12, -0.7);
+    ell(k.bx, k.by, k.brx, k.bry * (1 + br * 0.04), k.brot);
+    circ(k.rx, k.ry, k.rr);
+    circ(k.cx, k.cy, k.cr);
+    cap(k.cx + 0.03, k.cy - 0.04, 0.11, k.nx, k.ny, 0.085);
+    // head
+    g.save();
+    g.translate(k.hx, k.hy);
+    g.rotate(k.hrot);
+    circ(0, 0, 0.105);
+    const jaw = P.mouth || 0;
+    cap(0.04, -0.01, 0.075, 0.27, 0.035, 0.026);           // snout
+    if (jaw > 0.05) { hole(() => poly([0.10, 0.04, 0.30, 0.03 + jaw * 0.02, 0.30, 0.03 + jaw * 0.09])); cap(0.06, 0.05, 0.03, 0.24, 0.06 + jaw * 0.12, 0.015); }
+    const ea = k.earA + (P.ear1 || 0);
+    for (const [ox, s] of [[-0.05, 0.92], [0.03, 1]]) {
+      g.save(); g.translate(ox, -0.06); g.rotate(ea * 0.8);
+      poly([-0.055 * s, 0, 0.06 * s, -0.01, -0.02 * s, -0.24 * s]);
+      g.restore();
+    }
+    eye(0.06, -0.025, 0.022, P.eye, P.blink);
+    g.restore();
+  }
+  function drawDog(P) {
+    const k = blendKeys(DOG, P.w);
+    const br = P.breath || 0;
+    g.strokeStyle = g.fillStyle; g.lineCap = 'round'; g.lineJoin = 'round';
+    quadLegs(k, P, 0.08, 0.045, 0.02, -0.05);
+    // tail: short, carried high, wags
+    g.save(); g.translate(k.rx - 0.10, k.ry - 0.05); g.rotate(k.tailA + (P.tail || 0));
+    g.lineWidth = 0.065; g.beginPath(); g.moveTo(0, 0); g.quadraticCurveTo(-0.10, -0.06, -0.12, -k.tailL); g.stroke();
+    g.restore();
+    ell(k.bx, k.by, k.brx, k.bry * (1 + br * 0.04), k.brot);
+    circ(k.rx, k.ry, k.rr);
+    circ(k.cx, k.cy, k.cr);
+    cap(k.cx + 0.03, k.cy - 0.04, 0.12, k.nx, k.ny, 0.10);
+    // collar: a thin cut where light shows through
+    hole(() => { g.lineWidth = 0.022; g.beginPath(); g.moveTo(k.nx - 0.10, k.ny + 0.02); g.quadraticCurveTo(k.nx - 0.02, k.ny + 0.11, k.nx + 0.07, k.ny + 0.09); g.stroke(); });
+    g.save();
+    g.translate(k.hx, k.hy);
+    g.rotate(k.hrot);
+    circ(0, 0, 0.13);
+    const jaw = P.mouth || 0;
+    // muzzle (upper) and jaw (lower)
+    cap(0.05, -0.005, 0.085, 0.215, 0.015, 0.065);
+    circ(0.25, -0.01, 0.035); // nose
+    g.save(); g.translate(0.07, 0.06); g.rotate(jaw * 0.55);
+    cap(0, 0, 0.06, 0.15, 0.0, 0.045);
+    if (P.tongue) cap(0.10, 0.03, 0.03, 0.12, 0.11 + Math.sin(P.t * 9) * 0.01, 0.026);
+    g.restore();
+    // floppy ear
+    g.save(); g.translate(-0.04, -0.09); g.rotate(-0.15 + (k.earA + (P.ear1 || 0)) * 0.7);
+    poly([-0.05, 0, 0.05, -0.02, 0.03, 0.12, -0.04, 0.20, -0.09, 0.12]);
+    g.restore();
+    eye(0.06, -0.04, 0.026, P.eye, P.blink);
+    g.restore();
+  }
+
+  // ===== SWAN =====
+  const SWAN = {
+    base: { c1x: 0.42, c1y: -0.55, c2x: 0.16, c2y: -0.86, hx: 0.29, hy: -1.02, hrot: 0.15, wing: 0, sink: 0, walkLegs: 1 },
+    heart: { c1x: 0.30, c1y: -0.95, c2x: 0.72, c2y: -1.18, hx: 0.56, hy: -0.80, hrot: 1.75 },
+    down: { c1x: 0.46, c1y: -0.40, c2x: 0.62, c2y: -0.34, hx: 0.66, hy: -0.13, hrot: 1.35 },
+    tall: { c1x: 0.30, c1y: -0.66, c2x: 0.28, c2y: -0.96, hx: 0.34, hy: -1.15, hrot: 0.05 },
+    tuck: { c1x: 0.30, c1y: -0.55, c2x: -0.05, c2y: -0.70, hx: -0.15, hy: -0.52, hrot: 3.0 },
+    display: { wing: 1, c1x: 0.34, c1y: -0.70, c2x: 0.10, c2y: -0.95, hx: 0.26, hy: -1.06 },
+  };
+  function drawSwan(P) {
+    const k = blendKeys(SWAN, P.w);
+    const sw = P.swim || 0;
+    g.strokeStyle = g.fillStyle; g.lineCap = 'round'; g.lineJoin = 'round';
+    // legs (on land)
+    if (sw < 0.99) {
+      const gt = P.gait || { phase: 0, amp: 0 };
+      for (const off of [0, Math.PI]) {
+        const f = gaitFoot(gt.phase, off, 0.16 * gt.amp, 0.05 * gt.amp);
+        const fx = 0.0 + f.dx, fy = f.dy;
+        g.globalAlpha = 1 - sw;
+        limb([-0.02, -0.2, fx, fy - 0.01], 0.035);
+        poly([fx - 0.05, fy, fx + 0.07, fy, fx + 0.03, fy - 0.03]);
+        g.globalAlpha = 1;
+      }
+    }
+    // body: a teardrop with a raised tail
+    g.beginPath();
+    g.moveTo(0.33, -0.37);
+    g.bezierCurveTo(0.33, -0.22, 0.20, -0.14, 0.02, -0.14);
+    g.bezierCurveTo(-0.20, -0.14, -0.38, -0.18, -0.48, -0.30);
+    g.lineTo(-0.58, -0.45);
+    g.bezierCurveTo(-0.45, -0.46, -0.32, -0.52, -0.12, -0.52);
+    g.bezierCurveTo(0.08, -0.52, 0.30, -0.50, 0.33, -0.37);
+    g.fill();
+    // raised wings: an arch of scalloped feathers
+    if (k.wing > 0.02) {
+      const wv = k.wing * (1 + (P.flap || 0) * 0.15);
+      g.beginPath();
+      g.moveTo(0.18, -0.46);
+      g.bezierCurveTo(0.20, -0.46 - 0.45 * wv, -0.20, -0.48 - 0.55 * wv, -0.52, -0.46 - 0.30 * wv);
+      const n = 5;
+      let px = -0.52, py = -0.46 - 0.30 * wv;
+      for (let i = 1; i <= n; i++) {
+        const t = i / n;
+        const qx = lerp(-0.52, 0.10, t), qy = lerp(-0.46 - 0.30 * wv, -0.46, t);
+        g.quadraticCurveTo((px + qx) / 2, (py + qy) / 2 + 0.07 * wv, qx, qy);
+        px = qx; py = qy;
+      }
+      g.closePath();
+      g.fill();
+    }
+    // neck as a tapered cubic
+    const N = 16, b0x = 0.24, b0y = -0.42;
+    const L = [], R = [];
+    let lastA = 0;
+    for (let i = 0; i <= N; i++) {
+      const t = i / N, u = 1 - t;
+      const x = u * u * u * b0x + 3 * u * u * t * k.c1x + 3 * u * t * t * k.c2x + t * t * t * k.hx;
+      const y = u * u * u * b0y + 3 * u * u * t * k.c1y + 3 * u * t * t * k.c2y + t * t * t * k.hy;
+      const tx = 3 * u * u * (k.c1x - b0x) + 6 * u * t * (k.c2x - k.c1x) + 3 * t * t * (k.hx - k.c2x);
+      const ty = 3 * u * u * (k.c1y - b0y) + 6 * u * t * (k.c2y - k.c1y) + 3 * t * t * (k.hy - k.c2y);
+      const tl = Math.hypot(tx, ty) || 1;
+      const w = lerp(0.075, 0.034, Math.pow(t, 0.8));
+      L.push(x - ty / tl * w, y + tx / tl * w);
+      R.push(x + ty / tl * w, y - tx / tl * w);
+      lastA = Math.atan2(ty, tx);
+    }
+    const pts = L.slice();
+    for (let i = R.length - 2; i >= 0; i -= 2) pts.push(R[i], R[i + 1]);
+    poly(pts);
+    // head and beak
+    g.save();
+    g.translate(k.hx, k.hy);
+    g.rotate(k.hrot);
+    ell(0.0, 0, 0.075, 0.052, 0);
+    const open = P.mouth || 0;
+    poly([0.04, -0.035, 0.17, 0.005, 0.05, 0.03 - open * 0.0]);
+    if (open > 0.05) poly([0.04, 0.02, 0.15, 0.03 + open * 0.06, 0.04, 0.045]);
+    circ(0.055, -0.03, 0.02); // knob
+    eye(0.015, -0.012, 0.016, P.eye, P.blink);
+    g.restore();
+  }
+
+  // ===== BIRD (a small songbird) =====
+  function drawBird(P) {
+    g.strokeStyle = g.fillStyle; g.lineCap = 'round'; g.lineJoin = 'round';
+    const fly = P.fly || 0, flap = P.flapA || 0;
+    const peck = P.w.peck || 0;
+    const tilt = -0.25 + peck * 0.5 - fly * 0.1;
+    // legs
+    if (fly < 0.95) {
+      g.globalAlpha = 1 - fly;
+      limb([-0.02, -0.25, -0.05, -0.02, 0.06, 0], 0.03);
+      limb([0.04, -0.25, 0.04, -0.02, 0.14, 0], 0.03);
+      g.globalAlpha = 1;
+    }
+    g.save();
+    g.translate(0, -0.38 - fly * 0.1);
+    g.rotate(tilt);
+    // tail
+    const tu = (P.tail || 0) - fly * 0.2;
+    g.save(); g.translate(-0.22, 0.0); g.rotate(-tu);
+    poly([0, -0.06, -0.42, -0.10, -0.44, 0.02, 0, 0.06]);
+    g.restore();
+    ell(0, 0, 0.30, 0.20, 0);
+    // head
+    const hx = 0.27 + peck * 0.06, hy = -0.20 + peck * 0.22;
+    circ(hx, hy, 0.15);
+    const open = P.mouth || 0;
+    poly([hx + 0.11, hy - 0.05, hx + 0.27, hy - 0.01 + open * 0.01, hx + 0.11, hy + 0.035]);
+    if (open > 0.05) poly([hx + 0.10, hy + 0.02, hx + 0.24, hy + 0.04 + open * 0.06, hx + 0.10, hy + 0.06]);
+    // wings
+    const wingShape = (a, s) => {
+      g.save(); g.translate(0.02, -0.08); g.rotate(a);
+      g.beginPath();
+      g.moveTo(0.10, 0.02);
+      g.bezierCurveTo(0.06, -0.20 * s, -0.20, -0.42 * s, -0.40, -0.62 * s);
+      g.lineTo(-0.46, -0.52 * s); g.lineTo(-0.42, -0.42 * s); g.lineTo(-0.48, -0.36 * s); g.lineTo(-0.40, -0.26 * s); g.lineTo(-0.46, -0.16 * s);
+      g.bezierCurveTo(-0.30, -0.02, -0.12, 0.08, 0.10, 0.02);
+      g.fill();
+      g.restore();
+    };
+    if (fly > 0.05) {
+      wingShape(flap * 0.9 + 0.25, 1);
+      wingShape(flap * 0.9 + 0.55, 0.85);
+    } else {
+      ell(-0.06, -0.02, 0.24, 0.12, -0.15);
+      if (P.flutter) wingShape(-0.2 + Math.sin(P.t * 40) * 0.4, 0.8);
+    }
+    eye(hx + 0.04, hy - 0.03, 0.035, P.eye, P.blink);
+    g.restore();
+  }
+
+  const DRAW = { rabbit: drawRabbit, fox: drawFox, dog: drawDog, swan: drawSwan, bird: drawBird };
+  function draw(ctx, species, P) { g = ctx; DRAW[species](P); }
+
+  // ----- emotes: little cut-paper props that float above a creature -----
+  function emote(ctx, type, x, y, s, t) {
+    g = ctx;
+    g.save();
+    g.translate(x, y);
+    g.scale(s, s);
+    g.lineCap = 'round'; g.lineJoin = 'round';
+    g.strokeStyle = g.fillStyle;
+    switch (type) {
+      case 'heart':
+        g.beginPath(); g.moveTo(0, 0.35);
+        g.bezierCurveTo(-0.55, -0.05, -0.45, -0.55, 0, -0.25);
+        g.bezierCurveTo(0.45, -0.55, 0.55, -0.05, 0, 0.35); g.fill(); break;
+      case 'bang':
+        g.beginPath(); g.moveTo(-0.08, -0.5); g.lineTo(0.08, -0.5); g.lineTo(0.04, 0.12); g.lineTo(-0.04, 0.12); g.closePath(); g.fill();
+        circ(0, 0.3, 0.08); break;
+      case 'q':
+        g.lineWidth = 0.13; g.beginPath(); g.arc(0, -0.22, 0.2, Math.PI * 1.1, Math.PI * 2.35); g.quadraticCurveTo(0, 0.0, 0, 0.12); g.stroke();
+        circ(0, 0.32, 0.075); break;
+      case 'note':
+        circ(-0.12, 0.25, 0.12); g.lineWidth = 0.07; g.beginPath(); g.moveTo(-0.01, 0.25); g.lineTo(-0.01, -0.35); g.quadraticCurveTo(0.18, -0.25, 0.22, -0.05); g.stroke(); break;
+      case 'notes':
+        circ(-0.25, 0.28, 0.1); circ(0.15, 0.18, 0.1); g.lineWidth = 0.06;
+        g.beginPath(); g.moveTo(-0.16, 0.28); g.lineTo(-0.16, -0.3); g.lineTo(0.24, -0.4); g.lineTo(0.24, 0.18); g.stroke();
+        g.lineWidth = 0.09; g.beginPath(); g.moveTo(-0.16, -0.27); g.lineTo(0.24, -0.37); g.stroke(); break;
+      case 'z':
+        g.lineWidth = 0.09; g.beginPath(); g.moveTo(-0.18, -0.18); g.lineTo(0.18, -0.18); g.lineTo(-0.18, 0.18); g.lineTo(0.18, 0.18); g.stroke(); break;
+      case 'spark':
+        g.beginPath();
+        for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4 + t * 2, r = i % 2 ? 0.12 : 0.42; g.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
+        g.closePath(); g.fill(); break;
+      case 'drop':
+        g.beginPath(); g.moveTo(0, -0.35); g.quadraticCurveTo(0.26, 0.05, 0.16, 0.2); g.arc(0, 0.18, 0.17, 0.1, Math.PI - 0.1); g.quadraticCurveTo(-0.26, 0.05, 0, -0.35); g.fill(); break;
+      case 'yum':
+        for (let i = 0; i < 3; i++) circ(-0.25 + i * 0.25, Math.sin(t * 10 + i) * 0.08, 0.09); break;
+      case 'grr':
+        g.lineWidth = 0.08; g.beginPath(); g.moveTo(-0.3, 0.1); for (let i = 0; i < 5; i++) g.lineTo(-0.3 + (i + 1) * 0.12, i % 2 ? 0.1 : -0.1); g.stroke(); break;
+      case 'wave':
+        g.lineWidth = 0.08; for (let i = 0; i < 3; i++) { g.beginPath(); g.arc(-0.1, 0.1, 0.15 + i * 0.13, -0.9, 0.2); g.stroke(); } break;
+    }
+    g.restore();
+  }
+  return { draw, emote, RABBIT, FOX, DOG, SWAN };
+})();
+
+// ---- 07-stage.js ----
+// ---------- stage geometry, set pieces, and the render pipeline ----------
+// Stage units: the screen is 1 tall and A wide. All world positions use these units.
+const STAGE = {
+  A: 1.6,
+  ground: 0.885,
+  pond: { x0: 0.0, x1: 0.33, water: 0.905, swimMin: 0.15, swimMax: 0.29 },
+  treeX: 1.50,
+  get roamMin() { return this.pond.x1 + 0.09; },
+  get roamMax() { return this.treeX - 0.11; },
+  perches: [],     // filled when the tree is drawn
+};
+
+const Stage = (() => {
+  const R = { canvas: null, ctx: null, W: 0, H: 0, lit: null, tex: null, mask: null, mctx: null, props: null, hands: [], soft: null, ready: false };
+
+  function init(canvas) {
+    R.canvas = canvas;
+    R.ctx = canvas.getContext('2d');
+    resize();
+  }
+
+  function resize() {
+    const rect = R.canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.6);
+    const W = Math.max(320, Math.round(rect.width * dpr));
+    const H = Math.round(W / STAGE.A);
+    if (W === R.W && H === R.H && R.ready) return;
+    R.W = W; R.H = H;
+    R.canvas.width = W; R.canvas.height = H;
+    // texture at a fixed-ish resolution so regeneration stays fast; scaled when drawn
+    const tw = Math.min(W, 2000), th = Math.round(tw / STAGE.A);
+    R.tex = Paper.makeTexture(tw, th, 11);
+    R.lit = Paper.makeLit(R.tex, W, H, { x: 0.5, y: 0.40 });
+    R.mask = makeCanvas(W, H);
+    R.mctx = R.mask.getContext('2d');
+    R.props = makeCanvas(W, H);
+    drawProps(R.props.getContext('2d'), H);
+    const hw = Math.round(W / 2), hh = Math.round(H / 2);
+    R.hands = [0, 1, 2, 3].map(() => makeCanvas(hw, hh));
+    R.soft = makeCanvas(hw, hh);
+    R.ready = true;
+  }
+
+  // ----- set pieces: grassy bank, pond with reeds, a small tree -----
+  function drawProps(g, H) {
+    const rnd = mulberry32(42);
+    const A = STAGE.A, G = STAGE.ground, P = STAGE.pond;
+    g.setTransform(H, 0, 0, H, 0, 0);
+    g.fillStyle = SHADOW_CSS;
+    g.strokeStyle = SHADOW_CSS;
+    g.lineCap = 'round';
+    g.lineJoin = 'round';
+    // ground with a dip into the pond
+    g.beginPath();
+    g.moveTo(-0.1, 1.1);
+    g.lineTo(-0.1, P.water + 0.05);
+    g.lineTo(P.x1 - 0.02, P.water + 0.05);
+    g.quadraticCurveTo(P.x1 + 0.02, P.water + 0.03, P.x1 + 0.03, G + 0.01);
+    g.quadraticCurveTo(P.x1 + 0.05, G - 0.002, P.x1 + 0.12, G);
+    for (let x = P.x1 + 0.12; x <= A + 0.1; x += 0.05) g.lineTo(x, G + Math.sin(x * 9) * 0.003);
+    g.lineTo(A + 0.1, 1.1);
+    g.closePath();
+    g.fill();
+    // water body
+    g.fillRect(-0.1, P.water, P.x1 + 0.1, 0.2);
+    // grass blades along the bank
+    for (let x = P.x1 + 0.03; x < A + 0.05; x += 0.006 + rnd() * 0.008) {
+      const h = 0.008 + rnd() * rnd() * 0.03;
+      const lean = (rnd() - 0.5) * 0.02;
+      g.beginPath();
+      g.moveTo(x - 0.004, G + 0.004);
+      g.quadraticCurveTo(x + lean * 0.3, G - h * 0.6, x + lean, G - h);
+      g.quadraticCurveTo(x + lean * 0.4, G - h * 0.5, x + 0.004, G + 0.004);
+      g.fill();
+    }
+    // a few flowers
+    for (const fx of [0.52, 0.78, 1.07, 1.31]) {
+      const h = 0.035 + rnd() * 0.02;
+      g.lineWidth = 0.004;
+      g.beginPath(); g.moveTo(fx, G + 0.002); g.quadraticCurveTo(fx + 0.006, G - h * 0.5, fx, G - h); g.stroke();
+      for (let i = 0; i < 6; i++) {
+        const a = i * TAU / 6;
+        g.beginPath(); g.ellipse(fx + Math.cos(a) * 0.008, G - h + Math.sin(a) * 0.008, 0.006, 0.0035, a, 0, TAU); g.fill();
+      }
+      g.beginPath(); g.ellipse(fx + 0.01, G - h * 0.45, 0.009, 0.004, -0.5, 0, TAU); g.fill();
+    }
+    // reeds and cattails on the pond bank
+    const reeds = [[P.x1 + 0.005, 0.20, 0.02], [P.x1 + 0.022, 0.16, -0.01], [P.x1 - 0.012, 0.13, 0.03], [P.x1 + 0.04, 0.11, 0.015], [-0.02, 0.17, 0.02], [0.01, 0.12, -0.02]];
+    for (const [x, h, lean] of reeds) {
+      const base = x < P.x1 - 0.03 ? P.water + 0.01 : G + 0.005;
+      g.lineWidth = 0.004;
+      g.beginPath(); g.moveTo(x, base); g.quadraticCurveTo(x + lean * 0.3, base - h * 0.6, x + lean, base - h); g.stroke();
+      g.beginPath(); g.ellipse(x + lean * 0.92, base - h * 0.84, 0.0075, 0.03, lean * 1.5, 0, TAU); g.fill();
+      g.lineWidth = 0.003;
+      g.beginPath(); g.moveTo(x, base); g.quadraticCurveTo(x - lean * 2 - 0.02, base - h * 0.5, x - lean * 3 - 0.03, base - h * 0.45); g.stroke();
+    }
+    // the tree
+    STAGE.perches = [];
+    const tx = STAGE.treeX;
+    const branch = (x, y, ang, len, w, depth) => {
+      const ex = x + Math.cos(ang) * len, ey = y - Math.sin(ang) * len;
+      const mx = (x + ex) / 2 + Math.cos(ang + Math.PI / 2) * len * 0.08, my = (y + ey) / 2 - Math.sin(ang + Math.PI / 2) * len * 0.08;
+      g.lineWidth = w;
+      g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(mx, my, ex, ey); g.stroke();
+      const horiz = Math.abs(Math.cos(ang)) > 0.55;
+      if (depth >= 1 && horiz && ex > 1.15 && ex < A - 0.12 && ey > 0.25) {
+        STAGE.perches.push({ x: lerp(x, ex, 0.65), y: lerp(y, ey, 0.65) - w * 0.5 });
+      }
+      if (depth <= 0) {
+        // a small leaf clump at the tip
+        const n = 1 + (rnd() < 0.5 ? 1 : 0);
+        for (let i = 0; i < n; i++) {
+          g.beginPath();
+          g.ellipse(ex + (rnd() - 0.5) * 0.02, ey - 0.006 + (rnd() - 0.5) * 0.012, 0.011 + rnd() * 0.007, 0.0065 + rnd() * 0.004, rnd() * 3, 0, TAU);
+          g.fill();
+        }
+        return;
+      }
+      const n = 2;
+      for (let i = 0; i < n; i++) {
+        const spread = (i - (n - 1) / 2) * (0.6 + rnd() * 0.35);
+        branch(ex, ey, ang + spread + (rnd() - 0.5) * 0.25, len * (0.68 + rnd() * 0.1), w * 0.64, depth - 1);
+      }
+    };
+    // trunk with a flared base
+    g.beginPath();
+    g.moveTo(tx - 0.04, G + 0.01);
+    g.quadraticCurveTo(tx - 0.015, G - 0.03, tx - 0.013, G - 0.15);
+    g.lineTo(tx + 0.013, G - 0.15);
+    g.quadraticCurveTo(tx + 0.017, G - 0.03, tx + 0.045, G + 0.01);
+    g.fill();
+    branch(tx, G - 0.14, Math.PI / 2 + 0.25, 0.14, 0.024, 3);
+    branch(tx - 0.004, G - 0.20, Math.PI * 0.86, 0.15, 0.014, 2);
+    branch(tx + 0.004, G - 0.26, Math.PI * 0.30, 0.08, 0.01, 1);
+    STAGE.perches.sort((a, b) => a.x - b.x);
+    // soften props a hair, like cut paper held flat to the screen
+    g.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
+  // draw `src` (solid silhouettes) into the mask as a blurred shadow
+  const OFF = 30000;
+  function blurBlit(dst, src, blurPx, sx, sy, sw, sh, scale, alpha = 1, color = HAND_SHADOW_CSS) {
+    if (sw <= 0 || sh <= 0) return;
+    dst.save();
+    dst.setTransform(1, 0, 0, 1, 0, 0);
+    dst.globalAlpha = alpha;
+    dst.shadowColor = color;
+    dst.shadowBlur = Math.max(0.5, blurPx);
+    dst.shadowOffsetX = OFF;
+    dst.shadowOffsetY = 0;
+    dst.drawImage(src, sx, sy, sw, sh, sx * scale - OFF, sy * scale, sw * scale, sh * scale);
+    dst.restore();
+  }
+
+  function render(world) {
+    if (!R.ready) return;
+    const { ctx, W, H, mctx } = R;
+    const t = world.time;
+    // 1. lit paper
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+    ctx.drawImage(R.lit, 0, 0, W, H);
+    const b = world.lamp.level * (1 - world.lamp.flicker);
+    if (b < 0.998) {
+      ctx.globalCompositeOperation = 'multiply';
+      const v = Math.round(255 * clamp(b, 0, 1));
+      ctx.fillStyle = `rgb(${v},${Math.round(v * 0.95)},${Math.round(v * 0.88)})`;
+      ctx.fillRect(0, 0, W, H);
+    }
+    // 2. build the shadow mask
+    mctx.setTransform(1, 0, 0, 1, 0, 0);
+    mctx.globalCompositeOperation = 'source-over';
+    mctx.globalAlpha = 1;
+    mctx.clearRect(0, 0, W, H);
+    mctx.shadowColor = 'transparent';
+    mctx.drawImage(R.props, 0, 0);
+    mctx.setTransform(H, 0, 0, H, 0, 0);
+    drawWater(mctx, world, t);
+    mctx.fillStyle = SHADOW_CSS;
+    mctx.strokeStyle = SHADOW_CSS;
+    for (const c of world.creatures) if (!c.soft) drawCreature(mctx, c, t);
+    for (const cr of world.crumbs) if (!cr.held) drawCrumb(mctx, cr);
+    for (const p of world.particles) if (p.kind === 'dust') { mctx.globalAlpha = p.a; mctx.beginPath(); mctx.arc(p.x, p.y, p.r, 0, TAU); mctx.fill(); }
+    mctx.globalAlpha = 1;
+    // soft things: creatures being born (still between hand and screen)
+    for (const c of world.creatures) if (c.soft) drawSoft(c, t);
+    // 3. hands, blurred by how far they are from the screen
+    let hi = 0;
+    for (const h of world.hands) {
+      if (hi >= R.hands.length) break;
+      if (h.alpha <= 0.01) continue;
+      const hc = R.hands[hi++], hg = hc.getContext('2d');
+      const s = hc.height; // px per stage unit at half res
+      hg.setTransform(1, 0, 0, 1, 0, 0);
+      hg.clearRect(0, 0, hc.width, hc.height);
+      hg.setTransform(s, 0, 0, s, 0, 0);
+      HandDraw.draw(hg, h.pts, h.S, { crumb: h.crumb && h.crumb.held });
+      const bb = HandDraw.bounds(h.pts, h.S, true);
+      const x0 = clamp(Math.floor(bb.x * s) - 4, 0, hc.width), y0 = clamp(Math.floor(bb.y * s) - 4, 0, hc.height);
+      const x1 = clamp(Math.ceil((bb.x + bb.w) * s) + 4, 0, hc.width), y1 = clamp(Math.ceil((bb.y + bb.h) * s) + 4, 0, hc.height);
+      const blur = h.S * H * 0.055 * (1 - 0.78 * h.focus) + 1.5;
+      blurBlit(mctx, hc, blur, x0, y0, x1 - x0, y1 - y0, W / hc.width, h.alpha);
+    }
+    // emotes go on top, with a thin light halo so they read even inside a hand's shadow
+    mctx.setTransform(H, 0, 0, H, 0, 0);
+    mctx.fillStyle = SHADOW_CSS;
+    mctx.strokeStyle = SHADOW_CSS;
+    for (const c of world.creatures) drawEmotes(mctx, c, t);
+    // 4. multiply the mask over the lit paper
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.globalAlpha = 0.95;
+    ctx.drawImage(R.mask, 0, 0);
+    ctx.globalAlpha = 1;
+    // 5. light: the glow that gathers while a shape is held, birth flashes, motes
+    ctx.globalCompositeOperation = 'screen';
+    ctx.setTransform(H, 0, 0, H, 0, 0);
+    for (const h of world.hands) {
+      if (h.focus > 0.02 && h.alpha > 0.1 && h.holdCenter) {
+        const f = h.focus, cx = h.holdCenter.x, cy = h.holdCenter.y;
+        const r = h.S * (1.7 - 0.55 * f);
+        let gr = ctx.createRadialGradient(cx, cy, r * 0.1, cx, cy, r);
+        gr.addColorStop(0, 'rgba(255,226,160,0)');
+        gr.addColorStop(0.6, `rgba(255,214,140,${0.30 * f * b})`);
+        gr.addColorStop(1, 'rgba(255,200,120,0)');
+        ctx.fillStyle = gr;
+        ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+        // a ring of light closing in as the shape is held
+        const rr = h.S * (2.0 - 0.9 * f);
+        ctx.lineWidth = h.S * 0.05;
+        ctx.strokeStyle = `rgba(255,228,170,${0.38 * f * b})`;
+        ctx.beginPath();
+        ctx.arc(cx, cy, rr, -Math.PI / 2, -Math.PI / 2 + TAU * f);
+        ctx.stroke();
+      }
+    }
+    for (const p of world.particles) {
+      if (p.kind === 'mote') {
+        ctx.globalAlpha = p.a * b;
+        const gr = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+        gr.addColorStop(0, 'rgba(255,240,200,1)');
+        gr.addColorStop(1, 'rgba(255,210,140,0)');
+        ctx.fillStyle = gr;
+        ctx.fillRect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
+      } else if (p.kind === 'flash') {
+        ctx.globalAlpha = p.a * b;
+        const gr = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+        gr.addColorStop(0, 'rgba(255,236,190,0.9)');
+        gr.addColorStop(0.4, 'rgba(255,214,150,0.35)');
+        gr.addColorStop(1, 'rgba(255,200,120,0)');
+        ctx.fillStyle = gr;
+        ctx.fillRect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
+      }
+    }
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
+  function drawWater(g, world, t) {
+    const P = STAGE.pond;
+    // ripple lines cut into the water so it reads as water, not earth
+    g.save();
+    g.globalCompositeOperation = 'destination-out';
+    g.lineCap = 'round';
+    for (let row = 0; row < 3; row++) {
+      const y = P.water + 0.018 + row * 0.022;
+      g.lineWidth = 0.0035 - row * 0.0008;
+      g.globalAlpha = 0.75 - row * 0.2;
+      for (let x = P.x0 + 0.03 + (row % 2) * 0.03; x < P.x1 - 0.04; x += 0.07) {
+        const dx = Math.sin(t * 0.8 + x * 30 + row) * 0.008;
+        g.beginPath();
+        g.moveTo(x + dx, y);
+        g.quadraticCurveTo(x + dx + 0.012, y - 0.005, x + dx + 0.024, y);
+        g.quadraticCurveTo(x + dx + 0.036, y + 0.005, x + dx + 0.048, y);
+        g.stroke();
+      }
+    }
+    for (const rp of world.ripples) {
+      g.globalAlpha = rp.a;
+      g.lineWidth = 0.003;
+      g.beginPath();
+      g.ellipse(rp.x, P.water + 0.004, rp.r, rp.r * 0.18, 0, 0, Math.PI);
+      g.stroke();
+    }
+    g.restore();
+  }
+
+  function drawCreature(g, c, t) {
+    g.save();
+    g.translate(c.x, c.y + c.jy);
+    if (c.rot) g.rotate(c.rot);
+    const s = c.size * c.scale;
+    g.scale(s * c.faceVis * (1 + c.squash * 0.25), s * (1 - c.squash * 0.2));
+    g.fillStyle = SHADOW_CSS;
+    g.strokeStyle = SHADOW_CSS;
+    if (c.fade < 1) g.globalAlpha = c.fade;
+    Puppets.draw(g, c.species, c.pose);
+    g.restore();
+  }
+  function drawCrumb(g, cr) {
+    if (cr.sunk) g.globalAlpha = Math.max(0, cr.fade);
+    g.beginPath();
+    g.ellipse(cr.x, cr.y - 0.006, 0.009, 0.0065, cr.rot || 0, 0, TAU);
+    g.fill();
+    g.globalAlpha = 1;
+  }
+  function drawEmotes(g, c, t) {
+    for (const e of c.emotes) {
+      const k = e.t / e.dur;
+      const pop = easeOutBack(Math.min(1, e.t / 0.25));
+      const a = k < 0.75 ? 1 : 1 - (k - 0.75) / 0.25;
+      const head = c.headWorld();
+      const x = head.x + e.ox, y = head.y - 0.03 - e.t * e.rise + e.oy, s = 0.034 * pop * e.scale;
+      g.globalAlpha = a * (c.fade ?? 1);
+      g.globalCompositeOperation = 'destination-out';
+      g.save(); g.lineWidth = 0.007; g.lineJoin = 'round';
+      Puppets.emote(g, e.type, x, y, s * 1.32, t);
+      g.restore();
+      g.globalCompositeOperation = 'source-over';
+      g.fillStyle = SHADOW_CSS; g.strokeStyle = SHADOW_CSS;
+      Puppets.emote(g, e.type, x, y, s, t);
+    }
+    g.globalAlpha = 1;
+  }
+  // a creature that is not yet pinned to the screen: draw into the soft layer and blur
+  function drawSoft(c, t) {
+    const sc = R.soft, sg = sc.getContext('2d');
+    const s = sc.height;
+    sg.setTransform(1, 0, 0, 1, 0, 0);
+    sg.clearRect(0, 0, sc.width, sc.height);
+    sg.setTransform(s, 0, 0, s, 0, 0);
+    // the ghost of the hand peeling off
+    if (c.ghost && c.ghostA > 0.01) {
+      sg.globalAlpha = c.ghostA;
+      sg.save();
+      sg.translate(c.ghostX, c.ghostY);
+      sg.scale(c.ghostScale, c.ghostScale);
+      for (const gh of c.ghost) HandDraw.draw(sg, gh.pts, gh.S, { arm: false });
+      sg.restore();
+      sg.globalAlpha = 1;
+    }
+    if (c.fade > 0.01) { sg.fillStyle = '#000'; drawCreature(sg, c, t); }
+    const blur = c.blurPx * R.H;
+    const rad = Math.max(c.size * c.scale * 1.4, c.ghost ? c.ghost[0].S * (c.ghost.length > 1 ? 3.2 : 2.2) * c.ghostScale : 0) + 0.05;
+    const cx = c.ghost && c.ghostA > 0.01 ? (c.x + c.ghostX) / 2 : c.x, cy = c.y - c.size * c.scale * 0.5;
+    const x0 = clamp(Math.floor((cx - rad - 0.1) * s), 0, sc.width), y0 = clamp(Math.floor((cy - rad - 0.1) * s), 0, sc.height);
+    const x1 = clamp(Math.ceil((cx + rad + 0.1) * s), 0, sc.width), y1 = clamp(Math.ceil((cy + rad + 0.1) * s), 0, sc.height);
+    blurBlit(R.mctx, sc, blur, x0, y0, x1 - x0, y1 - y0, R.W / sc.width, 1, SHADOW_CSS);
+  }
+
+  function toStage(clientX, clientY) {
+    const rect = R.canvas.getBoundingClientRect();
+    return { x: (clientX - rect.left) / rect.width * STAGE.A, y: (clientY - rect.top) / rect.height };
+  }
+  return { init, resize, render, toStage, R };
+})();
+
+// ---- 08-world.js ----
+// ---------- the living stage: creatures, their moods, and how they meet ----------
+const SPECIES = {
+  rabbit: { size: 0.115, speed: 0.24, head: [0.40, -0.98], hit: [0.08, -0.38, 0.36], len: 0.95,
+    names: ['Clover', 'Thistle', 'Biscuit', 'Juniper', 'Maple', 'Bramble', 'Mochi', 'Pippin', 'Hazel', 'Nutmeg'],
+    bias: { brave: -0.2, energy: 0.2, curious: 0.05, friendly: 0.1, appetite: 0.1 } },
+  fox: { size: 0.165, speed: 0.28, head: [0.52, -1.0], hit: [0.12, -0.52, 0.34], len: 1.1,
+    names: ['Ember', 'Saffron', 'Copper', 'Fennel', 'Ginger', 'Rusty', 'Marigold', 'Tod', 'Amber', 'Cinder'],
+    bias: { brave: 0.1, energy: 0.1, curious: 0.25, friendly: 0, appetite: 0 } },
+  dog: { size: 0.158, speed: 0.27, head: [0.48, -1.0], hit: [0.1, -0.52, 0.37], len: 1.0,
+    names: ['Pickles', 'Barnaby', 'Waffles', 'Scout', 'Noodle', 'Pepper', 'Rufus', 'Bean', 'Muffin', 'Toffee'],
+    bias: { brave: 0.15, energy: 0.2, curious: 0.05, friendly: 0.3, appetite: 0.25 } },
+  swan: { size: 0.15, speed: 0.11, head: [0.30, -1.12], hit: [0.0, -0.45, 0.42], len: 1.0,
+    names: ['Odette', 'Pearl', 'Lily', 'Duchess', 'Willow', 'Silas', 'Blanche', 'Opal'],
+    bias: { brave: 0.25, energy: -0.25, curious: -0.05, friendly: 0, appetite: 0 } },
+  bird: { size: 0.064, speed: 0.55, head: [0.30, -0.70], hit: [0.05, -0.42, 0.55], len: 0.9,
+    names: ['Wren', 'Peep', 'Kiwi', 'Sunny', 'Dot', 'Chirp', 'Robin', 'Fig', 'Pip', 'Sparrow'],
+    bias: { brave: -0.15, energy: 0.25, curious: 0.25, friendly: 0.05, appetite: 0 } },
+};
+const NOUN = { rabbit: 'rabbit', fox: 'fox', dog: 'dog', swan: 'swan', bird: 'bird' };
+const MAX_CREATURES = 8;
+
+function makeTraits(species) {
+  const b = SPECIES[species].bias, t = {};
+  for (const k of ['brave', 'energy', 'curious', 'friendly', 'appetite']) t[k] = clamp(0.5 + (b[k] || 0) + (Math.random() - 0.5) * 0.8, 0.03, 0.97);
+  return t;
+}
+function describeTraits(t) {
+  const words = {
+    brave: ['shy', 'brave'], energy: ['sleepy', 'bouncy'], curious: ['careful', 'curious'],
+    friendly: ['a little grumpy', 'friendly'], appetite: ['a fussy eater', 'always hungry'],
+  };
+  const ranked = Object.keys(words).map(k => ({ k, d: Math.abs(t[k] - 0.5), w: words[k][t[k] > 0.5 ? 1 : 0] })).sort((a, b) => b.d - a.d);
+  return `${ranked[0].w} and ${ranked[1].w}`;
+}
+
+const World = {
+  time: 0,
+  creatures: [], crumbs: [], particles: [], ripples: [], hands: [], events: [], meetings: [],
+  lamp: { level: 0.05, target: 0.05, flicker: 0, warm: 0 },
+  friends: new Map(), pairCool: new Map(), nextId: 1, curtainCall: null,
+  emit(type, data) { this.events.push({ type, data }); },
+  key(a, b) { return a.id < b.id ? a.id + ':' + b.id : b.id + ':' + a.id; },
+  friendship(a, b) { return this.friends.get(this.key(a, b)) || 0; },
+  befriend(a, b, n = 1) { const k = this.key(a, b); this.friends.set(k, (this.friends.get(k) || 0) + n); },
+  pickName(species) {
+    const used = new Set(this.creatures.map(c => c.name));
+    const free = SPECIES[species].names.filter(n => !used.has(n));
+    return free.length ? pick(free) : pick(SPECIES[species].names);
+  },
+  groundY() { return STAGE.ground; },
+  // a spot with some elbow room
+  randomX(c) {
+    const lo = c && c.species === 'swan' ? STAGE.pond.swimMin : STAGE.roamMin, hi = STAGE.roamMax;
+    let best = rand(lo, hi), bestD = -1;
+    for (let i = 0; i < 5; i++) {
+      const x = rand(lo, hi);
+      let m = Infinity;
+      for (const o of this.creatures) if (o !== c && o.species !== 'bird') m = Math.min(m, Math.abs(o.x - x));
+      if (m > bestD) { bestD = m; best = x; }
+    }
+    return best;
+  },
+  sound(name, x, opts) { if (typeof Sound !== 'undefined') Sound.play(name, x, opts); },
+  addParticle(p) { if (this.particles.length < 260) this.particles.push(p); },
+  dust(x, y, n = 6, spread = 0.04) {
+    for (let i = 0; i < n; i++) this.addParticle({ kind: 'dust', x: x + rand(-spread, spread) * 0.5, y: y - rand(0, 0.01), vx: rand(-spread, spread) * 2, vy: rand(-0.12, -0.03), r: rand(0.004, 0.009), a: 0.7, life: rand(0.4, 0.7), t: 0 });
+  },
+};
+
+class Creature {
+  constructor(species, x, y, facing = 1) {
+    const sp = SPECIES[species];
+    this.id = World.nextId++;
+    this.species = species; this.sp = sp;
+    this.name = World.pickName(species);
+    this.traits = makeTraits(species);
+    this.desc = describeTraits(this.traits);
+    this.x = x; this.y = y; this.jy = 0; this.jv = 0; this.vx = 0; this.vy = 0;
+    this.facing = facing; this.faceVis = facing;
+    this.size = sp.size; this.scale = 1; this.squash = 0; this.rot = 0; this.fade = 1;
+    this.soft = false; this.blurPx = 0; this.ghost = null; this.ghostA = 0; this.ghostX = 0; this.ghostY = 0; this.ghostScale = 1;
+    this.state = 'idle'; this.st = 0; this.dur = 1.5; this.tx = x; this.ty = y; this.spdMul = 1;
+    this.wt = {};
+    this.pose = { w: {}, gait: { phase: Math.random() * TAU, amp: 0 }, eye: 'open', blink: false, t: 0 };
+    this.emotes = [];
+    this.energy = rand(0.75, 1); this.hunger = rand(0.15, 0.4); this.joy = 0.6; this.trust = 0;
+    this.cool = { social: rand(2, 4), poke: 0, startle: 0, emote: 0, sound: 0, bark: 0 };
+    this.touchT = 0; this.noTouchT = 0; this.meeting = null; this.perch = null; this.swim = 0;
+    this.hopT = 0; this.hopping = false; this.blinkT = rand(1, 4); this.twitchT = rand(1, 3);
+    this.flapPhase = 0; this.fly = 0;
+    this.born = World.time;
+    this.status = 'arriving';
+    this.target = null; this.targetHand = null; this.crumb = null;
+  }
+  get len() { return this.size * this.sp.len; }
+  get busy() { return !!this.meeting || ['intro', 'exit', 'bow', 'flee', 'eat', 'petted'].includes(this.state); }
+  get free() { return !this.meeting && ['idle', 'walk', 'sit', 'swim'].includes(this.state) && this.cool.social <= 0 && !this.soft; }
+  setState(s, dur = 2) { this.state = s; this.st = 0; this.dur = dur; }
+  say(type, opts = {}) {
+    if (this.emotes.length >= 3) this.emotes.shift();
+    this.emotes.push({ type, t: 0, dur: opts.dur || 1.6, rise: opts.rise ?? 0.035, ox: opts.ox || rand(-0.008, 0.008), oy: opts.oy || 0, scale: opts.scale || 1 });
+  }
+  jump(h) { if (this.jy > -0.001 && this.species !== 'bird') this.jv = -Math.sqrt(2 * 3.2 * h); }
+  headWorld() {
+    const h = this.sp.head, s = this.size * this.scale;
+    const low = (this.wt.lie || 0) * 0.5 + (this.wt.eat || 0) * 0.35 + (this.wt.sit || 0) * -0.05 + (this.wt.down || 0) * 0.6 + (this.wt.tuck || 0) * 0.45;
+    return { x: this.x + this.faceVis * h[0] * s, y: this.y + this.jy + h[1] * s * (1 - low) };
+  }
+  center() { const h = this.sp.hit, s = this.size * this.scale; return { x: this.x + this.faceVis * h[0] * s, y: this.y + this.jy + h[1] * s, r: h[2] * s }; }
+  backWorld() { // where a bird can sit
+    const s = this.size;
+    const off = { rabbit: [-0.05, -0.55], fox: [-0.05, -0.62], dog: [-0.02, -0.66], swan: [-0.15, -0.53], bird: [0, -0.6] }[this.species];
+    const lie = this.wt.lie || 0, sit = this.wt.sit || 0;
+    return { x: this.x + this.faceVis * off[0] * s, y: this.y + this.jy + off[1] * s * (1 - lie * 0.55) - sit * 0.03 };
+  }
+  soundName() { return { rabbit: 'squeak', fox: 'yip', dog: 'bark', swan: 'honk', bird: 'chirp' }[this.species]; }
+  voice(force = false) { if (force || this.cool.sound <= 0) { World.sound(this.soundName(), this.x); this.cool.sound = 0.6; } }
+
+  // --- movement helpers ---
+  walkTo(tx, mul, dt) {
+    const dx = tx - this.x;
+    if (Math.abs(dx) < 0.012) { this.vx = approach(this.vx, 0, 12, dt); return true; }
+    this.facing = sign(dx);
+    const sp = this.sp.speed * mul * (0.8 + 0.4 * this.traits.energy) * (this.swim > 0.5 ? 0.8 : 1);
+    this.vx = approach(this.vx, this.facing * Math.min(sp, Math.abs(dx) * 4 + 0.03), 7, dt);
+    return false;
+  }
+  stop(dt) { this.vx = approach(this.vx, 0, 10, dt); }
+  bounds() {
+    if (this.state === 'exit' || this.state === 'intro') return [-1, 3];
+    if (this.species === 'swan') return [STAGE.pond.swimMin, STAGE.roamMax];
+    return [STAGE.roamMin, STAGE.roamMax];
+  }
+
+  // --- main update ---
+  update(dt, W) {
+    this.st += dt;
+    this.pose.t = W.time;
+    for (const k in this.cool) this.cool[k] -= dt;
+    const act = Math.abs(this.vx) > 0.02 ? 1 : 0;
+    if (this.state !== 'sleep') this.energy = clamp(this.energy - dt * (0.004 + act * 0.008 * (1.2 - this.traits.energy)), 0, 1);
+    this.hunger = clamp(this.hunger + dt * 0.005 * (0.6 + this.traits.appetite), 0, 1);
+    this.joy = approach(this.joy, 0.55, 0.05, dt);
+
+    if (this.state === 'intro') { this.updateIntro(dt, W); this.animate(dt, W); this.tickEmotes(dt); return; }
+    if (!['exit', 'bow'].includes(this.state)) this.reactToHands(dt, W);
+    if (this.species === 'bird') this.birdUpdate(dt, W); else this.groundUpdate(dt, W);
+    this.animate(dt, W);
+    this.tickEmotes(dt);
+  }
+  tickEmotes(dt) {
+    for (const e of this.emotes) e.t += dt;
+    this.emotes = this.emotes.filter(e => e.t < e.dur);
+  }
+
+  // --- birth: the shadow peels off the hand and hops onto the stage ---
+  beginIntro(info) {
+    this.setState('intro', 99);
+    this.intro = info;           // { bx, by, lx, ly, scale0, ghost }
+    this.ghost = info.ghost;
+    this.ghostA = 1; this.ghostX = info.bx; this.ghostY = info.by; this.ghostScale = 1;
+    this.soft = true; this.fade = 0; this.scale = info.scale0; this.blurPx = 0.012;
+    this.x = info.bx; this.y = info.by + this.size * info.scale0 * 0.45;
+    this.status = 'arriving';
+  }
+  updateIntro(dt, W) {
+    const I = this.intro, t = this.st;
+    const T1 = 0.55, T2 = this.species === 'bird' ? 1.05 : 1.3;
+    if (t < T1) {
+      const k = easeInOut(t / T1);
+      this.ghostA = 1 - k;
+      this.ghostScale = 1 - 0.3 * k;
+      this.ghostY = I.by - 0.02 * k;
+      this.fade = k;
+      this.scale = lerp(I.scale0, I.scale0 * 0.85, k);
+      this.y = I.by + this.size * this.scale * 0.45 - 0.03 * k;
+      this.blurPx = lerp(0.012, 0.007, k);
+      if (Math.random() < dt * 30) W.addParticle({ kind: 'mote', x: I.bx + rand(-0.08, 0.08), y: I.by + rand(-0.08, 0.08), vx: rand(-0.05, 0.05), vy: rand(-0.12, -0.02), r: rand(0.006, 0.014), a: 0.9, life: rand(0.5, 0.9), t: 0 });
+      return;
+    }
+    this.ghost = null; this.ghostA = 0;
+    if (this.species === 'bird') {
+      const k = clamp((t - T1) / (T2 - T1), 0, 1);
+      this.scale = lerp(I.scale0 * 0.85, 1, easeOutCubic(k));
+      this.blurPx = lerp(0.007, 0, k);
+      this.fly = 1;
+      this.y -= dt * 0.15;
+      if (k >= 1) { this.soft = false; this.scale = 1; this.finishIntro(W); this.setState('fly', 3); this.pickPerch(W); }
+      return;
+    }
+    const k = clamp((t - T1) / (T2 - T1), 0, 1);
+    const sx = I.bx, sy = I.by + this.size * I.scale0 * 0.85 * 0.45 - 0.03;
+    const apex = Math.min(sy, I.ly) - 0.10;
+    // quadratic arc through the apex
+    const x = lerp(sx, I.lx, k);
+    const y = (1 - k) * (1 - k) * sy + 2 * (1 - k) * k * apex + k * k * I.ly;
+    this.x = x; this.y = y;
+    this.scale = lerp(I.scale0 * 0.85, 1, easeOutCubic(k));
+    this.blurPx = lerp(0.007, 0, k * k);
+    this.wt.stretch = Math.sin(k * Math.PI);
+    this.facing = sign(I.lx - sx) || this.facing;
+    if (k >= 1) {
+      this.y = I.ly; this.scale = 1; this.blurPx = 0; this.soft = false;
+      this.squash = 1;
+      W.dust(this.x, this.y, 8, this.len * 0.6);
+      World.sound('land', this.x);
+      this.finishIntro(W);
+      this.setState('idle', 0.6);
+    }
+  }
+  finishIntro(W) {
+    this.status = 'just arrived';
+    this.intro = null;
+    W.emit('born', this);
+    this.voice(true);
+    const flourish = { rabbit: 'spark', fox: 'spark', dog: 'heart', swan: 'notes', bird: 'notes' }[this.species];
+    setTimeout(() => this.say(flourish, { scale: 1.1 }), 350);
+  }
+
+  // --- how they respond to the big hands ---
+  reactToHands(dt, W) {
+    const c = this.center();
+    let touching = null, near = null, nearD = Infinity;
+    for (const h of W.hands) {
+      if (h.alpha < 0.5) continue;
+      if (this.perch && this.perch.h === h) continue;
+      const d = HandDraw.hitDist(h.pts, h.S, c.x, c.y) - c.r * 0.85;
+      if (d < 0 && (!touching || h.speed > touching.speed)) touching = h;
+      if (d < nearD) { nearD = d; near = h; }
+    }
+    // a hand holding the shape of my own kind: I get excited
+    if (this.cool.emote <= 0) {
+      for (const h of W.hands) if (h.gesture === this.species && h.focus > 0.25 && h.alpha > 0.5) {
+        this.facing = sign(h.center.x - this.x) || this.facing;
+        this.say('bang', { scale: 0.9 }); this.cool.emote = 3;
+        if (this.state === 'idle' || this.state === 'sit') { this.jump(0.04); }
+        break;
+      }
+    }
+    if (touching) {
+      this.noTouchT = 0;
+      this.touchT += dt;
+      const sp = touching.speed;
+      if (sp > 1.25 - this.traits.brave * 0.25 + this.trust * 0.15) { this.startle(touching.center.x, W); return; }
+      // a gentle hand: birds hop onto it
+      if (this.species === 'bird' && sp < 0.5 && this.touchT > 0.5 && this.state !== 'perch' && touching.topPoint) {
+        this.perchTarget = { kind: 'hand', h: touching }; this.perch = null; this.setState('fly', 3); this.say('heart'); return;
+      }
+      if (this.cool.poke <= 0 && this.touchT < 0.25) this.poke(touching, W);
+      if (this.touchT > 0.8 && sp < 0.4 && this.state !== 'petted' && this.state !== 'flee' && this.species !== 'bird') {
+        if (this.meeting) this.meeting.end(W);
+        this.setState('petted', 99); this.say('heart'); this.trust = Math.min(1, this.trust + 0.2);
+        World.sound('purr', this.x);
+      }
+    } else {
+      this.noTouchT += dt;
+      if (this.noTouchT > 0.3) this.touchT = 0;
+      // a fast swoosh nearby frightens the shy ones
+      if (near && nearD < 0.07 && near.speed > 1.5 && this.cool.startle <= 0 && Math.random() < (1 - this.traits.brave) * 0.6 + 0.1) {
+        const toward = (this.x - near.center.x) * near.vel.x < 0 ? 0 : 1;
+        if (toward) this.startle(near.center.x, W);
+      }
+    }
+  }
+  poke(h, W) {
+    this.cool.poke = 0.9;
+    this.joy = Math.min(1, this.joy + 0.15);
+    this.trust = Math.min(1, this.trust + 0.08);
+    if (this.state === 'sleep') {
+      this.setState('idle', 1.5); this.say(this.traits.friendly < 0.4 ? 'grr' : 'q'); this.voice(true); return;
+    }
+    if (this.species === 'bird' && this.fly < 0.5) { this.setState('fly', 2); this.vy = -0.5; this.say('notes'); World.sound('chirp', this.x); this.pickPerch(W); return; }
+    this.jump(0.045);
+    this.squash = -0.5;
+    this.say(pick(this.traits.friendly > 0.5 ? ['heart', 'spark', 'notes'] : ['spark', 'q', 'note']));
+    World.sound('boop', this.x);
+    if (this.cool.sound <= 0 && Math.random() < 0.5) this.voice();
+  }
+  startle(fromX, W, cascade = true) {
+    if (this.cool.startle > 0) return;
+    if (this.meeting) this.meeting.end(W);
+    this.cool.startle = 2.2;
+    this.joy = Math.max(0, this.joy - 0.15);
+    this.say('bang', { scale: 1.15 });
+    World.sound('startle', this.x);
+    const away = sign(this.x - fromX) || (Math.random() < 0.5 ? -1 : 1);
+    if (this.species === 'bird') {
+      this.setState('fly', 2); this.vy = -0.9; this.vx = away * 0.5; this.perch = null; this.pickPerch(W, true);
+    } else {
+      this.jump(0.09);
+      this.setState('flee', rand(1.0, 2.2) * (1.4 - this.traits.brave));
+      this.tx = clamp(this.x + away * rand(0.3, 0.55), ...this.bounds());
+      if (Math.abs(this.tx - this.x) < 0.15) this.tx = clamp(this.x - away * 0.4, ...this.bounds());
+    }
+    if (cascade) {
+      for (const o of W.creatures) {
+        if (o === this || o.state === 'intro' || o.state === 'exit') continue;
+        if (Math.abs(o.x - this.x) < 0.3 && Math.random() < (1 - o.traits.brave) * 0.7) {
+          setTimeout(() => o.startle(fromX, W, false), rand(150, 450));
+        }
+      }
+    }
+  }
+
+  // --- ground animals (rabbit, fox, dog, swan) ---
+  groundUpdate(dt, W) {
+    const T = this.traits;
+    if (this.meeting) { /* the meeting steers */ }
+    else switch (this.state) {
+      case 'idle':
+        this.stop(dt);
+        if (this.st > this.dur) this.think(W);
+        break;
+      case 'sit':
+        this.stop(dt);
+        if (this.st > this.dur) this.think(W);
+        break;
+      case 'walk':
+        if (this.walkTo(this.tx, this.spdMul, dt) || this.st > this.dur) this.setState(this.swim > 0.5 ? 'swim' : 'idle', rand(0.5, 1.6));
+        break;
+      case 'swim':
+        if (this.walkTo(this.tx, 0.6, dt) || this.st > this.dur) { this.tx = rand(STAGE.pond.swimMin, STAGE.pond.swimMax); if (this.st > this.dur) this.think(W); }
+        if (Math.random() < dt * 1.5) W.ripples.push({ x: this.x - this.facing * this.size * 0.4, r: 0.01, a: 0.8 });
+        break;
+      case 'sleep':
+        this.stop(dt);
+        this.energy = Math.min(1, this.energy + dt * 0.06);
+        if (this.cool.emote <= 0) { this.say('z', { dur: 2.2, rise: 0.05, ox: this.faceVis * 0.02 }); this.cool.emote = 1.3; }
+        if (this.st > this.dur) { this.setState('idle', 1); this.say('spark'); }
+        break;
+      case 'flee':
+        if (this.walkTo(this.tx, 2.1, dt) || this.st > this.dur) {
+          this.setState('idle', rand(0.8, 1.6));
+          if (T.brave < 0.4) this.say('drop');
+        }
+        break;
+      case 'eat': this.eatUpdate(dt, W); break;
+      case 'approach': {
+        const o = this.target;
+        if (!o || !W.creatures.includes(o) || this.st > this.dur) { this.setState('idle', 1); break; }
+        const gap = (this.len + o.len) * 0.55 + 0.03;
+        if (o.state === 'sleep' && this.energy < 0.6 && W.friendship(this, o) >= 1) {
+          if (this.walkTo(o.x - sign(o.x - this.x) * gap * 0.75, 0.7, dt)) { this.setState('sleep', rand(8, 12)); this.facing = o.facing; }
+        } else if (Math.abs(o.x - this.x) < gap + 0.05) this.setState('idle', 0.3);
+        else this.walkTo(o.x, 0.9, dt);
+        break;
+      }
+      case 'sniff': { // go and investigate a still hand
+        const h = this.targetHand;
+        if (!h || h.alpha < 0.5 || this.st > this.dur) { this.setState('idle', 1); break; }
+        const hx = clamp(h.lowPoint.x, ...this.bounds());
+        const gap = this.len * 0.6 + 0.02;
+        if (Math.abs(hx - this.x) > gap) this.walkTo(hx - sign(hx - this.x) * gap, 0.7, dt);
+        else { this.stop(dt); this.facing = sign(hx - this.x) || this.facing; this.lookUp = h.lowPoint.y < this.y - this.size; if (this.cool.emote <= 0) { this.say(this.trust > 0.3 ? 'heart' : 'q'); this.cool.emote = 2.5; } }
+        break;
+      }
+      case 'beg': {
+        const h = this.targetHand;
+        if (!h || !h.crumb || !h.crumb.held || h.alpha < 0.5 || this.st > 8) { this.setState('idle', 0.8); break; }
+        const hx = clamp(h.crumb.x, ...this.bounds());
+        if (Math.abs(hx - this.x) > this.len * 0.3) this.walkTo(hx - sign(hx - this.x) * this.len * 0.25, 1.1, dt);
+        else { this.stop(dt); this.facing = sign(hx - this.x) || this.facing; if (Math.random() < dt * 0.9) this.jump(0.035); if (this.cool.emote <= 0) { this.say('q'); this.cool.emote = 2.2; } }
+        break;
+      }
+      case 'petted':
+        this.stop(dt);
+        if (this.cool.emote <= 0) { this.say('heart', { scale: 0.9 }); this.cool.emote = 0.8; }
+        this.joy = Math.min(1, this.joy + dt * 0.2);
+        if (this.noTouchT > 0.5) { this.setState('idle', 1.2); this.say('spark'); }
+        break;
+      case 'exit': {
+        const dir = this.exitDir || 1;
+        this.facing = dir;
+        this.vx = approach(this.vx, dir * this.sp.speed * 1.1, 4, dt);
+        if (this.x < -0.3 || this.x > STAGE.A + 0.3) this.gone = true;
+        break;
+      }
+      case 'bow': this.bowUpdate(dt, W); break;
+      default:
+        if (this.st > this.dur) this.setState('idle', 1);
+    }
+    // hops for rabbits; everyone else glides along the ground
+    const moving = Math.abs(this.vx) > 0.03;
+    if (this.species === 'rabbit') {
+      if (moving || this.hopT > 0) {
+        this.hopT += dt;
+        const HD = 0.36;
+        if (this.hopT >= HD) { this.hopT = moving ? this.hopT - HD : 0; if (!moving) this.squash = 0.4; }
+        this.hopFrac = this.hopT / HD;
+        this.x += this.vx * dt * 1.15;
+      } else this.hopFrac = 0;
+    } else {
+      this.x += this.vx * dt;
+    }
+    const [lo, hi] = this.bounds();
+    if (this.x < lo) { this.x = lo; if (this.state === 'flee' || this.state === 'walk') this.tx = Math.max(this.tx, lo + 0.1); }
+    if (this.x > hi) { this.x = hi; if (this.state === 'flee' || this.state === 'walk') this.tx = Math.min(this.tx, hi - 0.1); }
+    // ground height (swans float in the pond)
+    const P = STAGE.pond;
+    if (this.species === 'swan') {
+      this.swim = smoothstep(P.x1 + 0.03, P.x1 - 0.04, this.x);
+      if (this.swim > 0.5 && this.state === 'idle') this.setState('swim', rand(3, 6));
+      const waterY = P.water + 0.20 * this.size;
+      this.y = lerp(STAGE.ground, waterY, this.swim) + Math.sin(W.time * 1.6 + this.id) * 0.002 * this.swim;
+    } else this.y = STAGE.ground;
+    // jumps
+    if (this.jv !== 0 || this.jy < 0) {
+      this.jv += 3.2 * dt;
+      this.jy += this.jv * dt;
+      if (this.jy >= 0) { this.jy = 0; if (this.jv > 0.5) { this.squash = 0.6; } this.jv = 0; }
+    }
+    if (this.species === 'rabbit' && this.hopFrac > 0) this.jy = Math.min(this.jy, -Math.sin(this.hopFrac * Math.PI) * this.size * 0.42);
+  }
+
+  think(W) {
+    const T = this.traits;
+    this.lookUp = false;
+    // swans like their pond
+    if (this.species === 'swan') {
+      if (this.hunger > 0.3 && this.findCrumb(W)) return;
+      if (this.energy < 0.2) { this.setState('sleep', rand(6, 10)); return; }
+      const inPond = this.swim > 0.5;
+      const r = Math.random();
+      if (!inPond && r < 0.45) { this.setState('walk', 8); this.tx = rand(STAGE.pond.swimMin, STAGE.pond.swimMax); this.spdMul = 1; return; }
+      if (inPond && r < 0.25 && this.cool.social <= 0) { this.setState('walk', 8); this.tx = rand(STAGE.roamMin, STAGE.roamMin + 0.4); return; }
+      if (r < 0.4) { this.say('notes'); this.voice(); this.preenT = 1.2; }
+      if (inPond) this.setState('swim', rand(3, 6)); else this.setState('idle', rand(1.5, 3));
+      return;
+    }
+    // a hand holding a crumb: come and beg
+    for (const h of W.hands) if (h.crumb && h.crumb.held && h.alpha > 0.5 && Math.abs(h.crumb.x - this.x) < 0.6 && this.hunger > 0.15) { this.targetHand = h; this.setState('beg', 8); return; }
+    if (this.hunger > 0.28 && this.findCrumb(W)) return;
+    if (this.energy < 0.22) { this.setState('sleep', rand(7, 12)); return; }
+    // the dog barks at birds on the ground nearby
+    if (this.species === 'dog' && this.cool.bark <= 0) {
+      const b = W.creatures.find(o => o.species === 'bird' && o.fly < 0.5 && !o.perchOn && Math.abs(o.x - this.x) < 0.35 && o.state !== 'intro');
+      if (b) { this.facing = sign(b.x - this.x); this.say('bang'); this.voice(true); this.cool.bark = 8; setTimeout(() => b.startle(this.x, W, false), 300); this.setState('idle', 1.2); return; }
+    }
+    if (this.cool.social <= 0 && Math.random() < 0.3 + 0.4 * T.friendly) {
+      const others = W.creatures.filter(o => o !== this && o.species !== 'bird' && o.state !== 'intro' && o.state !== 'exit' && (o.swim < 0.5 || this.species === 'swan'));
+      if (others.length) {
+        others.sort((a, b) => (W.friendship(this, b) - W.friendship(this, a)) || (Math.abs(a.x - this.x) - Math.abs(b.x - this.x)));
+        this.target = Math.random() < 0.7 ? others[0] : pick(others);
+        this.setState('approach', 6);
+        return;
+      }
+    }
+    if (Math.random() < 0.25 + T.curious * 0.5) {
+      const h = W.hands.find(h => h.alpha > 0.5 && h.stillT > 1.0 && h.lowPoint && h.lowPoint.y > 0.45 && Math.abs(h.lowPoint.x - this.x) < 0.7);
+      if (h) { this.targetHand = h; this.setState('sniff', rand(4, 7)); return; }
+    }
+    // too crowded: find some room
+    const near = W.creatures.filter(o => o !== this && o.species !== 'bird' && Math.abs(o.x - this.x) < (this.len + o.len) * 0.9).length;
+    if (near >= 2 || (near === 1 && Math.random() < 0.4)) { this.setState('walk', 7); this.tx = W.randomX(this); this.spdMul = 0.9; return; }
+    const r = Math.random();
+    if (r < 0.48) { this.setState('walk', 7); this.tx = W.randomX(this); this.spdMul = rand(0.7, 1.1); }
+    else if (r < 0.68) this.setState('sit', rand(2, 5));
+    else if (r < 0.78 && T.energy > 0.55) { this.jump(0.07); this.say('spark'); this.setState('idle', 1.2); }
+    else if (r < 0.84) { this.say(pick(['note', 'notes', 'q'])); this.voice(); this.setState('idle', 1.5); }
+    else this.setState('idle', rand(1, 2.5));
+  }
+  findCrumb(W) {
+    let best = null, bd = Infinity;
+    for (const cr of W.crumbs) {
+      if (cr.held || cr.claimed || cr.y < STAGE.ground - 0.02 || cr.sunk) continue;
+      const [lo, hi] = this.bounds();
+      if (cr.x < lo - 0.05 || cr.x > hi + 0.05) continue;
+      const d = Math.abs(cr.x - this.x);
+      if (d < bd) { bd = d; best = cr; }
+    }
+    if (!best) return false;
+    best.claimed = this; this.crumb = best;
+    this.setState('eat', 10); this.eatT = 0;
+    return true;
+  }
+  eatUpdate(dt, W) {
+    const cr = this.crumb;
+    if (!cr || !W.crumbs.includes(cr)) { this.crumb = null; this.setState('idle', 0.6); return; }
+    const reach = this.len * (this.species === 'swan' ? 0.62 : 0.5);
+    const want = cr.x - sign(cr.x - this.x || 1) * reach;
+    if (this.eatT === 0 && !this.walkTo(want, 1.25, dt) && this.st < 9) return;
+    this.stop(dt);
+    this.facing = sign(cr.x - this.x) || this.facing;
+    this.eatT += dt;
+    if (this.eatT > 0.3 && this.eatT - dt <= 0.3) World.sound('munch', this.x);
+    if (this.eatT > 1.3) {
+      W.crumbs.splice(W.crumbs.indexOf(cr), 1);
+      this.crumb = null;
+      this.hunger = Math.max(0, this.hunger - 0.4);
+      this.joy = Math.min(1, this.joy + 0.2);
+      this.say(Math.random() < 0.5 ? 'heart' : 'yum');
+      this.setState('idle', 1);
+    }
+  }
+  bowUpdate(dt, W) {
+    const cc = W.curtainCall;
+    if (this.slotX !== undefined && Math.abs(this.slotX - this.x) > 0.015 && !this.bowing) {
+      if (this.species === 'bird') return;
+      this.walkTo(this.slotX, 1.1, dt);
+    } else {
+      this.stop(dt);
+      this.facing = this.slotFace || 1;
+    }
+  }
+
+  // --- birds ---
+  pickPerch(W, high = false) {
+    const opts = [];
+    for (const p of STAGE.perches) if (!W.creatures.some(o => o !== this && o.perch && o.perch.kind === 'tree' && Math.abs(o.perch.x - p.x) < 0.04)) opts.push({ kind: 'tree', x: p.x, y: p.y });
+    if (!high) {
+      for (const o of W.creatures) if (o !== this && o.species !== 'bird' && o.state !== 'intro' && o.state !== 'exit' && !W.creatures.some(b => b.perch && b.perch.c === o)) opts.push({ kind: 'creature', c: o });
+      opts.push({ kind: 'ground', x: W.randomX(this), y: STAGE.ground });
+    }
+    const p = opts.length ? (high ? pick(opts.filter(o => o.kind === 'tree')) || opts[0] : pick(opts)) : { kind: 'ground', x: W.randomX(this), y: STAGE.ground };
+    this.perchTarget = p;
+    this.perch = null;
+    this.setState('fly', 5);
+  }
+  perchPoint(p) {
+    if (!p) return null;
+    if (p.kind === 'creature') return p.c && !p.c.gone ? p.c.backWorld() : null;
+    if (p.kind === 'hand') return p.h && p.h.alpha > 0.4 ? p.h.topPoint : null;
+    return { x: p.x, y: p.y };
+  }
+  birdUpdate(dt, W) {
+    const T = this.traits;
+    if (this.state === 'exit') {
+      this.fly = approach(this.fly, 1, 8, dt);
+      this.vx = approach(this.vx, (this.exitDir || 1) * 0.5, 3, dt); this.vy = approach(this.vy, -0.35, 3, dt);
+      this.x += this.vx * dt; this.y += this.vy * dt; this.facing = sign(this.vx);
+      if (this.y < -0.2 || this.x < -0.2 || this.x > STAGE.A + 0.2) this.gone = true;
+      return;
+    }
+    if (this.state === 'bow') {
+      if (this.slotX !== undefined) {
+        const dx = this.slotX - this.x, dy = STAGE.ground - this.y;
+        if (Math.hypot(dx, dy) > 0.01) { this.fly = 1; this.vx = approach(this.vx, clamp(dx * 3, -0.5, 0.5), 5, dt); this.vy = approach(this.vy, clamp(dy * 3, -0.5, 0.5), 5, dt); this.x += this.vx * dt; this.y += this.vy * dt; if (Math.abs(this.vx) > 0.02) this.facing = sign(this.vx); }
+        else { this.fly = approach(this.fly, 0, 8, dt); this.vx = this.vy = 0; this.y = STAGE.ground; this.facing = this.slotFace || 1; }
+      }
+      return;
+    }
+    // catch a falling crumb
+    if (this.state !== 'flee' && this.cool.poke <= 0) {
+      const cr = W.crumbs.find(c => !c.held && !c.claimed && !c.floating && !c.sunk && c.vy > 0 && Math.hypot(c.x - this.x, c.y - this.y) < 0.45);
+      if (cr && this.hunger > 0.1) { cr.claimed = this; this.crumb = cr; this.perch = null; this.setState('catch', 4); }
+    }
+    if (this.state === 'catch') {
+      const cr = this.crumb;
+      if (!cr || !W.crumbs.includes(cr)) { this.crumb = null; this.pickPerch(W); }
+      else {
+        this.flyToward(cr.x, cr.y - 0.01, 1.6, dt);
+        if (Math.hypot(cr.x - this.x, cr.y - 0.01 - this.y) < 0.03) {
+          W.crumbs.splice(W.crumbs.indexOf(cr), 1); this.crumb = null; this.hunger = Math.max(0, this.hunger - 0.4);
+          this.say('heart'); World.sound('chirp', this.x); this.pickPerch(W);
+        }
+        return;
+      }
+    }
+    if (this.state === 'fly' || this.state === 'flee') {
+      const p = this.perchTarget, pt = this.perchPoint(p);
+      if (!pt) { this.pickPerch(W); return; }
+      const arrived = this.flyToward(pt.x, pt.y, 1, dt);
+      if (arrived) {
+        this.perch = p; this.perchTarget = null; this.vx = this.vy = 0; this.fly = 0;
+        this.setState(p.kind === 'ground' ? 'hop' : 'perch', rand(4, 9) * (p.kind === 'hand' ? 1.6 : 1));
+        if (p.kind === 'creature') { p.c.say(p.c.traits.friendly > 0.4 ? 'heart' : 'q'); this.say('notes'); World.sound('chirp', this.x); World.befriend(this, p.c); }
+        if (p.kind === 'hand') { this.say('heart'); World.sound('chirp', this.x); }
+      }
+      if (this.st > 6) this.pickPerch(W);
+      return;
+    }
+    if (this.state === 'perch') {
+      const pt = this.perchPoint(this.perch);
+      if (!pt) { this.say('bang'); this.pickPerch(W); return; }
+      this.x = pt.x; this.y = pt.y;
+      const carrier = this.perch.kind === 'creature' ? this.perch.c : null;
+      if (carrier) {
+        this.facing = carrier.facing;
+        if (Math.abs(carrier.vx) > carrier.sp.speed * 1.3 || carrier.jy < -0.03 || carrier.state === 'flee') { this.say('bang'); this.pickPerch(W, true); return; }
+      }
+      if (this.perch.kind === 'hand' && this.perch.h.speed > 0.7) { this.say('bang'); World.sound('chirp', this.x); this.pickPerch(W, true); return; }
+      if (this.cool.emote <= 0 && Math.random() < dt * 0.5) {
+        this.say('notes'); World.sound('chirp', this.x); this.cool.emote = 2.5; this.mouthT = 0.4;
+        const mate = W.creatures.find(o => o !== this && o.species === 'bird' && o.state === 'perch' && Math.abs(o.x - this.x) < 0.4);
+        if (mate && mate.cool.emote <= 0) setTimeout(() => { if (W.creatures.includes(mate)) { mate.say('notes'); mate.mouthT = 0.4; World.sound('chirp', mate.x, { rate: 1.2 }); } }, 600);
+      }
+      if (this.st > this.dur) this.birdThink(W);
+      return;
+    }
+    if (this.state === 'hop') { // pecking around on the ground
+      this.y = STAGE.ground;
+      if (this.hunger > 0.2) {
+        const cr = W.crumbs.find(c => !c.held && !c.claimed && !c.floating && !c.sunk && c.y >= STAGE.ground - 0.02 && Math.abs(c.x - this.x) < 0.5);
+        if (cr) { cr.claimed = this; this.crumb = cr; this.setState('eat', 6); this.eatT = 0; return; }
+      }
+      if (!this.hopTarget || Math.abs(this.hopTarget - this.x) < 0.01) { this.hopTarget = clamp(this.x + rand(-0.12, 0.12), STAGE.roamMin, STAGE.roamMax); this.pauseT = rand(0.3, 1.2); }
+      if (this.pauseT > 0) { this.pauseT -= dt; this.wt.peck = this.pauseT % 0.5 < 0.15 ? 1 : 0; }
+      else {
+        this.facing = sign(this.hopTarget - this.x);
+        this.x += this.facing * Math.min(0.22 * dt, Math.abs(this.hopTarget - this.x));
+        this.jy = -Math.abs(Math.sin(this.st * 14)) * 0.012;
+      }
+      if (this.st > this.dur) this.birdThink(W);
+      return;
+    }
+    if (this.state === 'eat') {
+      const cr = this.crumb;
+      if (!cr || !W.crumbs.includes(cr)) { this.crumb = null; this.setState('hop', 3); return; }
+      if (Math.abs(cr.x - this.x) > 0.03) { this.facing = sign(cr.x - this.x); this.x += this.facing * 0.3 * dt; this.jy = -Math.abs(Math.sin(this.st * 14)) * 0.012; return; }
+      this.jy = 0; this.eatT += dt; this.wt.peck = Math.sin(this.eatT * 16) > 0 ? 1 : 0;
+      if (this.eatT > 0.9) { W.crumbs.splice(W.crumbs.indexOf(cr), 1); this.crumb = null; this.hunger = Math.max(0, this.hunger - 0.4); this.say('heart'); World.sound('chirp', this.x); this.setState('hop', 2); }
+      return;
+    }
+    if (this.state === 'petted') { if (this.noTouchT > 0.5) this.setState('perch', 2); return; }
+    if (this.state === 'intro') return;
+    this.birdThink(W);
+  }
+  birdThink(W) {
+    const T = this.traits;
+    // a hand held still: maybe land on it
+    if (Math.random() < 0.35 + T.curious * 0.4) {
+      const h = W.hands.find(h => h.alpha > 0.6 && h.stillT > 1.4 && h.speed < 0.15 && h.topPoint && !W.creatures.some(b => b.perch && b.perch.h === h));
+      if (h) { this.perchTarget = { kind: 'hand', h }; this.perch = null; this.setState('fly', 5); return; }
+    }
+    this.pickPerch(W);
+  }
+  flyToward(tx, ty, mul, dt) {
+    const dx = tx - this.x, dy = ty - this.y, d = Math.hypot(dx, dy);
+    this.fly = approach(this.fly, 1, 10, dt);
+    if (d < 0.012) { this.x = tx; this.y = ty; return true; }
+    const sp = this.sp.speed * mul * (0.8 + 0.4 * this.traits.energy);
+    const want = Math.min(sp, d * 3.5 + 0.05);
+    // arc a little: rise while far away
+    const lift = d > 0.25 ? -0.25 : 0;
+    this.vx = approach(this.vx, dx / d * want, 4, dt);
+    this.vy = approach(this.vy, dy / d * want + lift * want, 4, dt);
+    this.x += this.vx * dt; this.y += this.vy * dt;
+    if (Math.abs(this.vx) > 0.03) this.facing = sign(this.vx);
+    this.y = Math.min(this.y, STAGE.ground);
+    return false;
+  }
+
+  // --- pose: turn the state into keyframe weights, gait, and small motions ---
+  animate(dt, W) {
+    const P = this.pose, w = this.wt, sp = this.species;
+    const tgt = {};
+    const st = this.state;
+    const m = this.meeting ? this.meeting.poseFor(this) : null;
+    const lying = st === 'sleep';
+    const speed = Math.abs(this.vx);
+    if (sp === 'rabbit') {
+      tgt.stretch = this.hopFrac > 0 ? Math.sin(this.hopFrac * Math.PI) : (st === 'intro' ? w.stretch || 0 : 0);
+      tgt.upright = (st === 'beg' || (st === 'sniff' && this.lookUp) || (m && m.upright)) ? 1 : 0;
+      tgt.lie = lying ? 1 : 0;
+      tgt.eat = st === 'eat' && this.eatT > 0 ? 1 : 0;
+      tgt.bow = (this.bowing || (m && m.bow)) ? 1 : 0;
+    } else if (sp === 'fox' || sp === 'dog') {
+      tgt.run = speed > this.sp.speed * 1.3 ? 1 : 0;
+      tgt.sit = (st === 'sit' || st === 'petted' || st === 'beg' || (m && m.sit)) ? 1 : 0;
+      tgt.lie = lying ? 1 : 0;
+      tgt.bow = (this.bowing || (m && m.bow)) ? 1 : 0;
+      tgt.eat = st === 'eat' && this.eatT > 0 ? 1 : 0;
+      tgt.look = (st === 'beg' || (st === 'sniff' && this.lookUp) || this.lookUpAt) ? 1 : 0;
+    } else if (sp === 'swan') {
+      tgt.heart = m && m.heart ? 1 : 0;
+      tgt.down = (st === 'eat' && this.eatT > 0) || (st === 'swim' && Math.sin(W.time * 0.4 + this.id) > 0.93) ? 1 : 0;
+      tgt.tall = st === 'flee' || st === 'beg' ? 1 : 0;
+      tgt.tuck = lying ? 1 : 0;
+      tgt.display = (this.preenT > 0 || (this.cool.startle > 1.4)) ? 1 : 0;
+      if (this.bowing) tgt.down = 1;
+      this.preenT = (this.preenT || 0) - dt;
+    } else if (sp === 'bird') {
+      tgt.peck = w.peck || 0;
+      if (this.bowing) tgt.peck = 1;
+    }
+    for (const k in tgt) w[k] = approach(w[k] || 0, tgt[k], sp === 'rabbit' && k === 'stretch' ? 30 : 7, dt);
+    P.w = w;
+    // gait
+    const amp = clamp(speed / (this.sp.speed * 0.9), 0, 1.3);
+    P.gait.amp = approach(P.gait.amp, amp, 8, dt);
+    P.gait.phase += speed * dt / Math.max(0.05, this.size * 0.55) * Math.PI;
+    P.bound = speed > this.sp.speed * 1.4;
+    P.swim = this.swim;
+    // breathing, blinking, twitches, tails
+    P.breath = Math.sin(W.time * (lying ? 1.6 : 2.6) + this.id);
+    this.blinkT -= dt;
+    if (this.blinkT < 0) { P.blink = true; if (this.blinkT < -0.12) { P.blink = false; this.blinkT = rand(1.8, 5); } }
+    this.twitchT -= dt;
+    if (this.twitchT < 0) { this.twitchAmt = rand(-0.4, 0.3); this.twitchT = rand(1.5, 4.5); }
+    P.ear1 = (this.twitchAmt || 0) * Math.max(0, 1 - (this.twitchT > 4 ? 0 : 0)) * (Math.sin(W.time * 12) * 0.2 + 0.8) * (this.twitchT % 1 < 0.25 ? 1 : 0.2);
+    P.nose = sp === 'rabbit' && st !== 'sleep';
+    const happy = this.state === 'petted' || this.joy > 0.8;
+    if (sp === 'dog') P.tail = Math.sin(W.time * (happy ? 18 : 7)) * (happy ? 0.5 : 0.22) * (lying ? 0.2 : 1);
+    else if (sp === 'fox') P.tail = Math.sin(W.time * 2.2 + this.id) * 0.12 + (happy ? Math.sin(W.time * 9) * 0.15 : 0);
+    else if (sp === 'bird') P.tail = Math.sin(W.time * 3 + this.id) * 0.1;
+    else P.tail = 0;
+    P.eye = lying ? 'closed' : (st === 'petted' ? 'happy' : (this.cool.startle > 1.6 ? 'wide' : (this.emotes.some(e => e.type === 'heart') ? 'happy' : 'open')));
+    // mouths: talk when voicing
+    this.mouthT = Math.max(0, (this.mouthT || 0) - dt);
+    if (this.cool.sound > 0.35) this.mouthT = Math.max(this.mouthT, 0.15);
+    P.mouth = this.mouthT > 0 ? 0.7 + Math.sin(W.time * 30) * 0.3 : 0;
+    P.tongue = sp === 'dog' && (this.energy < 0.5 || (m && m.pant) || this.panting > 0) && !lying;
+    this.panting = Math.max(0, (this.panting || 0) - dt);
+    // birds: wing beats
+    if (sp === 'bird') {
+      this.flapPhase += dt * (this.fly > 0.5 ? 26 : 0);
+      P.fly = this.fly;
+      P.flapA = Math.sin(this.flapPhase) * 0.9 - (this.vy < -0.1 ? 0.2 : 0);
+      P.flutter = this.state === 'petted';
+      this.rot = this.fly > 0.5 ? clamp(this.vy * 0.4, -0.3, 0.3) * this.facing : 0;
+    }
+    // turning is a paper flip
+    this.faceVis = approach(this.faceVis, this.facing, 13, dt);
+    if (Math.abs(this.faceVis) < 0.08) this.faceVis = 0.08 * sign(this.facing);
+    this.squash = approach(this.squash, 0, 9, dt);
+    // status line for the cast list
+    this.status = this.describeState(W);
+  }
+  describeState(W) {
+    if (this.meeting) return this.meeting.statusFor(this);
+    switch (this.state) {
+      case 'intro': return 'arriving';
+      case 'sleep': return 'napping';
+      case 'eat': return 'having a snack';
+      case 'flee': return 'scampering away';
+      case 'petted': return 'getting petted';
+      case 'beg': return 'hoping for a crumb';
+      case 'sniff': return 'sniffing your hand';
+      case 'approach': return this.target ? `heading to see ${this.target.name}` : 'wandering';
+      case 'swim': return 'gliding on the pond';
+      case 'perch': return this.perch && this.perch.kind === 'creature' ? `riding on ${this.perch.c.name}` : this.perch && this.perch.kind === 'hand' ? 'sitting on your hand' : 'singing in the tree';
+      case 'fly': case 'catch': return 'flying';
+      case 'hop': return 'pecking around';
+      case 'exit': return 'heading home';
+      case 'bow': return 'taking a bow';
+      case 'sit': return 'sitting';
+      case 'walk': return this.swim > 0.5 ? 'paddling' : 'wandering';
+      default: return this.species === 'bird' ? 'looking around' : 'looking around';
+    }
+  }
+}
+
+// ---------- meetings between two creatures ----------
+class Meeting {
+  constructor(type, a, b, W) {
+    this.type = type; this.a = a; this.b = b; this.t = 0; this.fired = new Set(); this.done = false;
+    a.meeting = this; b.meeting = this;
+    a.setState('meet', 99); b.setState('meet', 99);
+    this.dir = sign(b.x - a.x) || 1;
+    this.ext = {};
+  }
+  once(key, at) { if (this.t >= at && !this.fired.has(key)) { this.fired.add(key); return true; } return false; }
+  gap(mul = 1) { return ((this.a.len + this.b.len) * 0.5 * 0.92 + 0.02) * mul; }
+  face() { this.a.facing = sign(this.b.x - this.a.x) || 1; this.b.facing = -this.a.facing; }
+  closeTo(gap, dt, mul = 0.6) {
+    const { a, b } = this;
+    const d = Math.abs(b.x - a.x);
+    if (d > gap + 0.008) {
+      const mid = (a.x + b.x) / 2, s = sign(b.x - a.x) || 1;
+      a.walkTo(mid - s * gap / 2, mul, dt); b.walkTo(mid + s * gap / 2, mul, dt);
+      return false;
+    }
+    a.stop(dt); b.stop(dt);
+    this.face();
+    return true;
+  }
+  poseFor(c) { return (this.ext[c.id]) || null; }
+  statusFor(c) {
+    const o = c === this.a ? this.b : this.a;
+    return ({ greet: `saying hello to ${o.name}`, boop: `booping noses with ${o.name}`, dance: `dancing with ${o.name}`,
+      chase: c === this.a ? `chasing ${o.name}` : `being chased by ${o.name}`, shy: c === this.b ? `feeling shy around ${o.name}` : `being gentle with ${o.name}`,
+      heart: `making a heart with ${o.name}` })[this.type] || `with ${o.name}`;
+  }
+  update(dt, W) {
+    this.t += dt;
+    const { a, b } = this;
+    const t = this.t;
+    switch (this.type) {
+      case 'greet': {
+        const ready = this.closeTo(this.gap(1.15), dt);
+        if (ready && !this.ext.at) this.ext.at = t;
+        const t0 = this.ext.at ?? 99;
+        if (this.once('a', t0 + 0.2)) { a.say(W.friendship(a, b) > 0 || a.traits.friendly > 0.55 ? 'heart' : pick(['q', 'note', 'spark'])); a.voice(true); }
+        if (this.once('b', t0 + 1.0)) { b.say(b.traits.friendly > 0.35 ? pick(['heart', 'notes', 'spark']) : 'grr'); b.voice(true); }
+        if (this.once('hop', t0 + 1.5) && a.traits.friendly + b.traits.friendly > 1) { a.jump(0.04); setTimeout(() => b.jump(0.04), 120); }
+        if (t > t0 + 2.4 || t > 8) this.end(W, 1);
+        break;
+      }
+      case 'boop': {
+        const ready = this.closeTo(this.gap(0.78), dt, 0.5);
+        if (ready && !this.ext.at) this.ext.at = t;
+        const t0 = this.ext.at ?? 99;
+        if (this.once('boop', t0 + 0.15)) { a.jump(0.03); b.jump(0.03); a.squash = b.squash = -0.4; World.sound('boop', (a.x + b.x) / 2); }
+        if (this.once('love', t0 + 0.5)) { a.say('heart'); b.say('heart'); }
+        if (t > t0 + 2.0 || t > 8) this.end(W, 2);
+        break;
+      }
+      case 'dance': {
+        const ready = this.closeTo(this.gap(1.25), dt);
+        if (ready && !this.ext.at) this.ext.at = t;
+        const t0 = this.ext.at ?? 99;
+        for (let i = 0; i < 4; i++) if (this.once('h' + i, t0 + 0.3 + i * 0.5)) { a.jump(0.06); b.jump(0.06); if (i % 2 === 0) { a.say('note', { scale: 0.8 }); World.sound('boing', a.x, { rate: 1 + i * 0.12 }); } }
+        if (this.once('end', t0 + 2.4)) { a.say('heart'); b.say('heart'); }
+        if (t > t0 + 3.0 || t > 9) this.end(W, 2);
+        break;
+      }
+      case 'chase': {
+        // a chases b, then both flop down happy
+        if (t < 0.7) {
+          this.face(); a.stop(dt); b.stop(dt);
+          this.ext[a.id] = { bow: 1 };
+          if (this.once('call', 0.05)) { a.say('notes'); a.voice(true); }
+          if (this.once('see', 0.45)) { b.say('bang'); b.jump(0.05); }
+        } else if (t < 5.2) {
+          this.ext[a.id] = null;
+          const [lo, hi] = b.bounds();
+          if (this.ext.runDir === undefined) this.ext.runDir = sign(b.x - a.x) || 1;
+          if ((this.ext.runDir > 0 && b.x > hi - 0.04) || (this.ext.runDir < 0 && b.x < lo + 0.04)) {
+            this.ext.runDir *= -1;   // cornered: leap over the chaser
+            b.jump(0.16);
+          }
+          b.walkTo(b.x + this.ext.runDir * 0.3, 1.9, dt);
+          a.walkTo(b.x - this.ext.runDir * (a.len * 0.4), 1.75, dt);
+          if (this.once('yip1', 1.6)) a.voice(true);
+          if (this.once('yip2', 3.4)) b.voice(true);
+        } else {
+          a.stop(dt); b.stop(dt);
+          this.ext[a.id] = { sit: 1, pant: 1 }; this.ext[b.id] = { sit: 1, pant: 1 };
+          if (this.once('rest', 5.3)) { this.face(); a.say('heart'); setTimeout(() => b.say('heart'), 300); a.panting = b.panting = 4; }
+          if (t > 7.2) { a.energy = Math.max(0.15, a.energy - 0.2); b.energy = Math.max(0.15, b.energy - 0.2); this.end(W, 2); }
+        }
+        break;
+      }
+      case 'shy': {
+        // b is shy; a waits patiently until b warms up
+        if (t < 1.2) {
+          a.walkTo(b.x - sign(b.x - a.x) * this.gap(1.4), 0.5, dt);
+          if (this.once('eek', 0.1)) { b.say('drop'); b.facing = sign(a.x - b.x); }
+          const away = sign(b.x - a.x) || 1;
+          b.vx = approach(b.vx, away * 0.08, 5, dt); b.facing = -away;
+        } else if (t < 2.4) {
+          a.stop(dt); b.stop(dt);
+          this.ext[a.id] = { sit: 1 };
+          if (this.once('wait', 1.3)) a.say('q');
+        } else {
+          const ready = this.closeTo(this.gap(1.0), dt, 0.35);
+          if (ready && this.once('ok', 2.5)) { b.say('heart'); setTimeout(() => a.say('heart'), 350); }
+          if (t > 4.6) this.end(W, 2);
+        }
+        break;
+      }
+      case 'heart': {
+        const ready = this.closeTo(this.gap(0.95), dt, 0.5);
+        if (ready && !this.ext.at) this.ext.at = t;
+        const t0 = this.ext.at ?? 99;
+        if (t > t0 + 0.3) { this.ext[a.id] = { heart: 1 }; this.ext[b.id] = { heart: 1 }; }
+        if (this.once('love', t0 + 1.2)) {
+          const mx = (a.x + b.x) / 2;
+          a.say('heart', { scale: 2.0, dur: 2.6, ox: mx - a.headWorld().x, oy: -0.05, rise: 0.02 });
+          World.sound('honk', mx, { rate: 1.15 });
+        }
+        if (t > t0 + 4.2 || t > 12) this.end(W, 3);
+        break;
+      }
+      default: this.end(W, 0);
+    }
+  }
+  end(W, friendship = 1) {
+    if (this.done) return;
+    this.done = true;
+    const { a, b } = this;
+    a.meeting = null; b.meeting = null;
+    if (friendship) World.befriend(a, b, friendship);
+    for (const c of [a, b]) { if (c.state === 'meet') c.setState(c.swim > 0.5 ? 'swim' : 'idle', rand(0.6, 1.5)); c.cool.social = rand(5, 10) * (1.2 - c.traits.friendly * 0.5); }
+    World.pairCool.set(World.key(a, b), World.time + 14);
+  }
+}
+
+function chooseMeeting(a, b) {
+  const s = [a.species, b.species].sort().join('+');
+  const fr = World.friendship(a, b);
+  if (s === 'swan+swan') return ['heart', a, b];
+  if (s === 'rabbit+rabbit') return [Math.random() < 0.5 ? 'dance' : 'boop', a, b];
+  const quick = ['rabbit', 'fox', 'dog'];
+  const shy = [a, b].find(c => c.traits.brave < 0.35 && fr < 2);
+  if (shy) {
+    const other = shy === a ? b : a;
+    if (['fox', 'dog'].includes(other.species) || other.size > shy.size * 1.2) return ['shy', other, shy];
+  }
+  if (quick.includes(a.species) && quick.includes(b.species) && a.energy > 0.4 && b.energy > 0.4 && Math.random() < 0.5) {
+    const chaser = ['dog', 'fox'].includes(a.species) ? a : (['dog', 'fox'].includes(b.species) ? b : a);
+    return ['chase', chaser, chaser === a ? b : a];
+  }
+  if (fr >= 2 || (a.traits.friendly > 0.65 && b.traits.friendly > 0.65)) return ['boop', a, b];
+  return ['greet', a, b];
+}
+
+// ---------- world update ----------
+World.update = function (dt) {
+  const W = this;
+  W.time += dt;
+  // lamp: warm up, then breathe gently
+  const L = W.lamp;
+  L.level = approach(L.level, L.target, L.target > L.level ? 1.1 : 2.5, dt);
+  if (L.target > 0.5 && L.level < 0.9 && Math.random() < dt * 4) L.level *= rand(0.75, 0.95); // sputter while warming
+  L.flicker = 0.025 + 0.02 * wobble(W.time * 1.3) + (Math.random() < dt * 0.4 ? 0.04 : 0);
+  // crumbs
+  for (const cr of W.crumbs) {
+    if (cr.held) continue;
+    cr.age += dt;
+    if (cr.sunk) { cr.y += dt * 0.02; cr.fade -= dt; continue; }
+    if (cr.floating) {
+      cr.floatT += dt;
+      cr.y = STAGE.pond.water + Math.sin(W.time * 2 + cr.x * 40) * 0.002;
+      if (cr.floatT > 12 && !cr.claimed) { cr.sunk = true; cr.fade = 1; W.ripples.push({ x: cr.x, r: 0.006, a: 0.7 }); }
+      continue;
+    }
+    if (cr.y < STAGE.ground || cr.vy < 0) {
+      cr.vy += 2.6 * dt; cr.x += cr.vx * dt; cr.y += cr.vy * dt; cr.rot += dt * 6;
+      const floor = cr.x < STAGE.pond.x1 ? STAGE.pond.water : STAGE.ground;
+      if (cr.y >= floor) {
+        if (cr.x < STAGE.pond.x1) { cr.floating = true; cr.floatT = 0; cr.vx = cr.vy = 0; cr.x = clamp(cr.x, STAGE.pond.swimMin - 0.05, STAGE.pond.x1 - 0.02); W.ripples.push({ x: cr.x, r: 0.008, a: 0.9 }); W.sound('plip', cr.x); }
+        else if (cr.vy > 0.4) { cr.y = floor; cr.vy *= -0.3; cr.vx *= 0.5; W.sound('tick', cr.x); }
+        else { cr.y = floor; cr.vy = 0; cr.vx = 0; }
+      }
+      cr.x = clamp(cr.x, -0.05, STAGE.A + 0.05);
+    }
+  }
+  W.crumbs = W.crumbs.filter(cr => !(cr.sunk && cr.fade <= 0) && cr.age < 40);
+  // meetings
+  if (!W.curtainCall) {
+    W.meetCheck = (W.meetCheck || 0) - dt;
+    if (W.meetCheck <= 0) {
+      W.meetCheck = 0.25;
+      const cs = W.creatures.filter(c => c.free && c.species !== 'bird');
+      for (let i = 0; i < cs.length; i++) for (let j = i + 1; j < cs.length; j++) {
+        const a = cs[i], b = cs[j];
+        if (a.meeting || b.meeting) continue;
+        if ((W.pairCool.get(W.key(a, b)) || 0) > W.time) continue;
+        if (Math.abs(a.x - b.x) > (a.len + b.len) * 0.5 + 0.1) continue;
+        if (a.swim > 0.5 !== b.swim > 0.5) continue;
+        const [type, x, y] = chooseMeeting(a, b);
+        W.meetings.push(new Meeting(type, x, y, W));
+      }
+    }
+  }
+  for (const m of W.meetings) m.update(dt, W);
+  W.meetings = W.meetings.filter(m => !m.done);
+  for (const c of W.creatures) c.update(dt, W);
+  // keep ground animals from overlapping into one blob
+  const gr = W.creatures.filter(c => c.species !== 'bird' && !c.soft && c.state !== 'intro' && c.state !== 'exit');
+  for (let i = 0; i < gr.length; i++) for (let j = i + 1; j < gr.length; j++) {
+    const a = gr[i], b = gr[j];
+    if (a.meeting && a.meeting === b.meeting) continue;
+    if (a.state === 'sleep' && b.state === 'sleep') continue;
+    const minD = (a.len + b.len) * (a.meeting || b.meeting ? 0.5 : 0.64);
+    const d = b.x - a.x;
+    if (Math.abs(d) < minD && Math.abs(a.y - b.y) < 0.05) {
+      const push = (minD - Math.abs(d)) * 0.5 * Math.min(1, dt * 6);
+      const s = sign(d) || (a.id < b.id ? 1 : -1);
+      a.x -= s * push; b.x += s * push;
+    }
+  }
+  W.creatures = W.creatures.filter(c => !c.gone);
+  // particles and ripples
+  for (const p of W.particles) {
+    p.t += dt;
+    if (p.kind === 'mote' && p.tx !== undefined) { p.x = approach(p.x, p.tx, 3, dt); p.y = approach(p.y, p.ty, 3, dt); }
+    else { p.x += (p.vx || 0) * dt; p.y += (p.vy || 0) * dt; }
+    if (p.kind === 'dust') { p.vy += 0.3 * dt; p.r += dt * 0.01; }
+    const k = p.t / p.life;
+    p.a = p.kind === 'flash' ? (1 - k) * (1 - k) : (k < 0.2 ? k / 0.2 : 1 - (k - 0.2) / 0.8) * (p.kind === 'dust' ? 0.6 : 1);
+    if (p.kind === 'flash') p.r = p.r0 * (0.6 + k * 1.4);
+  }
+  W.particles = W.particles.filter(p => p.t < p.life);
+  for (const r of W.ripples) { r.r += dt * 0.05; r.a -= dt * 0.6; }
+  W.ripples = W.ripples.filter(r => r.a > 0);
+};
+
+// make room: the longest-serving creature who is not busy says goodbye
+World.makeRoom = function () {
+  const W = this;
+  const active = W.creatures.filter(c => c.state !== 'exit');
+  if (active.length < MAX_CREATURES) return;
+  const cand = active.filter(c => c.state !== 'intro').sort((a, b) => a.born - b.born)[0];
+  if (!cand) return;
+  if (cand.meeting) cand.meeting.end(W, 0);
+  cand.setState('exit', 99);
+  cand.exitDir = cand.species === 'swan' ? -1 : (cand.x > STAGE.A / 2 ? 1 : (cand.species === 'bird' ? -1 : 1));
+  if (cand.species === 'swan') cand.exitDir = -1;
+  cand.say('wave', { dur: 2 });
+  W.emit('exit', cand);
+};
+
+// a new creature, born from a hand shape
+World.spawn = function (species, info) {
+  const W = this;
+  W.makeRoom();
+  const c = new Creature(species, info.bx, info.by, info.facing || 1);
+  // landing spot: below the hand, inside the space this species uses
+  let lx = info.bx;
+  const lo = species === 'swan' ? STAGE.pond.swimMin : STAGE.roamMin, hi = STAGE.roamMax;
+  lx = clamp(lx, lo, hi);
+  if (Math.abs(lx - info.bx) < 0.08) lx = clamp(lx + (info.facing || 1) * 0.12, lo, hi);
+  for (const o of W.creatures) if (o.species !== 'bird' && Math.abs(o.x - lx) < 0.12) lx = clamp(lx + (lx < STAGE.A / 2 ? 0.15 : -0.15), lo, hi);
+  let ly = STAGE.ground;
+  if (species === 'swan' && lx < STAGE.pond.x1) ly = STAGE.pond.water + 0.20 * c.size;
+  const scale0 = clamp((info.handS || 0.25) * 1.6 / c.size, 1.1, 2.6);
+  c.beginIntro({ bx: info.bx, by: info.by, lx, ly, scale0, ghost: info.ghost });
+  W.creatures.push(c);
+  W.addParticle({ kind: 'flash', x: info.bx, y: info.by, r: 0.3, r0: 0.3, a: 1, life: 0.9, t: 0 });
+  W.sound('birth', info.bx);
+  return c;
+};
+
+World.startCurtainCall = function () {
+  const W = this;
+  if (W.curtainCall || !W.creatures.length) return false;
+  for (const m of W.meetings) m.end(W, 0);
+  const cs = W.creatures.filter(c => c.state !== 'exit').sort((a, b) => a.x - b.x);
+  const n = cs.length;
+  const lo = STAGE.roamMin + 0.05, hi = STAGE.roamMax - 0.05;
+  cs.forEach((c, i) => {
+    if (c.state === 'intro') { c.intro && (c.intro = null); c.soft = false; c.fade = 1; c.scale = 1; c.blurPx = 0; c.ghost = null; c.y = STAGE.ground; }
+    c.setState('bow', 99);
+    c.perch = null; c.perchTarget = null;
+    c.slotX = n === 1 ? (lo + hi) / 2 : lerp(lo, hi, i / (n - 1));
+    c.slotFace = c.slotX < STAGE.A / 2 ? 1 : -1;
+    c.bowing = false;
+  });
+  W.curtainCall = { t: 0, cs, phase: 'line' };
+  return true;
+};
+World.updateCurtainCall = function (dt) {
+  const W = this, cc = W.curtainCall;
+  if (!cc) return null;
+  cc.t += dt;
+  if (cc.phase === 'line' && (cc.t > 3.2 || cc.cs.every(c => Math.abs(c.x - c.slotX) < 0.02))) { cc.phase = 'bows'; cc.t = 0; }
+  if (cc.phase === 'bows') {
+    const each = 0.55;
+    cc.cs.forEach((c, i) => {
+      const s = i * each;
+      if (cc.t > s && cc.t < s + 0.9) { if (!c.bowing) { c.bowing = true; World.sound('boing', c.x, { rate: 0.8 + i * 0.07 }); } }
+      else c.bowing = false;
+    });
+    if (cc.t > cc.cs.length * each + 0.9) { cc.phase = 'all'; cc.t = 0; World.sound('applause', STAGE.A / 2); }
+  }
+  if (cc.phase === 'all') {
+    for (const c of cc.cs) c.bowing = cc.t > 0.2 && cc.t < 1.6;
+    if (cc.t > 2.0) { cc.phase = 'close'; cc.t = 0; return 'close'; }
+  }
+  if (cc.phase === 'close' && cc.t > 2.4) {
+    W.creatures = []; W.meetings = []; W.crumbs = W.crumbs.filter(c => c.held);
+    W.curtainCall = null;
+    return 'clear';
+  }
+  return null;
+};
+
+// ---- 09-sound.js ----
+// ---------- little synthesized sounds (no audio files) ----------
+const Sound = (() => {
+  let ctx = null, master = null, noiseBuf = null, enabled = true;
+  const last = {};
+  const MIN = { chirp: 0.12, bark: 0.25, yip: 0.25, honk: 0.4, squeak: 0.2, boop: 0.06, munch: 0.3, tick: 0.05, land: 0.08, startle: 0.1, purr: 0.9, hold: 0.08, boing: 0.06, plip: 0.05 };
+  function init() {
+    if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    ctx = new AC();
+    master = ctx.createGain();
+    master.gain.value = 0.6;
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -16; comp.ratio.value = 4;
+    master.connect(comp).connect(ctx.destination);
+    noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  function setEnabled(v) { enabled = v; if (master) master.gain.setTargetAtTime(v ? 0.6 : 0, ctx.currentTime, 0.05); }
+  function out(x, vol) {
+    const g = ctx.createGain(); g.gain.value = vol;
+    let node = g;
+    if (ctx.createStereoPanner) { const p = ctx.createStereoPanner(); p.pan.value = clamp((x / STAGE.A) * 2 - 1, -0.8, 0.8); g.connect(p); p.connect(master); }
+    else g.connect(master);
+    return node;
+  }
+  function osc(type, dest, t0, dur, freqs, gainPts) {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(freqs[0][1], t0);
+    for (const [t, f] of freqs) o.frequency.linearRampToValueAtTime(f, t0 + t);
+    g.gain.setValueAtTime(0.0001, t0);
+    for (const [t, v] of gainPts) g.gain.linearRampToValueAtTime(v, t0 + t);
+    g.gain.linearRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g).connect(dest);
+    o.start(t0); o.stop(t0 + dur + 0.02);
+    return o;
+  }
+  function noise(dest, t0, dur, filterType, freq, q, gainPts) {
+    const s = ctx.createBufferSource(); s.buffer = noiseBuf; s.loop = true;
+    const f = ctx.createBiquadFilter(); f.type = filterType; f.frequency.value = freq; f.Q.value = q;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t0);
+    for (const [t, v] of gainPts) g.gain.linearRampToValueAtTime(v, t0 + t);
+    g.gain.linearRampToValueAtTime(0.0001, t0 + dur);
+    s.connect(f).connect(g).connect(dest);
+    s.start(t0, Math.random() * 0.5); s.stop(t0 + dur + 0.02);
+    return { s, f, g };
+  }
+  const PENTA = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.7, 1318.5];
+  function play(name, x = STAGE.A / 2, opts = {}) {
+    if (!ctx || !enabled || ctx.state !== 'running') return;
+    const now = ctx.currentTime;
+    if (last[name] && now - last[name] < (MIN[name] || 0)) return;
+    last[name] = now;
+    const r = opts.rate || (0.92 + Math.random() * 0.16);
+    const t = now + 0.005;
+    switch (name) {
+      case 'boop': osc('sine', out(x, 0.16), t, 0.12, [[0, 520 * r], [0.08, 820 * r]], [[0.01, 1]]); break;
+      case 'boing': osc('sine', out(x, 0.12), t, 0.26, [[0, 240 * r], [0.06, 600 * r], [0.26, 320 * r]], [[0.01, 1], [0.15, 0.5]]); break;
+      case 'land': {
+        const d = out(x, 0.22);
+        osc('sine', d, t, 0.16, [[0, 170], [0.12, 60]], [[0.005, 1]]);
+        noise(d, t, 0.12, 'lowpass', 500, 0.7, [[0.005, 0.5]]);
+        break;
+      }
+      case 'squeak': osc('sine', out(x, 0.07), t, 0.14, [[0, 1500 * r], [0.05, 2000 * r], [0.14, 1600 * r]], [[0.01, 1]]); break;
+      case 'yip': {
+        const d = out(x, 0.10);
+        osc('triangle', d, t, 0.13, [[0, 700 * r], [0.05, 1250 * r], [0.13, 800 * r]], [[0.01, 1]]);
+        osc('triangle', d, t + 0.17, 0.12, [[0, 750 * r], [0.05, 1300 * r], [0.12, 850 * r]], [[0.01, 0.8]]);
+        break;
+      }
+      case 'bark': {
+        const d = out(x, 0.2);
+        const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1400; lp.connect(d);
+        osc('sawtooth', lp, t, 0.13, [[0, 260 * r], [0.03, 320 * r], [0.13, 170 * r]], [[0.008, 1], [0.06, 0.6]]);
+        noise(d, t, 0.08, 'bandpass', 900, 1.4, [[0.005, 0.6]]);
+        osc('sawtooth', lp, t + 0.19, 0.11, [[0, 280 * r], [0.03, 330 * r], [0.11, 180 * r]], [[0.008, 0.8]]);
+        break;
+      }
+      case 'honk': {
+        const d = out(x, 0.11);
+        const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 950; bp.Q.value = 2.2; bp.connect(d);
+        const o = osc('sawtooth', bp, t, 0.34, [[0, 300 * r], [0.08, 340 * r], [0.34, 290 * r]], [[0.02, 1], [0.25, 0.8]]);
+        const lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.frequency.value = 28; lg.gain.value = 18; lfo.connect(lg).connect(o.frequency); lfo.start(t); lfo.stop(t + 0.36);
+        break;
+      }
+      case 'chirp': {
+        const d = out(x, 0.06);
+        const n = 2 + (Math.random() * 2 | 0);
+        for (let i = 0; i < n; i++) osc('sine', d, t + i * 0.075, 0.06, [[0, 2600 * r], [0.03, 3900 * r], [0.06, 3000 * r]], [[0.005, 1]]);
+        break;
+      }
+      case 'startle': osc('sine', out(x, 0.09), t, 0.18, [[0, 520], [0.15, 1700]], [[0.01, 1]]); break;
+      case 'purr': {
+        const d = out(x, 0.09);
+        const n = noise(d, t, 0.9, 'lowpass', 260, 0.8, [[0.1, 1], [0.7, 0.8]]);
+        const lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.frequency.value = 24; lg.gain.value = 0.5; lfo.connect(lg).connect(n.g.gain); lfo.start(t); lfo.stop(t + 0.92);
+        break;
+      }
+      case 'munch': { const d = out(x, 0.1); for (let i = 0; i < 4; i++) noise(d, t + i * 0.11, 0.05, 'bandpass', 1800 + Math.random() * 900, 2, [[0.004, 1]]); break; }
+      case 'tick': noise(out(x, 0.05), t, 0.03, 'highpass', 3000, 0.7, [[0.002, 1]]); break;
+      case 'plip': osc('sine', out(x, 0.08), t, 0.1, [[0, 950], [0.08, 380]], [[0.005, 1]]); break;
+      case 'birth': {
+        const d = out(x, 0.11);
+        [0, 2, 4, 5].forEach((k, i) => osc('sine', d, t + i * 0.05, 1.6, [[0, PENTA[k]], [1.6, PENTA[k]]], [[0.02, 0.8], [0.4, 0.35]]));
+        osc('triangle', d, t + 0.2, 0.9, [[0, PENTA[7]], [0.9, PENTA[7]]], [[0.02, 0.25]]);
+        break;
+      }
+      case 'hold': { const k = clamp(opts.step || 0, 0, 7); osc('sine', out(x, 0.05), t, 0.5, [[0, PENTA[k]], [0.5, PENTA[k]]], [[0.01, 1], [0.2, 0.4]]); break; }
+      case 'lamp': {
+        const d = out(STAGE.A / 2, 0.14);
+        noise(d, t, 0.03, 'highpass', 2500, 0.7, [[0.002, 1]]);
+        noise(d, t + 0.05, 1.8, 'lowpass', 300, 0.5, [[0.6, 0.6], [1.6, 0.2]]);
+        break;
+      }
+      case 'curtain': noise(out(STAGE.A / 2, 0.06), t, 2.2, 'lowpass', 900, 0.5, [[0.5, 1], [1.8, 0.6]]); break;
+      case 'applause': {
+        const d = out(STAGE.A / 2, 0.05);
+        for (let i = 0; i < 70; i++) noise(d, t + Math.random() * 2.6, 0.03, 'bandpass', 1400 + Math.random() * 2400, 1.5, [[0.003, 0.6 + Math.random() * 0.4]]);
+        break;
+      }
+      case 'bye': { const d = out(x, 0.07); osc('sine', d, t, 0.25, [[0, 784], [0.25, 784]], [[0.01, 1]]); osc('sine', d, t + 0.18, 0.4, [[0, 523], [0.4, 523]], [[0.01, 1]]); break; }
+    }
+  }
+  return { init, play, setEnabled, get ready() { return !!ctx; } };
+})();
+
+// ---- 10-tracking.js ----
+// ---------- hands: webcam tracking (MediaPipe, in this tab) or the mouse ----------
+const MP_VERSION = '1.0.1';
+const MP_BASE = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VERSION}`;
+const MP_MODEL = 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
+const HOLD_TIME = 1.15;
+
+class HandTrack {
+  constructor(id) {
+    this.id = id;
+    this.pts = null; this.raw = null; this.img = null; this.world = null;
+    this.filters = Array.from({ length: 63 }, () => new OneEuro(1.6, 5, 1));
+    this.S = 0.25; this.center = { x: 0, y: 0 }; this.vel = { x: 0, y: 0 }; this.speed = 0;
+    this.alpha = 0; this.lastSeen = 0; this.lastDetect = 0;
+    this.cls = null; this.gesture = null; this.rawGesture = null;
+    this.focus = 0; this.hold = 0; this.holdG = null; this.block = null; this.blockT = 0;
+    this.stillT = 0; this.crumb = null; this.pinchT = 0; this.unpinchT = 0;
+    this.holdCenter = null; this.lowPoint = null; this.topPoint = null; this.partner = null;
+    this.lastStep = -1; this.virtual = false;
+  }
+}
+
+const Tracker = {
+  mode: 'none', tracks: [], nextId: 1,
+  video: null, landmarker: null, modelState: 'idle', modelError: null, lastVideoTime: -1,
+  mouse: { x: 1.0, y: 0.55, down: false, inside: false, pose: 'relaxed', posePts: null, morph: 1, prevPts: null, lastMove: 0, vx: 0, vy: 0 },
+  peekCtx: null, peekOn: false,
+  stats: { hands: 0, fps: 0, frames: 0, t0: 0 },
+
+  async loadModel() {
+    if (this.modelState === 'loading' || this.modelState === 'ready') return this.modelPromise;
+    this.modelState = 'loading';
+    this.modelPromise = (async () => {
+      try {
+        const vision = await import(`${MP_BASE}/vision_bundle.mjs`);
+        const fileset = await vision.FilesetResolver.forVisionTasks(`${MP_BASE}/wasm`);
+        const make = delegate => vision.HandLandmarker.createFromOptions(fileset, {
+          baseOptions: { modelAssetPath: MP_MODEL, delegate },
+          runningMode: 'VIDEO', numHands: 4,
+          minHandDetectionConfidence: 0.5, minHandPresenceConfidence: 0.5, minTrackingConfidence: 0.5,
+        });
+        try { this.landmarker = await make('GPU'); } catch (e) { console.warn('GPU delegate unavailable, using CPU', e); this.landmarker = await make('CPU'); }
+        this.modelState = 'ready';
+      } catch (e) {
+        console.error(e);
+        this.modelState = 'error';
+        this.modelError = e;
+        throw e;
+      }
+    })();
+    return this.modelPromise;
+  },
+
+  async startCamera() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('no-camera-api');
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 960 }, height: { ideal: 540 }, frameRate: { ideal: 30 } }, audio: false });
+    const v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.autoplay = true;
+    v.setAttribute('playsinline', '');
+    v.srcObject = stream;
+    await v.play();
+    await new Promise(res => { if (v.videoWidth) res(); else v.onloadedmetadata = () => res(); });
+    this.video = v;
+    this.stream = stream;
+  },
+  stopCamera() { if (this.stream) this.stream.getTracks().forEach(t => t.stop()); this.video = null; },
+
+  // map normalized camera coordinates to stage units (mirrored, so it behaves like a mirror)
+  mapper() {
+    const v = this.video, vw = v.videoWidth || 960, vh = v.videoHeight || 540;
+    const s = Math.max(STAGE.A / vw, 1 / vh);
+    const ox = (STAGE.A - vw * s) / 2, oy = (1 - vh * s) / 2;
+    return p => ({ x: STAGE.A - (p.x * vw * s + ox), y: p.y * vh * s + oy, z: p.z * vw * s });
+  },
+
+  update(dt, now) {
+    if (this.mode === 'camera' && this.video && this.landmarker && this.video.readyState >= 2) {
+      if (this.video.currentTime !== this.lastVideoTime) {
+        this.lastVideoTime = this.video.currentTime;
+        let res = null;
+        try { res = this.landmarker.detectForVideo(this.video, now); } catch (e) { console.warn(e); }
+        if (res) this.ingest(res, now);
+        this.stats.frames++;
+      }
+    } else if (this.mode === 'mouse') this.mouseUpdate(dt, now);
+    // fade and retire tracks that disappeared
+    for (const t of this.tracks) {
+      const seen = now - t.lastSeen < 180;
+      t.alpha = approach(t.alpha, seen ? 1 : 0, seen ? 14 : 9, dt);
+      if (!seen) { t.focus = approach(t.focus, 0, 8, dt); }
+    }
+    const dead = this.tracks.filter(t => now - t.lastSeen > 600 && t.alpha < 0.02);
+    for (const t of dead) if (t.crumb && t.crumb.held) this.dropCrumb(t);
+    this.tracks = this.tracks.filter(t => !dead.includes(t));
+    this.gestures(dt, now);
+    this.crumbs(dt, now);
+    if (this.peekOn) this.drawPeek();
+    this.stats.hands = this.tracks.filter(t => now - t.lastSeen < 300).length;
+  },
+
+  ingest(res, now) {
+    const map = this.mapper();
+    const hands = (res.landmarks || []).map((lm, i) => ({ norm: lm, pts: lm.map(map), world: res.worldLandmarks[i], hand: res.handedness && res.handedness[i] && res.handedness[i][0] ? res.handedness[i][0].categoryName : '' }));
+    // match detections to existing tracks by wrist distance
+    const used = new Set();
+    for (const h of hands) {
+      let best = null, bd = 0.4;
+      for (const t of this.tracks) {
+        if (used.has(t) || !t.raw) continue;
+        const d = d2(t.raw[0], h.pts[0]) + (t.hand && h.hand && t.hand !== h.hand ? 0.12 : 0);
+        if (d < bd) { bd = d; best = t; }
+      }
+      if (!best) { best = new HandTrack(this.nextId++); this.tracks.push(best); }
+      used.add(best);
+      best.hand = h.hand;
+      best.norm = h.norm;
+      this.feed(best, h.pts, h.world, now);
+    }
+  },
+
+  // smooth and derive everything the stage needs from one fresh set of landmarks
+  feed(t, pts, world, now) {
+    const dt = t.lastDetect ? clamp((now - t.lastDetect) / 1000, 0.005, 0.2) : 0.033;
+    const fresh = now - t.lastSeen > 300;
+    if (fresh) t.filters.forEach(f => f.reset());
+    t.lastDetect = now; t.lastSeen = now;
+    t.raw = pts;
+    const sm = pts.map((p, i) => ({ x: t.filters[i * 3].filter(p.x, dt), y: t.filters[i * 3 + 1].filter(p.y, dt), z: t.filters[i * 3 + 2].filter(p.z, dt) }));
+    t.pts = sm;
+    t.img = pts; t.world = world;
+    t.S = HandDraw.size(sm);
+    const c = { x: (sm[0].x + sm[5].x + sm[9].x + sm[13].x + sm[17].x) / 5, y: (sm[0].y + sm[5].y + sm[9].y + sm[13].y + sm[17].y) / 5 };
+    if (!fresh) {
+      const vx = (c.x - t.center.x) / dt, vy = (c.y - t.center.y) / dt;
+      t.vel.x = approach(t.vel.x, vx, 18, dt); t.vel.y = approach(t.vel.y, vy, 18, dt);
+    } else { t.vel.x = t.vel.y = 0; }
+    t.center = c;
+    t.speed = Math.hypot(t.vel.x, t.vel.y);
+    t.stillT = t.speed < 0.12 ? t.stillT + dt : 0;
+    let low = sm[0], top = sm[8];
+    for (const i of [4, 8, 12, 16, 20, 5, 9, 13, 17]) { if (sm[i].y > low.y) low = sm[i]; if (sm[i].y < top.y) top = sm[i]; }
+    t.lowPoint = low;
+    t.topPoint = { x: top.x, y: top.y - t.S * 0.09 };
+    t.cls = Recognizer.classify(pts, world);
+    t.rawGesture = t.cls.gesture;
+    // a hand-dog that opens its mouth (drops the pinky) barks
+    if (t.cls.gesture === 'dog' && World.lamp.target > 0.5) {
+      const open = t.cls.F.d(16, 20) > 0.55;
+      if (open && !t.mouthOpen && now - (t.lastBark || 0) > 350) { Sound.play('bark', c.x); t.lastBark = now; }
+      t.mouthOpen = open;
+    } else t.mouthOpen = false;
+  },
+
+  // ---- shapes held still become creatures ----
+  gestures(dt, now) {
+    const live = this.tracks.filter(t => t.cls && now - t.lastSeen < 200);
+    for (const t of live) { t.partner = null; t.gesture = t.rawGesture; }
+    // two hands hooked at the thumbs: a bird
+    for (let i = 0; i < live.length; i++) for (let j = i + 1; j < live.length; j++) {
+      const a = live[i], b = live[j];
+      if (a.partner || b.partner) continue;
+      if (this.mode === 'mouse' ? (a.virtualBird && b.virtualBird) : Recognizer.isBirdPair(a, b)) {
+        a.partner = b; b.partner = a; a.gesture = b.gesture = 'bird';
+      }
+    }
+    for (const t of this.tracks) {
+      const g = now - t.lastSeen < 200 ? t.gesture : null;
+      // a shape that just made a creature must be let go before it can make another
+      if (t.block) { if (g !== t.block) { t.blockT += dt; if (t.blockT > 0.4) { t.block = null; t.blockT = 0; } } else t.blockT = 0; }
+      if (t.partner && t.partner.id < t.id) { t.focus = t.partner.focus; t.holdCenter = t.partner.holdCenter; continue; } // the pair is driven by the lower id
+      const steady = t.speed < Math.max(0.2, t.S * 1.3) && (!t.partner || t.partner.speed < Math.max(0.2, t.partner.S * 1.3));
+      const canHold = g && g !== t.block && World.lamp.target > 0.5 && !World.curtainCall && now > (t.coolUntil || 0);
+      if (canHold) {
+        if (g !== t.holdG) { if (t.hold < 0.15) { t.holdG = g; t.hold = 0; } else t.hold -= dt * 2.5; }
+        else t.hold += steady ? dt : -dt * 0.4;
+      } else {
+        t.hold -= dt * (g ? 1.2 : 2.2);
+      }
+      t.hold = clamp(t.hold, 0, HOLD_TIME);
+      if (t.hold <= 0) t.holdG = canHold ? g : null;
+      t.focus = t.hold / HOLD_TIME;
+      t.holdCenter = t.holdG ? this.shapeCenter(t, t.holdG) : null;
+      // gentle rising notes as the light gathers
+      const step = Math.floor(t.focus * 4);
+      if (step > t.lastStep && step > 0 && step < 4) Sound.play('hold', t.center.x, { step: step + (t.holdG === 'bird' ? 3 : 0) });
+      t.lastStep = step;
+      if (t.focus > 0.15 && t.holdCenter && Math.random() < dt * 22 * t.focus) {
+        const a = Math.random() * TAU, r = t.S * rand(1.0, 1.6);
+        World.addParticle({ kind: 'mote', x: t.holdCenter.x + Math.cos(a) * r, y: t.holdCenter.y + Math.sin(a) * r, tx: t.holdCenter.x, ty: t.holdCenter.y, r: rand(0.005, 0.012), a: 0, life: rand(0.5, 0.8), t: 0 });
+      }
+      if (t.hold >= HOLD_TIME && t.holdG) this.birth(t, t.holdG);
+    }
+  },
+  shapeCenter(t, g) {
+    const P = t.pts, avg = (...ix) => ({ x: ix.reduce((s, i) => s + P[i].x, 0) / ix.length, y: ix.reduce((s, i) => s + P[i].y, 0) / ix.length });
+    switch (g) {
+      case 'rabbit': return avg(0, 5, 9, 13, 17, 4, 6, 10);
+      case 'fox': return avg(4, 12, 16, 5, 17, 9);
+      case 'dog': return avg(0, 5, 9, 13, 17, 8, 12, 2);
+      case 'swan': return avg(5, 9, 13, 4, 8, 12);
+      case 'bird': { const Q = t.partner ? t.partner.pts : P; return { x: (P[4].x + Q[4].x + P[2].x + Q[2].x) / 4, y: (P[4].y + Q[4].y + P[2].y + Q[2].y) / 4 + t.S * 0.2 }; }
+    }
+    return t.center;
+  },
+  shapeFacing(t, g) {
+    const P = t.pts;
+    const toCenter = sign(STAGE.A / 2 - t.center.x);
+    switch (g) {
+      case 'dog': return sign((P[8].x + P[12].x) / 2 - P[5].x) || toCenter;
+      case 'fox': { const sn = (P[4].x + P[12].x + P[16].x) / 3, ear = (P[5].x + P[17].x + P[0].x) / 3; return Math.abs(sn - ear) > t.S * 0.12 ? sign(sn - ear) : toCenter; }
+      case 'swan': return sign((P[8].x + P[4].x) / 2 - P[0].x) || toCenter;
+      default: return toCenter;
+    }
+  },
+  birth(t, g) {
+    const center = this.shapeCenter(t, g);
+    const ghostOf = tr => ({ pts: tr.pts.map(p => ({ x: p.x - center.x, y: p.y - center.y, z: p.z })), S: tr.S });
+    const ghost = [ghostOf(t)];
+    if (t.partner) ghost.push(ghostOf(t.partner));
+    World.spawn(g, { bx: center.x, by: center.y, facing: this.shapeFacing(t, g), handS: t.S, ghost });
+    for (const tr of [t, t.partner]) if (tr) { tr.block = g; tr.blockT = 0; tr.hold = 0; tr.focus = 0; tr.holdG = null; tr.lastStep = -1; tr.coolUntil = performance.now() + 2200; }
+    if (typeof UI !== 'undefined') UI.flashShape(g);
+    if (this.mode === 'mouse') setTimeout(() => this.setMousePose('relaxed'), 500);
+  },
+
+  // ---- crumbs: pinch to hold one, let go to drop it ----
+  crumbs(dt, now) {
+    for (const t of this.tracks) {
+      const live = now - t.lastSeen < 200;
+      const pinching = live && t.cls && (this.mode === 'mouse' ? this.mouse.down && this.mouse.inside : (t.cls.pinch || (t.crumb && t.crumb.held && t.cls.pinchD < Recognizer.T.pinchOff)));
+      if (pinching) { t.pinchT += dt; t.unpinchT = 0; } else { t.unpinchT += dt; t.pinchT = 0; }
+      if (!t.crumb && t.pinchT > 0.15 && World.lamp.target > 0.5) {
+        const held = World.crumbs.filter(c => !c.held);
+        if (held.length > 12) World.crumbs.splice(World.crumbs.indexOf(held[0]), 1);
+        t.crumb = { x: 0, y: 0, vx: 0, vy: 0, held: true, owner: t, claimed: null, rot: Math.random() * 3, age: 0 };
+        World.crumbs.push(t.crumb);
+      }
+      if (t.crumb && t.crumb.held) {
+        const P = t.pts;
+        t.crumb.x = (P[4].x + P[8].x) / 2; t.crumb.y = (P[4].y + P[8].y) / 2 + t.S * 0.03;
+        if (t.unpinchT > 0.08 || !live) this.dropCrumb(t);
+      }
+    }
+  },
+  dropCrumb(t) {
+    const c = t.crumb;
+    if (!c) return;
+    c.held = false; c.owner = null; c.vx = t.vel.x * 0.35; c.vy = Math.min(0.3, t.vel.y * 0.35); c.age = 0;
+    t.crumb = null;
+    Sound.play('tick', c.x);
+  },
+
+  // ---- the mouse as a hand ----
+  setMousePose(name) {
+    const m = this.mouse;
+    if (m.pose === name) return;
+    m.prevPts = m.posePts;
+    m.pose = name; m.morph = 0;
+  },
+  mouseUpdate(dt, now) {
+    const m = this.mouse;
+    if (!m.inside && !m.down) {
+      for (const t of this.tracks) if (t.virtual) t.lastSeen = Math.min(t.lastSeen, now - 400);
+      return;
+    }
+    const want = m.down ? 'pinch' : m.pose;
+    const S = 0.24;
+    let sets;
+    if (want === 'bird') {
+      const [L, R] = HandModel.birdPair();
+      sets = [L, R];
+    } else sets = [HandModel.pose(want)];
+    const key = want + sets.length;
+    if (m.key !== key) { m.prevSets = m.curSets; m.morph = 0; m.key = key; }
+    m.morph = Math.min(1, m.morph + dt * 4);
+    m.curSets = sets;
+    // virtual tracks
+    while (this.tracks.filter(t => t.virtual).length < 2) { const t = new HandTrack(this.nextId++); t.virtual = true; this.tracks.push(t); }
+    const vts = this.tracks.filter(t => t.virtual);
+    vts.forEach((t, i) => {
+      let model = sets[i];
+      if (!model) { t.lastSeen = Math.min(t.lastSeen, now - 400); return; }
+      if (m.prevSets && m.prevSets[i] && m.morph < 1) model = HandModel.interpolate(m.prevSets[i], model, easeInOut(m.morph));
+      // place the palm (or the pair's middle) under the cursor
+      const c0 = sets.length === 2 ? V3.mid(sets[0][4], sets[1][4]) : V3.scale([0, 5, 9, 13, 17].reduce((s, k) => V3.add(s, model[k]), V3.v(0, 0, 0)), 0.2);
+      const scr = HandModel.toScreen(model, m.x - c0.x * S, m.y + c0.y * S, S);
+      t.virtualBird = sets.length === 2;
+      this.feed(t, scr, model, now);
+      t.pts = scr; // no smoothing needed for the mouse
+      t.vel.x = m.vx; t.vel.y = m.vy; t.speed = Math.hypot(m.vx, m.vy);
+      t.stillT = t.speed < 0.12 ? t.stillT : 0;
+      if (want === 'bird') t.cls.gesture = t.rawGesture = null;
+    });
+    m.vx = approach(m.vx, 0, 6, dt); m.vy = approach(m.vy, 0, 6, dt);
+  },
+  pointer(x, y, now) {
+    const m = this.mouse;
+    if (m.lastT) {
+      const dt = Math.max(0.008, (now - m.lastT) / 1000);
+      m.vx = approach(m.vx, (x - m.x) / dt, 20, dt); m.vy = approach(m.vy, (y - m.y) / dt, 20, dt);
+    }
+    m.x = x; m.y = y; m.lastT = now;
+  },
+
+  handsForWorld() { return this.tracks.filter(t => t.pts && t.alpha > 0.01); },
+
+  drawPeek() {
+    const g = this.peekCtx;
+    if (!g || !this.video) return;
+    const w = g.canvas.width, h = g.canvas.height;
+    g.save();
+    g.translate(w, 0); g.scale(-1, 1);
+    const v = this.video, vw = v.videoWidth, vh = v.videoHeight;
+    const s = Math.max(w / vw, h / vh);
+    g.drawImage(v, (w - vw * s) / 2, (h - vh * s) / 2, vw * s, vh * s);
+    g.restore();
+    g.fillStyle = 'rgba(20,10,4,0.25)'; g.fillRect(0, 0, w, h);
+    // landmarks, using the same cover-fit and mirror as the preview
+    const toPeek = p => ({ x: w - ((w - vw * s) / 2 + p.x * vw * s), y: (h - vh * s) / 2 + p.y * vh * s });
+    const conn = [[0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [5, 9], [9, 10], [10, 11], [11, 12], [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [17, 18], [18, 19], [19, 20], [0, 17]];
+    for (const t of this.tracks) {
+      if (!t.norm || t.alpha < 0.3) continue;
+      const P = t.norm.map(toPeek);
+      g.strokeStyle = t.gesture ? '#ffd27a' : 'rgba(255,240,220,0.8)';
+      g.lineWidth = 2;
+      g.beginPath();
+      for (const [a, b] of conn) { g.moveTo(P[a].x, P[a].y); g.lineTo(P[b].x, P[b].y); }
+      g.stroke();
+      g.fillStyle = '#fff';
+      for (const p of P) { g.beginPath(); g.arc(p.x, p.y, 2, 0, TAU); g.fill(); }
+      const label = t.gesture ? t.gesture : (t.cls && t.cls.pinch ? 'pinch' : '');
+      if (label) { g.font = 'bold 14px sans-serif'; g.fillStyle = '#ffd27a'; g.fillText(label, P[0].x - 16, P[0].y + 18); }
+    }
+  },
+};
+
+// ---- 11-ui.js ----
+// ---------- the card, the cast list, captions and hints ----------
+const SHAPES = [
+  { g: 'rabbit', name: 'Rabbit', pose: 'rabbit', tip: 'Two fingers up for ears. Your thumb holds the rest down.' },
+  { g: 'fox', name: 'Fox', pose: 'fox', tip: 'Thumb touches your middle fingers. Pointer and pinky are ears.' },
+  { g: 'dog', name: 'Dog', pose: 'dog', tip: 'Hand on its side, thumb up for an ear. Drop your pinky to bark.' },
+  { g: 'swan', name: 'Swan', pose: 'swan', tip: 'Fingertips together make a beak. Your arm is the neck.' },
+  { g: 'bird', name: 'Bird', pose: 'bird', tag: '2 hands', tip: 'Hook thumbs and spread your fingers. Two people can share it.' },
+];
+const TRICKS = [
+  { icon: 'point', html: '<b>Poke</b> gently to say hello.' },
+  { icon: 'pinch', html: '<b>Pinch</b> thumb and pointer to hold a crumb, then let go.' },
+  { icon: 'swoosh', html: 'A quick <b>swoosh</b> gives them a fright.' },
+  { icon: 'still', html: 'Hold very <b>still</b> and a bird may land on you.' },
+];
+const INK = '#2b1d13';
+
+const UI = {
+  rows: {}, captionQ: [], captionT: 0, hintT: 0, castT: 0, flags: { poked: false, fed: false, firstHandAt: 0 },
+  lampOnAt: 0,
+
+  init() {
+    const $ = id => document.getElementById(id);
+    this.el = { shapes: $('shapes'), tricks: $('tricks'), cast: $('cast'), castEmpty: $('castEmpty'), caption: $('caption'), hint: $('hint'), status: $('status'),
+      tracking: $('tracking'), trackingText: $('trackingText'), wrap: $('stageWrap'), card: $('card'), bowBtn: $('bowBtn'), peekBtn: $('peekBtn'), soundBtn: $('soundBtn'), peek: $('peek'), peekLabel: $('peekLabel') };
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const smallTex = Paper.makeTexture(240, 190, 5);
+    for (const S of SHAPES) {
+      const li = document.createElement('li');
+      li.className = 'shape';
+      li.dataset.g = S.g;
+      li.innerHTML = `<span class="fill"></span><canvas class="hand" aria-hidden="true"></canvas><div class="txt"><b>${S.name}${S.tag ? `<span class="tag">${S.tag}</span>` : ''}</b><small>${S.tip}</small></div><canvas class="beast" aria-hidden="true"></canvas>`;
+      this.el.shapes.appendChild(li);
+      const hc = li.querySelector('.hand'), bc = li.querySelector('.beast');
+      this.rows[S.g] = { li, fill: li.querySelector('.fill') };
+      requestAnimationFrame(() => {
+        this.drawHandThumb(hc, S.pose, smallTex, dpr);
+        this.drawBeast(bc, S.g, dpr, 0.86);
+      });
+      li.addEventListener('click', () => {
+        if (Tracker.mode === 'mouse') { Tracker.setMousePose(S.pose); this.showHint('Now hold the mouse still on the stage', 3); }
+      });
+    }
+    for (const T of TRICKS) {
+      const li = document.createElement('li');
+      li.innerHTML = `<i><canvas aria-hidden="true"></canvas></i><span>${T.html}</span>`;
+      this.el.tricks.appendChild(li);
+      const c = li.querySelector('canvas');
+      requestAnimationFrame(() => this.drawTrickIcon(c, T.icon, dpr));
+    }
+  },
+
+  // a tiny lamplit screen with the hand's shadow on it
+  drawHandThumb(cv, pose, tex, dpr) {
+    const w = Math.round(cv.clientWidth * dpr) || 156, h = Math.round(cv.clientHeight * dpr) || 124;
+    cv.width = w; cv.height = h;
+    const g = cv.getContext('2d');
+    g.drawImage(Paper.makeLit(tex, w, h, { x: 0.5, y: 0.3 }), 0, 0);
+    const off = makeCanvas(w, h), og = off.getContext('2d');
+    let sets;
+    if (pose === 'bird') sets = HandModel.birdPair();
+    else sets = [HandModel.pose(pose)];
+    // fit the hands (without arms) into the thumbnail
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const s of sets) for (const p of s) { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, -p.y); y1 = Math.max(y1, -p.y); }
+    const pad = 0.38;
+    const sc = Math.min(w / (x1 - x0 + pad * 2), h / (y1 - y0 + pad * 2 + 0.5));
+    const cx = w / 2 - (x0 + x1) / 2 * sc, cy = h * 0.06 + (pad - y0) * sc;
+    for (const s of sets) {
+      const scr = HandModel.toScreen(s, cx, cy, sc);
+      HandDraw.draw(og, scr, HandDraw.size(scr), {});
+    }
+    g.save();
+    g.globalCompositeOperation = 'multiply';
+    g.shadowColor = `rgba(${SHADOW_RGB.join(',')},0.92)`;
+    g.shadowBlur = 2.2 * dpr;
+    g.shadowOffsetX = 9000;
+    g.drawImage(off, -9000, 0);
+    g.restore();
+  },
+  drawBeast(cv, species, dpr, fill = 0.85, pose) {
+    const w = Math.round(cv.clientWidth * dpr) || 116, h = Math.round(cv.clientHeight * dpr) || 88;
+    cv.width = w; cv.height = h;
+    const g = cv.getContext('2d');
+    g.clearRect(0, 0, w, h);
+    const ext = { rabbit: [-0.55, 0.62, -1.08], fox: [-1.0, 0.82, -1.04], dog: [-0.66, 0.74, -1.0], swan: [-0.6, 0.55, -1.12], bird: [-0.68, 0.58, -0.82] }[species];
+    const bw = ext[1] - ext[0], bh = -ext[2];
+    const sc = Math.min(w / bw, h / bh) * fill;
+    g.save();
+    g.translate(w / 2 - (ext[0] + ext[1]) / 2 * sc, h - (h - bh * sc) / 2);
+    g.scale(sc, sc);
+    g.fillStyle = INK; g.strokeStyle = INK;
+    Puppets.draw(g, species, pose || { w: {}, gait: { phase: 0, amp: 0 }, eye: 'open', t: 0 });
+    g.restore();
+  },
+  drawTrickIcon(cv, kind, dpr) {
+    const w = Math.round((cv.clientWidth || 22) * dpr), h = Math.round((cv.clientHeight || 18) * dpr);
+    cv.width = w; cv.height = h;
+    const g = cv.getContext('2d');
+    g.fillStyle = INK; g.strokeStyle = INK;
+    const poseName = { point: 'point', pinch: 'pinch', swoosh: 'open', still: 'open' }[kind];
+    const m = HandModel.pose(poseName, kind === 'point' ? { roll: -70 } : kind === 'pinch' ? { roll: -20, yaw: 30 } : { roll: -10 });
+    const sc = h * 0.30;
+    const scr = HandModel.toScreen(m, w * (kind === 'point' ? 0.3 : 0.55), h * 0.86, sc);
+    HandDraw.draw(g, scr, HandDraw.size(scr), { arm: false });
+    g.lineCap = 'round';
+    if (kind === 'swoosh') { g.lineWidth = 1.2 * dpr; for (let i = 0; i < 3; i++) { g.beginPath(); g.moveTo(w * 0.05, h * (0.3 + i * 0.2)); g.lineTo(w * 0.28, h * (0.3 + i * 0.2)); g.stroke(); } }
+    if (kind === 'pinch') { g.beginPath(); g.arc(scr[4].x, scr[4].y + h * 0.1, h * 0.09, 0, TAU); g.fill(); }
+    if (kind === 'still') { g.save(); g.translate(scr[12].x, scr[12].y - h * 0.02); g.scale(h * 0.32, h * 0.32); Puppets.draw(g, 'bird', { w: {}, eye: 'open', t: 0 }); g.restore(); }
+  },
+
+  flashShape(g) {
+    const r = this.rows[g];
+    if (!r) return;
+    r.li.classList.remove('born');
+    void r.li.offsetWidth;
+    r.li.classList.add('born');
+  },
+
+  showCaption(title, sub, dur = 3.4) { this.captionQ.push({ title, sub, dur }); },
+  showHint(text, dur = 5) { this.el.hint.textContent = text; this.el.hint.classList.add('show'); this.hintUntil = World.time + dur; },
+  setStatus(text) { this.el.status.textContent = text || ''; },
+
+  update(dt) {
+    // events from the world
+    for (const e of World.events) {
+      if (e.type === 'born') { const c = e.data; this.showCaption(c.name, `A ${NOUN[c.species]} who is ${c.desc}`); }
+      if (e.type === 'exit') { const c = e.data; this.showCaption(`Goodbye, ${c.name}!`, `${c.name} is heading home to rest`, 2.6); Sound.play('bye', c.x); }
+    }
+    World.events.length = 0;
+    // captions
+    this.captionT -= dt;
+    if (this.captionT <= 0) {
+      if (this.captionShown) { this.el.caption.classList.remove('show'); this.captionShown = false; this.captionT = 0.5; }
+      else if (this.captionQ.length) {
+        const c = this.captionQ.shift();
+        this.el.caption.querySelector('b').textContent = c.title;
+        this.el.caption.querySelector('span').textContent = c.sub;
+        this.el.caption.classList.add('show');
+        this.captionShown = true; this.captionT = c.dur;
+      }
+    }
+    // shape rows: which shapes the stage sees right now, and how full the hold is
+    const best = {};
+    const seen = new Set();
+    for (const t of Tracker.tracks) {
+      if (t.alpha < 0.5) continue;
+      if (t.gesture) seen.add(t.gesture);
+      if (t.holdG) best[t.holdG] = Math.max(best[t.holdG] || 0, t.focus);
+    }
+    for (const S of SHAPES) {
+      const r = this.rows[S.g];
+      const f = best[S.g] || 0;
+      r.fill.style.width = (f * 100).toFixed(1) + '%';
+      r.li.classList.toggle('seen', seen.has(S.g));
+    }
+    // cast list
+    this.castT -= dt;
+    if (this.castT <= 0) { this.castT = 0.5; this.renderCast(); }
+    // tracking indicator
+    const n = Tracker.stats.hands;
+    let txt;
+    if (World.lamp.target < 0.5) txt = 'Lamp is off';
+    else if (Tracker.mode === 'mouse') txt = 'The mouse is your hand';
+    else if (Tracker.mode === 'camera') txt = n === 0 ? 'Looking for hands' : n === 1 ? 'I see 1 hand' : `I see ${n} hands`;
+    else txt = Tracker.modelState === 'loading' ? 'Waking up the hand tracker' : 'Getting ready';
+    if (this.el.trackingText.textContent !== txt) this.el.trackingText.textContent = txt;
+    this.el.tracking.classList.toggle('on', n > 0);
+    this.el.bowBtn.disabled = !World.creatures.length || !!World.curtainCall || World.lamp.target < 0.5;
+    if (World.creatures.some(c => c.state === 'petted' || (c.cool.poke > 0.5))) this.flags.poked = true;
+    if (World.crumbs.length) this.flags.fed = true;
+    this.hints(dt);
+  },
+
+  hints(dt) {
+    if (this.hintUntil && World.time > this.hintUntil) { this.el.hint.classList.remove('show'); this.hintUntil = 0; this.hintCool = 6; }
+    this.hintCool = (this.hintCool || 0) - dt;
+    if (this.hintUntil || this.hintCool > 0 || World.lamp.target < 0.5 || World.curtainCall) return;
+    const since = World.time - this.lampOnAt;
+    const holding = Tracker.tracks.some(t => t.focus > 0.1);
+    if (holding) return;
+    const n = Tracker.stats.hands;
+    if (n > 0 && !this.flags.firstHandAt) this.flags.firstHandAt = World.time;
+    if (Tracker.mode === 'mouse') {
+      if (!World.creatures.length && since > 2) this.showHint('Pick a shape on the card, then hold the mouse still on the stage', 6);
+      else if (World.creatures.length && !this.flags.fed && since > 20) this.showHint('Press and release the mouse to drop a crumb', 5);
+      return;
+    }
+    if (Tracker.mode !== 'camera') return;
+    if (n === 0 && since > 4) this.showHint('Hold a hand up in front of the camera', 5);
+    else if (n > 0 && !World.creatures.length && World.time - this.flags.firstHandAt > 5) this.showHint('Make a shape from the card and hold it still', 6);
+    else if (World.creatures.length && !this.flags.poked && since > 14) this.showHint('Reach over and give someone a gentle poke', 5);
+    else if (World.creatures.length && !this.flags.fed && since > 30) this.showHint('Pinch thumb and pointer to hold a crumb, then let it go', 6);
+  },
+
+  renderCast() {
+    const cs = World.creatures.filter(c => c.state !== 'intro' || c.st > 0.6);
+    this.el.castEmpty.hidden = cs.length > 0;
+    const ul = this.el.cast;
+    const ids = cs.map(c => c.id).join(',');
+    if (ul.dataset.ids !== ids) {
+      ul.dataset.ids = ids;
+      ul.innerHTML = '';
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      for (const c of cs) {
+        const li = document.createElement('li');
+        li.dataset.id = c.id;
+        li.innerHTML = `<canvas aria-hidden="true"></canvas><div><b></b> <span class="kind"></span><div class="what"></div></div>`;
+        li.querySelector('b').textContent = c.name;
+        li.querySelector('.kind').textContent = `the ${NOUN[c.species]}`;
+        ul.appendChild(li);
+        const cv = li.querySelector('canvas');
+        requestAnimationFrame(() => this.drawBeast(cv, c.species, dpr, 0.9));
+      }
+    }
+    for (const li of ul.children) {
+      const c = cs.find(x => x.id == li.dataset.id);
+      if (!c) continue;
+      const what = li.querySelector('.what');
+      const txt = `${c.desc[0].toUpperCase() + c.desc.slice(1)} · ${c.status}`;
+      if (what.textContent !== txt) what.textContent = txt;
+    }
+  },
+
+  openCurtains() { this.el.wrap.classList.add('open'); Sound.play('curtain'); },
+  closeCurtains() { this.el.wrap.classList.remove('open'); Sound.play('curtain'); },
+};
+
+// ---- 12-main.js ----
+// ---------- start-up and the frame loop ----------
+(function main() {
+  const $ = id => document.getElementById(id);
+  const wrap = $('stageWrap');
+  Stage.init($('stage'));
+  UI.init();
+  let resizeT = 0;
+  window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => Stage.resize(), 160); });
+  new ResizeObserver(() => { clearTimeout(resizeT); resizeT = setTimeout(() => Stage.resize(), 160); }).observe(wrap);
+
+  // start fetching the hand tracker in the background so it is ready when the lamp goes on
+  const params = new URLSearchParams(location.search);
+  if (!params.has('demo')) Tracker.loadModel().catch(() => {});
+
+  let started = false;
+  async function startShow(mode) {
+    if (started) return;
+    started = true;
+    Sound.init();
+    Sound.play('lamp');
+    World.lamp.target = 1;
+    UI.lampOnAt = World.time;
+    const intro = $('intro');
+    intro.classList.add('fade');
+    setTimeout(() => { intro.hidden = true; }, 800);
+    setTimeout(() => UI.openCurtains(), 600);
+    if (mode === 'mouse') { useMouse(); return; }
+    try {
+      UI.showHint('Asking to use the camera…', 30);
+      await Tracker.startCamera();
+    } catch (e) {
+      console.warn(e);
+      useMouse('The camera could not be opened, so the mouse is your hand for now.');
+      return;
+    }
+    try {
+      UI.showHint('Waking up the hand tracker…', 60);
+      await Tracker.loadModel();
+    } catch (e) {
+      Tracker.stopCamera();
+      useMouse('The hand tracker could not load (it needs the internet the first time). The mouse is your hand for now.');
+      return;
+    }
+    Tracker.mode = 'camera';
+    UI.showHint('Hold a hand up in front of the camera', 4);
+    $('peekBtn').disabled = false;
+  }
+  function useMouse(msg) {
+    Tracker.mode = 'mouse';
+    document.body.classList.add('mouse-mode');
+    UI.showHint(msg || 'Pick a shape on the card, then hold the mouse still on the stage', msg ? 7 : 5);
+  }
+  $('lampBtn').addEventListener('click', () => startShow('camera'));
+  $('mouseBtn').addEventListener('click', () => startShow('mouse'));
+
+  // pointer = hand in mouse mode
+  const pmove = e => {
+    const p = Stage.toStage(e.clientX, e.clientY);
+    Tracker.pointer(p.x, p.y, performance.now());
+    Tracker.mouse.inside = p.x >= 0 && p.x <= STAGE.A && p.y >= 0 && p.y <= 1;
+  };
+  wrap.addEventListener('pointermove', pmove);
+  wrap.addEventListener('pointerdown', e => { if (Tracker.mode !== 'mouse') return; pmove(e); Tracker.mouse.down = true; wrap.setPointerCapture && wrap.setPointerCapture(e.pointerId); });
+  window.addEventListener('pointerup', () => { Tracker.mouse.down = false; });
+  wrap.addEventListener('pointerleave', () => { if (!Tracker.mouse.down) Tracker.mouse.inside = false; });
+  window.addEventListener('keydown', e => { if (e.key === 'Escape' && Tracker.mode === 'mouse') Tracker.setMousePose('relaxed'); });
+
+  // controls
+  const soundBtn = $('soundBtn');
+  soundBtn.addEventListener('click', () => {
+    const on = soundBtn.getAttribute('aria-pressed') !== 'true';
+    soundBtn.setAttribute('aria-pressed', String(on));
+    Sound.init();
+    Sound.setEnabled(on);
+  });
+  const peekBtn = $('peekBtn'), peek = $('peek');
+  Tracker.peekCtx = $('peekCanvas').getContext('2d');
+  peekBtn.addEventListener('click', () => {
+    const on = peekBtn.getAttribute('aria-pressed') !== 'true';
+    peekBtn.setAttribute('aria-pressed', String(on));
+    peek.hidden = !on;
+    Tracker.peekOn = on;
+  });
+  $('bowBtn').addEventListener('click', () => { if (World.startCurtainCall()) UI.showCaption('Curtain call!', 'Everyone takes a bow', 2.8); });
+
+  // frame loop
+  let last = performance.now();
+  function frame(now) {
+    const dt = clamp((now - last) / 1000, 0, 0.05);
+    last = now;
+    Tracker.update(dt, now);
+    World.hands = Tracker.handsForWorld();
+    World.update(dt);
+    const cc = World.updateCurtainCall(dt);
+    if (cc === 'close') UI.closeCurtains();
+    if (cc === 'clear') setTimeout(() => { UI.openCurtains(); UI.showCaption('Who will come out next?', 'Make a shape and hold it still', 3); }, 900);
+    Stage.render(World);
+    UI.update(dt);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // handles for testing from the console
+  window.__theater = { World, Tracker, Stage, UI, Sound, HandModel, Recognizer, startShow,
+    spawn(species, x = 0.8, y = 0.5) {
+      const S = 0.25;
+      const sets = species === 'bird' ? HandModel.birdPair() : [HandModel.pose(species)];
+      const ghost = sets.map(s => ({ pts: HandModel.toScreen(s, 0, 0, S).map(p => ({ x: p.x, y: p.y + S, z: p.z })), S }));
+      return World.spawn(species, { bx: x, by: y, facing: 1, handS: S, ghost });
+    } };
+  if (params.has('demo')) startShow('mouse');
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "hash": "040323b31d68c7a9",
+  "captured": "2026-10-07T23:22:39.456Z",
+  "wait": 18000,
+  "click": "#cardsMath .card:nth-child(2)",
+  "time": null
+}

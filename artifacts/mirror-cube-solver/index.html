@@ -1,0 +1,1175 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Mirror Cube Solver</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#f3efe8; --stage:#191512; --panel:#fffdfa; --panel2:#ebe5da; --line:#d9d0c1; --line2:#c6bba7;
+  --text:#221d17; --muted:#6f6659; --copper:#b0663c; --copper-ink:#8d4f2c; --copper-pale:#e0a878;
+  --steel:#5b7288; --good:#4a8558; --bad:#b4503c; --onstage:#efe6da; --onstage-dim:#9d9184;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --disp:"Saira Condensed","Arial Narrow",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --r:9px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#16130f; --stage:#131110; --panel:#201c17; --panel2:#2a251f; --line:#382f26; --line2:#4a3f33;
+  --text:#ece4d8; --muted:#9a8e7e; --copper:#c8794a; --copper-ink:#e0a878; --copper-pale:#e6b389;
+  --steel:#89a2ba; --good:#7fb083; --bad:#d4705c;
+}}
+:root[data-theme="dark"]{
+  --bg:#16130f; --stage:#131110; --panel:#201c17; --panel2:#2a251f; --line:#382f26; --line2:#4a3f33;
+  --text:#ece4d8; --muted:#9a8e7e; --copper:#c8794a; --copper-ink:#e0a878; --copper-pale:#e6b389;
+  --steel:#89a2ba; --good:#7fb083; --bad:#d4705c;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:16px 48px}
+
+/* header */
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+h1{font-family:var(--disp);font-weight:700;font-size:clamp(28px,6vw,40px);letter-spacing:.005em;margin:0;text-transform:uppercase;line-height:.95}
+h1 em{font-style:normal;color:var(--copper)}
+.sub{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.steps{display:flex;gap:0;border:1px solid var(--line2);border-radius:var(--r);overflow:hidden}
+.step{background:transparent;border:0;border-right:1px solid var(--line2);color:var(--muted);padding:9px 16px;font-family:var(--disp);font-size:17px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:7px}
+.step:last-child{border-right:0}
+.step span{font-family:var(--mono);font-size:11px;border:1px solid currentColor;border-radius:99px;width:18px;height:18px;display:grid;place-items:center;opacity:.65}
+.step[aria-selected="true"]{background:var(--copper);color:#fff}
+.step[disabled]{opacity:.4;cursor:default}
+button:focus-visible,.st:focus-visible,select:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
+
+.layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:20px;margin-top:18px;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr;gap:16px}}
+
+/* stage */
+.stagewrap{position:sticky;top:calc(env(safe-area-inset-top, 0px) + 10px)}
+@media(max-width:900px){.stagewrap{position:static}}
+.stage{position:relative;background:var(--stage);border:1px solid var(--line2);border-radius:14px;overflow:hidden;aspect-ratio:1/1;max-width:100%}
+@media(max-width:900px){.stage{aspect-ratio:1/0.80}}
+.stage canvas{display:block;width:100%!important;height:100%!important;touch-action:none;cursor:grab}
+.stage canvas:active{cursor:grabbing}
+.ovl{position:absolute;pointer-events:none;font-family:var(--disp);letter-spacing:.09em;text-transform:uppercase;font-size:12px;color:var(--onstage-dim)}
+.ovl.tl{left:14px;top:12px;max-width:60%}
+.ovl b{display:block;color:var(--onstage);font-size:15px;letter-spacing:.05em}
+.stagebtns{position:absolute;right:10px;top:10px;display:flex;gap:6px}
+.sbtn{pointer-events:auto;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);color:var(--onstage);border-radius:7px;padding:6px 10px;font:500 12px var(--sans);cursor:pointer;backdrop-filter:blur(6px)}
+.sbtn:hover{background:rgba(255,255,255,.14)}
+.sbtn.nudge{background:var(--copper);border-color:var(--copper);color:#fff;font-weight:600}
+.movebar{position:absolute;left:0;right:0;bottom:0;padding:14px 16px calc(14px + env(safe-area-inset-bottom, 0px));display:flex;align-items:center;gap:14px;background:linear-gradient(transparent,rgba(10,8,7,.86) 42%)}
+.mbadge{font-family:var(--mono);font-weight:600;font-size:38px;line-height:1;color:#fff;background:var(--copper);border-radius:10px;padding:10px 4px 12px;min-width:74px;text-align:center;flex:none;box-shadow:0 6px 22px rgba(0,0,0,.45)}
+.mtext{min-width:0}
+.mtext .f{font-family:var(--disp);font-size:24px;text-transform:uppercase;letter-spacing:.03em;color:#fff;line-height:1.05}
+.mtext .d{font-size:13.5px;color:#e7dccd;margin-top:2px}
+.mtext .h{font-size:12.5px;color:#b3a695;margin-top:2px}
+
+/* panel */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.panel+.panel{margin-top:14px}
+h2{font-family:var(--disp);font-size:19px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin:0 0 3px;color:var(--text)}
+h2 .n{font-family:var(--mono);font-size:11px;color:var(--copper);letter-spacing:.1em;margin-right:8px}
+.lede{color:var(--muted);font-size:13.5px;margin:0 0 12px}
+.lede b{color:var(--text);font-weight:600}
+
+/* level control */
+.levelrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.levelrow label{font-size:13px;color:var(--muted)}
+select{font:inherit;font-size:13px;background:var(--panel2);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:5px 8px}
+.pal{display:flex;gap:6px;align-items:flex-end}
+.chip{flex:1;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:7px 4px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--text);font:inherit;min-width:0}
+.chip[aria-pressed="true"]{border-color:var(--copper);box-shadow:inset 0 0 0 1px var(--copper)}
+.chip .prof{width:100%;height:34px;display:flex;align-items:flex-end;justify-content:center}
+.chip .prof i{display:block;width:76%;border-radius:2px 2px 1px 1px;border:1px solid rgba(0,0,0,.35)}
+.chip b{font-family:var(--disp);font-size:15px;font-weight:600;letter-spacing:.04em}
+.chip small{font-family:var(--mono);font-size:9.5px;color:var(--muted);letter-spacing:.02em}
+
+/* net */
+.net{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;max-width:470px;margin:0 auto}
+.face{display:flex;flex-direction:column;gap:4px;min-width:0}
+.face .lab{font-family:var(--disp);font-size:12px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);text-align:center;white-space:nowrap}
+.cells{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;aspect-ratio:1/1}
+.st{border:1px solid rgba(0,0,0,.4);border-radius:4px;background:var(--panel2);cursor:pointer;padding:0;font:600 11px var(--mono);color:rgba(0,0,0,.62);min-width:0;position:relative;transition:transform .09s}
+.st.blank{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(128,110,90,.22) 4px,rgba(128,110,90,.22) 8px);border-color:var(--line2);color:transparent}
+.st.ctr::after{content:"";position:absolute;inset:3px;border:1.5px solid rgba(0,0,0,.42);border-radius:2px}
+.st.blank.ctr::after{border-color:var(--line2)}
+.st.kin{transform:scale(1.11);z-index:2;box-shadow:0 0 0 2px var(--steel)}
+.st.err{box-shadow:0 0 0 2px var(--bad)}
+#fU{grid-column:2;grid-row:1}#fL{grid-column:1;grid-row:2}#fF{grid-column:2;grid-row:2}#fR{grid-column:3;grid-row:2}#fB{grid-column:4;grid-row:2}#fD{grid-column:2;grid-row:3}
+
+.status{margin-top:13px;padding:10px 12px;border-radius:7px;background:var(--panel2);border-left:3px solid var(--line2);font-size:13.5px}
+.status.good{border-left-color:var(--good)}
+.status.bad{border-left-color:var(--bad)}
+.tally{display:flex;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:8px;justify-content:center}
+.tally i{font-style:normal;display:inline-flex;align-items:center;gap:5px}
+.tally u{text-decoration:none;width:9px;height:9px;border-radius:2px;display:inline-block;border:1px solid rgba(0,0,0,.35)}
+.tally .ok{color:var(--good)}
+
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:13px}
+.btn{background:var(--panel2);border:1px solid var(--line2);color:var(--text);padding:8px 13px;border-radius:7px;font:500 13.5px var(--sans);cursor:pointer}
+.btn:hover:not([disabled]){border-color:var(--copper)}
+.btn.primary{background:var(--copper);border-color:var(--copper);color:#fff;font-family:var(--disp);font-size:19px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:9px 22px}
+.btn[disabled]{opacity:.42;cursor:default}
+.btn.wide{flex:1;justify-content:center;text-align:center}
+
+/* solve panel */
+.mini{display:none;align-items:center;gap:12px;margin:0 0 12px;padding:10px;border-radius:8px;background:var(--panel2)}
+.mini .mbadge.sm{font-size:26px;min-width:52px;padding:7px 3px 8px;box-shadow:none}
+.mini .f{font-family:var(--disp);font-size:19px;text-transform:uppercase;letter-spacing:.03em;line-height:1.05;color:var(--text)}
+.mini .d{font-size:12.5px;color:var(--muted)}
+@media(max-width:900px){.mini{display:flex}.movebar{display:none}.stage{aspect-ratio:1/0.86}}
+.prog{display:flex;gap:3px;height:9px;margin:2px 0 8px}
+.prog i{flex:1;background:var(--panel2);border-radius:2px;overflow:hidden;position:relative;border:1px solid var(--line)}
+.prog i b{position:absolute;inset:0 auto 0 0;background:var(--copper);display:block}
+.pmeta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-bottom:10px}
+.nav{display:grid;grid-template-columns:auto 1fr auto;gap:8px}
+.stages{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:3px}
+.stages li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 11px;border-radius:6px;background:var(--panel2);font-size:13.5px;border:1px solid transparent}
+.stages li.cur{border-color:var(--copper);background:color-mix(in srgb,var(--copper) 10%,var(--panel2))}
+.stages li.done{color:var(--muted)}
+.stages li .c{font-family:var(--mono);font-size:11.5px;color:var(--muted);flex:none}
+.stages li.done .c::before{content:"✓ ";color:var(--good)}
+.moves{font-family:var(--mono);font-size:13px;line-height:2;color:var(--muted);max-height:150px;overflow:auto;margin-top:6px}
+.moves .sg{display:block;color:var(--copper-ink);font-family:var(--disp);font-size:12px;letter-spacing:.1em;text-transform:uppercase;line-height:1.6;margin-top:6px}
+.moves u{text-decoration:none;color:var(--text)}
+.moves b{color:#fff;background:var(--copper);border-radius:3px;padding:1px 4px}
+details{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+summary{cursor:pointer;font-family:var(--disp);font-size:14px;letter-spacing:.07em;text-transform:uppercase;color:var(--copper-ink)}
+.how{margin:8px 0 0;padding-left:0;list-style:none;counter-reset:s;font-size:13.5px;color:var(--muted)}
+.how li{margin-bottom:8px;padding-left:26px;position:relative;counter-increment:s}
+.how li::before{content:counter(s);position:absolute;left:0;top:1px;font-family:var(--mono);font-size:10px;color:var(--copper);border:1px solid var(--copper);border-radius:99px;width:17px;height:17px;display:grid;place-items:center}
+.how b{color:var(--text)}
+.finish{text-align:center;padding:14px 8px}
+.finish .big{font-family:var(--disp);font-size:30px;text-transform:uppercase;letter-spacing:.04em;color:var(--good);line-height:1.1}
+kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line2);border-radius:4px;padding:1px 5px;color:var(--muted)}
+.foot{margin-top:22px;font-size:12px;color:var(--muted);text-align:center}
+@media (prefers-reduced-motion:reduce){.st{transition:none}}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <h1>Mirror <em>Cube</em> Solver</h1>
+      <span class="sub">thickness in · turn list out</span>
+    </div>
+    <div class="steps" role="tablist">
+      <button class="step" role="tab" id="tabEnter" aria-selected="true"><span>1</span>Enter cube</button>
+      <button class="step" role="tab" id="tabSolve" aria-selected="false" disabled><span>2</span>Solve</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="stagewrap">
+      <div class="stage" id="stage">
+        <div class="ovl tl" id="ovlLabel"><b>Live preview</b>drag to turn it over</div>
+        <div class="stagebtns">
+          <button class="sbtn" id="btnFlip">Other side</button>
+          <button class="sbtn" id="btnHome">Reset</button>
+        </div>
+        <div class="movebar" id="movebar" hidden>
+          <div class="mbadge" id="mBadge">R</div>
+          <div class="mtext"><div class="f" id="mFace">Right face</div><div class="d" id="mDir"></div><div class="h" id="mHint"></div></div>
+        </div>
+      </div>
+      <div id="underStage"></div>
+    </div>
+
+    <div>
+      <!-- ENTER -->
+      <div id="paneEnter">
+        <div class="panel">
+          <h2><span class="n">01</span>Your cube's thickness levels</h2>
+          <p class="lede">A mirror cube has no colours — a sticker's "colour" is <b>how far that piece sticks out</b>. Opposite faces always pair up: where one face is thin, the face behind it is thick.</p>
+          <div class="levelrow">
+            <label for="levelSel">Levels you can tell apart</label>
+            <select id="levelSel">
+              <option value="2">2 — thin and thick (most cubes)</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6 — every face different</option>
+            </select>
+          </div>
+          <div class="pal" id="pal"></div>
+        </div>
+
+        <div class="panel">
+          <h2><span class="n">02</span>Paint the six faces</h2>
+          <p class="lede">Hold the cube with one face toward you — that's <b>Front</b> — and don't turn it again. Start with the six outlined centres; set one and its opposite fills itself in. Then do the rest, comparing each piece against those centres. The preview tints thicker pieces warmer — your real cube is all one metal.</p>
+          <div class="net" id="net"></div>
+          <div class="tally" id="tally"></div>
+          <div class="status" id="status"></div>
+          <div class="row">
+            <button class="btn primary wide" id="btnSolve">Solve it</button>
+            <button class="btn" id="btnInfer" title="Works out any sticker that only has one possible answer, given everything else you have entered">Fill what's forced</button>
+          </div>
+          <div class="row">
+            <button class="btn" id="btnFresh">Start fresh</button>
+            <button class="btn" id="btnSolved">Fill as solved</button>
+            <button class="btn" id="btnDemo">Demo scramble</button>
+          </div>
+          <details>
+            <summary>How to read a mirror cube</summary>
+            <ol class="how">
+              <li>Every piece is a different size. The thing that tells pieces apart is <b>thickness</b> — how far a sticker sits out from the middle of the cube.</li>
+              <li>Set the <b>centres</b> first. They never move, so they are your reference: every other sticker is "as thick as" one of them.</li>
+              <li>For any other sticker, look at the piece behind it and ask <b>which centre it matches in depth</b>. Paint it that level.</li>
+              <li>Opposite faces are complements — thin against thick. That is forced by the cube's build, so setting one centre sets the one behind it.</li>
+              <li>The counts have to come out right: each level needs exactly nine stickers per centre that uses it. The tally keeps score for you.</li>
+            </ol>
+          </details>
+        </div>
+      </div>
+
+      <!-- SOLVE -->
+      <div id="paneSolve" hidden>
+        <div class="panel">
+          <h2 id="stageTitle"><span class="n">--</span>Stage</h2>
+          <div class="mini" id="mini" hidden>
+          <div class="mbadge sm" id="mBadge2">R</div>
+          <div><div class="f" id="mFace2"></div><div class="d" id="mDir2"></div></div>
+        </div>
+        <div class="prog" id="prog"></div>
+          <div class="pmeta"><span id="pLeft"></span><span id="pRight"></span></div>
+          <div class="nav">
+            <button class="btn" id="btnPrev">◀ Back</button>
+            <button class="btn primary" id="btnNext">Next move ▶</button>
+            <button class="btn" id="btnPlay" title="Play through">▶︎</button>
+          </div>
+          <div class="finish" id="finish" hidden>
+            <div class="big">Solved</div>
+            <p class="lede" style="margin:6px 0 0">Every face flush, every edge square. That's the shape you should be holding.</p>
+          </div>
+          <ul class="stages" id="stageList"></ul>
+          <div class="row">
+            <button class="btn" id="btnReplay">Replay this move</button>
+            <button class="btn" id="btnEdit">Back to editing</button>
+          </div>
+          <p class="lede" style="margin:10px 0 0"><kbd>→</kbd> next · <kbd>←</kbd> back · <kbd>space</kbd> replay</p>
+          <details open>
+            <summary>Full turn list</summary>
+            <div class="moves" id="movesOut"></div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="foot">Turn names are standard cube notation, read from how you are holding it now: U up, D down, L left, R right, F front, B back. A plain letter is a quarter turn clockwise, ′ is counter-clockwise, 2 is a half turn.</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ===== Mirror-cube solver core (also a plain 3x3 solver) =====
+// Facelet indices: U 0-8, R 9-17, F 18-26, D 27-35, L 36-44, B 45-53
+const CF = [[8,9,20],[6,18,38],[0,36,47],[2,45,11],[29,26,15],[27,44,24],[33,53,42],[35,17,51]];
+const EF = [[5,10],[7,19],[3,37],[1,46],[32,16],[28,25],[30,43],[34,52],[23,12],[21,41],[50,39],[48,14]];
+const CC = [[0,1,2],[0,2,4],[0,4,5],[0,5,1],[3,2,1],[3,4,2],[3,5,4],[3,1,5]];
+const EC = [[0,1],[0,2],[0,4],[0,5],[3,1],[3,2],[3,4],[3,5],[2,1],[2,4],[5,4],[5,1]];
+const CENTER = [4,13,22,31,40,49];
+const FACES = ['U','R','F','D','L','B'];
+const OPPFACE = [3,4,5,0,1,2];
+const CNAMES = ['up-right-front','up-front-left','up-left-back','up-back-right','down-front-right','down-left-front','down-back-left','down-right-back'];
+const ENAMES = ['up-right','up-front','up-left','up-back','down-right','down-front','down-left','down-back','front-right','front-left','back-left','back-right'];
+
+class Cube {
+  constructor(cp,co,ep,eo){
+    this.cp = cp||[0,1,2,3,4,5,6,7]; this.co = co||[0,0,0,0,0,0,0,0];
+    this.ep = ep||[0,1,2,3,4,5,6,7,8,9,10,11]; this.eo = eo||[0,0,0,0,0,0,0,0,0,0,0,0];
+  }
+  mul(b){
+    const cp=new Array(8),co=new Array(8),ep=new Array(12),eo=new Array(12);
+    for(let i=0;i<8;i++){cp[i]=this.cp[b.cp[i]]; co[i]=(this.co[b.cp[i]]+b.co[i])%3;}
+    for(let i=0;i<12;i++){ep[i]=this.ep[b.ep[i]]; eo[i]=(this.eo[b.ep[i]]+b.eo[i])%2;}
+    return new Cube(cp,co,ep,eo);
+  }
+  key(){ return this.cp.join('')+this.co.join('')+this.ep.map(x=>String.fromCharCode(97+x)).join('')+this.eo.join(''); }
+  isSolved(){
+    for(let i=0;i<8;i++) if(this.cp[i]!==i||this.co[i]!==0) return false;
+    for(let i=0;i<12;i++) if(this.ep[i]!==i||this.eo[i]!==0) return false;
+    return true;
+  }
+  toFacelets(){
+    const f=new Array(54);
+    for(let i=0;i<8;i++){const j=this.cp[i],o=this.co[i]; for(let n=0;n<3;n++) f[CF[i][(n+o)%3]]=CC[j][n];}
+    for(let i=0;i<12;i++){const j=this.ep[i],o=this.eo[i]; for(let n=0;n<2;n++) f[EF[i][(n+o)%2]]=EC[j][n];}
+    for(let i=0;i<6;i++) f[CENTER[i]]=i;
+    return f;
+  }
+}
+const Z8=[0,0,0,0,0,0,0,0], Z12=[0,0,0,0,0,0,0,0,0,0,0,0];
+const BASE = {
+  U: new Cube([3,0,1,2,4,5,6,7],Z8,[3,0,1,2,4,5,6,7,8,9,10,11],Z12),
+  R: new Cube([4,1,2,0,7,5,6,3],[2,0,0,1,1,0,0,2],[8,1,2,3,11,5,6,7,4,9,10,0],Z12),
+  F: new Cube([1,5,2,3,0,4,6,7],[1,2,0,0,2,1,0,0],[0,9,2,3,4,8,6,7,1,5,10,11],[0,1,0,0,0,1,0,0,1,1,0,0]),
+  D: new Cube([0,1,2,3,5,6,7,4],Z8,[0,1,2,3,5,6,7,4,8,9,10,11],Z12),
+  L: new Cube([0,2,6,3,4,1,5,7],[0,1,2,0,0,2,1,0],[0,1,10,3,4,5,9,7,8,2,6,11],Z12),
+  B: new Cube([0,1,3,7,4,5,2,6],[0,0,1,2,0,0,2,1],[0,1,2,11,4,5,6,10,8,9,3,7],[0,0,0,1,0,0,0,1,0,0,1,1]),
+};
+const MOVES = {}; const MOVE_NAMES = [];
+for(const f of FACES){ const m=BASE[f]; MOVES[f]=m; MOVES[f+'2']=m.mul(m); MOVES[f+"'"]=m.mul(m).mul(m); MOVE_NAMES.push(f,f+'2',f+"'"); }
+function parseAlg(s){ return s.trim().split(/\s+/).filter(Boolean); }
+function algCube(names){ let c=new Cube(); for(const n of names) c=c.mul(MOVES[n]); return c; }
+function apply(cube,names){ let c=cube; for(const n of names) c=c.mul(MOVES[n]); return c; }
+
+// ---- simplify, carrying a stage tag so boundaries can merge too ----
+const OPP = {U:'D',D:'U',R:'L',L:'R',F:'B',B:'F'};
+function simplifyTagged(items){
+  let arr=items.map(m=>({f:m.f,a:m.a,s:m.s}));
+  for(let pass=0;pass<64;pass++){
+    let changed=false; const out=[];
+    for(const m of arr){
+      const last=out[out.length-1], prev=out[out.length-2];
+      if(last && last.f===m.f){ last.a=(last.a+m.a)%4; last.s=Math.min(last.s,m.s); if(last.a===0) out.pop(); changed=true; }
+      else if(last && prev && prev.f===m.f && last.f===OPP[m.f]){ prev.a=(prev.a+m.a)%4; prev.s=Math.min(prev.s,m.s); if(prev.a===0) out.splice(out.length-2,1); changed=true; }
+      else out.push({f:m.f,a:m.a,s:m.s});
+    }
+    arr=out; if(!changed) break;
+  }
+  return arr.map(m=>({m:m.f+(m.a===1?'':(m.a===2?'2':"'")),s:m.s}));
+}
+function toItems(names,stage){ return names.map(n=>({f:n[0],a:n.endsWith("'")?3:(n.endsWith('2')?2:1),s:stage})); }
+function simplify(names){ return simplifyTagged(toItems(names,0)).map(x=>x.m); }
+
+// ---- bottom cross: BFS over a packed 4-edge coordinate (fast, optimal) ----
+function crossSolved(c){ for(let e=4;e<=7;e++) if(c.ep[e]!==e||c.eo[e]!==0) return false; return true; }
+const EDGE_MOVE=(()=>{
+  const t=new Int32Array(24*18);
+  for(let mi=0;mi<18;mi++){ const m=MOVES[MOVE_NAMES[mi]];
+    for(let q=0;q<12;q++){ const q2=m.ep.indexOf(q);
+      for(let o=0;o<2;o++) t[(q*2+o)*18+mi]=q2*2+((o+m.eo[q2])%2); } }
+  return t;
+})();
+const CROSS_N=24*24*24*24;
+let crossSeen=null, crossFrom=null, crossVia=null, crossStamp=0, crossMark=null;
+function solveCross(start){
+  if(crossSolved(start)) return [];
+  if(!crossSeen){ crossMark=new Int32Array(CROSS_N); crossFrom=new Int32Array(CROSS_N); crossVia=new Int32Array(CROSS_N); crossSeen=true; }
+  crossStamp++;
+  const code=p=>{ const q=start.ep.indexOf(p); return q*2+start.eo[q]; };
+  const pack=(a,b,c,d)=>((a*24+b)*24+c)*24+d;
+  const s0=pack(code(4),code(5),code(6),code(7));
+  const goal=pack(8,10,12,14);
+  if(s0===goal) return [];
+  let frontier=new Int32Array([s0]);
+  crossMark[s0]=crossStamp; crossFrom[s0]=-1; crossVia[s0]=-1;
+  for(let depth=0;depth<9;depth++){
+    const next=new Int32Array(frontier.length*18); let n=0;
+    for(let fi=0;fi<frontier.length;fi++){
+      const st=frontier[fi];
+      const d=st%24, c=((st-d)/24)%24, b=((st-d-c*24)/576)%24, a=(st-d-c*24-b*576)/13824;
+      for(let mi=0;mi<18;mi++){
+        const ns=pack(EDGE_MOVE[a*18+mi],EDGE_MOVE[b*18+mi],EDGE_MOVE[c*18+mi],EDGE_MOVE[d*18+mi]);
+        if(crossMark[ns]===crossStamp) continue;
+        crossMark[ns]=crossStamp; crossFrom[ns]=st; crossVia[ns]=mi;
+        if(ns===goal){ const path=[]; let cur=ns; while(crossVia[cur]>=0){ path.push(MOVE_NAMES[crossVia[cur]]); cur=crossFrom[cur]; } return path.reverse(); }
+        next[n++]=ns;
+      }
+    }
+    frontier=next.subarray(0,n);
+  }
+  throw new Error('cross unreachable');
+}
+
+// ---- Dijkstra over macro moves ----
+function dijkstra(start, macros, goal, limit, keyOf){
+  keyOf=keyOf||(c=>c.key());
+  const startKey=keyOf(start);
+  if(goal(start)) return [];
+  const best=new Map([[startKey,{cost:0,prev:null,mi:-1}]]);
+  const buckets=[[{c:start,k:startKey}]];
+  let expanded=0;
+  for(let cost=0; cost<buckets.length; cost++){
+    const b=buckets[cost]; if(!b) continue;
+    for(const node of b){
+      const rec=best.get(node.k); if(rec.cost!==cost) continue;
+      if(++expanded>limit) return null;
+      for(let mi=0;mi<macros.length;mi++){
+        const m=macros[mi]; const c=node.c.mul(m.cube); const k=keyOf(c); const nc=cost+m.alg.length;
+        const old=best.get(k); if(old && old.cost<=nc) continue;
+        best.set(k,{cost:nc,prev:node.k,mi});
+        if(goal(c)){ const path=[]; let cur=k; while(best.get(cur).prev!==null){ const r=best.get(cur); path.push(macros[r.mi].alg); cur=r.prev; } return path.reverse().flat(); }
+        (buckets[nc]||(buckets[nc]=[])).push({c,k});
+      }
+    }
+  }
+  return null;
+}
+
+// ---- F2L ----
+const SLOTS=[{corner:4,edge:8,name:'front-right'},{corner:7,edge:11,name:'back-right'},{corner:6,edge:10,name:'back-left'},{corner:5,edge:9,name:'front-left'}];
+function relabel(alg,k){ const cyc='FRBL'; return alg.map(n=>{ const i=cyc.indexOf(n[0]); return i<0?n:cyc[(i+k)%4]+n.slice(1); }); }
+const F2L_BASE=["R U R'","R U' R'","R U2 R'","F' U F","F' U' F","F' U2 F"].map(parseAlg);
+const U_MOVES=[['U'],["U'"],['U2']];
+function mkMacros(algs){ return algs.map(a=>({alg:a,cube:algCube(a)})); }
+const SLOT_MACROS=[0,1,2,3].map(k=>mkMacros(F2L_BASE.map(a=>relabel(a,k))));
+const UM=mkMacros(U_MOVES);
+function slotSolved(c,s){ return c.cp[s.corner]===s.corner&&c.co[s.corner]===0&&c.ep[s.edge]===s.edge&&c.eo[s.edge]===0; }
+function solvedSlots(c){ return SLOTS.map((s,i)=>slotSolved(c,s)?i:-1).filter(i=>i>=0); }
+// For one pair, the only thing that varies is where its corner and edge are: 576 states.
+// Everything the allowed macros touch is either that pair or a slot we have not solved yet.
+function solveOneSlot(c){
+  const doneSet=new Set(solvedSlots(c));
+  const open=[0,1,2,3].filter(i=>!doneSet.has(i));
+  const macros=[...UM]; for(const i of open) macros.push(...SLOT_MACROS[i]);
+  let bestPath=null,bestSlot=-1;
+  for(const t of open){
+    const s=SLOTS[t];
+    const keyOf=x=>{ const cp=x.cp.indexOf(s.corner), ep=x.ep.indexOf(s.edge); return (cp*3+x.co[cp])*24+(ep*2+x.eo[ep]); };
+    const path=dijkstra(c,macros,x=>slotSolved(x,s),60000,keyOf);
+    if(path && (!bestPath||path.length<bestPath.length)){ bestPath=path; bestSlot=t; }
+  }
+  if(!bestPath) throw new Error('pair search failed');
+  return {path:bestPath,slot:bestSlot};
+}
+
+// ---- last layer ----
+const LL_CANDIDATES=[
+  "R U R' U R U2 R'", "R U2 R' U' R U' R'", "F R U R' U' F'", "F U R U' R' F'",
+  "R U R' U' R' F R2 U' R' U' R U R' F'",
+  "F R U' R' U' R U R' F' R U R' U' R' F R F'",
+  "R U' R U R U R U' R' U' R2", "R2 U R U R' U' R' U' R' U R'",
+  "R' F R' B2 R F' R' B2 R2", "R2 B2 R F R' B2 R F' R",
+  "R U R' F' R U R' U' R' F R2 U' R' U'", "R' U L' U2 R U' R' U2 R L",
+  "R U' L' U R' U' L", "R U2 R2 U' R2 U' R2 U2 R"
+].map(parseAlg).filter(a=>{
+  const m=algCube(a); // must leave everything below the top layer untouched
+  for(let i=4;i<8;i++) if(m.cp[i]!==i||m.co[i]!==0) return false;
+  for(let i=4;i<12;i++) if(m.ep[i]!==i||m.eo[i]!==0) return false;
+  return true;
+});
+const LL_MACROS=[...UM,...mkMacros(LL_CANDIDATES)];
+
+// two-phase last layer, driven by precomputed lookup tables (instant at solve time)
+function oKey(co,eo){ let k=0; for(let i=0;i<4;i++) k=k*3+co[i]; for(let i=0;i<4;i++) k=k*2+eo[i]; return k; }
+function pKey(cp,ep){ let a=0,b=0; for(let i=0;i<4;i++){a=a*4+cp[i]; b=b*4+ep[i];} return a*256+b; }
+let LLT=null;
+function buildLL(){
+  if(LLT) return LLT;
+  const oriM=LL_MACROS;
+  const permM=LL_MACROS.filter(m=>[0,1,2,3].every(i=>m.cube.co[i]===0&&m.cube.eo[i]===0&&m.cube.cp[i]<4&&m.cube.ep[i]<4));
+  // --- orientation table (co[0..3], eo[0..3]) is closed under any LL macro ---
+  const N=1296, oNext=[], oDist=new Float64Array(N).fill(Infinity), oMac=new Int16Array(N).fill(-1);
+  const decode=k=>{ const eo=[],co=[]; for(let i=3;i>=0;i--){ eo[i]=k%2; k=(k-eo[i])/2; } for(let i=3;i>=0;i--){ co[i]=k%3; k=(k-co[i])/3; } return {co,eo}; };
+  for(let k=0;k<N;k++){ const {co,eo}=decode(k); const row=[];
+    for(const m of oriM){ const nc=[],ne=[];
+      for(let i=0;i<4;i++){ nc[i]=(co[m.cube.cp[i]]+m.cube.co[i])%3; ne[i]=(eo[m.cube.ep[i]]+m.cube.eo[i])%2; }
+      row.push(oKey(nc,ne)); }
+    oNext.push(row); }
+  oDist[oKey([0,0,0,0],[0,0,0,0])]=0;
+  for(let pass=0;pass<40;pass++){ let ch=false;
+    for(let k=0;k<N;k++) for(let mi=0;mi<oriM.length;mi++){ const d=oDist[oNext[k][mi]]+oriM[mi].alg.length;
+      if(d<oDist[k]-1e-9){ oDist[k]=d; oMac[k]=mi; ch=true; } }
+    if(!ch) break; }
+  // --- permutation table (cp[0..3], ep[0..3]) once orientation is done ---
+  const perms=[]; (function gen(a,rest){ if(!rest.length){perms.push(a.slice());return;} for(let i=0;i<rest.length;i++) gen(a.concat(rest[i]),rest.filter((_,j)=>j!==i)); })([],[0,1,2,3]);
+  const states=[]; for(const a of perms) for(const b of perms) states.push([a,b]);
+  const pIdx=new Map(states.map((s,i)=>[pKey(s[0],s[1]),i]));
+  const pNext=states.map(([cp,ep])=>permM.map(m=>{ const nc=[],ne=[];
+    for(let i=0;i<4;i++){ nc[i]=cp[m.cube.cp[i]]; ne[i]=ep[m.cube.ep[i]]; }
+    return pIdx.get(pKey(nc,ne)); }));
+  const pDist=new Float64Array(states.length).fill(Infinity), pMac=new Int16Array(states.length).fill(-1);
+  pDist[pIdx.get(pKey([0,1,2,3],[0,1,2,3]))]=0;
+  for(let pass=0;pass<60;pass++){ let ch=false;
+    for(let k=0;k<states.length;k++) for(let mi=0;mi<permM.length;mi++){ const nk=pNext[k][mi]; if(nk===undefined) continue;
+      const d=pDist[nk]+permM[mi].alg.length; if(d<pDist[k]-1e-9){ pDist[k]=d; pMac[k]=mi; ch=true; } }
+    if(!ch) break; }
+  LLT={oriM,permM,oDist,oMac,pIdx,pDist,pMac};
+  return LLT;
+}
+function solveLL(c){
+  const T=buildLL(); const orient=[],perm=[]; let guard=0;
+  while(!(c.co.slice(0,4).every(v=>v===0)&&c.eo.slice(0,4).every(v=>v===0))){
+    const k=oKey(c.co.slice(0,4),c.eo.slice(0,4)); const mi=T.oMac[k];
+    if(mi<0||++guard>40) throw new Error('last layer orientation unreachable');
+    orient.push(...T.oriM[mi].alg); c=c.mul(T.oriM[mi].cube);
+  }
+  guard=0;
+  while(!c.isSolved()){
+    const k=T.pIdx.get(pKey(c.cp.slice(0,4),c.ep.slice(0,4))); const mi=k===undefined?-1:T.pMac[k];
+    if(mi<0||++guard>40) throw new Error('last layer permutation unreachable');
+    perm.push(...T.permM[mi].alg); c=c.mul(T.permM[mi].cube);
+  }
+  return {orient,perm,cube:c};
+}
+
+function solve(start){
+  const raw=[]; let c=start;
+  const cross=solveCross(c); c=apply(c,cross); raw.push({name:'Bottom cross',moves:cross});
+  while(solvedSlots(c).length<4){ const r=solveOneSlot(c); c=apply(c,r.path); raw.push({name:'Pair: '+SLOTS[r.slot].name,moves:r.path}); }
+  const ll=solveLL(c); c=ll.cube;
+  raw.push({name:'Turn the top faces up',moves:ll.orient});
+  raw.push({name:'Slide the top pieces home',moves:ll.perm});
+  if(!c.isSolved()) throw new Error('internal: solution does not solve');
+  const items=[]; raw.forEach((s,i)=>items.push(...toItems(s.moves,i)));
+  const merged=simplifyTagged(items);
+  const stages=raw.map(s=>({name:s.name,moves:[]}));
+  merged.forEach(x=>stages[x.s].moves.push(x.m));
+  const out=stages.filter(s=>s.moves.length);
+  if(!apply(start,out.flatMap(s=>s.moves)).isSolved()) throw new Error('internal: cleanup broke the solution');
+  return out;
+}
+
+// ---- assignment: stickers (thickness classes) -> a concrete cube state ----
+function permParity(p){ let s=0; for(let i=0;i<p.length;i++) for(let j=i+1;j<p.length;j++) if(p[i]>p[j]) s^=1; return s; }
+function scoreState(cp,co,ep,eo){
+  let s=0;
+  for(let i=0;i<8;i++) if(cp[i]===i) s+=(co[i]===0?3:1);
+  for(let i=0;i<12;i++) if(ep[i]===i) s+=(eo[i]===0?3:1);
+  return s;
+}
+function cubeFromClasses(cls,opts){
+  opts=opts||{};
+  const faceClass=CENTER.map(i=>cls[i]);
+  if(faceClass.some(v=>v==null||v<0)) return {error:'Set all six centers first.',bad:CENTER.filter(i=>cls[i]==null||cls[i]<0)};
+  const need=[]; faceClass.forEach(v=>need[v]=(need[v]||0)+9);
+  const have=[]; const blanks=[];
+  for(let i=0;i<54;i++){ const v=cls[i]; if(v==null||v<0){ blanks.push(i); continue; } have[v]=(have[v]||0)+1; }
+  if(blanks.length) return {error:blanks.length+' sticker'+(blanks.length>1?'s':'')+' still blank.',bad:blanks};
+  for(const v of Object.keys(need)) if((have[v]||0)!==need[v])
+    return {error:`Level ${+v+1} is painted on ${have[v]||0} stickers but the centers call for ${need[v]}.`};
+
+  const cCand=[],eCand=[],bad=[];
+  for(let i=0;i<8;i++){ const o=CF[i].map(x=>cls[x]); const list=[];
+    for(let j=0;j<8;j++) for(let r=0;r<3;r++){ let ok=true; for(let n=0;n<3;n++) if(faceClass[CC[j][n]]!==o[(n+r)%3]){ok=false;break;} if(ok) list.push([j,r]); }
+    if(!list.length) bad.push(...CF[i]); cCand.push(list); }
+  for(let i=0;i<12;i++){ const o=EF[i].map(x=>cls[x]); const list=[];
+    for(let j=0;j<12;j++) for(let r=0;r<2;r++){ let ok=true; for(let n=0;n<2;n++) if(faceClass[EC[j][n]]!==o[(n+r)%2]){ok=false;break;} if(ok) list.push([j,r]); }
+    if(!list.length) bad.push(...EF[i]); eCand.push(list); }
+  if(bad.length) return {error:'The highlighted piece is not a shape this cube has. Re-check those stickers.',bad};
+
+  const cp=new Array(8),co=new Array(8),ep=new Array(12),eo=new Array(12);
+  const usedC=new Array(8).fill(false), usedE=new Array(12).fill(false);
+  const t0=Date.now(), msCap=opts.ms||700, cornerCap=opts.corners||600, edgeCap=opts.edges||24;
+  let cornerSols=0, abort=false; const pool=new Map();
+  function edges(i,found){
+    if(abort) return found;
+    if(i===12){
+      let so=0; for(let x=0;x<12;x++) so+=eo[x]; if(so%2) return found;
+      if(permParity(cp)!==permParity(ep)) return found;
+      const cube=new Cube(cp.slice(),co.slice(),ep.slice(),eo.slice());
+      const kk=cube.key(); if(!pool.has(kk)) pool.set(kk,{cube,score:scoreState(cp,co,ep,eo)});
+      return found+1;
+    }
+    for(const pair of eCand[i]){ const j=pair[0]; if(usedE[j]) continue;
+      usedE[j]=true; ep[i]=j; eo[i]=pair[1]; found=edges(i+1,found); usedE[j]=false;
+      if(found>=edgeCap||abort) return found; }
+    return found;
+  }
+  function corners(i){
+    if(abort) return;
+    if(i===8){
+      let so=0; for(let x=0;x<8;x++) so+=co[x]; if(so%3) return;
+      if(edges(0,0)>0) cornerSols++;
+      if(cornerSols>=cornerCap||Date.now()-t0>msCap) abort=true;
+      return;
+    }
+    for(const pair of cCand[i]){ const j=pair[0]; if(usedC[j]) continue;
+      usedC[j]=true; cp[i]=j; co[i]=pair[1]; corners(i+1); usedC[j]=false;
+      if(abort) return; }
+  }
+  corners(0);
+  if(!pool.size) return {error:'These stickers cannot come from a real cube — a piece is twisted, or two pieces are swapped. Re-check the entries.'};
+  const cubes=[...pool.values()].sort((a,b)=>b.score-a.score).slice(0,opts.keep||14).map(x=>x.cube);
+  return {cube:cubes[0],cubes,faceClass,variants:pool.size};
+}
+// A mirror cube often has several legitimate finished states. Solve the best candidates
+// and hand back the shortest route.
+function solveBest(cubes,budgetMs){
+  const t0=Date.now(); let best=null, tried=0;
+  for(const cube of cubes){
+    let st; try{ st=solve(cube); }catch(e){ continue; }
+    tried++;
+    const len=st.reduce((n,s)=>n+s.moves.length,0);
+    if(!best||len<best.len) best={stages:st,len,cube};
+    if(Date.now()-t0>(budgetMs||900)) break;
+  }
+  if(!best) throw new Error('no solution found');
+  return {...best,tried};
+}
+function classesFromCube(cube,faceClass){ return cube.toFacelets().map(col=>faceClass[col]); }
+function randomCube(){ let c=new Cube(); for(let i=0;i<30;i++) c=c.mul(MOVES[MOVE_NAMES[Math.floor(Math.random()*18)]]); return c; }
+
+// ---- fill in stickers that the rest of the entry already pins down ----
+// Enumerates every real cube state consistent with what is entered so far and keeps
+// only the readings they all agree on, so a filled sticker is never a guess.
+function inferForced(cls,faceClass){
+  cls=cls.slice(); let filledByCount=0;
+  // Cheap first pass: sticker counts alone often settle the last few blanks.
+  for(let guard=0;guard<8;guard++){
+    const blanks=[]; for(let i=0;i<54;i++) if(cls[i]==null||cls[i]<0) blanks.push(i);
+    if(!blanks.length) break;
+    const need={},have={}; faceClass.forEach(v=>need[v]=(need[v]||0)+9);
+    cls.forEach(v=>{ if(v!=null&&v>=0) have[v]=(have[v]||0)+1; });
+    const live=Object.keys(need).map(Number).filter(v=>(need[v]-(have[v]||0))>0);
+    if(live.length!==1) break;
+    blanks.forEach(i=>cls[i]=live[0]); filledByCount+=blanks.length;
+  }
+  const unknown=[]; for(let i=0;i<54;i++) if(cls[i]==null||cls[i]<0) unknown.push(i);
+  if(!unknown.length) return {cls,filled:filledByCount};
+  const cCand=[],eCand=[];
+  for(let i=0;i<8;i++){ const o=CF[i].map(x=>cls[x]); const list=[];
+    for(let j=0;j<8;j++) for(let r=0;r<3;r++){ let ok=true;
+      for(let n=0;n<3;n++){ const w=o[(n+r)%3]; if(w!=null&&w>=0&&faceClass[CC[j][n]]!==w){ok=false;break;} }
+      if(ok) list.push([j,r]); }
+    if(!list.length) return {cls,filled:filledByCount,impossible:true}; cCand.push(list); }
+  for(let i=0;i<12;i++){ const o=EF[i].map(x=>cls[x]); const list=[];
+    for(let j=0;j<12;j++) for(let r=0;r<2;r++){ let ok=true;
+      for(let n=0;n<2;n++){ const w=o[(n+r)%2]; if(w!=null&&w>=0&&faceClass[EC[j][n]]!==w){ok=false;break;} }
+      if(ok) list.push([j,r]); }
+    if(!list.length) return {cls,filled:filledByCount,impossible:true}; eCand.push(list); }
+
+  const cp=new Array(8),co=new Array(8),ep=new Array(12),eo=new Array(12);
+  const usedC=new Array(8).fill(false), usedE=new Array(12).fill(false);
+  // where each blank lives, so a solution only has to be read at those spots
+  const spot=unknown.map(f=>{
+    for(let i=0;i<8;i++){ const n=CF[i].indexOf(f); if(n>=0) return {c:1,i,n}; }
+    for(let i=0;i<12;i++){ const n=EF[i].indexOf(f); if(n>=0) return {c:0,i,n}; }
+    return null;
+  });
+  const agree=cls.slice(); let first=true, sols=0, nodes=0, capped=false, open=unknown.length;
+  const t0=Date.now(), NODES=4e6, SOLS=200000, MS=700;
+  function record(){
+    sols++;
+    for(let u=0;u<unknown.length;u++){
+      const f=unknown[u]; if(!first&&agree[f]<0) continue;
+      const sp=spot[u]; let v;
+      if(sp.c){ const j=cp[sp.i],o=co[sp.i]; v=faceClass[CC[j][(sp.n-o+3)%3]]; }
+      else { const j=ep[sp.i],o=eo[sp.i]; v=faceClass[EC[j][(sp.n-o+2)%2]]; }
+      if(first) agree[f]=v;
+      else if(agree[f]!==v){ agree[f]=-1; open--; }
+    }
+    first=false;
+    if(open<=0) capped=false, sols=sols, open=0, abortAll=true;
+  }
+  let abortAll=false;
+  function edges(i){
+    if(capped||abortAll) return;
+    if(++nodes>NODES||sols>SOLS||(nodes%8192===0&&Date.now()-t0>MS)){ capped=true; return; }
+    if(i===12){ let so=0; for(let x=0;x<12;x++) so+=eo[x]; if(so%2) return;
+      if(permParity(cp)!==permParity(ep)) return; record(); return; }
+    for(const pr of eCand[i]){ if(usedE[pr[0]]) continue;
+      usedE[pr[0]]=true; ep[i]=pr[0]; eo[i]=pr[1]; edges(i+1); usedE[pr[0]]=false; if(capped||abortAll) return; }
+  }
+  function corners(i){
+    if(capped||abortAll) return;
+    if(++nodes>NODES){ capped=true; return; }
+    if(i===8){ let so=0; for(let x=0;x<8;x++) so+=co[x]; if(so%3) return; edges(0); return; }
+    for(const pr of cCand[i]){ if(usedC[pr[0]]) continue;
+      usedC[pr[0]]=true; cp[i]=pr[0]; co[i]=pr[1]; corners(i+1); usedC[pr[0]]=false; if(capped||abortAll) return; }
+  }
+  corners(0);
+  if(!sols) return {cls,filled:filledByCount,capped,impossible:!capped};
+  // a capped search is still sound for any blank already shown to be ambiguous,
+  // but a blank that merely never varied might still vary further in, so drop those
+  if(capped&&!abortAll){ for(const i of unknown) agree[i]=-1; }
+  let filled=filledByCount; for(const i of unknown) if(agree[i]>=0) filled++;
+  return {cls:agree,filled,capped:capped&&!filled,sols};
+}
+
+// browser build: {Cube,MOVES,MOVE_NAMES,CF,EF,CC,EC,CENTER,FACES,OPPFACE,CNAMES,ENAMES,parseAlg,apply,algCube,simplify,solve,cubeFromClasses,classesFromCube,randomCube,solveCross,SLOTS,relabel,F2L_BASE,inferForced,LL_CANDIDATES,buildLL,solveBest,scoreState};
+
+</script>
+<script>
+/* ===================== geometry model =====================
+   A mirror cube's cuts sit at fixed planes either side of the core. Each piece
+   touches those planes on the inside and sticks out by its own thickness.
+   That forces opposite faces to be complements: t(U)+t(D) = t(R)+t(L) = t(F)+t(B).
+   Ignore that and the render falls apart, which is exactly what it did. */
+const MID=19, PAIRSUM=38;
+function levelValues(k){ const H=6+(k-2), out=[]; for(let i=0;i<k;i++) out.push(19+(2*i/(k-1)-1)*H); return out; }
+const FACE_LABEL={U:'Up',R:'Right',F:'Front',D:'Down',L:'Left',B:'Back'};
+const FACE_FULL={U:'Top face',R:'Right face',F:'Front face',D:'Bottom face',L:'Left face',B:'Back face'};
+const HINT={
+  U:['the front row of the top layer slides left','the front row of the top layer slides right'],
+  D:['the front row of the bottom layer slides right','the front row of the bottom layer slides left'],
+  R:['the front column of the right layer lifts up','the front column of the right layer drops down'],
+  L:['the front column of the left layer drops down','the front column of the left layer lifts up'],
+  F:['clockwise, looking straight at it','counter-clockwise, looking straight at it'],
+  B:['from where you sit, the back layer turns counter-clockwise','from where you sit, the back layer turns clockwise']};
+function describe(m){
+  const f=m[0], a=m.endsWith("'")?3:(m.endsWith('2')?2:1);
+  return {face:FACE_FULL[f],
+    dir:a===2?'Half turn — 180°, either way round':(a===1?'Quarter turn clockwise':'Quarter turn counter-clockwise'),
+    hint:a===2?'Two quarter turns; direction does not matter.':HINT[f][a===1?0:1]+'.'};
+}
+
+/* ===================== 3D stage ===================== */
+const AXIS={U:'y',D:'y',R:'x',L:'x',F:'z',B:'z'};
+const SIGN={U:-1,D:1,R:-1,L:1,F:-1,B:1};          // signed turn about the positive axis
+const OUT={U:[0,1,0],D:[0,-1,0],R:[1,0,0],L:[-1,0,0],F:[0,0,1],B:[0,0,-1]};
+const CORNER_FACES=[['U','R','F'],['U','F','L'],['U','L','B'],['U','B','R'],['D','F','R'],['D','L','F'],['D','B','L'],['D','R','B']];
+const EDGE_FACES=[['U','R'],['U','F'],['U','L'],['U','B'],['D','R'],['D','F'],['D','L'],['D','B'],['F','R'],['F','L'],['B','L'],['B','R']];
+
+function brushTexture(vertical){
+  const c=document.createElement('canvas'); c.width=c.height=256; const x=c.getContext('2d');
+  x.fillStyle='#ffffff'; x.fillRect(0,0,256,256);
+  for(let i=0;i<1400;i++){
+    const p=Math.random()*256, g=200+Math.random()*55, a=.05+Math.random()*.22;
+    x.strokeStyle='rgba('+(g|0)+','+(g|0)+','+(g|0)+','+a.toFixed(3)+')'; x.lineWidth=Math.random()*1.6+.3;
+    x.beginPath();
+    if(vertical){ x.moveTo(p,0); x.lineTo(p+(Math.random()-.5)*3,256); } else { x.moveTo(0,p); x.lineTo(256,p+(Math.random()-.5)*3); }
+    x.stroke();
+  }
+  const g=x.createLinearGradient(0,0,256,256); g.addColorStop(0,'rgba(255,255,255,.30)'); g.addColorStop(.45,'rgba(150,150,150,.12)'); g.addColorStop(1,'rgba(255,255,255,.26)');
+  x.fillStyle=g; x.fillRect(0,0,256,256);
+  const t=new THREE.CanvasTexture(c); t.anisotropy=4; return t;
+}
+function shadowTexture(){
+  const c=document.createElement('canvas'); c.width=c.height=256; const x=c.getContext('2d');
+  const g=x.createRadialGradient(128,128,8,128,128,124);
+  g.addColorStop(0,'rgba(0,0,0,.55)'); g.addColorStop(.55,'rgba(0,0,0,.22)'); g.addColorStop(1,'rgba(0,0,0,0)');
+  x.fillStyle=g; x.fillRect(0,0,256,256); return new THREE.CanvasTexture(c);
+}
+function roundedPlane(w,h,r){
+  r=Math.max(.5,Math.min(r,w/2-.1,h/2-.1));
+  const s=new THREE.Shape();
+  s.moveTo(-w/2+r,-h/2); s.lineTo(w/2-r,-h/2); s.quadraticCurveTo(w/2,-h/2,w/2,-h/2+r);
+  s.lineTo(w/2,h/2-r); s.quadraticCurveTo(w/2,h/2,w/2-r,h/2);
+  s.lineTo(-w/2+r,h/2); s.quadraticCurveTo(-w/2,h/2,-w/2,h/2-r);
+  s.lineTo(-w/2,-h/2+r); s.quadraticCurveTo(-w/2,-h/2,-w/2+r,-h/2);
+  const g=new THREE.ShapeGeometry(s,6); g.computeBoundingBox();
+  const bb=g.boundingBox, uv=g.attributes.uv, dx=bb.max.x-bb.min.x, dy=bb.max.y-bb.min.y;
+  for(let i=0;i<uv.count;i++) uv.setXY(i,(uv.getX(i)-bb.min.x)/dx,(uv.getY(i)-bb.min.y)/dy);
+  return g;
+}
+
+class Stage{
+  constructor(el){
+    this.el=el;
+    this.renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+    this.renderer.outputEncoding=THREE.sRGBEncoding;
+    this.renderer.toneMapping=THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure=1.05;
+    el.insertBefore(this.renderer.domElement,el.firstChild);
+    this.scene=new THREE.Scene();
+    this.cam=new THREE.PerspectiveCamera(30,1,1,2000);
+    this.scene.environment=this.makeEnv();
+    const key=new THREE.DirectionalLight(0xffffff,1.5); key.position.set(70,120,90); this.scene.add(key);
+    const fill=new THREE.DirectionalLight(0xffd7b8,.45); fill.position.set(-90,10,-50); this.scene.add(fill);
+    this.scene.add(new THREE.AmbientLight(0xffffff,.22));
+    this.world=new THREE.Group(); this.scene.add(this.world);
+    this.rig=new THREE.Group(); this.world.add(this.rig);
+    this.pivot=new THREE.Group(); this.world.add(this.pivot);
+    this.arrow=new THREE.Group(); this.world.add(this.arrow);
+    const sh=new THREE.Mesh(new THREE.PlaneGeometry(150,150),
+      new THREE.MeshBasicMaterial({map:shadowTexture(),transparent:true,depthWrite:false}));
+    sh.rotation.x=-Math.PI/2; this.shadow=sh; this.world.add(sh);
+    this.texV=brushTexture(true); this.texH=brushTexture(false);
+    this.plastic=new THREE.MeshStandardMaterial({color:0x141214,metalness:.15,roughness:.62});
+    this.ghost=new THREE.MeshStandardMaterial({color:0x2e2a26,metalness:.1,roughness:.9,transparent:true,opacity:.55});
+    this.tiles={}; this.cubies=[]; this.cls=new Array(54).fill(-1); this.vals=levelValues(2);
+    this.theta=.68; this.phi=.40; this.dist=204; this.home=[.68,.40]; this.anim=null; this.hi=-1;
+    this.applyCam(); this.bindInput();
+    this.resize(); new ResizeObserver(()=>this.resize()).observe(el);
+    const loop=()=>{ this.tick(); this.onFrame&&this.onFrame(); this.renderer.render(this.scene,this.cam); this.raf=requestAnimationFrame(loop); }; loop();
+  }
+  makeEnv(){
+    const c=document.createElement('canvas'); c.width=256; c.height=128; const x=c.getContext('2d');
+    const g=x.createLinearGradient(0,0,0,128);
+    g.addColorStop(0,'#fff3e4'); g.addColorStop(.36,'#c9bdb0'); g.addColorStop(.52,'#6a625c'); g.addColorStop(.75,'#231f1d'); g.addColorStop(1,'#100e0d');
+    x.fillStyle=g; x.fillRect(0,0,256,128);
+    x.fillStyle='rgba(255,246,232,.95)'; x.beginPath(); x.ellipse(74,26,40,15,0,0,7); x.fill();
+    x.fillStyle='rgba(255,224,196,.5)'; x.beginPath(); x.ellipse(196,40,30,11,0,0,7); x.fill();
+    const t=new THREE.CanvasTexture(c); t.mapping=THREE.EquirectangularReflectionMapping;
+    const p=new THREE.PMREMGenerator(this.renderer); p.compileEquirectangularShader();
+    const env=p.fromEquirectangular(t).texture; t.dispose(); p.dispose(); return env;
+  }
+  applyCam(){
+    const p=this.phi,t=this.theta;
+    this.cam.position.set(this.dist*Math.cos(p)*Math.sin(t),this.dist*Math.sin(p),this.dist*Math.cos(p)*Math.cos(t));
+    this.cam.lookAt(0,0,0);
+  }
+  home1(){ this.theta=this.home[0]; this.phi=this.home[1]; this.applyCam(); }
+  flip(){ this.theta+=Math.PI; this.phi=-this.phi; this.applyCam(); }
+  resize(){ const w=this.el.clientWidth,h=this.el.clientHeight; if(!w||!h) return;
+    this.renderer.setSize(w,h,false); this.cam.aspect=w/h; this.cam.updateProjectionMatrix(); }
+  bindInput(){
+    const c=this.renderer.domElement; let last=null,pinch=null;
+    const pts=new Map();
+    c.addEventListener('pointerdown',e=>{ pts.set(e.pointerId,[e.clientX,e.clientY]); last=[e.clientX,e.clientY]; c.setPointerCapture(e.pointerId); });
+    c.addEventListener('pointermove',e=>{
+      if(!pts.has(e.pointerId)) return; pts.set(e.pointerId,[e.clientX,e.clientY]);
+      if(pts.size===2){ const [a,b]=[...pts.values()]; const d=Math.hypot(a[0]-b[0],a[1]-b[1]);
+        if(pinch) this.zoom(pinch/d); pinch=d; return; }
+      if(!last) return;
+      this.theta-=(e.clientX-last[0])*.0095;
+      this.phi=Math.max(-1.25,Math.min(1.25,this.phi+(e.clientY-last[1])*.0095));
+      last=[e.clientX,e.clientY]; this.applyCam();
+    });
+    const up=e=>{ pts.delete(e.pointerId); if(pts.size<2) pinch=null; if(!pts.size) last=null; };
+    c.addEventListener('pointerup',up); c.addEventListener('pointercancel',up);
+    c.addEventListener('wheel',e=>{ e.preventDefault(); this.zoom(1+Math.sign(e.deltaY)*.09); },{passive:false});
+  }
+  zoom(f){ this.dist=Math.max(120,Math.min(330,this.dist*f)); this.applyCam(); }
+
+  setLevels(vals){ this.vals=vals; }
+  thick(v){ return (v==null||v<0)?MID*0.62:this.vals[v]; }
+
+  dispose(group){
+    group.traverse(o=>{ if(o.isMesh){ o.geometry&&o.geometry.dispose();
+      if(o.material&&o.material!==this.plastic) o.material.dispose(); } });
+  }
+  build(cls){
+    this.cls=cls.slice();
+    for(const g of [this.rig,this.pivot]) while(g.children.length){ const c=g.children[0]; g.remove(c); this.dispose(c); }
+    this.cubies=[]; this.tiles={};
+    const mk=(faces,facelets)=>{
+      const dim={x:MID,y:MID,z:MID}, pos={x:0,y:0,z:0}, plates=[];
+      faces.forEach((f,i)=>{
+        const ax=AXIS[f], s=OUT[f][ax==='x'?0:ax==='y'?1:2];
+        const t=this.thick(cls[facelets[i]]);
+        dim[ax]=t; pos[ax]=s*(MID/2+t/2);
+        plates.push({f,ax,s,v:cls[facelets[i]],fl:facelets[i]});
+      });
+      const g=new THREE.Group(); g.position.set(pos.x,pos.y,pos.z); g.userData={faces};
+      const gap=1.0;
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(dim.x-gap,dim.y-gap,dim.z-gap),this.plastic));
+      for(const p of plates){
+        const W=ax=>dim[ax]-gap-2.2;
+        let w,h,rot;
+        if(p.ax==='x'){ w=W('z'); h=W('y'); rot=[0,p.s*Math.PI/2,0]; }
+        else if(p.ax==='y'){ w=W('x'); h=W('z'); rot=[-p.s*Math.PI/2,0,0]; }
+        else { w=W('x'); h=W('y'); rot=[0,p.s===1?0:Math.PI,0]; }
+        const known=p.v!=null&&p.v>=0;
+        const mat=known
+          ? new THREE.MeshStandardMaterial({color:0xd9ccc2,metalness:.92,roughness:.30,
+              map:p.ax==='y'?this.texH:this.texV,roughnessMap:p.ax==='y'?this.texH:this.texV})
+          : this.ghost.clone();
+        if(known){ // deeper levels read warmer, thinner read like steel — reads at a glance
+          const f=this.vals.length>1?p.v/(this.vals.length-1):0.5;
+          mat.color.setHSL(0.10-0.055*f,0.05+0.42*f,0.82-0.20*f);
+        }
+        const m=new THREE.Mesh(roundedPlane(w,h,Math.min(w,h)*.16),mat);
+        m.rotation.set(rot[0],rot[1],rot[2]);
+        m.position[p.ax]=p.s*((dim[p.ax]-gap)/2+.18);
+        m.userData={fl:p.fl,base:mat.color.clone()};
+        g.add(m); this.tiles[p.fl]=m;
+      }
+      this.rig.add(g); this.cubies.push(g);
+    };
+    for(let i=0;i<8;i++) mk(CORNER_FACES[i],CF[i]);
+    for(let i=0;i<12;i++) mk(EDGE_FACES[i],EF[i]);
+    'URFDLB'.split('').forEach((f,i)=>mk([f],[CENTER[i]]));
+    this.rig.add(new THREE.Mesh(new THREE.BoxGeometry(MID-1,MID-1,MID-1),this.plastic));
+    // centres never move, so the solved bounding box gives a camera that never drifts
+    const t=f=>this.thick(cls[CENTER['URFDLB'.indexOf(f)]]);
+    this.world.position.set(-(t('R')-t('L'))/2,-(t('U')-t('D'))/2,-(t('F')-t('B'))/2);
+    this.shadow.position.set(0,-(MID/2+t('D'))-0.8,0);
+    this.applyHighlight();
+  }
+  setHighlight(fl){ this.hi=fl; this.applyHighlight(); }
+  applyHighlight(){
+    for(const k in this.tiles){ const m=this.tiles[k];
+      if(!m.userData.base) continue;
+      const on=this.hi>=0&&SIBLINGS[this.hi]&&SIBLINGS[this.hi].includes(+k);
+      m.material.emissive&&m.material.emissive.setHex(on?0x4a6c8c:0x000000);
+      m.scale.setScalar(on?1.06:1);
+    }
+  }
+  clearArrow(){ while(this.arrow.children.length){ const c=this.arrow.children.pop(); c.geometry&&c.geometry.dispose(); } this.arrow.rotation.set(0,0,0); }
+  showArrow(move){
+    this.clearArrow();
+    const f=move[0], a=move.endsWith("'")?3:(move.endsWith('2')?2:1);
+    const ax=AXIS[f], sweep=(a===2?120:105)*Math.PI/180, dir=Math.sign(SIGN[f]*(a===3?-1:1));
+    const axv=new THREE.Vector3(ax==='x'?1:0,ax==='y'?1:0,ax==='z'?1:0);
+    const u=ax==='x'?new THREE.Vector3(0,1,0):new THREE.Vector3(1,0,0);
+    const v=ax==='x'?new THREE.Vector3(0,0,1):(ax==='y'?new THREE.Vector3(0,0,-1):new THREE.Vector3(0,1,0));
+    const t=this.thick(this.cls[CENTER['URFDLB'.indexOf(f)]]);
+    const n=new THREE.Vector3(...OUT[f]).multiplyScalar(MID/2+t+5);
+    const R=22, pts=[], N=26;
+    for(let i=0;i<=N;i++){ const ph=(-sweep/2+sweep*i/N)*dir;
+      pts.push(new THREE.Vector3().copy(n).addScaledVector(u,R*Math.cos(ph)).addScaledVector(v,R*Math.sin(ph))); }
+    const mat=this.arrowMat||(this.arrowMat=new THREE.MeshBasicMaterial({color:0xffcf9e,depthTest:false,transparent:true,opacity:.95}));
+    const tube=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),40,1.5,10,false),mat);
+    tube.renderOrder=999; this.arrow.add(tube);
+    const end=pts[N], prev=pts[N-1], tan=new THREE.Vector3().subVectors(end,prev).normalize();
+    const head=new THREE.Mesh(new THREE.ConeGeometry(3.9,9.5,16),mat);
+    head.position.copy(end).addScaledVector(tan,3);
+    head.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),tan);
+    head.renderOrder=999; this.arrow.add(head);
+    if(a===2){ const h2=head.clone(); const s=pts[0], s1=pts[1];
+      const tn=new THREE.Vector3().subVectors(s,s1).normalize();
+      h2.position.copy(s).addScaledVector(tn,3);
+      h2.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),tn); this.arrow.add(h2); }
+    this.arrow.visible=true;
+  }
+  play(move,nextCls,onDone){
+    if(this.anim) this.settle();
+    const f=move[0], a=move.endsWith("'")?3:(move.endsWith('2')?2:1);
+    const angle=SIGN[f]*(a===2?Math.PI:(a===1?Math.PI/2:-Math.PI/2));
+    const layer=this.cubies.filter(c=>c.userData.faces.includes(f));
+    this.pivot.rotation.set(0,0,0);
+    layer.forEach(c=>this.pivot.add(c));
+    this.rig.traverse(o=>{ if(o.isMesh&&o.userData.base) o.material.color.copy(o.userData.base).multiplyScalar(.34); });
+    layer.forEach(c=>c.children.forEach(m=>{ if(m.userData.base){ m.material.color.copy(m.userData.base);
+      m.material.emissive&&m.material.emissive.setHex(0x5a3a1c); } }));
+    const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.curFace=f;
+    this.anim={axis:AXIS[f],angle,t0:performance.now(),dur:reduce?1:(a===2?720:520),next:nextCls,onDone};
+  }
+  settle(){ const a=this.anim; this.anim=null; this.pivot.rotation.set(0,0,0);
+    while(this.pivot.children.length) this.rig.add(this.pivot.children[0]);
+    this.clearArrow(); this.build(a.next); a.onDone&&a.onDone(); }
+  tick(){ const a=this.anim; if(!a) return;
+    const k=Math.min(1,(performance.now()-a.t0)/a.dur);
+    const e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+    this.pivot.rotation[a.axis]=a.angle*e;
+    this.arrow.rotation[a.axis]=a.angle*e*0.35;
+    if(k>=1){ this.arrow.rotation.set(0,0,0); this.settle(); } }
+  faceHidden(f){ if(!f) return false;
+    const n=new THREE.Vector3(...OUT[f]);
+    return n.dot(this.cam.position.clone().normalize())<0.08; }
+}
+
+/* facelet -> the other stickers on the same physical piece */
+const SIBLINGS=(()=>{ const s=new Array(54).fill(null);
+  CF.forEach(t=>t.forEach(f=>s[f]=t)); EF.forEach(t=>t.forEach(f=>s[f]=t)); CENTER.forEach(f=>s[f]=[f]); return s; })();
+
+/* ===================== app state ===================== */
+const S={levels:2,cls:new Array(54).fill(-1),brush:0,demo:false,sol:null,i:0,playing:null};
+const stage=new Stage(document.getElementById('stage'));
+const $=id=>document.getElementById(id);
+
+function vals(){ return levelValues(S.levels); }
+function levelCss(i){ const k=S.levels, f=k>1?i/(k-1):.5;
+  const h=Math.round(36-20*f), s=Math.round(6+46*f), l=Math.round(82-20*f);
+  return 'hsl('+h+' '+s+'% '+l+'%)'; }
+function save(){ try{ localStorage.setItem('mirrorcube.v2',JSON.stringify({levels:S.levels,cls:S.cls,demo:S.demo})); }catch(e){} }
+function load(){ try{ const r=JSON.parse(localStorage.getItem('mirrorcube.v2')||'null');
+  if(r&&Array.isArray(r.cls)&&r.cls.length===54&&r.levels>=2&&r.levels<=6){ S.levels=r.levels; S.cls=r.cls; S.demo=!!r.demo; return true; } }catch(e){} return false; }
+
+/* palette */
+function buildPal(){
+  const pal=$('pal'); pal.innerHTML=''; const V=vals();
+  const NAMES=['thinnest','thickest'];
+  for(let i=0;i<S.levels;i++){
+    const b=document.createElement('button'); b.className='chip'; b.type='button'; b.id='chip'+i;
+    b.setAttribute('aria-pressed',String(i===S.brush));
+    const nm=S.levels===2?(i===0?'thin':'thick'):(i===0?'thinnest':i===S.levels-1?'thickest':'level '+(i+1));
+    b.innerHTML='<span class="prof"><i style="height:'+Math.round(V[i]/29*100)+'%;background:'+levelCss(i)+'"></i></span>'+
+                '<b>'+(i+1)+'</b><small>'+nm+'</small>';
+    b.onclick=()=>{ S.brush=i; [...pal.children].forEach((c,j)=>c.setAttribute('aria-pressed',String(j===i))); };
+    pal.appendChild(b);
+  }
+}
+
+/* net */
+const cellBtn=[];
+(function buildNet(){
+  const net=$('net');
+  [['U',0,'back row on top'],['L',36,''],['F',18,''],['R',9,''],['B',45,''],['D',27,'front row on top']].forEach(([f,base,note])=>{
+    const d=document.createElement('div'); d.className='face'; d.id='f'+f;
+    d.innerHTML='<div class="lab" title="'+(note||FACE_FULL[f])+'">'+FACE_LABEL[f]+'</div><div class="cells"></div>';
+    const cells=d.querySelector('.cells');
+    for(let i=0;i<9;i++){
+      const idx=base+i, isC=i===4;
+      const b=document.createElement('button'); b.type='button'; b.id='st'+idx;
+      b.className='st'+(isC?' ctr':'');
+      b.onclick=()=>paint(idx);
+      b.onpointerenter=()=>hover(idx); b.onfocus=()=>hover(idx);
+      b.onpointerleave=()=>hover(-1); b.onblur=()=>hover(-1);
+      cells.appendChild(b); cellBtn[idx]=b;
+    }
+    net.appendChild(d);
+  });
+})();
+function hover(idx){ stage.setHighlight(idx);
+  cellBtn.forEach((b,i)=>b.classList.toggle('kin', idx>=0 && SIBLINGS[idx].includes(i) && i!==idx));
+  if(idx>=0) cellBtn[idx].classList.remove('kin'); }
+function paint(idx){
+  S.demo=false;
+  const ci=CENTER.indexOf(idx);
+  if(ci>=0){ // centres come in forced pairs
+    if(S.cls[idx]===S.brush){ S.cls[idx]=-1; S.cls[CENTER[OPPFACE[ci]]]=-1; }
+    else { S.cls[idx]=S.brush; S.cls[CENTER[OPPFACE[ci]]]=S.levels-1-S.brush; }
+  } else S.cls[idx]=(S.cls[idx]===S.brush)?-1:S.brush;
+  refresh();
+}
+
+/* ===================== validation + render ===================== */
+let lastCheck=null;
+function refresh(){
+  const V=vals();
+  stage.setLevels(V);
+  for(let i=0;i<54;i++){ const v=S.cls[i], b=cellBtn[i];
+    b.classList.toggle('blank',v<0); b.classList.remove('err');
+    b.style.background=v<0?'':levelCss(v); b.textContent=v<0?'':String(v+1);
+    b.title=(v<0?'blank':'level '+(v+1))+(CENTER.includes(i)?' · centre (sets the opposite face too)':'');
+  }
+  stage.build(S.cls);
+  save();
+  const st=$('status'), centers=CENTER.map(i=>S.cls[i]);
+  const setBtn=(ok)=>{ $('btnSolve').disabled=!ok; };
+  if(centers.some(v=>v<0)){
+    st.className='status'; st.textContent='Set the six centres first — the outlined squares. Pick a level for one and the face behind it fills in automatically.';
+    $('tally').innerHTML=''; setBtn(false); lastCheck=null; return;
+  }
+  // tally
+  const need={}, have={}; centers.forEach(v=>need[v]=(need[v]||0)+9);
+  let blank=0; S.cls.forEach(v=>{ if(v<0) blank++; else have[v]=(have[v]||0)+1; });
+  $('tally').innerHTML=Object.keys(need).sort().map(v=>{
+    const h=have[v]||0, n=need[v];
+    return '<i class="'+(h===n?'ok':'')+'"><u style="background:'+levelCss(+v)+'"></u>level '+(+v+1)+' '+h+'/'+n+'</i>';
+  }).join('');
+  if(blank){
+    st.className='status'; st.textContent=blank+' sticker'+(blank>1?'s':'')+' still blank.'+(S.demo?' (This is a demo scramble — hit “Start fresh” to enter your own.)':'');
+    setBtn(false); lastCheck=null; return;
+  }
+  const r=cubeFromClasses(S.cls,{keep:48});
+  if(r.error){
+    st.className='status bad'; st.textContent=r.error;
+    (r.bad||[]).forEach(i=>cellBtn[i]&&cellBtn[i].classList.add('err'));
+    setBtn(false); lastCheck=null; return;
+  }
+  lastCheck=r;
+  st.className='status good';
+  st.textContent=(S.demo?'Demo scramble loaded. ':'')+'All 54 stickers read as a real, solvable cube'+
+    (r.variants>1?'. Pieces of equal thickness are interchangeable, so more than one arrangement counts as finished — the solver aims for the closest one.':'.')+
+    ' Compare the preview with the cube in your hand, then solve.';
+  setBtn(true);
+}
+
+/* ===================== buttons ===================== */
+$('levelSel').onchange=e=>{ S.levels=+e.target.value; S.cls=new Array(54).fill(-1); S.brush=0; S.demo=false; buildPal(); refresh(); };
+$('btnFresh').onclick=()=>{ S.cls=new Array(54).fill(-1); S.demo=false; refresh(); };
+$('btnSolved').onclick=()=>{ S.cls=classesFromCube(new Cube(),faceSet()); S.demo=false; refresh(); };
+$('btnDemo').onclick=()=>{ S.cls=classesFromCube(randomCube(),faceSet()); S.demo=true; refresh(); };
+$('btnInfer').onclick=()=>{
+  const centers=CENTER.map(i=>S.cls[i]);
+  if(centers.some(v=>v<0)){ refresh(); return; }
+  S.demo=false;
+  const r=inferForced(S.cls,centers);
+  S.cls=r.cls; refresh();
+  if(r.filled) return;
+  const st=$('status'); st.className='status';
+  st.textContent=r.impossible
+    ? 'What is entered so far cannot come from a real cube, so nothing can be worked out from it. Check the stickers marked in red.'
+    : (r.capped
+      ? 'Too many arrangements still fit, so nothing is pinned down yet — that is normal with only a couple of thickness levels. Fill in more stickers and try again.'
+      : 'Nothing else is forced yet. Every blank could still be more than one piece.');
+};
+// faces are [U,R,F,D,L,B]; opposites must be complements, so thin/thick alternates
+function faceSet(){ const c=CENTER.map(i=>S.cls[i]);
+  if(c.every(v=>v>=0)) return c;
+  const k=S.levels-1; return [0,k,0,k,0,k]; }
+$('btnHome').onclick=()=>stage.home1();
+$('btnFlip').onclick=()=>stage.flip();
+
+/* ===================== solving ===================== */
+function showPane(which){
+  const solving=which==='solve';
+  $('paneEnter').hidden=solving; $('paneSolve').hidden=!solving;
+  $('tabEnter').setAttribute('aria-selected',String(!solving));
+  $('tabSolve').setAttribute('aria-selected',String(solving));
+  $('movebar').hidden=!solving; $('mini').hidden=!solving;
+  if(solving) requestAnimationFrame(()=>{ const r=document.querySelector('.layout');
+    if(r&&innerWidth<=900) window.scrollTo({top:Math.max(0,r.offsetTop-8),behavior:'smooth'}); });
+  $('ovlLabel').innerHTML=solving?'<b>Do this turn</b>then press next':'<b>Live preview</b>drag to turn it over';
+  stage.resize();
+}
+$('tabEnter').onclick=()=>{ stopPlay(); stage.clearArrow(); showPane('enter'); stage.build(S.cls); };
+$('tabSolve').onclick=()=>{ if(S.sol) showPane('solve'); };
+$('btnEdit').onclick=()=>{ stopPlay(); stage.clearArrow(); showPane('enter'); stage.build(S.cls); };
+
+$('btnSolve').onclick=()=>{
+  if(!lastCheck) return;
+  const b=$('btnSolve'); b.textContent='Solving…'; b.disabled=true;
+  setTimeout(()=>{
+    try{
+      buildLL();
+      const best=solveBest(lastCheck.cubes,900);
+      const fc=lastCheck.faceClass;
+      const steps=[],stageOf=[],states=[];
+      let c=best.cube; states.push(classesFromCube(c,fc));
+      best.stages.forEach((sg,si)=>sg.moves.forEach(m=>{
+        steps.push(m); stageOf.push(si); c=c.mul(MOVES[m]); states.push(classesFromCube(c,fc));
+      }));
+      S.sol={steps,stageOf,states,stages:best.stages}; S.i=0;
+      $('tabSolve').disabled=false; showPane('solve'); draw(true);
+    }catch(e){
+      $('status').className='status bad'; $('status').textContent='The solver could not finish: '+e.message;
+    }
+    b.textContent='Solve it'; b.disabled=false;
+  },20);
+};
+
+function draw(reset){
+  const s=S.sol; if(!s) return;
+  const n=s.steps.length, i=S.i, done=i>=n;
+  if(reset) stage.build(s.states[i]);
+  // progress, one segment per stage
+  $('prog').innerHTML=s.stages.map((sg,k)=>{
+    let before=0; for(let j=0;j<k;j++) before+=s.stages[j].moves.length;
+    const p=Math.max(0,Math.min(1,(i-before)/sg.moves.length));
+    return '<i title="'+sg.name+'"><b style="width:'+(p*100)+'%"></b></i>';
+  }).join('');
+  $('pLeft').textContent=done?'complete':'move '+(i+1)+' of '+n;
+  $('pRight').textContent=n+' turns total';
+  $('finish').hidden=!done; $('movebar').hidden=done; $('mini').hidden=done;
+  $('btnNext').disabled=done; $('btnPrev').disabled=i===0; $('btnReplay').disabled=done; $('btnPlay').disabled=done;
+  $('ovlLabel').innerHTML=done?'<b>Finished</b>a perfect cube again':'<b>Do this turn</b>then press next';
+  if(!done){ const m=s.steps[i], d=describe(m);
+    $('mBadge').textContent=m; $('mFace').textContent=d.face; $('mDir').textContent=d.dir; $('mHint').textContent=d.hint;
+    $('mBadge2').textContent=m; $('mFace2').textContent=d.face; $('mDir2').textContent=d.dir;
+    if(!stage.anim) stage.showArrow(m);
+  } else stage.clearArrow();
+  const si=done?s.stages.length-1:s.stageOf[i];
+  $('stageTitle').innerHTML='<span class="n">'+String(si+1).padStart(2,'0')+'</span>'+(done?'Done':s.stages[si].name);
+  let off=0;
+  $('stageList').innerHTML=s.stages.map((sg,k)=>{
+    const cur=k===si&&!done, cls=done||k<si?'done':(cur?'cur':'');
+    const within=cur?' · '+(i-off+1)+' of '+sg.moves.length:''; off+=sg.moves.length;
+    return '<li class="'+cls+'"><span>'+sg.name+within+'</span><span class="c">'+sg.moves.length+'</span></li>';
+  }).join('');
+  let h='',k=0;
+  $('movesOut').innerHTML=s.stages.map(sg=>{
+    let row='<span class="sg">'+sg.name+'</span>';
+    sg.moves.forEach(m=>{ row+=(k===i&&!done)?'<b>'+m+'</b> ':(k<i?'<u>'+m+'</u> ':m+' '); k++; });
+    return row;
+  }).join('');
+}
+function next(){ const s=S.sol; if(!s||S.i>=s.steps.length||stage.anim) return;
+  const i=S.i; stage.play(s.steps[i],s.states[i+1],()=>{ S.i=i+1; draw(false); if(S.playing) queue(); }); }
+function prev(){ const s=S.sol; if(!s||S.i===0) return; if(stage.anim) stage.settle(); S.i--; draw(true); }
+function replay(){ const s=S.sol; if(!s||S.i>=s.steps.length) return;
+  if(stage.anim) stage.settle(); stage.build(s.states[S.i]); stage.play(s.steps[S.i],s.states[S.i+1],null); }
+function queue(){ clearTimeout(S.playing); if(S.i>=S.sol.steps.length){ stopPlay(); return; }
+  S.playing=setTimeout(next,700); }
+function stopPlay(){ clearTimeout(S.playing); S.playing=null; $('btnPlay').textContent='▶︎'; }
+$('btnNext').onclick=()=>{ stopPlay(); next(); };
+$('btnPrev').onclick=()=>{ stopPlay(); prev(); };
+$('btnReplay').onclick=()=>{ stopPlay(); replay(); };
+$('btnPlay').onclick=()=>{ if(S.playing) stopPlay(); else { S.playing=1; $('btnPlay').textContent='❚❚'; next(); } };
+let nudged=null;
+stage.onFrame=()=>{
+  const solving=!$('paneSolve').hidden, s=S.sol;
+  const face=(solving&&s&&S.i<s.steps.length)?s.steps[S.i][0]:null;
+  const hide=!!face&&stage.faceHidden(face);
+  if(hide!==nudged){ nudged=hide; $('btnFlip').classList.toggle('nudge',hide);
+    $('btnFlip').textContent=hide?'Show that face':'Other side'; }
+};
+addEventListener('keydown',e=>{
+  if($('paneSolve').hidden) return;
+  if(e.key==='ArrowRight'){ stopPlay(); next(); e.preventDefault(); }
+  else if(e.key==='ArrowLeft'){ stopPlay(); prev(); e.preventDefault(); }
+  else if(e.key===' '){ stopPlay(); replay(); e.preventDefault(); }
+});
+
+/* ===================== boot ===================== */
+function boot(snap){
+  if(snap&&snap.cls){ S.levels=snap.levels||2; S.cls=snap.cls; S.demo=!!snap.demo; }
+  else if(!load()){ S.levels=2; S.cls=classesFromCube(randomCube(),[0,1,0,1,0,1]); S.demo=true; }
+  $('levelSel').value=String(S.levels);
+  buildPal(); refresh();
+  if(snap&&snap.sol){ /* solved state is cheap to redo; keep it simple and stay on entry */ }
+}
+if(window.claude&&window.claude.hot){
+  window.claude.hot.snapshot(()=>({levels:S.levels,cls:S.cls,demo:S.demo}));
+  window.claude.hot.ready?window.claude.hot.ready(boot):boot(window.claude.hot.data);
+} else boot(null);
+</script>
+
+</body></html>

@@ -1,0 +1,2144 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Stave</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: a music stand. One column; the stage spans it; controls, name and glyph set sit below.
+   Liner notes switch the column to a reading measure with figures that break wider. */
+:root {
+  --paper: #eff1ec;      /* manuscript paper, faintly green-grey */
+  --paper-2: #e5e8e1;    /* recessed panels */
+  --paper-3: #f7f8f5;    /* raised: the stage */
+  --ink: #1a1f2b;        /* engraving ink */
+  --ink-2: #565e70;      /* secondary text */
+  --string: #8a94a8;     /* steel strings */
+  --cstring: #c23a2d;    /* harp red: the tonic strings */
+  --brass: #a8720c;      /* anything sounding */
+  --brass-ink: #fffaf0;
+  --glow: rgba(168, 114, 12, 0.22);
+  --rule: #d2d6cd;
+  --serif: "Spectral", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --is-dark: 0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f1219; --paper-2: #151a23; --paper-3: #12161e;
+    --ink: #ebe6da; --ink-2: #9aa1af; --string: #586379; --cstring: #e35b4c;
+    --brass: #e8b54c; --brass-ink: #1b1406; --glow: rgba(232, 181, 76, 0.2); --rule: #252b36;
+    --is-dark: 1; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f1219; --paper-2: #151a23; --paper-3: #12161e;
+  --ink: #ebe6da; --ink-2: #9aa1af; --string: #586379; --cstring: #e35b4c;
+  --brass: #e8b54c; --brass-ink: #1b1406; --glow: rgba(232, 181, 76, 0.2); --rule: #252b36;
+  --is-dark: 1; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--paper); color: var(--ink); }
+body { font-family: var(--serif); font-size: 17px; line-height: 1.55; padding-inline: 16px; padding-block: 0 48px; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1120px; margin: 0 auto; }
+a { color: inherit; text-decoration-color: var(--cstring); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+.mono { font-family: var(--mono); }
+.label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-2); }
+
+/* top bar */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 18px 14px; border-bottom: 1px solid var(--rule); flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+.brand svg { display: block; height: 44px; width: auto; }
+.brand .tag { font-style: italic; color: var(--ink-2); font-size: 15px; }
+nav.tabs { display: flex; gap: 4px; }
+nav.tabs a { font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; padding: 8px 12px; border-radius: 999px; text-decoration: none; color: var(--ink-2); }
+nav.tabs a[aria-current="page"] { color: var(--ink); background: var(--paper-2); }
+
+/* stage */
+.lede { display: flex; justify-content: space-between; align-items: end; gap: 16px 24px; flex-wrap: wrap; margin-block: 26px 14px; }
+.lede h1 { font-weight: 500; font-size: clamp(24px, 3.4vw, 34px); line-height: 1.15; margin: 0; max-width: 24ch; text-wrap: balance; letter-spacing: -0.01em; }
+.lede p { margin: 0; max-width: 46ch; color: var(--ink-2); font-size: 16px; }
+.stagecard { background: var(--paper-3); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.toolbar { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--rule); flex-wrap: wrap; }
+.toolbar .spacer { flex: 1; }
+.btn { font-family: var(--mono); font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; border: 1px solid var(--rule); background: transparent; color: var(--ink); padding: 8px 13px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.btn:hover { border-color: var(--string); }
+.btn.primary { background: var(--brass); color: var(--brass-ink); border-color: var(--brass); font-weight: 500; }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn svg { width: 12px; height: 12px; fill: currentColor; }
+.btn[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; padding: 2px; }
+.seg button { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase; border: 0; background: transparent; color: var(--ink-2); padding: 6px 11px; border-radius: 999px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.hint { font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); }
+kbd { font-family: var(--mono); font-size: 11px; border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; color: var(--ink); }
+.stage { position: relative; cursor: text; }
+.stage canvas { display: block; width: 100%; }
+.stage textarea { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; resize: none; border: 0; padding: 0; font-size: 16px; color: transparent; background: transparent; caret-color: transparent; cursor: text; }
+.wake { position: absolute; right: 12px; bottom: 10px; font-family: var(--mono); font-size: 11px; color: var(--ink-2); pointer-events: none; transition: opacity .4s; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px; border-top: 1px solid var(--rule); }
+.chip { font-family: var(--serif); font-size: 15px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink); padding: 4px 12px; border-radius: 999px; cursor: pointer; max-width: 100%; text-align: left; }
+.chip:hover { border-color: var(--brass); }
+
+/* knobs */
+section.block { margin-top: 44px; }
+.block-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; margin-bottom: 14px; }
+.block-head h2 { font-size: 22px; font-weight: 500; margin: 0; letter-spacing: -0.005em; }
+.block-head p { margin: 0; color: var(--ink-2); font-size: 15.5px; max-width: 62ch; }
+.knobs { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.knobgroup { border-top: 2px solid var(--ink); padding-top: 12px; display: grid; gap: 14px; min-width: 0; }
+.knobgroup h3 { margin: 0; font-family: var(--mono); font-size: 11.5px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; }
+.knob { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: baseline; }
+.knob label { font-size: 16px; }
+.knob .eff { font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); }
+.knob .val { font-family: var(--mono); font-size: 11.5px; color: var(--brass); font-variant-numeric: tabular-nums; text-align: right; }
+.knob .row { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; }
+.knob .end { font-family: var(--mono); font-size: 10.5px; color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.05em; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: transparent; cursor: pointer; margin: 0; }
+input[type=range]::-webkit-slider-runnable-track { height: 1px; background: var(--string); }
+input[type=range]::-moz-range-track { height: 1px; background: var(--string); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--brass); margin-top: -6.5px; border: 2px solid var(--paper); box-shadow: 0 0 0 1px var(--brass); }
+input[type=range]::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--brass); border: 2px solid var(--paper); box-shadow: 0 0 0 1px var(--brass); }
+select { font-family: var(--mono); font-size: 12px; background: var(--paper); color: var(--ink); border: 1px solid var(--rule); border-radius: 999px; padding: 5px 10px; }
+
+/* name */
+.namegrid { display: grid; gap: 14px; }
+.nameinput { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.nameinput input { font-family: var(--serif); font-size: 22px; border: 0; border-bottom: 1px solid var(--string); background: transparent; color: var(--ink); padding: 4px 2px; width: min(340px, 100%); }
+.nameinput input:focus { outline: none; border-bottom-color: var(--brass); }
+.namecard { background: var(--paper-3); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.namecard canvas { display: block; width: 100%; }
+.melody { padding: 12px 14px 14px; border-top: 1px solid var(--rule); display: grid; gap: 8px; }
+.melody svg { display: block; width: 100%; height: auto; overflow: visible; }
+.notes-line { font-family: var(--mono); font-size: 13px; color: var(--ink); overflow-wrap: anywhere; }
+.notes-line b { color: var(--brass); font-weight: 500; }
+
+/* glyph set */
+.setgrid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 6px; }
+.tiles h4 { grid-column: 1 / -1; margin: 10px 0 0; font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2); }
+.tile { border: 1px solid var(--rule); background: var(--paper-3); border-radius: 4px; padding: 0; cursor: pointer; aspect-ratio: 54 / 70; display: block; max-width: 100%; }
+.tile svg { display: block; width: 100%; height: 100%; }
+.tile:hover, .tile[aria-pressed="true"] { border-color: var(--brass); }
+.detail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); border: 1px solid var(--rule); border-radius: 6px; background: var(--paper-3); padding: 14px; display: grid; gap: 10px; min-width: 0; }
+.detail svg { width: 100%; height: auto; display: block; }
+.detail ol { margin: 0; padding-left: 20px; font-size: 14.5px; display: grid; gap: 2px; }
+.detail ol li::marker { font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
+.detail .note { font-family: var(--mono); font-size: 12.5px; color: var(--brass); }
+.detail .drone { color: var(--cstring); }
+.detail .sem { font-size: 14.5px; color: var(--ink-2); font-style: italic; margin: 0; }
+
+/* svg classes shared by figures */
+.ink { stroke: var(--ink); } .ink.faint { stroke: var(--ink); opacity: .3; } .ink-fill { fill: var(--ink); }
+.ink-brass { stroke: var(--brass); } .fill-brass { fill: var(--brass); }
+.str { stroke: var(--string); stroke-width: .6; opacity: .45; } .str-m { opacity: .75; stroke-width: .9; } .str-c { stroke: var(--cstring); opacity: .7; stroke-width: .9; }
+.sc-lead { fill: var(--brass); } .sc-note { fill: var(--brass); opacity: .75; } .sc-drone { fill: var(--cstring); opacity: .8; }
+.sc-bow { stroke: var(--brass); opacity: .5; } .sc-bell { stroke: var(--brass); } .sc-ghost { fill: var(--ink-2); opacity: .55; }
+.svg-label { font-family: var(--mono); font-size: 10px; fill: var(--ink-2); letter-spacing: .04em; }
+.svg-label.c { fill: var(--cstring); } .svg-label.b { fill: var(--brass); }
+.svg-line { stroke: var(--ink-2); stroke-width: .8; fill: none; }
+.svg-brass { stroke: var(--brass); stroke-width: 1.4; fill: none; }
+
+/* liner notes */
+.notes { max-width: 720px; margin: 0 auto; }
+.notes header { margin-block: 40px 28px; text-align: left; }
+.notes header .title svg { height: clamp(70px, 14vw, 120px); width: auto; display: block; max-width: 100%; }
+.notes header .sub { font-style: italic; color: var(--ink-2); font-size: 19px; margin: 8px 0 0; }
+.notes h2 { font-size: 23px; font-weight: 500; margin: 46px 0 8px; display: flex; gap: 12px; align-items: baseline; text-wrap: balance; }
+.notes h2 .no { font-family: var(--mono); font-size: 12px; color: var(--cstring); letter-spacing: .08em; }
+.notes p { margin: 0 0 14px; max-width: 65ch; }
+.notes p.small { font-size: 15px; color: var(--ink-2); }
+figure { margin: 20px 0 22px; }
+figure .fig { background: var(--paper-3); border: 1px solid var(--rule); border-radius: 6px; padding: 12px; overflow-x: auto; }
+figure .fig svg { display: block; width: 100%; height: auto; min-width: 420px; }
+figcaption { font-size: 14.5px; color: var(--ink-2); margin-top: 8px; display: flex; gap: 10px; justify-content: space-between; align-items: start; flex-wrap: wrap; }
+figcaption .btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.btn.sm { padding: 4px 11px; font-family: var(--serif); font-size: 14.5px; letter-spacing: 0; text-transform: none; }
+table.map { width: 100%; border-collapse: collapse; font-size: 15.5px; }
+.tablewrap { overflow-x: auto; }
+table.map th { text-align: left; font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); padding: 6px 10px 6px 0; border-bottom: 2px solid var(--ink); }
+table.map td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.map td.g { width: 54px; }
+table.map td.g svg { width: 44px; height: 52px; display: block; }
+table.map button.play { border: 1px solid var(--rule); background: var(--paper); color: var(--ink); cursor: pointer; font-family: var(--serif); font-size: 15px; padding: 3px 11px 3px 9px; border-radius: 999px; display: inline-flex; gap: 7px; align-items: center; white-space: nowrap; }
+table.map button.play:hover { border-color: var(--brass); }
+table.map button.play svg { width: 9px; height: 9px; fill: var(--brass); flex: none; }
+.credits { margin-top: 48px; border-top: 2px solid var(--ink); padding-top: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; font-size: 14.5px; }
+.credits h4 { margin: 0 0 4px; font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.credits p { margin: 0; }
+footer.foot { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--ink-2); font-size: 14.5px; }
+
+@media (max-width: 860px) {
+  .setgrid { grid-template-columns: 1fr; }
+  .detail { position: static; }
+}
+@media (max-width: 520px) {
+  body { font-size: 16px; }
+  .brand svg { height: 36px; }
+  .brand .tag { display: none; }
+  .hint.kb { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#play" aria-label="Stave, home"><span id="wordmark"></span><span class="tag">a typeface you play</span></a>
+    <nav class="tabs" aria-label="Views">
+      <a href="#play" id="tab-play" aria-current="page">Instrument</a>
+      <a href="#notes" id="tab-notes">Liner notes</a>
+    </nav>
+  </header>
+
+  <main id="view-play">
+    <div class="lede">
+      <h1>Every letter is drawn on strings. Type, and the ink plays them.</h1>
+      <p>A playhead reads each glyph from left to right. Where a stroke ends, turns, or crosses a string, that string sounds. Tap the strings below and start typing.</p>
+    </div>
+
+    <div class="stagecard">
+      <div class="toolbar">
+        <button class="btn primary" id="btn-play" type="button"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg><span>Play line</span></button>
+        <button class="btn" id="btn-clear" type="button">Clear</button>
+        <div class="seg" role="group" aria-label="View">
+          <button type="button" id="view-read" aria-pressed="true">Read</button>
+          <button type="button" id="view-score" aria-pressed="false">Score</button>
+        </div>
+        <span class="spacer"></span>
+        <span class="hint kb"><kbd>⌘</kbd><kbd>↵</kbd> plays · <kbd>⌫</kbd> damps the strings</span>
+      </div>
+      <div class="stage" id="stage">
+        <canvas id="stage-canvas" aria-hidden="true"></canvas>
+        <textarea id="ta" aria-label="Type here to play the typeface" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="400">Typing should be playing.</textarea>
+        <span class="wake" id="wake">Tap to wake the strings</span>
+      </div>
+      <div class="chips" id="chips"><span class="label">Try</span></div>
+    </div>
+
+    <section class="block" aria-labelledby="knobs-h">
+      <div class="block-head">
+        <h2 id="knobs-h">Type settings are the instrument's controls</h2>
+        <p>Each typographic control has a musical consequence. Change one and the line above re-plays in your head before you press play.</p>
+      </div>
+      <div class="knobs">
+        <div class="knobgroup">
+          <h3>Type</h3>
+          <div class="knob"><label for="k-weight">Weight</label><span class="val" id="v-weight"></span><span class="eff">heavier ink plays louder and brighter</span>
+            <div class="row"><span class="end">Light</span><input type="range" id="k-weight" min="0" max="1" step="0.01" value="0.5"><span class="end">Bold</span></div></div>
+          <div class="knob"><label for="k-slant">Slant</label><span class="val" id="v-slant"></span><span class="eff">italic rolls each chord into an arpeggio</span>
+            <div class="row"><span class="end">Back</span><input type="range" id="k-slant" min="-14" max="14" step="0.5" value="0"><span class="end">Italic</span></div></div>
+          <div class="knob"><label for="k-tracking">Tracking</label><span class="val" id="v-tracking"></span><span class="eff">letter-spacing is the gap between notes</span>
+            <div class="row"><span class="end">Tight</span><input type="range" id="k-tracking" min="-0.4" max="3" step="0.05" value="0.35"><span class="end">Loose</span></div></div>
+        </div>
+        <div class="knobgroup">
+          <h3>Instrument</h3>
+          <div class="knob"><label for="k-tempo">Reading speed</label><span class="val" id="v-tempo"></span><span class="eff">how fast the playhead crosses the page</span>
+            <div class="row"><span class="end">Slow</span><input type="range" id="k-tempo" min="10" max="44" step="1" value="22"><span class="end">Fast</span></div></div>
+          <div class="knob"><label for="k-ornament">Ornament</label><span class="val" id="v-ornament"></span><span class="eff">every string a stroke crosses, as grace notes</span>
+            <div class="row"><span class="end">Melody</span><input type="range" id="k-ornament" min="0" max="1" step="0.01" value="0.45"><span class="end">Harp</span></div></div>
+          <div class="knob"><label for="k-room">Room</label><span class="val" id="v-room"></span><span class="eff">the space around the strings</span>
+            <div class="row"><span class="end">Dry</span><input type="range" id="k-room" min="0" max="1" step="0.01" value="0.4"><span class="end">Hall</span></div></div>
+          <div class="knob"><label>Tuning</label><span class="val" id="v-scale"></span><span class="eff">the same strings, retuned</span>
+            <div class="row" style="grid-template-columns: auto 1fr; justify-items: start;">
+              <div class="seg" role="group" aria-label="Scale" id="seg-scale">
+                <button type="button" data-scale="bright" aria-pressed="true">Bright</button>
+                <button type="button" data-scale="dusk" aria-pressed="false">Dusk</button>
+                <button type="button" data-scale="open" aria-pressed="false">Open</button>
+              </div>
+              <select id="k-key" aria-label="Key"></select>
+            </div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="name-h">
+      <div class="block-head">
+        <h2 id="name-h">Your name has a melody</h2>
+        <p>Capitals are downbeats, so a name always starts on a bass note. The line under it is the tune a listener follows: the notes each letter adds above the drone.</p>
+      </div>
+      <div class="namegrid">
+        <div class="nameinput">
+          <label class="label" for="name">Name</label>
+          <input id="name" type="text" value="Greg" maxlength="32" autocomplete="off" spellcheck="false">
+          <button class="btn primary" id="btn-name" type="button"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg><span>Play name</span></button>
+          <button class="btn" id="btn-loop" type="button" aria-pressed="false">Loop</button>
+        </div>
+        <div class="namecard">
+          <canvas id="name-canvas" aria-hidden="true"></canvas>
+          <div class="melody">
+            <span class="label">Melody</span>
+            <div id="name-roll"></div>
+            <div class="notes-line" id="name-notes"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="set-h">
+      <div class="block-head">
+        <h2 id="set-h">The full set</h2>
+        <p><span id="set-count">Every letter, figure and mark.</span> Brass dots are melody, red dots touch the drone strings, rings are bells, bars are bowed. Tap any glyph to hear it.</p>
+      </div>
+      <div class="setgrid">
+        <div class="tiles" id="tiles"></div>
+        <aside class="detail" id="detail" aria-live="polite"></aside>
+      </div>
+    </section>
+
+    <footer class="foot"><span>Stave · all sound synthesized in your browser, no samples</span><a href="#notes">Read the liner notes</a></footer>
+  </main>
+
+  <article id="view-notes" class="notes" hidden></article>
+</div>
+<script>
+/* ---- glyphs.js ---- */
+/* STAVE - glyph geometry.
+   Coordinates are in "string units": y is up, one unit = one string of the instrument.
+   The typographic metrics are the instrument's tuning:
+     descender -3, baseline 0, x-height 5, cap height 7, ascender 8.
+   Every glyph is built from three primitives (line, elliptical arc, cubic) so the
+   reader can tell a stem from a bar from a curve. */
+(function (root) {
+  'use strict';
+  const METRICS = { desc: -3, base: 0, xh: 5, cap: 7, asc: 8 };
+  const D2R = Math.PI / 180;
+
+  // ---- primitives -------------------------------------------------------
+  function L(x1, y1, x2, y2) { return { k: 'L', pts: [[x1, y1], [x2, y2]] }; }
+  function E(cx, cy, rx, ry, a0, a1) {
+    const n = Math.max(6, Math.ceil(Math.abs(a1 - a0) / 3));
+    const pts = [];
+    for (let i = 0; i <= n; i++) {
+      const a = (a0 + (a1 - a0) * i / n) * D2R;
+      pts.push([cx + rx * Math.cos(a), cy + ry * Math.sin(a)]);
+    }
+    return { k: 'E', pts, closed: Math.abs(Math.abs(a1 - a0) - 360) < 1e-6 };
+  }
+  function C(p0, p1, p2, p3) {
+    const pts = [], n = 28;
+    for (let i = 0; i <= n; i++) {
+      const t = i / n, u = 1 - t;
+      pts.push([
+        u * u * u * p0[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t * t * t * p3[0],
+        u * u * u * p0[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t * t * t * p3[1]
+      ]);
+    }
+    return { k: 'C', pts };
+  }
+  // a stroke is a continuous pen path made of primitives
+  function S() { return { prims: Array.prototype.slice.call(arguments) }; }
+  // glyph: strokes, dots, options (sb = [left, right] sidebearings, kind)
+  function G(strokes, dots, opt) { return Object.assign({ strokes: strokes || [], dots: dots || [] }, opt || {}); }
+
+  function mapGlyph(g, fn) {
+    return Object.assign({}, g, {
+      strokes: g.strokes.map(s => ({ prims: s.prims.map(p => Object.assign({}, p, { pts: p.pts.map(fn) })) })),
+      dots: g.dots.map(fn)
+    });
+  }
+  function bboxX(g) {
+    let lo = Infinity, hi = -Infinity;
+    g.strokes.forEach(s => s.prims.forEach(p => p.pts.forEach(q => { lo = Math.min(lo, q[0]); hi = Math.max(hi, q[0]); })));
+    g.dots.forEach(q => { lo = Math.min(lo, q[0]); hi = Math.max(hi, q[0]); });
+    return [lo, hi];
+  }
+  // mirror in x (retrograde), mirror in y about cy (inversion), rotate 180 (retrograde inversion)
+  function mirrorX(g) { const [lo, hi] = bboxX(g); return mapGlyph(g, q => [lo + hi - q[0], q[1]]); }
+  function mirrorY(g, cy) { return mapGlyph(g, q => [q[0], 2 * cy - q[1]]); }
+  function rot180(g, cy) { return mirrorY(mirrorX(g), cy); }
+  function shift(g, dx, dy) { return mapGlyph(g, q => [q[0] + dx, q[1] + (dy || 0)]); }
+  function scaleG(g, sx, sy, oy) { return mapGlyph(g, q => [q[0] * sx, (q[1] - (oy || 0)) * sy + (oy || 0)]); }
+  function merge(a, b) { return Object.assign({}, a, { strokes: a.strokes.concat(b.strokes), dots: a.dots.concat(b.dots) }); }
+
+  const XC = 2.5; // inversion axis for lowercase: halfway up the x-height
+
+  // ---- lowercase ----------------------------------------------------------
+  const lc = {};
+  const bowl = (cx, rx) => S(E(cx, 2.5, rx, 2.5, 0, 360));
+  const arch = (x0, x1) => S(E((x0 + x1) / 2, 3, (x1 - x0) / 2, 2, 180, 0), L(x1, 3, x1, 0));
+
+  lc.o = G([bowl(2.45, 2.45)], [], { round: true });
+  lc.b = G([S(L(0, 8, 0, 0)), bowl(2.35, 2.35)], [], { sb: [0.9, 0.6] });
+  lc.d = mirrorX(lc.b); lc.d.sb = [0.6, 0.9];
+  lc.p = mirrorY(lc.b, XC); lc.p.sb = [0.9, 0.6];
+  lc.q = rot180(lc.b, XC); lc.q.sb = [0.6, 0.9];
+  lc.n = G([S(L(0, 0, 0, 5)), arch(0, 4.2)], [], { sb: [0.9, 0.9] });
+  lc.u = rot180(lc.n, XC); lc.u.sb = [0.9, 0.9];
+  lc.h = G([S(L(0, 8, 0, 0)), arch(0, 4.2)], [], { sb: [0.9, 0.9] });
+  lc.m = G([S(L(0, 0, 0, 5)), arch(0, 3), arch(3, 6)], [], { sb: [0.9, 0.9] });
+  lc.r = G([S(L(0, 0, 0, 5)), S(E(1.7, 3, 1.7, 2, 180, 37))], [], { sb: [0.9, 0.45] });
+  lc.a = G([
+    S(E(1.95, 3.3, 1.85, 1.7, 150, 0), L(3.8, 3.3, 3.8, 0)),
+    S(E(1.85, 1.45, 1.95, 1.45, 0, 360))
+  ], [], { sb: [0.65, 0.9] });
+  lc.c = G([S(E(2.45, 2.5, 2.45, 2.5, 42, 318))], [], { sb: [0.6, 0.5] });
+  lc.e = G([S(L(0.05, 3, 4.85, 3), E(2.45, 2.5, 2.45, 2.5, 11.537, 322))], [], { sb: [0.6, 0.6] });
+  lc.f = G([S(L(1, 0, 1, 6.4), E(2.25, 6.4, 1.25, 1.6, 180, 35)), S(L(0, 5, 2.6, 5))], [], { sb: [0.45, 0.6] });
+  lc.g = G([bowl(2.45, 2.45), S(L(4.9, 5, 4.9, -1.4), E(2.9, -1.4, 2.0, 1.6, 0, -150))], [], { sb: [0.6, 0.9] });
+  lc.i = G([S(L(0, 0, 0, 5))], [[0, 7]], { sb: [0.9, 0.9] });
+  lc.j = G([S(L(1.3, 5, 1.3, -1.6), E(0.2, -1.6, 1.1, 1.4, 0, -160))], [[1.3, 7]], { sb: [0.3, 0.9] });
+  lc.k = G([S(L(0, 8, 0, 0)), S(L(3.8, 5, 0, 1.9)), S(L(1.35, 3.0, 4.0, 0))], [], { sb: [0.9, 0.4] });
+  lc.l = G([S(L(0, 0, 0, 8))], [], { sb: [0.9, 0.9] });
+  lc.s = G([S(E(2.1, 3.8, 1.9, 1.2, 25, 270), E(2.1, 1.3, 2.05, 1.3, 90, -155))], [], { sb: [0.55, 0.55] });
+  lc.t = G([S(L(1.25, 7, 1.25, 0)), S(L(0, 5, 2.6, 5))], [], { sb: [0.35, 0.35] });
+  lc.v = G([S(L(0, 5, 2.2, 0), L(2.2, 0, 4.4, 5))], [], { sb: [0.35, 0.35] });
+  lc.w = G([S(L(0, 5, 1.5, 0), L(1.5, 0, 3, 4), L(3, 4, 4.5, 0), L(4.5, 0, 6, 5))], [], { sb: [0.35, 0.35] });
+  lc.x = G([S(L(0, 5, 4, 0)), S(L(0, 0, 4, 5))], [], { sb: [0.35, 0.35] });
+  lc.y = G([S(L(4.3, 5, 0.8, -3)), S(L(0, 5, 2.1125, 0))], [], { sb: [0.35, 0.35] });
+  lc.z = G([S(L(0, 5, 4, 5), L(4, 5, 0, 0), L(0, 0, 4, 0))], [], { sb: [0.5, 0.5] });
+
+  // ---- capitals (cap height 7) ------------------------------------------------
+  const uc = {};
+  uc.A = G([S(L(0, 0, 2.9, 7), L(2.9, 7, 5.8, 0)), S(L(0.8286, 2, 4.9714, 2))], [], { sb: [0.35, 0.35] });
+  uc.B = G([S(L(0, 0, 0, 7)),
+    S(L(0, 7, 2.2, 7), E(2.2, 5.5, 1.5, 1.5, 90, -90), L(2.2, 4, 0, 4)),
+    S(L(0, 4, 2.5, 4), E(2.5, 2, 1.75, 2, 90, -90), L(2.5, 0, 0, 0))], [], { sb: [0.9, 0.6] });
+  uc.C = G([S(E(3.4, 3.5, 3.4, 3.5, 45, 315))], [], { sb: [0.6, 0.5] });
+  uc.D = G([S(L(0, 0, 0, 7)), S(L(0, 7, 1.6, 7), E(1.6, 3.5, 3.5, 3.5, 90, -90), L(1.6, 0, 0, 0))], [], { sb: [0.9, 0.6] });
+  uc.E = G([S(L(0, 0, 0, 7)), S(L(0, 7, 3.9, 7)), S(L(0, 4, 3.4, 4)), S(L(0, 0, 3.9, 0))], [], { sb: [0.9, 0.5] });
+  uc.F = G([S(L(0, 0, 0, 7)), S(L(0, 7, 3.8, 7)), S(L(0, 4, 3.2, 4))], [], { sb: [0.9, 0.4] });
+  uc.G = G([S(E(3.4, 3.5, 3.4, 3.5, 45, 351.787), L(6.765, 3, 4.3, 3))], [], { sb: [0.6, 0.7] });
+  uc.H = G([S(L(0, 0, 0, 7)), S(L(5, 0, 5, 7)), S(L(0, 4, 5, 4))], [], { sb: [0.9, 0.9] });
+  uc.I = G([S(L(0, 0, 0, 7))], [], { sb: [0.9, 0.9] });
+  uc.J = G([S(L(3.2, 7, 3.2, 1.6), E(1.6, 1.6, 1.6, 1.6, 0, -165))], [], { sb: [0.4, 0.9] });
+  uc.K = G([S(L(0, 0, 0, 7)), S(L(4.6, 7, 0, 2.4)), S(L(1.6, 4.0, 4.8, 0))], [], { sb: [0.9, 0.35] });
+  uc.L = G([S(L(0, 7, 0, 0), L(0, 0, 3.6, 0))], [], { sb: [0.9, 0.35] });
+  uc.M = G([S(L(0, 0, 0, 7)), S(L(0, 7, 3, 1), L(3, 1, 6, 7)), S(L(6, 7, 6, 0))], [], { sb: [0.9, 0.9] });
+  uc.N = G([S(L(0, 0, 0, 7)), S(L(0, 7, 5, 0)), S(L(5, 0, 5, 7))], [], { sb: [0.9, 0.9] });
+  uc.O = G([S(E(3.6, 3.5, 3.6, 3.5, 0, 360))], [], { sb: [0.6, 0.6] });
+  uc.P = G([S(L(0, 0, 0, 7)), S(L(0, 7, 2.4, 7), E(2.4, 5, 1.9, 2, 90, -90), L(2.4, 3, 0, 3))], [], { sb: [0.9, 0.5] });
+  uc.Q = G([S(E(3.6, 3.5, 3.6, 3.5, 0, 360)), S(L(4.3, 1.8, 7.6, -1))], [], { sb: [0.6, 0.4] });
+  uc.R = G([S(L(0, 0, 0, 7)), S(L(0, 7, 2.4, 7), E(2.4, 5, 1.9, 2, 90, -90), L(2.4, 3, 0, 3)), S(L(2.0, 3, 4.8, 0))], [], { sb: [0.9, 0.4] });
+  uc.S = G([S(E(2.95, 5.3, 2.7, 1.7, 25, 270), E(2.95, 1.8, 2.95, 1.8, 90, -155))], [], { sb: [0.55, 0.55] });
+  uc.T = G([S(L(0, 7, 5.6, 7)), S(L(2.8, 7, 2.8, 0))], [], { sb: [0.3, 0.3] });
+  uc.U = G([S(L(0, 7, 0, 2.6), E(2.6, 2.6, 2.6, 2.6, 180, 360), L(5.2, 2.6, 5.2, 7))], [], { sb: [0.85, 0.85] });
+  uc.V = G([S(L(0, 7, 2.9, 0), L(2.9, 0, 5.8, 7))], [], { sb: [0.3, 0.3] });
+  uc.W = G([S(L(0, 7, 1.9, 0), L(1.9, 0, 3.8, 5), L(3.8, 5, 5.7, 0), L(5.7, 0, 7.6, 7))], [], { sb: [0.3, 0.3] });
+  uc.X = G([S(L(0, 7, 5, 0)), S(L(0, 0, 5, 7))], [], { sb: [0.35, 0.35] });
+  uc.Y = G([S(L(0, 7, 2.7, 3)), S(L(5.4, 7, 2.7, 3)), S(L(2.7, 3, 2.7, 0))], [], { sb: [0.3, 0.3] });
+  uc.Z = G([S(L(0, 7, 5, 7), L(5, 7, 0, 0), L(0, 0, 5, 0))], [], { sb: [0.5, 0.5] });
+
+  // ---- figures (lining, cap height) ------------------------------------------
+  const fig = {};
+  fig['0'] = G([S(E(2.4, 3.5, 2.4, 3.5, 0, 360))], [], { sb: [0.6, 0.6] });
+  fig['1'] = G([S(L(0.2, 5.6, 2.0, 7), L(2.0, 7, 2.0, 0))], [], { sb: [0.8, 1.2] });
+  fig['2'] = G([S(E(2.3, 4.9, 2.1, 2.1, 160, -38), L(3.955, 3.607, 0, 0), L(0, 0, 4.5, 0))], [], { sb: [0.55, 0.5] });
+  fig['3'] = G([S(E(2.2, 5.35, 1.95, 1.65, 155, -90), E(2.2, 1.85, 2.2, 1.85, 90, -155))], [], { sb: [0.55, 0.6] });
+  fig['4'] = G([S(L(3.4, 7, 0, 2), L(0, 2, 4.6, 2)), S(L(3.4, 7, 3.4, 0))], [], { sb: [0.4, 0.4] });
+  fig['5'] = G([S(L(4.2, 7, 0.76, 7), L(0.76, 7, 0.76, 3.84), E(2.35, 2.25, 2.25, 2.25, 135, -150))], [], { sb: [0.5, 0.55] });
+  fig['6'] = G([S(E(2.35, 2.3, 2.3, 2.3, 0, 360)), S(C([0.05, 2.3], [0.05, 5.5], [1.6, 7.0], [3.7, 6.8]))], [], { sb: [0.6, 0.55] });
+  fig['7'] = G([S(L(0, 7, 4.4, 7), L(4.4, 7, 1.3, 0))], [], { sb: [0.4, 0.4] });
+  fig['8'] = G([S(E(2.3, 5.35, 1.85, 1.65, 0, 360)), S(E(2.3, 1.85, 2.2, 1.85, 0, 360))], [], { sb: [0.55, 0.55] });
+  fig['9'] = rot180(fig['6'], 3.5); fig['9'].sb = [0.55, 0.6];
+
+  // ---- punctuation & symbols -----------------------------------------------------
+  const pu = {};
+  const comma = (x, y) => S(C([x + 0.4, y], [x + 0.45, y - 0.8], [x + 0.2, y - 1.3], [x - 0.3, y - 1.75]));
+  pu['.'] = G([], [[0, 0.4]], { sb: [0.8, 0.8] });
+  pu[','] = G([comma(0, 0.4)], [[0, 0.4]], { sb: [0.8, 0.8] });
+  pu[';'] = G([comma(0, 0.4)], [[0, 0.4], [0, 4.6]], { sb: [0.8, 0.8] });
+  pu[':'] = G([], [[0, 0.4], [0, 4.6]], { sb: [0.8, 0.8] });
+  pu['!'] = G([S(L(0, 7, 0, 2.3))], [[0, 0.4]], { sb: [0.9, 0.9] });
+  pu['?'] = G([S(E(1.9, 5.1, 1.9, 1.9, 160, -90), L(1.9, 3.2, 1.9, 2.2))], [[1.9, 0.4]], { sb: [0.5, 0.5] });
+  pu["'"] = G([S(L(0.5, 7.4, 0.1, 5.6))], [], { sb: [0.7, 0.7] });
+  pu['"'] = G([S(L(0.5, 7.4, 0.1, 5.6)), S(L(1.7, 7.4, 1.3, 5.6))], [], { sb: [0.7, 0.7] });
+  pu['`'] = G([S(L(0, 7.4, 0.5, 5.9))], [], { sb: [0.7, 0.7] });
+  pu['-'] = G([S(L(0, 3, 1.8, 3))], [], { sb: [0.6, 0.6] });
+  pu['\u2013'] = G([S(L(0, 3, 3.6, 3))], [], { sb: [0.5, 0.5] });
+  pu['\u2014'] = G([S(L(0, 3, 7.2, 3))], [], { sb: [0.4, 0.4] });
+  pu['('] = G([S(E(3.2, 2.5, 3.0, 5.5, 118, 242))], [], { sb: [0.8, 0.4] });
+  pu[')'] = mirrorX(pu['(']); pu[')'].sb = [0.4, 0.8];
+  pu['['] = G([S(L(1.4, 8, 0, 8), L(0, 8, 0, -3), L(0, -3, 1.4, -3))], [], { sb: [0.9, 0.4] });
+  pu[']'] = mirrorX(pu['[']); pu[']'].sb = [0.4, 0.9];
+  pu['{'] = G([S(C([1.8, 8], [0.7, 8], [0.9, 6], [0.9, 4.4]), C([0.9, 4.4], [0.9, 3.1], [0.6, 2.5], [0, 2.5]),
+    C([0, 2.5], [0.6, 2.5], [0.9, 1.9], [0.9, 0.6]), C([0.9, 0.6], [0.9, -1], [0.7, -3], [1.8, -3]))], [], { sb: [0.6, 0.4] });
+  pu['}'] = mirrorX(pu['{']); pu['}'].sb = [0.4, 0.6];
+  pu['/'] = G([S(L(0, -2, 3, 8))], [], { sb: [0.3, 0.3] });
+  pu['\\'] = G([S(L(0, 8, 3, -2))], [], { sb: [0.3, 0.3] });
+  pu['|'] = G([S(L(0, 8, 0, -3))], [], { sb: [0.9, 0.9] });
+  pu['_'] = G([S(L(0, -3, 4, -3))], [], { sb: [0.3, 0.3] });
+  pu['&'] = G([S(L(5.1, 0, 1.55, 4.35),
+    C([1.55, 4.35], [0.6, 5.6], [1.2, 7.0], [2.3, 7.0]),
+    C([2.3, 7.0], [3.4, 7.0], [3.7, 5.6], [2.9, 4.8]),
+    C([2.9, 4.8], [1.8, 3.8], [0.0, 3.2], [0.0, 1.7]),
+    C([0.0, 1.7], [0.0, 0.5], [1.0, 0.0], [2.1, 0.0]),
+    C([2.1, 0.0], [3.6, 0.0], [4.6, 1.4], [4.9, 2.9]))], [], { sb: [0.6, 0.4] });
+  pu['@'] = G([S(E(3.45, 3.2, 1.3, 1.4, 0, 360)), S(L(4.75, 4.6, 4.75, 2.3),
+    C([4.75, 2.3], [4.75, 1.2], [6.3, 1.3], [6.6, 3.0]), E(3.5, 3.0, 3.1, 3.7, 0, 300))], [], { sb: [0.6, 0.6] });
+  pu['#'] = G([S(L(1.4, 0.3, 2.2, 6.7)), S(L(3.4, 0.3, 4.2, 6.7)), S(L(0.2, 2, 4.8, 2)), S(L(0.6, 5, 5.2, 5))], [], { sb: [0.4, 0.4] });
+  pu['*'] = G([S(L(1.2, 7.1, 1.2, 4.9)), S(L(0.2, 6.55, 2.2, 5.45)), S(L(0.2, 5.45, 2.2, 6.55))], [], { sb: [0.6, 0.6] });
+  pu['+'] = G([S(L(0, 3, 4, 3)), S(L(2, 1, 2, 5))], [], { sb: [0.5, 0.5] });
+  pu['='] = G([S(L(0, 2, 4, 2)), S(L(0, 4, 4, 4))], [], { sb: [0.5, 0.5] });
+  pu['%'] = G([S(E(1.0, 5.7, 1.0, 1.3, 0, 360)), S(E(4.1, 1.3, 1.0, 1.3, 0, 360)), S(L(0.4, 0, 4.7, 7))], [], { sb: [0.5, 0.5] });
+  pu['$'] = merge(scaleG(uc.S, 0.86, 1, 0), G([S(L(2.54, 8, 2.54, -1))]));
+  pu['$'].sb = [0.5, 0.5];
+  pu['~'] = G([S(C([0, 2.6], [0.8, 4.1], [1.8, 4.1], [2.3, 3.0]), C([2.3, 3.0], [2.8, 1.9], [3.8, 1.9], [4.6, 3.4]))], [], { sb: [0.5, 0.5] });
+  pu['<'] = G([S(L(4, 6, 0, 3), L(0, 3, 4, 0))], [], { sb: [0.5, 0.5] });
+  pu['>'] = mirrorX(pu['<']); pu['>'].sb = [0.5, 0.5];
+  pu['^'] = G([S(L(0, 5.5, 1.4, 7.5), L(1.4, 7.5, 2.8, 5.5))], [], { sb: [0.4, 0.4] });
+  // typographer's quotes and the ellipsis map onto the same drawings
+  pu['\u2018'] = mirrorX(pu["'"]); pu['\u2019'] = pu["'"];
+  pu['\u201c'] = mirrorX(pu['"']); pu['\u201d'] = pu['"'];
+  pu['\u2026'] = G([], [[0, 0.4], [1.8, 0.4], [3.6, 0.4]], { sb: [0.8, 0.8] });
+
+  const TABLE = Object.assign({}, lc, uc, fig, pu);
+  const SPACE = 2.6;
+
+  // finalize: shift so the ink starts at the left sidebearing; compute advance
+  const FINAL = {};
+  Object.keys(TABLE).forEach(ch => {
+    const g = TABLE[ch];
+    const sb = g.sb || [0.6, 0.6];
+    const [lo, hi] = bboxX(g);
+    const s = shift(g, sb[0] - lo, 0);
+    s.ch = ch;
+    s.adv = (hi - lo) + sb[0] + sb[1];
+    FINAL[ch] = s;
+  });
+  // accented and unusual characters fall back to their base letters
+  function glyphFor(ch) {
+    if (FINAL[ch]) return FINAL[ch];
+    const base = ch.normalize ? ch.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : ch;
+    if (FINAL[base]) return FINAL[base];
+    return null;
+  }
+
+  const api = { METRICS, SPACE, glyphs: FINAL, glyphFor, chars: Object.keys(FINAL), bboxX };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.StaveGlyphs = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* ---- reader.js ---- */
+/* STAVE - the reader.
+   A playhead sweeps each glyph from left to right. Horizontal position is time;
+   vertical position is a string. Where ink meets a string, that string sounds:
+     free terminal (pen lifts)      -> plucked note
+     crest or trough of a curve     -> plucked note
+     vertical stem                  -> its two ends, strummed together
+     horizontal bar on a string     -> bowed, sustained tone
+     dot                            -> bell
+     any other crossing             -> grace note (the "ornament" layer)
+   Punctuation then acts as notation: rests, cadences, dynamics. */
+(function (root) {
+  'use strict';
+  const GL = (typeof module !== 'undefined' && module.exports) ? require('./glyphs.js') : root.StaveGlyphs;
+
+  const SCALES = {
+    bright: { name: 'Bright', steps: [0, 2, 4, 7, 9], third: 4, note: 'major pentatonic' },
+    dusk: { name: 'Dusk', steps: [0, 3, 5, 7, 10], third: 3, note: 'minor pentatonic' },
+    open: { name: 'Open', steps: [0, 2, 5, 7, 10], third: 2, note: 'suspended pentatonic' }
+  };
+  const STR_LO = -3, STR_HI = 8;
+  const DRONE = new Set([0, 5]); // baseline and x-height: the two C strings
+  const NOTE_NAMES = ['C', 'C\u266f', 'D', 'E\u266d', 'E', 'F', 'F\u266f', 'G', 'A\u266d', 'A', 'B\u266d', 'B'];
+
+  function stringMidi(k, scale, key) {
+    const st = SCALES[scale || 'bright'].steps;
+    const oct = Math.floor(k / 5), deg = ((k % 5) + 5) % 5;
+    return 60 + (key || 0) + 12 * oct + st[deg];
+  }
+  function midiName(m) { return NOTE_NAMES[((m % 12) + 12) % 12] + (Math.floor(m / 12) - 1); }
+  const snap = y => Math.max(STR_LO, Math.min(STR_HI, Math.round(y + 1e-9)));
+
+  // ---- geometry helpers ---------------------------------------------------------
+  function strokePoly(st) {
+    const pts = [];
+    st.prims.forEach(p => p.pts.forEach(q => {
+      const last = pts[pts.length - 1];
+      if (!last || Math.hypot(last[0] - q[0], last[1] - q[1]) > 1e-6) pts.push(q);
+    }));
+    return pts;
+  }
+  function distToSeg(p, a, b) {
+    const dx = b[0] - a[0], dy = b[1] - a[1];
+    const l2 = dx * dx + dy * dy;
+    let t = l2 ? ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2 : 0;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy);
+  }
+  function distToPoly(p, poly, skip) {
+    let d = Infinity;
+    for (let i = 0; i < poly.length - 1; i++) {
+      if (skip && skip(i)) continue;
+      d = Math.min(d, distToSeg(p, poly[i], poly[i + 1]));
+    }
+    return d;
+  }
+
+  // ---- read one glyph -------------------------------------------------------------
+  const cache = new Map();
+  function readGlyph(g) {
+    if (cache.has(g)) return cache.get(g);
+    const main = [], ghosts = [], bows = [], bells = [];
+    const polys = g.strokes.map(strokePoly);
+
+    g.strokes.forEach((st, si) => {
+      const poly = polys[si];
+      if (poly.length < 2) return;
+      const first = poly[0], last = poly[poly.length - 1];
+      const closed = Math.hypot(first[0] - last[0], first[1] - last[1]) < 0.05;
+      // cumulative length for excluding the neighbourhood of an endpoint
+      const cum = [0];
+      for (let i = 1; i < poly.length; i++) cum.push(cum[i - 1] + Math.hypot(poly[i][0] - poly[i - 1][0], poly[i][1] - poly[i - 1][1]));
+      const total = cum[cum.length - 1];
+      const isFree = (p, atEnd) => {
+        for (let o = 0; o < polys.length; o++) {
+          if (o === si) continue;
+          if (distToPoly(p, polys[o]) < 0.22) return false;
+        }
+        // the same stroke can loop back onto its own start (the bar of an e)
+        const own = distToPoly(p, poly, i => atEnd ? cum[i + 1] > total - 1.0 : cum[i] < 1.0);
+        return own >= 0.22;
+      };
+
+      // terminals
+      if (!closed) {
+        [[first, false], [last, true]].forEach(([p, atEnd]) => {
+          if (isFree(p, atEnd)) main.push({ x: p[0], y: p[1], role: 'terminal', v: 0.95 });
+        });
+      }
+
+      // vertical stems and on-string bars come from line primitives
+      st.prims.forEach(pr => {
+        if (pr.k !== 'L') return;
+        const [a, b] = pr.pts;
+        const dx = b[0] - a[0], dy = b[1] - a[1];
+        if (Math.abs(dx) < 0.06 && Math.abs(dy) >= 0.8) {
+          [a, b].forEach(p => {
+            const free = isFree(p, p === b && pr === st.prims[st.prims.length - 1]) &&
+              (p === a ? pr === st.prims[0] : pr === st.prims[st.prims.length - 1]);
+            main.push({ x: p[0], y: p[1], role: free ? 'stem' : 'joint', v: free ? 0.9 : 0.55, stem: true });
+          });
+        } else if (Math.abs(dy) < 0.06 && Math.abs(dx) >= 0.6) {
+          const y = (a[1] + b[1]) / 2;
+          if (Math.abs(y - Math.round(y)) < 0.08) bows.push({ x: Math.min(a[0], b[0]), x2: Math.max(a[0], b[0]), y: Math.round(y), role: 'bar' });
+        }
+      });
+
+      // crests and troughs (sign changes of dy along the pen path)
+      // segment j runs from vertex j to vertex j+1; closed paths wrap and are walked twice
+      const verts = closed ? poly.slice(0, poly.length - 1) : poly;
+      const m = verts.length;
+      const segCount = closed ? m : m - 1;
+      const sgn = j => {
+        const a = verts[j % m], b = verts[(j + 1) % m];
+        const d = b[1] - a[1];
+        return Math.abs(d) < 2e-3 ? 0 : Math.sign(d);
+      };
+      const found = [];
+      let lastSign = 0, lastJ = -1;
+      const walk = closed ? 2 * segCount : segCount;
+      for (let j = 0; j < walk; j++) {
+        const s = sgn(j);
+        if (s === 0) continue;
+        if (lastSign !== 0 && s !== lastSign && (!closed || j >= segCount)) {
+          const a = verts[(lastJ + 1) % m], b = verts[j % m]; // the plateau between the two slopes
+          found.push({ x: (a[0] + b[0]) / 2, y: (a[1] + b[1]) / 2, max: lastSign > 0 });
+        }
+        lastSign = s; lastJ = j;
+      }
+      const uniq = [];
+      found.forEach(f => { if (!uniq.some(u => Math.hypot(u.x - f.x, u.y - f.y) < 0.1)) uniq.push(f); });
+      uniq.forEach(f => {
+        const nearEnd = !closed && (Math.hypot(f.x - first[0], f.y - first[1]) < 0.3 || Math.hypot(f.x - last[0], f.y - last[1]) < 0.3);
+        if (!nearEnd) main.push({ x: f.x, y: f.y, role: f.max ? 'crest' : 'trough', v: 0.82 });
+      });
+
+      // every crossing of a string is a grace note
+      for (let i = 0; i < poly.length - 1; i++) {
+        const a = poly[i], b = poly[i + 1];
+        const lo = Math.min(a[1], b[1]), hi = Math.max(a[1], b[1]);
+        for (let k = Math.ceil(lo - 1e-9); k <= Math.floor(hi + 1e-9); k++) {
+          if (k < STR_LO || k > STR_HI) continue;
+          if (Math.abs(b[1] - a[1]) < 1e-9) continue; // running along a string is a bar, not a crossing
+          const t = (k - a[1]) / (b[1] - a[1]);
+          if (t < -1e-9 || t > 1 + 1e-9) continue;
+          ghosts.push({ x: a[0] + t * (b[0] - a[0]), y: k, role: 'cross', v: 0.3 });
+        }
+      }
+    });
+
+    g.dots.forEach(d => bells.push({ x: d[0], y: d[1], role: 'dot', v: 0.75 }));
+
+    // snap to strings and merge duplicates
+    main.forEach(e => { e.s = snap(e.y); });
+    const mergedMain = [];
+    main.sort((a, b) => a.x - b.x || b.v - a.v).forEach(e => {
+      const dup = mergedMain.find(o => o.s === e.s && Math.abs(o.x - e.x) < 0.15);
+      if (dup) {
+        if (e.v > dup.v) { dup.v = e.v; dup.role = e.role; }
+        if (e.stem) dup.stem = true;
+      } else mergedMain.push(Object.assign({}, e));
+    });
+    // The baseline and the x-height are both C, and nearly every letter rests on them,
+    // so those two strings form a soft drone. What a letter does between and beyond
+    // them is its melody, and the highest melodic note in a chord leads.
+    const clusters = [];
+    mergedMain.forEach(e => {
+      let c = clusters.find(c => Math.abs(c.x - e.x) < 0.2);
+      if (!c) { c = { x: e.x, notes: [] }; clusters.push(c); }
+      c.notes.push(e);
+    });
+    clusters.forEach(c => {
+      const mel = c.notes.filter(n => !DRONE.has(n.s));
+      const lead = mel.length ? Math.max.apply(null, mel.map(n => n.s)) : null;
+      c.notes.sort((a, b) => a.s - b.s).forEach((n, r) => {
+        if (DRONE.has(n.s)) { n.v *= mel.length ? 0.5 : 0.7; n.drone = true; }
+        else if (n.s !== lead) n.v *= 0.75;
+        else n.lead = true;
+        n.rank = r; n.chord = c.notes.length;
+        if (n.s < 0) n.v *= 0.88; // low strings speak loudly on their own
+      });
+    });
+    const mergedGhosts = [];
+    ghosts.forEach(e => {
+      e.s = e.y;
+      if (mergedMain.some(o => o.s === e.s && Math.abs(o.x - e.x) < 0.3)) return;
+      if (bows.some(b => b.y === e.s && e.x >= b.x - 0.2 && e.x <= b.x2 + 0.2)) return;
+      if (mergedGhosts.some(o => o.s === e.s && Math.abs(o.x - e.x) < 0.2)) return;
+      mergedGhosts.push(e);
+    });
+    const mergedBows = [];
+    bows.sort((a, b) => a.x - b.x).forEach(b => {
+      const o = mergedBows.find(o => o.y === b.y && b.x <= o.x2 + 0.3);
+      if (o) o.x2 = Math.max(o.x2, b.x2); else mergedBows.push(Object.assign({ s: b.y }, b));
+    });
+    bells.forEach(b => { b.s = snap(b.y); });
+
+    const out = { main: mergedMain, ghosts: mergedGhosts, bows: mergedBows, bells };
+    cache.set(g, out);
+    return out;
+  }
+
+  // shear about the middle of the x-height so the glyph stays in its slot
+  const shearX = (x, y, t) => x + (y - 2.5) * t;
+
+  // ---- sequence a text: glyph events + punctuation as notation ---------------------
+  /* opts: { scale, key, tracking (units), slant (deg), ornament 0..1, weight 0..1 } */
+  function sequence(text, opts) {
+    opts = Object.assign({ scale: 'bright', key: 0, tracking: 0.35, slant: 0, ornament: 0.5, weight: 0.5 }, opts || {});
+    const tan = Math.tan((opts.slant || 0) * Math.PI / 180);
+    const items = [], events = [];
+    let u = 0;
+    let paren = 0, quote = false, marcato = false;
+    let hairpin = 0, hairpinWord = null; // hairpinWord: {start, end} char indices
+    const chars = Array.from(text);
+    const dyn = 0.55 + 0.75 * opts.weight;      // heavier ink plays louder
+    const brightBase = 0.35 + 0.5 * opts.weight;
+
+    // locate the word a hairpin applies to
+    function nextWordRange(from) {
+      let s = from;
+      while (s < chars.length && /\s/.test(chars[s])) s++;
+      let e = s;
+      while (e < chars.length && !/\s/.test(chars[e])) e++;
+      return { start: s, end: e };
+    }
+    const mid = (k, tr) => stringMidi(k, opts.scale, opts.key) + (tr || 0);
+
+    for (let i = 0; i < chars.length; i++) {
+      const c = chars[i];
+      if (c === '\n') { items.push({ i, ch: c, type: 'break', u0: u, u1: u, rest: 6 }); u += 6; continue; }
+      if (c === ' ' || c === '\t') {
+        const adv = GL.SPACE + opts.tracking;
+        items.push({ i, ch: c, type: 'space', u0: u, u1: u + adv, rest: 0 });
+        u += adv; continue;
+      }
+      const g = GL.glyphFor(c);
+      if (!g) { const adv = GL.SPACE; items.push({ i, ch: c, type: 'space', u0: u, u1: u + adv, rest: 0 }); u += adv; continue; }
+
+      const isCap = /[A-Z]/.test(g.ch);
+      let vm = dyn;
+      if (paren > 0) vm *= 0.5;
+      if (marcato) { vm *= 1.5; marcato = false; }
+      if (isCap) vm *= 1.15;
+      if (hairpinWord && i >= hairpinWord.start && i < hairpinWord.end) {
+        const f = (i - hairpinWord.start + 0.5) / Math.max(1, hairpinWord.end - hairpinWord.start);
+        vm *= hairpin > 0 ? 0.4 + 1.0 * f : 1.4 - 1.0 * f;
+      }
+      if (c === '(' || c === ')') vm *= 0.75;
+      const transpose = quote ? 12 : 0;
+      const bright = Math.max(0.05, Math.min(1, brightBase * (paren > 0 ? 0.55 : 1) + (quote ? 0.12 : 0)));
+
+      const r = readGlyph(g);
+      const item = { i, ch: c, type: 'glyph', g, u0: u, u1: u + g.adv + opts.tracking, rest: 0, cap: isCap };
+      items.push(item);
+      const base = u;
+      const ev = (o) => { o.item = items.length - 1; events.push(o); return o; };
+
+      // dots of an ellipsis fade away
+      let dotRun = 0, dotPos = 0;
+      if (c === '.') {
+        let a = i, b = i;
+        while (a > 0 && chars[a - 1] === '.') a--;
+        while (b < chars.length - 1 && chars[b + 1] === '.') b++;
+        dotRun = b - a + 1; dotPos = i - a;
+      }
+      const fade = c === '\u2026' ? null : (dotRun > 1 ? Math.pow(0.55, dotPos) : 1);
+
+      r.main.forEach(e => {
+        const x = shearX(e.x, e.y, tan);
+        const spread = (tan === 0 && e.chord > 1) ? e.rank * 0.18 : 0; // a gentle strum, bottom to top
+        ev({ u: base + x + spread, type: 'pluck', midi: mid(e.s, transpose), s: e.s, v: e.v * vm, bright, role: e.role, drone: !!e.drone, lead: !!e.lead, gx: x, gy: e.s });
+      });
+      if (opts.ornament > 0.001) r.ghosts.forEach(e => {
+        const x = shearX(e.x, e.y, tan);
+        ev({ u: base + x, type: 'pluck', midi: mid(e.s, transpose), s: e.s, v: e.v * vm * opts.ornament, bright: bright * 0.6, role: 'cross', ghost: true, gx: x, gy: e.s });
+      });
+      r.bows.forEach(b => {
+        const x = shearX(b.x, b.s, tan), x2 = shearX(b.x2, b.s, tan);
+        ev({ u: base + x, u2: base + x2, type: 'bow', midi: mid(b.s, transpose), s: b.s, v: 0.5 * vm, role: 'bar', gx: x, gx2: x2, gy: b.s });
+      });
+      r.bells.forEach((b, bi) => {
+        const x = shearX(b.x, b.y, tan);
+        const f = c === '\u2026' ? Math.pow(0.55, bi) : fade;
+        ev({ u: base + x, type: 'bell', midi: mid(b.s, transpose), s: b.s, v: b.v * vm * f, role: 'dot', gx: x, gy: b.s });
+      });
+
+      // capitals are downbeats: a bass string under the first note
+      const prevCap = i > 0 && /[A-Z]/.test((GL.glyphFor(chars[i - 1]) || {}).ch || '');
+      if (isCap && !prevCap && r.main.length) {
+        const first = r.main.reduce((a, b) => a.x < b.x ? a : b);
+        const low = Math.min.apply(null, r.main.map(e => e.s));
+        let bm = mid(low, 0) - 24; while (bm < 36) bm += 12;
+        ev({ u: base + shearX(first.x, first.y, tan), type: 'bass', midi: bm, v: 0.75 * dyn * (paren > 0 ? 0.5 : 1), role: 'downbeat' });
+      }
+
+      // ---- punctuation as notation --------------------------------------------
+      const endU = base + g.adv;
+      const tonic = 60 + (opts.key || 0);
+      const third = SCALES[opts.scale].third;
+      const isDecimal = c === '.' && /\d/.test(chars[i - 1] || '') && /\d/.test(chars[i + 1] || '');
+      if (c === '.' && !isDecimal) {
+        if (dotRun > 1) { if (dotPos === dotRun - 1) item.rest = 4; }
+        else {
+          ev({ u: base + 0.2, type: 'chord', notes: [tonic - 24, tonic - 12, tonic - 5, tonic + third], v: 0.55 * dyn, role: 'cadence' });
+          item.rest = 4;
+        }
+      } else if (c === '\u2026') item.rest = 4;
+      else if (c === '!') {
+        events.filter(e => e.item === items.length - 1).forEach(e => { e.v *= 1.35; e.bright = Math.min(1, (e.bright || 0.5) + 0.25); });
+        ev({ u: base + 0.2, type: 'chord', notes: [tonic - 24, tonic - 12, tonic - 5, tonic + third, tonic + 7], v: 0.75 * dyn, role: 'cadence' });
+        item.rest = 4;
+      } else if (c === '?') {
+        // a half cadence: the phrase stops on the dominant and leaves the second degree hanging
+        ev({ u: endU - 0.4, type: 'chord', notes: [tonic - 17, tonic - 10, tonic - 5], v: 0.5 * dyn, role: 'half-cadence' });
+        ev({ u: endU - 0.4, u2: endU + 7, type: 'bow', midi: tonic + 14, v: 0.4 * dyn, role: 'question' });
+        item.rest = 4;
+      } else if (c === ',') item.rest = 2;
+      else if (c === ';') item.rest = 3;
+      else if (c === ':') item.rest = 2;
+      else if (c === '(') paren++;
+      else if (c === ')') paren = Math.max(0, paren - 1);
+      else if (c === '"') quote = !quote;
+      else if (c === '\u201c') quote = true;
+      else if (c === '\u201d') quote = false;
+      else if (c === '^') marcato = true;
+      else if (c === '<' || c === '>') { hairpin = c === '<' ? 1 : -1; hairpinWord = nextWordRange(i + 1); }
+
+      if (hairpinWord && i >= hairpinWord.end - 1 && i >= hairpinWord.start && c !== '<' && c !== '>') { hairpinWord = null; hairpin = 0; }
+
+      u = item.u1 + item.rest;
+    }
+    events.forEach(e => { if (e.u < 0) e.u = 0; });
+    events.sort((a, b) => a.u - b.u);
+    return { items, events, totalU: u, opts };
+  }
+
+  // the melody a listener follows: per glyph, the melodic notes (off the drone strings),
+  // bows and bells; a glyph made only of drone contacts contributes its top drone note
+  function melody(text, opts) {
+    const seq = sequence(text, Object.assign({}, opts, { ornament: 0 }));
+    const notes = [];
+    seq.items.forEach((it, idx) => {
+      if (it.type !== 'glyph') return;
+      const evs = seq.events.filter(e => e.item === idx && (e.type === 'pluck' || e.type === 'bell' || e.type === 'bow'));
+      let mel = evs.filter(e => e.type !== 'pluck' || !e.drone);
+      if (!mel.length) {
+        const dr = evs.filter(e => e.type === 'pluck');
+        if (dr.length) mel = [dr.reduce((a, b) => (a.midi > b.midi ? a : b))];
+      }
+      const groups = [];
+      mel.forEach(e => {
+        let gr = groups.find(gr => Math.abs(gr.u - e.u) < 0.35);
+        if (!gr) { gr = { u: e.u, notes: [] }; groups.push(gr); }
+        gr.notes.push(e);
+      });
+      groups.sort((a, b) => a.u - b.u).forEach(gr => {
+        const top = gr.notes.reduce((a, b) => (a.v * (a.type === 'bow' ? 1.6 : 1) > b.v * (b.type === 'bow' ? 1.6 : 1) ? a : b));
+        notes.push({ u: gr.u, midi: top.midi, type: top.type, item: idx, ch: it.ch, v: top.v, s: top.s });
+      });
+    });
+    return notes;
+  }
+
+  const api = { SCALES, STR_LO, STR_HI, stringMidi, midiName, readGlyph, sequence, melody, shearX };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.StaveReader = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* ---- audio.js ---- */
+/* STAVE - synthesis. No samples: every sound is computed.
+   pluck  : Karplus-Strong plucked string with Jaffe-Smith tuning and pick-position comb
+   bow    : detuned sawtooth pair through a swelling low-pass, with delayed vibrato
+   bell   : two-operator FM
+   room   : convolution with a synthesized, darkening noise tail
+   Works with an AudioContext or an OfflineAudioContext. */
+(function (root) {
+  'use strict';
+  const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+
+  function makeRng(seed) {
+    let s = (seed >>> 0) || 1;
+    return () => { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return ((s >>> 0) / 4294967296) * 2 - 1; };
+  }
+
+  // Karplus-Strong, rendered into a buffer at the moment it is scheduled
+  function ksRender(sr, freq, opt) {
+    const bright = opt.bright == null ? 0.5 : opt.bright;
+    const rnd = makeRng(opt.seed || (Math.random() * 1e9));
+    const t60 = Math.max(0.7, Math.min(4.5, 3.0 * Math.sqrt(220 / freq))) * (opt.decay || 1);
+    const dur = Math.min(opt.maxDur || 3.2, t60);
+    const len = Math.floor(sr * dur);
+    const D = sr / freq - 0.5;            // the two-point average adds half a sample
+    const Li = Math.max(2, Math.floor(D - 0.1));
+    const frac = D - Li;                   // in [0.1, 1.1): an allpass supplies the fraction
+    const C = (1 - frac) / (1 + frac);
+    const rho = Math.pow(0.001, 1 / (freq * t60));
+
+    // excitation: low-passed noise, then a comb for where the string is picked
+    const exc = new Float32Array(Li);
+    const a = 0.1 + 0.7 * bright;
+    let lp = 0, mean = 0;
+    let lp2 = 0;
+    for (let i = 0; i < Li; i++) { lp += a * (rnd() - lp); lp2 += (a * 0.6 + 0.4) * (lp - lp2); exc[i] = lp2; mean += lp2; }
+    mean /= Li;
+    const pos = Math.max(1, Math.round(Li * (0.07 + 0.18 * (1 - bright) + 0.03 * rnd())));
+    const buf = new Float32Array(Li);
+    let peak = 1e-9;
+    for (let i = 0; i < Li; i++) {
+      buf[i] = (exc[i] - mean) - (i >= pos ? (exc[i - pos] - mean) : 0);
+      peak = Math.max(peak, Math.abs(buf[i]));
+    }
+    for (let i = 0; i < Li; i++) buf[i] /= peak;
+
+    const out = new Float32Array(len);
+    let ptr = 0, dPrev = 0, fPrev = 0, aPrev = 0;
+    const fadeStart = len - Math.floor(sr * 0.06);
+    // dynamic level: a one-pole low-pass on the output, darker for softer notes
+    const bcoef = 1 - Math.exp(-2 * Math.PI * (2200 + 7000 * bright) / sr);
+    let yl = 0;
+    for (let n = 0; n < len; n++) {
+      const d = buf[ptr];
+      yl += bcoef * (d - yl);
+      out[n] = n < fadeStart ? yl : yl * (len - n) / (len - fadeStart);
+      const f = rho * 0.5 * (d + dPrev); dPrev = d;
+      const ap = C * f + fPrev - C * aPrev; fPrev = f; aPrev = ap;
+      buf[ptr] = ap;
+      if (++ptr >= Li) ptr = 0;
+    }
+    // soften the very first samples so the attack never clicks
+    const ramp = Math.min(len, Math.floor(sr * 0.0015));
+    for (let n = 0; n < ramp; n++) out[n] *= n / ramp;
+    return out;
+  }
+
+  function makeIR(ctx, seconds, tau) {
+    const sr = ctx.sampleRate, len = Math.floor(sr * seconds);
+    const ir = ctx.createBuffer(2, len, sr);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = ir.getChannelData(ch);
+      const rnd = makeRng(1234 + ch * 777);
+      let lp = 0;
+      for (let i = 0; i < len; i++) {
+        const t = i / sr;
+        const a = 0.75 - 0.6 * (t / seconds);     // the tail gets darker as it decays
+        lp += a * (rnd() - lp);
+        const onset = t < 0.012 ? 0 : (t < 0.03 ? (t - 0.012) / 0.018 : 1);
+        d[i] = lp * Math.exp(-t / tau) * onset;
+      }
+    }
+    return ir;
+  }
+
+  class Engine {
+    constructor(ctx) {
+      this.ctx = ctx;
+      this.sr = ctx.sampleRate;
+      // strings are computed at 32 kHz; the source node resamples on playback
+      this.ksr = ctx.sampleRate > 32000 ? 32000 : ctx.sampleRate;
+      this.strings = new Map();   // midi -> voice : one string, one vibration
+      this.bows = new Set();
+      this.listeners = [];
+      const c = ctx;
+      this.bus = c.createGain();
+      this.dry = c.createGain(); this.dry.gain.value = 0.9;
+      this.wet = c.createGain(); this.wet.gain.value = 0.28;
+      this.verb = c.createConvolver(); this.verb.buffer = makeIR(c, 2.8, 0.62);
+      this.comp = c.createDynamicsCompressor();
+      this.comp.threshold.value = -16; this.comp.knee.value = 12; this.comp.ratio.value = 3.5;
+      this.comp.attack.value = 0.004; this.comp.release.value = 0.22;
+      this.master = c.createGain(); this.master.gain.value = 1.9;
+      // a brick-wall limiter so a dense strum can never clip
+      this.limiter = c.createDynamicsCompressor();
+      this.limiter.threshold.value = -6; this.limiter.knee.value = 0; this.limiter.ratio.value = 20;
+      this.limiter.attack.value = 0.001; this.limiter.release.value = 0.12;
+      this.bus.connect(this.dry); this.bus.connect(this.verb); this.verb.connect(this.wet);
+      this.dry.connect(this.comp); this.wet.connect(this.comp);
+      this.comp.connect(this.master); this.master.connect(this.limiter);
+      if (c.createAnalyser) { this.analyser = c.createAnalyser(); this.analyser.fftSize = 1024; this.limiter.connect(this.analyser); }
+      this.limiter.connect(c.destination);
+    }
+    setRoom(x) { this.wet.gain.setTargetAtTime(0.05 + 0.55 * x, this.ctx.currentTime, 0.05); }
+    _out(pan) {
+      const c = this.ctx;
+      if (c.createStereoPanner) {
+        const p = c.createStereoPanner(); p.pan.value = Math.max(-1, Math.min(1, pan || 0));
+        p.connect(this.bus); return p;
+      }
+      return this.bus;
+    }
+    _emit(type, time, info) { this.listeners.forEach(fn => fn(type, time, info)); }
+
+    pluck(time, midi, vel, bright, pan, opt) {
+      opt = opt || {};
+      const c = this.ctx, f = mtof(midi);
+      const v1 = Math.max(0, Math.min(1, vel));
+      const maxDur = opt.ghost ? 1.0 : (opt.long ? 3.2 : 1.1 + 1.5 * v1);
+      const data = ksRender(this.ksr, f, { bright, decay: opt.decay, maxDur });
+      const buf = c.createBuffer(1, data.length, this.ksr);
+      (buf.copyToChannel ? buf.copyToChannel(data, 0) : buf.getChannelData(0).set(data));
+      const src = c.createBufferSource(); src.buffer = buf;
+      const g = c.createGain();
+      g.gain.value = (opt.gain || 0.24) * Math.pow(Math.max(0, Math.min(1.6, vel)), 1.35);
+      src.connect(g); g.connect(this._out(pan));
+      // a string can only vibrate one way at a time: re-plucking damps the last note
+      const key = opt.key != null ? opt.key : midi;
+      const prev = this.strings.get(key);
+      if (prev && prev.end > time) {
+        prev.g.gain.setTargetAtTime(0, Math.max(time - 0.004, c.currentTime), 0.012);
+        try { prev.src.stop(time + 0.08); } catch (e) { }
+      }
+      src.start(time);
+      const voice = { src, g, end: time + buf.duration, midi };
+      this.strings.set(key, voice);
+      src.onended = () => { if (this.strings.get(key) === voice) this.strings.delete(key); };
+      return voice;
+    }
+
+    bow(time, dur, midi, vel, pan) {
+      const c = this.ctx, f = mtof(midi);
+      dur = Math.max(0.12, dur);
+      const out = this._out(pan);
+      const g = c.createGain(); g.gain.value = 0;
+      const lpf = c.createBiquadFilter(); lpf.type = 'lowpass'; lpf.Q.value = 0.4;
+      lpf.frequency.setValueAtTime(f * 1.1, time);
+      lpf.frequency.linearRampToValueAtTime(f * 2.6 + 250, time + 0.12);
+      lpf.frequency.setTargetAtTime(f * 2.0 + 200, time + 0.15, 0.3);
+      const peak = 0.055 * Math.min(1.6, vel);
+      g.gain.setValueAtTime(0, time);
+      g.gain.linearRampToValueAtTime(peak, time + 0.085);
+      g.gain.setTargetAtTime(peak * 0.8, time + 0.1, 0.2);
+      g.gain.setTargetAtTime(0, time + dur, 0.14);
+      const oscs = [1.0035, 0.9965].map(d => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f * d; o.connect(lpf); return o; });
+      const sub = c.createOscillator(); sub.type = 'sine'; sub.frequency.value = f;
+      const subG = c.createGain(); subG.gain.value = 0.6; sub.connect(subG); subG.connect(lpf);
+      const lfo = c.createOscillator(); lfo.frequency.value = 5.1;
+      const lfoG = c.createGain(); lfoG.gain.setValueAtTime(0, time);
+      lfoG.gain.linearRampToValueAtTime(f * 0.0045, time + Math.min(0.5, dur * 0.6 + 0.1));
+      lfo.connect(lfoG); oscs.concat([sub]).forEach(o => lfoG.connect(o.frequency));
+      lpf.connect(g); g.connect(out);
+      const stopAt = time + dur + 0.9;
+      oscs.concat([sub, lfo]).forEach(o => { o.start(time); o.stop(stopAt); });
+      const v = { g, end: stopAt };
+      this.bows.add(v); oscs[0].onended = () => this.bows.delete(v);
+    }
+
+    bell(time, midi, vel, pan) {
+      const c = this.ctx, f = mtof(midi) * 2;
+      const out = this._out(pan);
+      const car = c.createOscillator(); car.frequency.value = f;
+      const mod = c.createOscillator(); mod.frequency.value = f * 3.5;
+      const idx = c.createGain();
+      idx.gain.setValueAtTime(f * 2.2, time); idx.gain.setTargetAtTime(0.0001, time, 0.12);
+      mod.connect(idx); idx.connect(car.frequency);
+      const g = c.createGain(); const a = 0.045 * Math.min(1.6, vel);
+      g.gain.setValueAtTime(0, time); g.gain.linearRampToValueAtTime(a, time + 0.003);
+      g.gain.setTargetAtTime(0, time + 0.004, 0.42);
+      const fund = c.createOscillator(); fund.frequency.value = f / 2;
+      const fg = c.createGain(); fg.gain.setValueAtTime(0, time); fg.gain.linearRampToValueAtTime(a * 0.45, time + 0.004);
+      fg.gain.setTargetAtTime(0, time + 0.005, 0.6);
+      car.connect(g); fund.connect(fg); g.connect(out); fg.connect(out);
+      [car, mod, fund].forEach(o => { o.start(time); o.stop(time + 3); });
+    }
+
+    bass(time, midi, vel, pan) {
+      this.pluck(time, midi, vel, 0.25, (pan || 0) * 0.4, { gain: 0.3, decay: 1.2, key: 'bass' + midi, long: true });
+    }
+    chord(time, notes, vel, pan) {
+      notes.forEach((m, i) => this.pluck(time + i * 0.028, m, vel * (i === 0 ? 1 : 0.7), 0.3, (pan || 0) * 0.5, { gain: i === 0 ? 0.3 : 0.2, key: 'chord' + m, long: true }));
+    }
+    // backspace: the hand comes down on the strings
+    damp(time) {
+      const t = Math.max(time, this.ctx.currentTime);
+      this.strings.forEach(v => v.g.gain.setTargetAtTime(0, t, 0.025));
+      this.bows.forEach(v => v.g.gain.setTargetAtTime(0, t, 0.04));
+      this.strings.clear();
+    }
+
+    // schedule one sequenced event at absolute time t
+    schedule(e, t, pan) {
+      switch (e.type) {
+        case 'pluck': this.pluck(t, e.midi, e.v, e.bright, pan, { ghost: e.ghost, gain: e.ghost ? 0.2 : 0.24 }); break;
+        case 'bow': this.bow(t, e.dur, e.midi, e.v, pan); break;
+        case 'bell': this.bell(t, e.midi, e.v, pan); break;
+        case 'bass': this.bass(t, e.midi, e.v, pan); break;
+        case 'chord': this.chord(t, e.notes, e.v, pan); break;
+      }
+      this._emit(e.type, t, e);
+    }
+  }
+
+  const api = { Engine, ksRender, mtof };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.StaveAudio = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* ---- render.js ---- */
+/* STAVE - drawing. The same stroke data feeds the canvas stage and the static SVG figures. */
+(function (root) {
+  'use strict';
+  const GL = root.StaveGlyphs, R = root.StaveReader;
+
+  const shear = (q, tan) => [q[0] + (q[1] - 2.5) * tan, q[1]];
+  function polylines(g, tan) {
+    return g.strokes.map(st => {
+      const pts = [];
+      st.prims.forEach(p => p.pts.forEach(q => {
+        const s = shear(q, tan), last = pts[pts.length - 1];
+        if (!last || Math.abs(last[0] - s[0]) + Math.abs(last[1] - s[1]) > 1e-6) pts.push(s);
+      }));
+      return pts;
+    });
+  }
+  function dots(g, tan) { return g.dots.map(d => shear(d, tan)); }
+
+  // ---- SVG -----------------------------------------------------------------------
+  const f1 = v => (Math.round(v * 10) / 10).toString();
+  function svgGlyph(g, ox, oy, U, o) {
+    o = o || {};
+    const tan = Math.tan((o.slant || 0) * Math.PI / 180);
+    const w = (o.weight == null ? 0.72 : o.weight) * U;
+    let d = '';
+    polylines(g, tan).forEach(pts => {
+      pts.forEach((q, i) => { d += (i ? 'L' : 'M') + f1(ox + q[0] * U) + ' ' + f1(oy - q[1] * U); });
+    });
+    let s = d ? `<path d="${d}" class="${o.cls || 'ink'}" fill="none" stroke-width="${f1(w)}" stroke-linecap="round" stroke-linejoin="round"/>` : '';
+    dots(g, tan).forEach(q => { s += `<circle cx="${f1(ox + q[0] * U)}" cy="${f1(oy - q[1] * U)}" r="${f1(w * 0.72)}" class="${o.dotCls || 'ink-fill'}"/>`; });
+    return s;
+  }
+  function svgStrings(x0, x1, oy, U, o) {
+    o = o || {};
+    let s = '';
+    for (let k = R.STR_LO; k <= R.STR_HI; k++) {
+      const metric = [-3, 0, 5, 7, 8].indexOf(k) >= 0;
+      const tonic = ((k % 5) + 5) % 5 === 0;
+      const cls = tonic ? 'str str-c' : (metric ? 'str str-m' : 'str');
+      s += `<line x1="${f1(x0)}" x2="${f1(x1)}" y1="${f1(oy - k * U)}" y2="${f1(oy - k * U)}" class="${cls}"/>`;
+    }
+    return s;
+  }
+  // note heads for one glyph, in the glyph's own coordinates
+  function svgScore(g, ox, oy, U, o) {
+    o = o || {};
+    const tan = Math.tan((o.slant || 0) * Math.PI / 180);
+    const r = R.readGlyph(g);
+    let s = '';
+    const X = (x, y) => ox + R.shearX(x, y, tan) * U, Y = y => oy - y * U;
+    r.bows.forEach(b => { s += `<line x1="${f1(X(b.x, b.s))}" x2="${f1(X(b.x2, b.s))}" y1="${f1(Y(b.s))}" y2="${f1(Y(b.s))}" class="sc-bow" stroke-width="${f1(U * 0.55)}" stroke-linecap="round"/>`; });
+    if (o.ghosts) r.ghosts.forEach(e => { s += `<circle cx="${f1(X(e.x, e.s))}" cy="${f1(Y(e.s))}" r="${f1(U * 0.16)}" class="sc-ghost"/>`; });
+    r.main.forEach(e => {
+      const cls = e.drone ? 'sc-drone' : (e.lead ? 'sc-lead' : 'sc-note');
+      s += `<circle cx="${f1(X(e.x, e.y))}" cy="${f1(Y(e.s))}" r="${f1(U * (e.drone ? 0.3 : 0.4))}" class="${cls}"/>`;
+    });
+    r.bells.forEach(b => { s += `<circle cx="${f1(X(b.x, b.y))}" cy="${f1(Y(b.s))}" r="${f1(U * 0.55)}" class="sc-bell" fill="none" stroke-width="${f1(U * 0.16)}"/>`; });
+    return s;
+  }
+  // a whole word as SVG; returns {svg, width}
+  function svgText(text, U, o) {
+    o = o || {};
+    const tr = o.tracking == null ? 0.35 : o.tracking;
+    let x = o.pad == null ? U : o.pad, s = '';
+    const oy = o.oy == null ? (R.STR_HI + 1) * U : o.oy;
+    Array.from(text).forEach(ch => {
+      if (ch === ' ') { x += (GL.SPACE + tr) * U; return; }
+      const g = GL.glyphFor(ch); if (!g) return;
+      if (o.score) s += svgGlyph(g, x, oy, U, Object.assign({}, o, { cls: 'ink faint' }));
+      else s += svgGlyph(g, x, oy, U, o);
+      if (o.score) s += svgScore(g, x, oy, U, o);
+      x += (g.adv + tr) * U;
+    });
+    return { svg: s, width: x + (o.pad == null ? U : o.pad), oy };
+  }
+
+  // ---- canvas -----------------------------------------------------------------------
+  function drawGlyph(ctx, g, ox, oy, U, tan, lw, color) {
+    ctx.strokeStyle = color; ctx.fillStyle = color;
+    ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath();
+    polylines(g, tan).forEach(pts => pts.forEach((q, i) => {
+      const x = ox + q[0] * U, y = oy - q[1] * U;
+      if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+    }));
+    ctx.stroke();
+    dots(g, tan).forEach(q => { ctx.beginPath(); ctx.arc(ox + q[0] * U, oy - q[1] * U, lw * 0.72, 0, Math.PI * 2); ctx.fill(); });
+  }
+
+  root.StaveRender = { polylines, dots, svgGlyph, svgStrings, svgScore, svgText, drawGlyph, shear };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* ---- stage.js ---- */
+/* STAVE - the stage: text laid out on strings, a playhead, and strings that move when they sound. */
+(function (root) {
+  'use strict';
+  const GL = root.StaveGlyphs, R = root.StaveReader, RD = root.StaveRender;
+  const ASC = 8, DESC = -3;
+  const METRIC = [-3, 0, 5, 7, 8];
+  const REDUCED = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function layout(seq, maxW) {
+    // x positions ignore rests (rests are time, not space); wrap at spaces
+    const lines = [[]];
+    let x = 0;
+    const items = seq.items;
+    const pos = new Array(items.length);
+    let i = 0;
+    while (i < items.length) {
+      const it = items[i];
+      if (it.type === 'break') { pos[i] = { line: lines.length - 1, x }; lines.push([]); x = 0; i++; continue; }
+      if (it.type === 'space') { pos[i] = { line: lines.length - 1, x }; lines[lines.length - 1].push(i); x += it.u1 - it.u0; i++; continue; }
+      let j = i, w = 0;
+      while (j < items.length && items[j].type === 'glyph') { w += items[j].u1 - items[j].u0; j++; }
+      if (x > 0 && x + w > maxW) { lines.push([]); x = 0; }
+      for (let k = i; k < j; k++) {
+        // a single word wider than the line breaks wherever it must
+        if (x > 0 && x + (items[k].u1 - items[k].u0) > maxW && w > maxW) { lines.push([]); x = 0; }
+        pos[k] = { line: lines.length - 1, x }; lines[lines.length - 1].push(k); x += items[k].u1 - items[k].u0;
+      }
+      i = j;
+    }
+    return { lines, pos, maxW };
+  }
+
+  function readTheme() {
+    const cs = getComputedStyle(document.documentElement);
+    const v = n => cs.getPropertyValue(n).trim();
+    return { paper: v('--paper'), ink: v('--ink'), ink2: v('--ink-2'), str: v('--string'), strC: v('--cstring'), brass: v('--brass'), glow: v('--glow'), dark: v('color-scheme').indexOf('dark') >= 0 || v('--is-dark') === '1' };
+  }
+
+  class Stage {
+    constructor(canvas, app, o) {
+      this.cv = canvas; this.ctx = canvas.getContext('2d'); this.app = app;
+      this.o = Object.assign({ editable: true, minLines: 2, maxU: 7, minU: 3.4, fit: false, gutter: true, labels: true }, o || {});
+      this.text = ''; this.caret = 0; this.selEnd = 0;
+      this.ripples = []; this.flash = new Map(); this.view = 'read';
+      this.focused = false; this.playhead = null;
+      this.theme = readTheme();
+      this.dpr = Math.min(2.5, window.devicePixelRatio || 1);
+    }
+    setText(t) { this.text = t; this.relayout(); }
+    relayout() {
+      const a = Object.assign({}, this.app.opts, this.o.optsOverride || {});
+      this.seq = R.sequence(this.text, a);
+      const cssW = this.cv.parentElement.clientWidth || 600;
+      this.gutter = this.o.gutter ? (cssW < 520 ? 30 : 46) : 10;
+      const avail = cssW - this.gutter - 12;
+      let U;
+      if (this.o.fit) {
+        const total = Math.max(20, this.seq.items.reduce((s, it) => s + (it.type === 'break' ? 0 : it.u1 - it.u0), 0));
+        U = Math.max(this.o.minU, Math.min(this.o.maxU, avail / (total + 2)));
+      } else U = Math.max(this.o.minU, Math.min(this.o.maxU, avail / 66));
+      this.U = U;
+      this.lay = layout(this.seq, avail / U - 1);
+      this.lineH = (ASC - DESC + 3.2) * U;
+      this.padTop = 1.2 * U;
+      const nLines = Math.max(this.o.minLines, this.lay.lines.length + (this.o.editable ? 0 : 0));
+      this.cssW = cssW; this.cssH = Math.ceil(this.padTop + nLines * this.lineH + 0.4 * U);
+      this.cv.style.height = this.cssH + 'px';
+      this.cv.width = Math.round(cssW * this.dpr); this.cv.height = Math.round(this.cssH * this.dpr);
+      this.nLines = nLines;
+    }
+    baseline(line) { return this.padTop + line * this.lineH + (ASC + 0.9) * this.U; }
+    xOf(units) { return this.gutter + units * this.U; }
+    itemXY(idx) { const p = this.lay.pos[idx]; return p ? { x: this.xOf(p.x), y: this.baseline(p.line), line: p.line } : null; }
+    // character index (code points) -> pixel caret
+    caretXY(ci) {
+      const items = this.seq.items;
+      if (!items.length) return { x: this.xOf(0), y: this.baseline(0), line: 0 };
+      if (ci <= 0) { const p = this.lay.pos[0]; return { x: this.xOf(0), y: this.baseline(p ? p.line : 0), line: p ? p.line : 0 }; }
+      const it = items[Math.min(ci, items.length) - 1], idx = Math.min(ci, items.length) - 1;
+      const p = this.lay.pos[idx];
+      if (it.type === 'break') return { x: this.xOf(0), y: this.baseline(p.line + 1), line: p.line + 1 };
+      return { x: this.xOf(p.x + (it.u1 - it.u0)), y: this.baseline(p.line), line: p.line };
+    }
+    indexAt(px, py) {
+      const line = Math.max(0, Math.min(this.lay.lines.length - 1, Math.floor((py - this.padTop) / this.lineH)));
+      const ids = this.lay.lines[line] || [];
+      let best = null, bd = Infinity;
+      const cand = ids.slice();
+      ids.forEach(i => {
+        const p = this.lay.pos[i], it = this.seq.items[i];
+        [[i, p.x], [i + 1, p.x + (it.u1 - it.u0)]].forEach(([ci, ux]) => {
+          const d = Math.abs(this.xOf(ux) - px); if (d < bd) { bd = d; best = ci; }
+        });
+      });
+      if (best == null) {
+        // empty line after a break: put the caret after that break
+        const brk = this.seq.items.findIndex((it, i) => it.type === 'break' && this.lay.pos[i].line === line - 1);
+        return brk >= 0 ? brk + 1 : this.seq.items.length;
+      }
+      return best;
+    }
+    pan(idx, gx) {
+      const p = this.lay.pos[idx]; if (!p) return 0;
+      const w = this.lay.maxW || 60;
+      return Math.max(-0.75, Math.min(0.75, ((p.x + (gx || 0)) / w) * 1.5 - 0.75));
+    }
+    // visual record of a sounding event
+    addRipple(t, e, idx) {
+      const p = this.lay.pos[idx]; if (!p) return;
+      const r = { t, type: e.type, line: p.line, v: e.v || 0.5, s: e.s, x: p.x + (e.gx || 0), x2: e.gx2 != null ? p.x + e.gx2 : null, dur: e.dur || 0, idx };
+      if (e.type === 'chord' || e.type === 'bass') { r.s = e.type === 'bass' ? 0 : null; r.x = p.x; }
+      if (e.type === 'bow' && e.role === 'question') { r.s = 6; r.x = p.x; r.x2 = p.x + 7; }
+      this.ripples.push(r);
+      if (this.ripples.length > 400) this.ripples.splice(0, this.ripples.length - 400);
+      this.flash.set(idx, t);
+    }
+
+    draw(now) {
+      const c = this.ctx, U = this.U, th = this.theme, dpr = this.dpr;
+      c.setTransform(dpr, 0, 0, dpr, 0, 0);
+      c.fillStyle = th.paper; c.fillRect(0, 0, this.cssW, this.cssH);
+      const right = this.cssW - 6;
+      const aOpts = this.app.opts;
+      const tan = Math.tan((aOpts.slant || 0) * Math.PI / 180);
+      const lw = (0.35 + 0.8 * aOpts.weight) * U;
+      // drop finished ripples
+      this.ripples = this.ripples.filter(r => now - r.t < Math.max(1.6, r.dur + 1.2));
+
+      for (let L = 0; L < this.nLines; L++) {
+        const by = this.baseline(L);
+        // strings
+        for (let k = R.STR_LO; k <= R.STR_HI; k++) {
+          const tonic = ((k % 5) + 5) % 5 === 0;
+          const metric = METRIC.indexOf(k) >= 0;
+          const y = by - k * U;
+          c.strokeStyle = tonic ? th.strC : th.str;
+          c.globalAlpha = tonic ? 0.55 : (metric ? 0.55 : 0.28);
+          c.lineWidth = tonic || metric ? 1 : 0.75;
+          c.beginPath(); c.moveTo(this.gutter - 4, y); c.lineTo(right, y); c.stroke();
+          if (this.o.gutter) {
+            c.globalAlpha = tonic ? 0.9 : (metric ? 0.7 : 0.35);
+            c.fillStyle = tonic ? th.strC : th.str;
+            c.beginPath(); c.arc(this.gutter - 8, y, metric ? 1.9 : 1.2, 0, Math.PI * 2); c.fill();
+          }
+        }
+        c.globalAlpha = 1;
+        if (this.o.gutter && this.o.labels && L === 0 && U >= 4) {
+          c.font = `500 ${Math.max(8, Math.min(10, U * 1.35))}px "IBM Plex Mono", ui-monospace, monospace`;
+          c.textAlign = 'right'; c.textBaseline = 'middle';
+          METRIC.forEach(k => {
+            if (k === 7 && U < 11) return; // cap height sits one string under the ascender; skip its label when crowded
+            const m = R.stringMidi(k, aOpts.scale, aOpts.key);
+            c.fillStyle = ((k % 5) + 5) % 5 === 0 ? th.strC : th.ink2;
+            c.fillText(R.midiName(m), this.gutter - 13, by - k * U);
+          });
+        }
+      }
+
+      // ripples on strings (under the ink)
+      c.lineCap = 'round';
+      this.ripples.forEach(r => {
+        const age = now - r.t; if (age < 0) return;
+        const by = this.baseline(r.line);
+        if (r.type === 'chord' || (r.type === 'bass')) {
+          const a = Math.exp(-age / 0.5) * 0.6;
+          [0, 5].concat(r.type === 'chord' ? [-3, 8] : []).forEach(k => {
+            const y = by - k * U;
+            c.strokeStyle = th.strC; c.globalAlpha = a; c.lineWidth = 2;
+            c.beginPath();
+            for (let x = this.gutter; x <= right; x += 6) c.lineTo(x, y + Math.sin(x * 0.05 + age * 40) * a * 1.5);
+            c.stroke();
+          });
+          c.globalAlpha = 1; return;
+        }
+        if (r.s == null) return;
+        const y = by - r.s * U, x = this.xOf(r.x);
+        if (r.type === 'bow') {
+          const x2 = this.xOf(r.x2 == null ? r.x + 2 : r.x2);
+          const on = age < r.dur ? 1 : Math.exp(-(age - r.dur) / 0.3);
+          c.strokeStyle = th.brass; c.globalAlpha = 0.65 * on; c.lineWidth = 2.2;
+          c.beginPath();
+          for (let xx = x; xx <= x2; xx += 3) c.lineTo(xx, y + Math.sin((xx - x) * 0.25 + age * 30) * 1.2 * on);
+          c.stroke();
+          c.globalAlpha = 1; return;
+        }
+        if (r.type === 'bell') {
+          const rad = U * (0.6 + age * 6), a = Math.exp(-age / 0.45);
+          c.strokeStyle = th.brass; c.globalAlpha = a * 0.8; c.lineWidth = 1.4;
+          c.beginPath(); c.arc(x, y, rad, 0, Math.PI * 2); c.stroke(); c.globalAlpha = 1; return;
+        }
+        // plucked string: a half-wave that widens and fades
+        const R0 = U * (1.2 + Math.min(age, 0.6) * 14);
+        const amp = REDUCED ? 0 : U * 0.42 * Math.min(1.3, r.v) * Math.exp(-age / 0.32);
+        const a = Math.min(1, 0.25 + r.v) * Math.exp(-age / 0.55);
+        const w = 2 * Math.PI * (7 + (r.s + 3) * 0.9);
+        c.strokeStyle = th.brass; c.globalAlpha = a; c.lineWidth = 1.6;
+        c.beginPath();
+        for (let xx = x - R0; xx <= x + R0; xx += 2) {
+          const f = (xx - (x - R0)) / (2 * R0);
+          c.lineTo(xx, y + amp * Math.sin(Math.PI * f) * Math.cos(w * age));
+        }
+        c.stroke();
+        if (age < 0.25) { c.fillStyle = th.brass; c.globalAlpha = (1 - age / 0.25) * 0.9; c.beginPath(); c.arc(x, y, U * 0.32, 0, Math.PI * 2); c.fill(); }
+        c.globalAlpha = 1;
+      });
+
+      // selection
+      if (this.o.editable && this.focused && this.selEnd > this.caret) {
+        c.fillStyle = th.brass; c.globalAlpha = 0.14;
+        for (let ci = this.caret; ci < this.selEnd && ci < this.seq.items.length; ci++) {
+          const p = this.lay.pos[ci], it = this.seq.items[ci]; if (!p) continue;
+          c.fillRect(this.xOf(p.x), this.baseline(p.line) - (ASC + 0.6) * U, (it.u1 - it.u0) * U, (ASC - DESC + 1.2) * U);
+        }
+        c.globalAlpha = 1;
+      }
+
+      // glyphs
+      const score = this.view === 'score';
+      this.seq.items.forEach((it, idx) => {
+        if (it.type !== 'glyph') return;
+        const p = this.lay.pos[idx]; if (!p) return;
+        const ox = this.xOf(p.x), oy = this.baseline(p.line);
+        const ft = this.flash.get(idx);
+        let col = th.ink;
+        const age = ft != null ? now - ft : 99;
+        let mix = 0;
+        if (age >= 0 && age < 0.9) mix = age < 0.12 ? 1 : Math.max(0, 1 - (age - 0.12) / 0.75);
+        if (this.playhead && this.playhead.idx === idx) mix = 1;
+        c.globalAlpha = score ? 0.32 : 1;
+        RD.drawGlyph(c, it.g, ox, oy, U, tan, lw, col);
+        if (mix > 0) { c.globalAlpha = (score ? 0.5 : 1) * mix; RD.drawGlyph(c, it.g, ox, oy, U, tan, lw, th.brass); }
+        c.globalAlpha = 1;
+      });
+      if (score) this.drawScore(c, tan);
+
+      // playhead
+      if (this.playhead) {
+        const ph = this.playhead, by = this.baseline(ph.line), x = this.xOf(ph.x);
+        const g = c.createLinearGradient(x - 3 * U, 0, x, 0);
+        g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, th.glow);
+        c.fillStyle = g; c.fillRect(x - 3 * U, by - (ASC + 0.5) * U, 3 * U, (ASC - DESC + 1) * U);
+        c.strokeStyle = th.brass; c.lineWidth = 1.5;
+        c.beginPath(); c.moveTo(x, by - (ASC + 0.5) * U); c.lineTo(x, by - (DESC - 0.5) * U); c.stroke();
+      }
+      // caret
+      if (this.o.editable && this.focused && this.selEnd === this.caret) {
+        const blink = (now * 1.6) % 1 < 0.62;
+        if (blink) {
+          const cp = this.caretXY(this.caret);
+          c.strokeStyle = th.brass; c.lineWidth = 2;
+          c.beginPath(); c.moveTo(cp.x + 1, cp.y - 7.6 * U); c.lineTo(cp.x + 1, cp.y + 2.6 * U); c.stroke();
+        }
+      }
+    }
+    drawScore(c, tan) {
+      const U = this.U, th = this.theme;
+      this.seq.events.forEach(e => {
+        const p = this.lay.pos[e.item]; if (!p || e.gx == null) return;
+        const by = this.baseline(p.line);
+        const x = this.xOf(p.x + e.gx), y = by - e.gy * U;
+        if (e.type === 'bow') {
+          c.strokeStyle = th.brass; c.globalAlpha = 0.5; c.lineWidth = U * 0.55; c.lineCap = 'round';
+          c.beginPath(); c.moveTo(x, y); c.lineTo(this.xOf(p.x + e.gx2), y); c.stroke();
+        } else if (e.type === 'bell') {
+          c.strokeStyle = th.brass; c.globalAlpha = 0.95; c.lineWidth = U * 0.16;
+          c.beginPath(); c.arc(x, y, U * 0.55, 0, Math.PI * 2); c.stroke();
+        } else if (e.ghost) {
+          c.fillStyle = th.ink2; c.globalAlpha = 0.6;
+          c.beginPath(); c.arc(x, y, U * 0.15, 0, Math.PI * 2); c.fill();
+        } else {
+          c.fillStyle = e.drone ? th.strC : th.brass; c.globalAlpha = e.drone ? 0.75 : 1;
+          c.beginPath(); c.arc(x, y, U * (e.drone ? 0.28 : 0.4), 0, Math.PI * 2); c.fill();
+        }
+        c.globalAlpha = 1;
+      });
+    }
+  }
+
+  // ---- the player: a look-ahead scheduler on the audio clock ------------------------
+  class Player {
+    constructor(app) { this.app = app; this.active = null; }
+    play(stage, o) {
+      this.stop();
+      const eng = this.app.engine, ctx = eng.ctx;
+      o = o || {};
+      const seq = stage.seq;
+      const unit = 1 / (this.app.opts.tempo * (o.tempoScale || 1));
+      const start = ctx.currentTime + 0.08;
+      const evs = seq.events.slice();
+      if (o.cadence) {
+        const last = seq.items.length ? seq.items[seq.items.length - 1] : null;
+        if (last && !/[.!?\u2026]/.test(last.ch)) {
+          const tonic = 60 + (this.app.opts.key || 0), third = R.SCALES[this.app.opts.scale].third;
+          evs.push({ u: last.u1 + 0.3, type: 'chord', notes: [tonic - 24, tonic - 12, tonic - 5, tonic + third], v: 0.45, item: seq.items.length - 1, role: 'cadence' });
+        }
+      }
+      const run = { stage, seq, evs, start, unit, i: 0, loop: o.loop, onDone: o.onDone, total: (seq.totalU + 1.5) * unit, o };
+      this.active = run;
+      this._tick();
+      this.timer = setInterval(() => this._tick(), 25);
+    }
+    _tick() {
+      const run = this.active; if (!run) return;
+      const eng = this.app.engine, now = eng.ctx.currentTime;
+      while (run.i < run.evs.length) {
+        const e = run.evs[run.i];
+        const t = run.start + e.u * run.unit;
+        if (t > now + 0.16) break;
+        const ee = Object.assign({}, e);
+        if (e.type === 'bow') ee.dur = (e.u2 - e.u) * run.unit;
+        eng.schedule(ee, Math.max(t, now), run.stage.pan(e.item, e.gx));
+        run.stage.addRipple(Math.max(t, now), ee, e.item);
+        run.i++;
+      }
+      if (now > run.start + run.total) {
+        if (run.loop && run.loop()) { const st = run.stage, o = run.o; this.play(st, o); return; }
+        const done = run.onDone; this.stop(); if (done) done();
+      }
+    }
+    position(now) {
+      const run = this.active; if (!run) return null;
+      const u = (now - run.start) / run.unit;
+      if (u < 0) return null;
+      const items = run.seq.items;
+      for (let i = 0; i < items.length; i++) {
+        const it = items[i];
+        if (u < it.u0) break;
+        if (u <= it.u1 + it.rest) {
+          const p = run.stage.lay.pos[i]; if (!p) return null;
+          const w = it.u1 - it.u0;
+          return { idx: i, line: p.line, x: p.x + Math.min(w, u - it.u0) };
+        }
+      }
+      return null;
+    }
+    stop() {
+      if (this.timer) clearInterval(this.timer);
+      this.timer = null;
+      if (this.active) this.active.stage.playhead = null;
+      this.active = null;
+    }
+  }
+
+  root.StaveStage = { Stage, Player, layout, readTheme };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* ---- notes.js ---- */
+/* STAVE - liner notes. Every figure is drawn from the same reader the instrument uses. */
+(function () {
+  'use strict';
+  const GL = window.StaveGlyphs, R = window.StaveReader, RD = window.StaveRender;
+  const HOME = { scale: 'bright', key: 0 };
+  const nm = k => R.midiName(R.stringMidi(k, 'bright', 0));
+  const esc = s => s.replace(/[<&>"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' })[c]);
+  let mounted = false;
+
+  function wordAt(text, U, ox, oy, o) {
+    o = o || {};
+    let x = ox, s = '';
+    const pos = [];
+    Array.from(text).forEach(ch => {
+      if (ch === ' ') { x += (GL.SPACE + 0.35) * U; pos.push(null); return; }
+      const g = GL.glyphFor(ch);
+      pos.push({ g, x });
+      s += RD.svgGlyph(g, x, oy, U, { slant: o.slant || 0, weight: o.weight || 0.72, cls: o.faint ? 'ink faint' : 'ink' });
+      if (o.score) s += RD.svgScore(g, x, oy, U, { slant: o.slant || 0, ghosts: o.ghosts });
+      x += (g.adv + 0.35) * U;
+    });
+    return { svg: s, end: x, pos };
+  }
+  function playBtn(label, text, extra) {
+    return `<button class="btn sm" type="button" data-play="${esc(text)}"${extra ? ` data-opts='${JSON.stringify(extra)}'` : ''}><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg>${esc(label)}</button>`;
+  }
+
+  // Fig. 1 - the tuning
+  function figTuning() {
+    const U = 14, W = 680, oy = 9.3 * U, H = oy + 4.1 * U;
+    let s = RD.svgStrings(118, W - 60, oy, U);
+    const names = { 8: 'ascender', 7: 'cap height', 5: 'x-height', 0: 'baseline', '-3': 'descender' };
+    for (let k = R.STR_LO; k <= R.STR_HI; k++) {
+      const tonic = ((k % 5) + 5) % 5 === 0, metric = names[k] != null;
+      if (metric) s += `<text x="110" y="${oy - k * U + 3.5}" text-anchor="end" class="svg-label${tonic ? ' c' : ''}">${names[k]}</text>`;
+      s += `<text x="${W - 52}" y="${oy - k * U + 3.5}" class="svg-label${tonic ? ' c' : ''}"${metric ? '' : ' opacity=".55"'}>${nm(k)}</text>`;
+    }
+    const w = wordAt('Hybrid', U, 150, oy, {});
+    s += w.svg;
+    return `<svg viewBox="0 0 ${W} ${H.toFixed(0)}" role="img" aria-label="The five typographic lines tuned as strings">${s}</svg>`;
+  }
+
+  // Fig. 2 - how "fig" is read
+  function figRead() {
+    const U = 16, ox = 190, oy = 12 * U, W = 700, H = oy + 6.6 * U;
+    let s = RD.svgStrings(30, W - 10, oy, U);
+    const w = wordAt('fig', U, ox, oy, { score: true, faint: true, ghosts: true });
+    s += w.svg;
+    const top = [14, 30, 46], bot = [H - 22, H - 6];
+    const calls = [];
+    const add = (gi, pick, label, row, anchor, dx) => {
+      const p = w.pos[gi]; if (!p) return;
+      const e = pick(R.readGlyph(p.g)); if (!e) return;
+      const x = p.x + (e.x2 != null ? (e.x + e.x2) / 2 : e.x) * U, y = oy - e.s * U;
+      calls.push({ x, y, label, row, anchor, dx: dx || 0 });
+    };
+    add(0, r => r.bows[0], 'bar \u00b7 bowed C5', top[2], 'end', -30);
+    add(0, r => r.main.find(e => e.role === 'crest'), 'crest \u00b7 G5', top[0], 'end', -16);
+    add(0, r => r.main.filter(e => e.role === 'terminal').sort((a, b) => b.y - a.y)[0], 'stroke ends \u00b7 E5', top[1], 'start', 26);
+    add(1, r => r.bells[0], 'dot \u00b7 bell E5', top[0], 'start', 30);
+    add(1, r => r.main.find(e => e.s === 0), 'stem \u00b7 C4 strummed with C5', bot[0], 'end', -25);
+    add(2, r => r.main.find(e => e.role === 'trough' && e.s < 0), 'trough \u00b7 E3', bot[0], 'start', 70);
+    add(2, r => r.main.find(e => e.role === 'terminal' && e.s < 0), 'stroke ends \u00b7 G3', bot[1], 'start', 16);
+    calls.forEach(c => {
+      const tx = c.x + c.dx, ty = c.row, up = ty < oy;
+      const ly = up ? ty + 4 : ty - 11;
+      s += `<path d="M${c.x.toFixed(1)} ${c.y.toFixed(1)} L${tx.toFixed(1)} ${ly.toFixed(1)}" class="svg-line"/>`;
+      s += `<text x="${(tx + (c.anchor === 'start' ? 3 : -3)).toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="${c.anchor}" class="svg-label b">${c.label}</text>`;
+    });
+    // the playhead, partway through the g
+    const px = w.pos[2].x + 1.0 * U;
+    s += `<line x1="${px}" x2="${px}" y1="${oy - 8.6 * U}" y2="${oy + 3.5 * U}" class="svg-brass"/>`;
+    s += `<path d="M${px + 70} ${oy - 8.9 * U} l46 0 m-6 -4 l6 4 l-6 4" class="svg-brass"/>`;
+    s += `<text x="${px + 122}" y="${oy - 8.9 * U + 3.5}" class="svg-label">time</text>`;
+    s += `<text x="${px + 6}" y="${oy - 8.9 * U + 3.5}" class="svg-label">playhead</text>`;
+    return `<svg viewBox="0 0 ${W} ${H.toFixed(0)}" role="img" aria-label="The word fig with each sounding feature labelled">${s}</svg>`;
+  }
+
+  // Fig. 3 - italic rolls the chords
+  function figItalic() {
+    const U = 12, W = 700, oy = 9.6 * U, H = 13 * U;
+    let s = RD.svgStrings(10, W - 10, oy, U);
+    const a = wordAt('hill', U, 40, oy, { score: true, faint: true });
+    const b = wordAt('hill', U, 380, oy, { score: true, faint: true, slant: 13 });
+    s += a.svg + b.svg;
+    s += `<text x="40" y="${H - 4}" class="svg-label">upright \u00b7 each stem sounds as one chord</text>`;
+    s += `<text x="380" y="${H - 4}" class="svg-label">13\u00b0 italic \u00b7 each stem rolls upward</text>`;
+    return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Upright and italic hill, showing stems turned into arpeggios">${s}</svg>`;
+  }
+
+  // Fig. 4 - b d p q
+  function figRow() {
+    const U = 11, W = 700, oy = 9.4 * U, H = oy + 3.6 * U + 34, cell = W / 4;
+    let s = '';
+    const lab = [['b', 'Prime'], ['d', 'Retrograde'], ['p', 'Inversion'], ['q', 'Retrograde inversion']];
+    lab.forEach(([ch, l], i) => {
+      const g = GL.glyphFor(ch), x0 = i * cell, ox = x0 + (cell - g.adv * U) / 2;
+      s += RD.svgStrings(x0 + 10, x0 + cell - 10, oy, U);
+      s += RD.svgGlyph(g, ox, oy, U, { cls: 'ink faint' }) + RD.svgScore(g, ox, oy, U, { ghosts: true });
+      s += `<text x="${x0 + cell / 2}" y="${H - 18}" text-anchor="middle" class="svg-label b">${l}</text>`;
+      s += `<text x="${x0 + cell / 2}" y="${H - 4}" text-anchor="middle" class="svg-label">${ch === 'b' ? 'as drawn' : ch === 'd' ? 'mirrored = backwards' : ch === 'p' ? 'flipped = upside down' : 'rotated = both'}</text>`;
+    });
+    s += `<line x1="0" x2="${W}" y1="${oy - 2.5 * U}" y2="${oy - 2.5 * U}" stroke-dasharray="3 4" class="svg-line" opacity=".6"/>`;
+    return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="b, d, p and q as the four forms of a tone row">${s}</svg>`;
+  }
+
+  const MARKS = [
+    ['.', 'Full stop', 'A tonic cadence under the dot, then a rest.', 'and so it ends.'],
+    [',', 'Comma', 'A breath. Two units of rest.', 'first, then'],
+    ['?', 'Question mark', 'A half cadence on the dominant, with the second degree left hanging. Questions end in the air.', 'is it over?'],
+    ['!', 'Exclamation', 'Sforzando: its notes louder and brighter, then a fuller cadence.', 'it is!'],
+    ['(', 'Parentheses', 'A mute. Everything inside plays softly and darker.', 'and (softly) then'],
+    ['\u201c', 'Quotation marks', 'A second voice. Quoted words sound an octave higher.', '\u201cyes,\u201d she said'],
+    ['\u2014', 'Em dash', 'A held, bowed tone across the gap.', 'wait \u2014 now'],
+    ['\u2026', 'Ellipsis', 'Three bells, each quieter, and no cadence.', 'and so\u2026'],
+    ['<', 'Angle brackets', 'Hairpins. The next word swells or fades. In a score these are the crescendo and decrescendo marks.', '<grow >shrink'],
+    ['^', 'Caret', 'Marcato: the next glyph is accented. It is the marcato sign in a score, too.', 'this ^one'],
+    ["'", 'Apostrophe', 'A grace note, flicked upward from D5 to E5.', "don't"],
+    ['A', 'Capitals', 'Downbeats. A bass string sounds under the first note of every capital, so sentences and names begin on the beat.', 'Ana and Bo']
+  ];
+
+  function tableMarks() {
+    const rows = MARKS.map(([ch, name, what, ex]) => {
+      const g = GL.glyphFor(ch), U = 4.2, oy = 9 * U + 2, W = 44;
+      const ox = (W - g.adv * U) / 2;
+      const svg = `<svg viewBox="0 0 ${W} 52" aria-hidden="true">${RD.svgStrings(0, W, oy, U)}${RD.svgGlyph(g, ox, oy, U, { weight: 0.75 })}</svg>`;
+      return `<tr><td class="g">${svg}</td><td><b style="font-weight:500">${name}</b><br>${what}</td><td style="white-space:nowrap"><button class="play" type="button" data-play="${esc(ex)}">Play \u201c${esc(ex)}\u201d</button></td></tr>`;
+    }).join('');
+    return `<div class="tablewrap"><table class="map"><thead><tr><th></th><th>Mark \u00b7 behaves as</th><th>Hear it</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+
+  function tableRead() {
+    const rows = [
+      ['The stroke ends', 'A plucked note on the nearest string', 'the A4 at the tip of an r'],
+      ['A curve turns at its crest or trough', 'A plucked note', 'the G5 at the top of an f'],
+      ['A vertical stem', 'Both ends, strummed together', 'C4 and G5 for an l'],
+      ['A horizontal bar lies on a string', 'A bowed tone, held for the bar\u2019s length', 'the G4 that runs through every e'],
+      ['A dot', 'A bell', 'E5 above an i'],
+      ['A stroke crosses any other string', 'A grace note, set by the Ornament control', 'the bloom inside an o']
+    ];
+    return `<div class="tablewrap"><table class="map"><thead><tr><th>When the ink\u2026</th><th>the string gives</th><th>for example</th></tr></thead><tbody>${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td style="color:var(--ink-2)">${r[2]}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+
+  function mount() {
+    if (mounted) return; mounted = true;
+    const el = document.getElementById('view-notes');
+    const title = window.StaveApp.wordmark('Stave', 9, true);
+    const theMel = R.melody('the', HOME).map(n => R.midiName(n.midi)).join(', ');
+    el.innerHTML = `
+    <header>
+      <div class="label">Liner notes</div>
+      <div class="title">${title}</div>
+      <p class="sub">A typeface strung like an instrument. Each glyph reads as its letter and plays as a phrase.</p>
+    </header>
+
+    <h2><span class="no">I</span>The staff was already there</h2>
+    <p>Type designers draw every letter between five horizontal lines: descender, baseline, x-height, cap height and ascender. Musicians read notes on five lines too. Stave treats the typographer\u2019s lines as strings and tunes them to a single chord, from the bottom: E3, C4, C5, E5, G5. More strings fill the space between, one per unit of height, twelve in all, tuned to a pentatonic scale.</p>
+    <p>A pentatonic scale has no half steps, so any two of its notes sound consonant together. That one decision is what stops typing from turning into noise, and it leaves the letterforms free to be drawn properly.</p>
+    <figure><div class="fig">${figTuning()}</div>
+      <figcaption><span>Fig. 1. The typographic metrics as strings. The red ones are both C.</span><span class="btns">${playBtn('Play \u201cHybrid\u201d', 'Hybrid', HOME)}</span></figcaption></figure>
+    <p>On a concert harp every C string is coloured red so the player can find their place. Here the red strings are the baseline and the x-height. They sit an octave apart because of the proportions: the x-height is five strings tall, and a pentatonic octave is five steps.</p>
+
+    <h2><span class="no">II</span>How a letter is read</h2>
+    <p>A playhead moves through each glyph from left to right. Horizontal position is time and height is pitch, as on a piano roll. The reader listens for the places where the pen does something.</p>
+    ${tableRead()}
+    <figure><div class="fig">${figRead()}</div>
+      <figcaption><span>Fig. 2. \u201cfig\u201d, read. Brass dots are melody, red dots touch the drone strings, small grey dots are grace notes.</span><span class="btns">${playBtn('Play \u201cfig\u201d', 'fig', HOME)}</span></figcaption></figure>
+
+    <h2><span class="no">III</span>A drone and a tune</h2>
+    <p>The first version gave every word the same few notes. Nearly all lowercase letters touch the baseline and the x-height, and both are C, so sentences came out as C, C, C with small dips. Consonant and forgettable.</p>
+    <p>The fix was to give those two strings a smaller part. They are struck softly, as a drone, and whatever a letter does between and beyond them leads: the A4 at the end of an r, the G5 at the top of an l, the E3 at the bottom of a y. The most common word in English now plays ${theMel}: up a C major arpeggio and back down.</p>
+    <p class="small">${playBtn('Play \u201cthe\u201d', 'the', HOME)} ${playBtn('Play \u201cand\u201d', 'and', HOME)} ${playBtn('Play \u201cyou\u201d', 'you', HOME)}</p>
+
+    <h2><span class="no">IV</span>Spacing is rhythm</h2>
+    <p>Because time runs left to right, every spacing decision a type designer makes is also a rhythmic one. A wide m lasts longer than a narrow i. A word space is a rest. Tracking is the gap between notes, so loosening it slows the music without changing a pitch. Sidebearings are micro-timing: round letters sit closer to their neighbours than straight ones do. A monospaced cut of this face would play like a metronome.</p>
+
+    <h2><span class="no">V</span>Italic rolls the chords</h2>
+    <p>This is the part I am proudest of, and I did not design it. Slanting a typeface shears it, so the top of every stroke moves to the right. Under a reader that moves left to right, further right means later. In an upright l the two ends of the stem sound together. In an italic l the bottom sounds first and the top follows, which is how a harpist rolls a chord. Every stem in the font turns into an upward arpeggio, and a backslant rolls them downward.</p>
+    <figure><div class="fig">${figItalic()}</div>
+      <figcaption><span>Fig. 3. The same word upright and at 13\u00b0.</span><span class="btns">${playBtn('Upright', 'hill', Object.assign({ slant: 0 }, HOME))}${playBtn('Italic', 'hill', Object.assign({ slant: 13 }, HOME))}</span></figcaption></figure>
+
+    <h2><span class="no">VI</span>b, d, p and q are a tone row</h2>
+    <p>Serial composers transform a melody four ways: prime, retrograde (backwards), inversion (upside down) and retrograde inversion (both). The letters b, d, p and q have the same four symmetries. Mirroring b left to right reverses it in time, so d is b played backwards. Flipping b top to bottom turns its melody upside down, measured in scale steps around the middle of the x-height, so p is its inversion. q is both. n and u are another pair.</p>
+    <p>For the inversion to be exact, the descender has to drop as far below the baseline as the ascender rises above the x-height: three strings each. That balance is a classical proportion in type, and here it is also what keeps the mirror honest.</p>
+    <figure><div class="fig">${figRow()}</div>
+      <figcaption><span>Fig. 4. One shape, four forms. The dashed line is the axis of inversion, halfway up the x-height.</span><span class="btns">${playBtn('Play b d p q', 'b d p q', HOME)}${playBtn('n u', 'n u', HOME)}</span></figcaption></figure>
+
+    <h2><span class="no">VII</span>Punctuation is notation</h2>
+    <p>Letters are the notes. Punctuation plays its own small sound and also does what the markings around notes do in a score: rests, cadences, dynamics. Two of the marks needed no translation at all.</p>
+    ${tableMarks()}
+
+    <h2><span class="no">VIII</span>What didn\u2019t work</h2>
+    <p><b style="font-weight:500">Outlines as waveforms.</b> Reading a letter\u2019s contour as one cycle of a wave gives each glyph its own timbre. They all buzz, and letters that look alike sound alike, so nothing could be told apart by ear.</p>
+    <p><b style="font-weight:500">Continuous pitch.</b> Letting pitch follow every curve without settling on strings made each bowl a siren.</p>
+    <p><b style="font-weight:500">Every crossing as a full note.</b> A tall stem crosses nine strings. Sounding all of them at full strength smeared every word. They survive as quiet grace notes on the Ornament control.</p>
+    <p><b style="font-weight:500">Bars placed by eye.</b> A crossbar sitting between two strings never touches either, so it made no sound. Every bar now lies on a string, which meant moving the bar of the e up half a unit and choosing heights for A, E, F and H by ear as well as by eye.</p>
+    <p>Most of these fixes ended up in the drawing. The synthesizer barely changed.</p>
+
+    <h2><span class="no">IX</span>The sound</h2>
+    <p>Plucks are Karplus\u2013Strong strings: a burst of filtered noise circulating in a delay line tuned to the note, with an all-pass filter for exact pitch and a comb filter for where the string is picked. Each pluck is computed when it is scheduled, so no two are identical, and plucking a string again damps the note it was holding, because a real string can only vibrate one way at a time. Bars are a pair of detuned sawtooth oscillators through a low-pass filter that opens as the bow bites, with vibrato arriving late. Dots are two-operator FM bells. The room is a convolution reverb whose impulse response is synthesized noise that darkens as it decays. Weight sets loudness and brightness. Nothing is sampled.</p>
+
+    <div class="credits">
+      <div><h4>Drawn sound</h4><p>Daphne Oram\u2019s Oramics machine read shapes drawn on 35mm film. Iannis Xenakis\u2019s UPIC let composers draw pitch against time. Evgeny Murzin\u2019s ANS synthesizer played marks scratched into a coated glass plate.</p></div>
+      <div><h4>Strings and bells</h4><p>Plucked strings after Kevin Karplus and Alex Strong (1983), with tuning and pick position after David Jaffe and Julius O. Smith. Bells after John Chowning\u2019s FM synthesis.</p></div>
+      <div><h4>The face</h4><p>Drawn for this page from straight lines, elliptical arcs and cubic curves on a grid of twelve strings. Red C strings borrowed from the concert harp.</p></div>
+    </div>
+    <footer class="foot"><a href="#play">Back to the instrument</a><span>Stave</span></footer>`;
+
+    el.addEventListener('click', e => {
+      const b = e.target.closest('[data-play]'); if (!b) return;
+      const o = b.dataset.opts ? JSON.parse(b.dataset.opts) : HOME;
+      window.StaveApp.playText(b.dataset.play, Object.assign({ ornament: 0.35 }, o));
+    });
+  }
+
+  window.StaveNotes = { mount };
+})();
+
+/* ---- app.js ---- */
+/* STAVE - the instrument page. */
+(function () {
+  'use strict';
+  const GL = window.StaveGlyphs, R = window.StaveReader, RD = window.StaveRender, ST = window.StaveStage, AU = window.StaveAudio;
+  const $ = s => document.querySelector(s);
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('stave.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem('stave.' + k, JSON.stringify(v)); } catch (e) { } }
+  };
+
+  const app = window.StaveApp = {
+    opts: Object.assign({ scale: 'bright', key: 0, tracking: 0.35, slant: 0, ornament: 0.45, weight: 0.5, tempo: 22, room: 0.4 }, store.get('opts', {})),
+    engine: null,
+    ensureAudio() {
+      if (!this.engine) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { }
+        const ctx = new AC({ latencyHint: 'interactive' });
+        this.engine = new AU.Engine(ctx);
+        this.engine.setRoom(this.opts.room);
+      }
+      if (this.engine.ctx.state !== 'running') this.engine.ctx.resume();
+      const w = $('#wake'); if (w) w.style.opacity = 0;
+      return this.engine;
+    },
+    now() { return this.engine ? this.engine.ctx.currentTime : performance.now() / 1000; }
+  };
+  const player = app.player = new ST.Player(app);
+  // any first gesture wakes the audio (iOS only counts some of them)
+  ['pointerup', 'touchend', 'keydown', 'click'].forEach(ev => document.addEventListener(ev, () => { if (!app.engine || app.engine.ctx.state !== 'running') app.ensureAudio(); }, { passive: true }));
+
+  // play one sequenced item (a glyph typed or tapped) starting now
+  function playItem(stage, idx, delay) {
+    const eng = app.ensureAudio(); if (!eng) return;
+    const seq = stage.seq, it = seq.items[idx]; if (!it || it.type !== 'glyph') return;
+    const unit = 1 / app.opts.tempo, t0 = eng.ctx.currentTime + 0.012 + (delay || 0);
+    seq.events.forEach(e => {
+      if (e.item !== idx) return;
+      const ee = Object.assign({}, e);
+      if (e.type === 'bow') ee.dur = (e.u2 - e.u) * unit;
+      const t = t0 + Math.max(0, e.u - it.u0) * unit;
+      eng.schedule(ee, t, stage.pan(idx, e.gx));
+      stage.addRipple(t, ee, idx);
+    });
+  }
+  app.playItem = playItem;
+
+  if (!/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)) { const k = document.querySelector('.hint kbd'); if (k) k.textContent = 'Ctrl'; }
+
+  // ---- wordmark -----------------------------------------------------------------------
+  function wordmark(text, U, strings) {
+    const t = RD.svgText(text, U, { tracking: 0.3, pad: U * 0.6, weight: 0.8 });
+    const h = (R.STR_HI - R.STR_LO + 1.6) * U;
+    const oy = (R.STR_HI + 0.8) * U;
+    const t2 = RD.svgText(text, U, { tracking: 0.3, pad: U * 0.6, weight: 0.8, oy });
+    const s = strings ? RD.svgStrings(0, t2.width, oy, U) : '';
+    return `<svg viewBox="0 0 ${t2.width.toFixed(1)} ${h.toFixed(1)}" role="img" aria-label="${text}">${s}${t2.svg}</svg>`;
+  }
+  $('#wordmark').innerHTML = wordmark('Stave', 4, true);
+  app.wordmark = wordmark;
+
+  // ---- main stage ----------------------------------------------------------------------
+  const ta = $('#ta');
+  const stage = new ST.Stage($('#stage-canvas'), app, { editable: true, minLines: 2 });
+  app.stage = stage;
+  const savedText = store.get('text', null);
+  if (savedText != null && savedText.length) ta.value = savedText;
+  stage.setText(ta.value);
+  let prev = ta.value, composing = false;
+  const cpIndex = (str, cu) => Array.from(str.slice(0, cu)).length;
+  function syncCaret() { stage.caret = cpIndex(ta.value, ta.selectionStart); stage.selEnd = cpIndex(ta.value, ta.selectionEnd); }
+  ta.addEventListener('compositionstart', () => { composing = true; });
+  ta.addEventListener('compositionend', () => { composing = false; });
+  ta.addEventListener('input', () => {
+    const now = ta.value;
+    let a = 0; while (a < prev.length && a < now.length && prev[a] === now[a]) a++;
+    let b = 0; while (b < prev.length - a && b < now.length - a && prev[prev.length - 1 - b] === now[now.length - 1 - b]) b++;
+    const inserted = now.slice(a, now.length - b), removed = prev.length - a - b;
+    prev = now;
+    stage.setText(now); syncCaret();
+    store.set('text', now);
+    if (composing) return;
+    if (removed > 0 && !inserted.length) { const e = app.ensureAudio(); if (e) e.damp(e.ctx.currentTime); return; }
+    if (inserted.length >= 1 && inserted.length <= 4) {
+      const start = cpIndex(now, a), n = Array.from(inserted).length;
+      for (let k = 0; k < n; k++) playItem(stage, start + k, k * 0.09);
+    }
+  });
+  ['keyup', 'click', 'select', 'focus'].forEach(ev => ta.addEventListener(ev, syncCaret));
+  document.addEventListener('selectionchange', () => { if (document.activeElement === ta) syncCaret(); });
+  ta.addEventListener('focus', () => { stage.focused = true; });
+  ta.addEventListener('blur', () => { stage.focused = false; });
+  ta.addEventListener('pointerdown', () => app.ensureAudio());
+  ta.addEventListener('pointerup', e => {
+    const r = ta.getBoundingClientRect();
+    const ci = stage.indexAt(e.clientX - r.left, e.clientY - r.top);
+    const chars = Array.from(ta.value);
+    const cu = chars.slice(0, ci).join('').length;
+    requestAnimationFrame(() => { if (ta.selectionStart === ta.selectionEnd) { ta.setSelectionRange(cu, cu); syncCaret(); } });
+  });
+  ta.addEventListener('keydown', e => {
+    app.ensureAudio();
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); togglePlay(); }
+    if (e.key === 'Escape') { player.stop(); setPlaying(false); }
+  });
+
+  const btnPlay = $('#btn-play');
+  function setPlaying(on) { btnPlay.querySelector('span').textContent = on ? 'Stop' : 'Play line'; btnPlay.querySelector('path').setAttribute('d', on ? 'M2 2h8v8H2z' : 'M2 1l9 5-9 5z'); }
+  function togglePlay() {
+    app.ensureAudio();
+    if (player.active && player.active.stage === stage) { player.stop(); setPlaying(false); return; }
+    setLoop(false);
+    player.play(stage, { onDone: () => setPlaying(false) });
+    setPlaying(true);
+  }
+  btnPlay.addEventListener('click', togglePlay);
+  $('#btn-clear').addEventListener('click', () => {
+    ta.value = ''; prev = ''; stage.setText(''); store.set('text', ''); player.stop(); setPlaying(false);
+    if (app.engine) app.engine.damp(app.engine.ctx.currentTime);
+    ta.focus();
+  });
+
+  // views
+  function setView(v) {
+    stage.view = v; nameStage.view = v;
+    $('#view-read').setAttribute('aria-pressed', v === 'read');
+    $('#view-score').setAttribute('aria-pressed', v === 'score');
+  }
+  $('#view-read').addEventListener('click', () => setView('read'));
+  $('#view-score').addEventListener('click', () => setView('score'));
+
+  // example lines
+  const EXAMPLES = [
+    'the quick brown fox jumps over the lazy dog.',
+    'Where are you going?',
+    'Hello, world!',
+    '(quietly) and then \u2014 silence...',
+    '\u201cHi,\u201d she said. \u201cHi!\u201d',
+    'bdpq qpdb',
+    '<swell and >fade',
+    'Typing should be playing.'
+  ];
+  const chips = $('#chips');
+  EXAMPLES.forEach(t => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = t;
+    b.addEventListener('click', () => {
+      ta.value = t; prev = t; stage.setText(t); store.set('text', t);
+      app.ensureAudio(); setLoop(false);
+      player.play(stage, { onDone: () => setPlaying(false) }); setPlaying(true);
+    });
+    chips.appendChild(b);
+  });
+
+  // ---- controls --------------------------------------------------------------------------
+  const KEYS = ['C', 'C\u266f', 'D', 'E\u266d', 'E', 'F', 'F\u266f', 'G', 'A\u266d', 'A', 'B\u266d', 'B'];
+  const keySel = $('#k-key');
+  KEYS.forEach((k, i) => { const o = document.createElement('option'); o.value = i <= 6 ? i : i - 12; o.textContent = 'Key of ' + k; keySel.appendChild(o); });
+  keySel.value = app.opts.key;
+  const fmt = {
+    weight: v => ['Light', 'Book', 'Regular', 'Medium', 'Bold'][Math.min(4, Math.floor(v * 5))] + ' \u00b7 ' + (v < 0.2 ? 'pp' : v < 0.4 ? 'p' : v < 0.6 ? 'mf' : v < 0.8 ? 'f' : 'ff'),
+    slant: v => (v > 0 ? '+' : '') + (+v).toFixed(1) + '\u00b0',
+    tracking: v => (v >= 0 ? '+' : '') + (+v).toFixed(2) + ' u',
+    tempo: v => Math.round(v) + ' u/s \u00b7 ' + Math.round(v * 60 / 6.1) + ' letters/min',
+    ornament: v => v < 0.05 ? 'melody only' : Math.round(v * 100) + '%',
+    room: v => v < 0.15 ? 'dry' : v < 0.5 ? 'room' : v < 0.8 ? 'chapel' : 'hall'
+  };
+  function relayoutAll() { stage.relayout(); nameStage.relayout(); renderNameRoll(); renderDetail(); store.set('opts', app.opts); }
+  ['weight', 'slant', 'tracking', 'tempo', 'ornament', 'room'].forEach(k => {
+    const el = $('#k-' + k), out = $('#v-' + k);
+    el.value = app.opts[k];
+    const upd = () => { app.opts[k] = +el.value; out.textContent = fmt[k](+el.value); };
+    upd();
+    el.addEventListener('input', () => {
+      upd();
+      if (k === 'room') { if (app.engine) app.engine.setRoom(app.opts.room); store.set('opts', app.opts); return; }
+      if (k === 'tempo') { store.set('opts', app.opts); return; }
+      relayoutAll();
+    });
+    el.addEventListener('change', () => { if (k !== 'room' && k !== 'tempo') previewKnob(); });
+  });
+  // after letting go of a type control, play a short phrase so the change is audible
+  function previewKnob() {
+    if (!app.engine || player.active) return;
+    const t = Array.from(stage.text).slice(0, 14).join('');
+    if (!t.trim()) return;
+    playItemsQuick(stage, 14);
+  }
+  function playItemsQuick(st, n) {
+    const eng = app.ensureAudio(); if (!eng) return;
+    const unit = 1 / app.opts.tempo, t0 = eng.ctx.currentTime + 0.05;
+    const lim = st.seq.items[Math.min(n, st.seq.items.length) - 1];
+    if (!lim) return;
+    st.seq.events.forEach(e => {
+      if (e.item >= n) return;
+      const ee = Object.assign({}, e); if (e.type === 'bow') ee.dur = (e.u2 - e.u) * unit;
+      const t = t0 + e.u * unit; eng.schedule(ee, t, st.pan(e.item, e.gx)); st.addRipple(t, ee, e.item);
+    });
+  }
+  const segScale = $('#seg-scale');
+  function setScale(s) {
+    app.opts.scale = s;
+    segScale.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.scale === s));
+    $('#v-scale').textContent = R.SCALES[s].note;
+  }
+  segScale.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { setScale(b.dataset.scale); relayoutAll(); app.ensureAudio(); playItemsQuick(stage, 14); }));
+  setScale(app.opts.scale);
+  keySel.addEventListener('change', () => { app.opts.key = +keySel.value; relayoutAll(); app.ensureAudio(); playItemsQuick(stage, 14); });
+
+  // ---- your name -------------------------------------------------------------------------
+  const nameIn = $('#name');
+  nameIn.value = store.get('name', 'Greg');
+  const nameStage = new ST.Stage($('#name-canvas'), app, { editable: false, fit: true, minLines: 1, maxU: 13, minU: 3, optsOverride: { ornament: 0.15 } });
+  app.nameStage = nameStage;
+  nameStage.setText(nameIn.value);
+  let loopOn = false;
+  const btnLoop = $('#btn-loop');
+  function setLoop(on) { loopOn = on; btnLoop.setAttribute('aria-pressed', on); }
+  function playName() {
+    app.ensureAudio(); setPlaying(false);
+    player.play(nameStage, { tempoScale: 0.82, cadence: true, loop: () => loopOn, onDone: () => { } });
+  }
+  $('#btn-name').addEventListener('click', playName);
+  btnLoop.addEventListener('click', () => { setLoop(!loopOn); if (loopOn && !(player.active && player.active.stage === nameStage)) playName(); });
+  nameIn.addEventListener('input', () => { nameStage.setText(nameIn.value); renderNameRoll(); store.set('name', nameIn.value); });
+  nameIn.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); playName(); } });
+
+  function renderNameRoll() {
+    const mel = R.melody(nameIn.value || ' ', Object.assign({}, app.opts, { ornament: 0 }));
+    const box = $('#name-roll'), line = $('#name-notes');
+    if (!mel.length) { box.innerHTML = ''; line.textContent = 'Type a name to hear its tune.'; return; }
+    const lo = R.STR_LO, hi = R.STR_HI;
+    const maxU = Math.max(10, mel[mel.length - 1].u + 3);
+    const W = Math.max(300, box.clientWidth || 640), U = W < 500 ? 6 : 7.5, sx = (W - 60) / maxU, H = (hi - lo + 2) * U + 16;
+    const Y = s => (hi + 1 - s) * U;
+    let s = '';
+    for (let k = lo; k <= hi; k++) {
+      const tonic = ((k % 5) + 5) % 5 === 0;
+      s += `<line x1="40" x2="${W}" y1="${Y(k)}" y2="${Y(k)}" class="str${tonic ? ' str-c' : ''}"/>`;
+    }
+    [-3, 0, 5, 8].forEach(k => { s += `<text x="34" y="${Y(k) + 3}" text-anchor="end" class="svg-label${((k % 5) + 5) % 5 === 0 ? ' c' : ''}">${R.midiName(R.stringMidi(k, app.opts.scale, app.opts.key))}</text>`; });
+    const pts = mel.map(n => [50 + n.u * sx, Y(n.s == null ? 0 : n.s)]);
+    s += `<polyline points="${pts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ')}" class="svg-brass"/>`;
+    mel.forEach((n, i) => {
+      const [x, y] = pts[i];
+      s += n.type === 'bow' ? `<rect x="${(x - 5).toFixed(1)}" y="${(y - 2.5).toFixed(1)}" width="10" height="5" rx="2.5" class="fill-brass"/>`
+        : n.type === 'bell' ? `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="none" stroke-width="1.6" class="sc-bell"/>`
+          : `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" class="fill-brass"/>`;
+    });
+    // letters under their notes
+    const seen = new Set();
+    mel.forEach((n, i) => { if (seen.has(n.item)) return; seen.add(n.item); s += `<text x="${pts[i][0].toFixed(1)}" y="${H - 2}" class="svg-label" text-anchor="middle">${n.ch.replace(/[<&>]/g, '')}</text>`; });
+    box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Melody of ${nameIn.value.replace(/"/g, '')}">${s}</svg>`;
+    const names = mel.map(n => R.midiName(n.midi));
+    line.innerHTML = names.map((nm, i) => i === 0 ? `<b>${nm}</b>` : nm).join(' \u00b7 ');
+  }
+  renderNameRoll();
+
+  // ---- the full set ---------------------------------------------------------------------
+  const SETS = [
+    ['Lowercase', 'abcdefghijklmnopqrstuvwxyz'],
+    ['Capitals', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'],
+    ['Figures', '0123456789'],
+    ['Punctuation and marks', '.,;:!?\'"`-\u2013\u2014()[]{}/\\|_&@#*+=%$~<>^\u2018\u2019\u201c\u201d\u2026']
+  ];
+  const SEM = {
+    '.': 'Full stop: a tonic cadence, then a rest. Two or more dots fade instead.',
+    ',': 'A breath: two units of rest.', ';': 'A longer breath: three units of rest.', ':': 'A pause before what follows.',
+    '!': 'Sforzando: its own notes louder and brighter, and a fuller cadence.',
+    '?': 'A half cadence on the dominant, with the second degree left hanging.',
+    '(': 'Opens a mute: everything inside plays softly and darker.', ')': 'Closes the mute.',
+    '"': 'Toggles a second voice: quoted text sounds an octave higher.', '\u201c': 'Opens a second voice, an octave higher.', '\u201d': 'Closes the second voice.',
+    '\u2014': 'A held, bowed tone.', '-': 'A short bowed tone that ties two words.', '\u2013': 'A bowed tone, half the length of the em dash.',
+    "'": 'A grace note.', '\u2019': 'A grace note.', '\u2018': 'A grace note.',
+    '<': 'Crescendo: the next word swells.', '>': 'Decrescendo: the next word fades.', '^': 'Marcato: the next glyph is accented.',
+    '\u2026': 'Three bells, each quieter, and no cadence.'
+  };
+  const roleName = { terminal: 'stroke ends', crest: 'crest', trough: 'trough', stem: 'stem end', joint: 'joint', bar: 'bar, bowed', dot: 'dot, bell' };
+  const tiles = $('#tiles');
+  let selected = 'a';
+  const tileU = 4.4;
+  SETS.forEach(([title, chars]) => {
+    const h = document.createElement('h4'); h.textContent = title; tiles.appendChild(h);
+    Array.from(chars).forEach(ch => {
+      const g = GL.glyphFor(ch); if (!g) return;
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'tile'; b.dataset.ch = ch;
+      b.setAttribute('aria-label', 'Play ' + (ch === ' ' ? 'space' : ch));
+      const W = 54, H = 70, U = tileU, oy = 8.6 * U + 6;
+      const ox = (W - g.adv * U) / 2;
+      b.innerHTML = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">${RD.svgStrings(2, W - 2, oy, U)}${RD.svgGlyph(g, ox, oy, U, { weight: 0.75 })}${RD.svgScore(g, ox, oy, U)}</svg>`;
+      b.addEventListener('click', () => { selected = ch; renderDetail(); playGlyph(ch); tiles.querySelectorAll('.tile').forEach(t => t.setAttribute('aria-pressed', t === b)); });
+      tiles.appendChild(b);
+    });
+  });
+  const counts = SETS.map(s => Array.from(s[1]).filter(c => GL.glyphFor(c)).length);
+  $('#set-count').textContent = `${counts[0] + counts[1]} letters, ${counts[2]} figures and ${counts[3]} marks.`;
+
+  const glyphStage = { seq: null, lay: null, pan: () => 0, addRipple() { } };
+  function playGlyph(ch) {
+    const eng = app.ensureAudio(); if (!eng) return;
+    const seq = R.sequence(ch, app.opts);
+    const unit = 1 / app.opts.tempo, t0 = eng.ctx.currentTime + 0.02;
+    seq.events.forEach(e => {
+      const ee = Object.assign({}, e); if (e.type === 'bow') ee.dur = (e.u2 - e.u) * unit;
+      eng.schedule(ee, t0 + e.u * unit, ((e.gx || 0) / 6) - 0.3);
+    });
+  }
+  app.playGlyph = playGlyph;
+  app.playText = function (text, o) {
+    const eng = app.ensureAudio(); if (!eng) return 0;
+    const seq = R.sequence(text, Object.assign({}, app.opts, o || {}));
+    const unit = 1 / (app.opts.tempo * ((o && o.tempoScale) || 1)), t0 = eng.ctx.currentTime + 0.05;
+    seq.events.forEach(e => {
+      const ee = Object.assign({}, e); if (e.type === 'bow') ee.dur = (e.u2 - e.u) * unit;
+      eng.schedule(ee, t0 + e.u * unit, Math.max(-0.6, Math.min(0.6, (e.u / Math.max(8, seq.totalU)) * 1.2 - 0.6)));
+    });
+    return seq.totalU * unit;
+  };
+
+  function renderDetail() {
+    const ch = selected, g = GL.glyphFor(ch); if (!g) return;
+    const r = R.readGlyph(g);
+    const U = 13, oy = 9 * U + 8;
+    const W = Math.max(150, g.adv * U + 60), H = 12.6 * U + 16, ox = (W - g.adv * U) / 2 + 8;
+    const tan = Math.tan(app.opts.slant * Math.PI / 180);
+    let s = RD.svgStrings(26, W - 4, oy, U);
+    [-3, 0, 5, 7, 8].forEach(k => { s += `<text x="22" y="${oy - k * U + 3}" text-anchor="end" class="svg-label${((k % 5) + 5) % 5 === 0 ? ' c' : ''}">${R.midiName(R.stringMidi(k, app.opts.scale, app.opts.key))}</text>`; });
+    s += RD.svgGlyph(g, ox, oy, U, { weight: 0.72, slant: app.opts.slant, cls: 'ink faint' });
+    s += RD.svgScore(g, ox, oy, U, { ghosts: true, slant: app.opts.slant });
+    const name = k => R.midiName(R.stringMidi(k, app.opts.scale, app.opts.key));
+    const list = [];
+    r.main.forEach(e => list.push({ x: R.shearX(e.x, e.y, tan), html: `${roleName[e.role] || e.role} <span class="note${e.drone ? ' drone' : ''}">${name(e.s)}</span>${e.drone ? ' <span class="drone">drone</span>' : ''}` }));
+    r.bows.forEach(b => list.push({ x: R.shearX(b.x, b.s, tan), html: `bar, bowed <span class="note">${name(b.s)}</span>` }));
+    r.bells.forEach(b => list.push({ x: R.shearX(b.x, b.y, tan), html: `dot, bell <span class="note">${name(b.s)}</span>` }));
+    list.sort((a, b) => a.x - b.x);
+    const glyphLabel = ch === ' ' ? 'space' : ch;
+    $('#detail').innerHTML = `<div class="label">Glyph \u00b7 <span class="mono" style="color:var(--ink);text-transform:none;font-size:13px">${glyphLabel.replace(/[<&>]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' })[c])}</span> \u00b7 ${g.adv.toFixed(1)} units wide</div>
+      <svg viewBox="0 0 ${W} ${H}" aria-hidden="true">${s}</svg>
+      <ol>${list.map(l => `<li>${l.html}</li>`).join('')}</ol>
+      <p class="label" style="margin:0">${r.ghosts.length} grace notes where strokes cross strings</p>
+      ${SEM[ch] ? `<p class="sem">${SEM[ch]}</p>` : ''}
+      <button class="btn sm" type="button" id="detail-play">Play again</button>`;
+    $('#detail-play').addEventListener('click', () => playGlyph(ch));
+  }
+  renderDetail();
+
+  // ---- routing ----------------------------------------------------------------------------
+  function route() {
+    const notes = location.hash === '#notes';
+    $('#view-play').hidden = notes; $('#view-notes').hidden = !notes;
+    $('#tab-play').toggleAttribute('aria-current', !notes); $('#tab-notes').toggleAttribute('aria-current', notes);
+    if (notes) { $('#tab-notes').setAttribute('aria-current', 'page'); if (window.StaveNotes) window.StaveNotes.mount(); }
+    else { $('#tab-play').setAttribute('aria-current', 'page'); requestAnimationFrame(() => { stage.relayout(); nameStage.relayout(); }); }
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', route);
+  route();
+
+  // ---- theme & resize ----------------------------------------------------------------------
+  const retheme = () => { stage.theme = ST.readTheme(); nameStage.theme = ST.readTheme(); };
+  if (window.matchMedia) { const mq = matchMedia('(prefers-color-scheme: dark)'); (mq.addEventListener ? mq.addEventListener('change', retheme) : mq.addListener(retheme)); }
+  new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] });
+  let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { stage.relayout(); nameStage.relayout(); renderNameRoll(); }, 80); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { stage.theme = ST.readTheme(); });
+
+  // ---- frame loop ----------------------------------------------------------------------------
+  function frame() {
+    const now = app.now();
+    [stage, nameStage].forEach(st => {
+      if (!st.cv.offsetParent) return;
+      st.playhead = (player.active && player.active.stage === st) ? player.position(now) : null;
+      st.draw(now);
+    });
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+</script>
+
+</body></html>

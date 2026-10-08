@@ -1,0 +1,2751 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Merrow Pocket Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=IM+Fell+English+SC&family=IM+Fell+English:ital@1&display=swap">
+<style>
+/* Layout: a full-bleed desk with the sheet on it; instruments sit at the edges like tools on a blotter. */
+:root {
+  --desk: #1c1511;
+  --ink: #f1e6cc;
+  --ink-dim: #b9a888;
+  --chrome: rgba(24, 31, 36, 0.86);
+  --chrome-line: rgba(233, 217, 168, 0.18);
+  --brass: #d9b45a;
+  --teal: #2c6a78;
+  --red: #c4473b;
+  --display: "IM Fell English SC", "EB Garamond", Garamond, serif;
+  --body: "Alegreya Sans", "Gill Sans", "Trebuchet MS", sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { margin: 0; background: var(--desk); color: var(--ink); font-family: var(--body); overflow: hidden; -webkit-font-smoothing: antialiased; }
+#scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+#scene.over-paper { cursor: pointer; }
+#scene.dragging { cursor: grabbing; }
+
+.chrome { background: var(--chrome); border: 1px solid var(--chrome-line); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+
+#brand { position: fixed; top: calc(14px + env(safe-area-inset-top, 0px)); left: 16px; padding: 10px 14px 9px; max-width: min(360px, calc(100vw - 32px)); pointer-events: none; }
+#brand h1 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 22px; letter-spacing: 0.16em; line-height: 1; }
+#brand p { margin: 5px 0 0; color: var(--ink-dim); font-size: 13.5px; line-height: 1.35; }
+#brand p b { color: var(--ink); font-weight: 500; }
+
+#topright { position: fixed; top: calc(14px + env(safe-area-inset-top, 0px)); right: 16px; display: flex; gap: 8px; }
+
+#toolbar { position: fixed; left: 50%; transform: translateX(-50%); width: max-content; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 4px; padding: 6px; flex-wrap: wrap; justify-content: center; max-width: calc(100vw - 32px); }
+.sep { width: 1px; align-self: stretch; background: var(--chrome-line); margin: 4px 4px; }
+button { font: inherit; color: var(--ink); background: transparent; border: 1px solid transparent; border-radius: 7px; padding: 7px 11px; font-size: 14px; letter-spacing: 0.01em; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; line-height: 1; min-height: 34px; }
+button:hover { background: rgba(233, 217, 168, 0.08); }
+button:focus-visible { outline: 2px solid var(--brass); outline-offset: 1px; }
+button[aria-pressed="true"] { background: rgba(217, 180, 90, 0.16); border-color: rgba(217, 180, 90, 0.45); }
+button:disabled { opacity: 0.4; cursor: default; }
+button kbd { font-family: var(--body); font-size: 11px; color: var(--ink-dim); border: 1px solid var(--chrome-line); border-radius: 4px; padding: 1px 4px; }
+.crease-icon { width: 26px; height: 10px; display: inline-block; }
+.btn-primary { background: var(--brass); color: #1b1408; font-weight: 700; padding: 10px 18px; border-radius: 8px; }
+.btn-primary:hover { background: #e6c46d; }
+
+#lamp { position: fixed; bottom: calc(70px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); padding: 12px 14px; width: min(320px, calc(100vw - 32px)); }
+#lamp label { display: grid; grid-template-columns: 82px 1fr; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-dim); margin: 6px 0; }
+#lamp input[type=range] { width: 100%; accent-color: var(--brass); }
+#lamp .row { display: flex; gap: 6px; margin-top: 6px; }
+
+#intro { position: fixed; left: 50%; bottom: calc(80px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); padding: 14px 18px; text-align: center; width: min(420px, calc(100vw - 32px)); }
+#intro h2 { margin: 0 0 4px; font-family: var(--display); font-weight: 400; font-size: 18px; letter-spacing: 0.12em; }
+#intro p { margin: 0 0 12px; color: var(--ink-dim); font-size: 14px; line-height: 1.4; }
+
+#toast { position: fixed; left: 50%; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: max-content; padding: 8px 14px; font-size: 14px; opacity: 0; transition: opacity 0.25s; pointer-events: none; max-width: calc(100vw - 32px); text-align: center; }
+#toast.show { opacity: 1; }
+
+#tip { position: fixed; pointer-events: none; padding: 5px 9px; font-size: 13px; border-radius: 6px; background: rgba(20, 24, 28, 0.88); border: 1px solid var(--chrome-line); color: var(--ink); white-space: nowrap; transform: translate(14px, 14px); display: none; }
+#tip .no { color: #f0a090; }
+#tip svg { vertical-align: -1px; margin-right: 6px; }
+
+.drawer { position: fixed; top: calc(62px + env(safe-area-inset-top, 0px)); right: 16px; width: min(380px, calc(100vw - 32px)); max-height: calc(100% - 150px); overflow: auto; padding: 16px 18px; }
+.drawer h2 { margin: 0 0 8px; font-family: var(--display); font-weight: 400; font-size: 18px; letter-spacing: 0.1em; }
+.drawer h3 { margin: 16px 0 6px; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brass); font-weight: 700; }
+.drawer p, .drawer li { font-size: 14.5px; line-height: 1.5; color: var(--ink); margin: 0 0 8px; }
+.drawer ul { padding-left: 18px; margin: 0; }
+.drawer .dim { color: var(--ink-dim); }
+.hint { border-top: 1px solid var(--chrome-line); padding: 8px 0; }
+.hint button { padding: 4px 0; color: var(--brass); }
+.hint p { margin: 4px 0 0; }
+.spoiler[hidden] { display: none !important; }
+.close { position: absolute; top: 10px; right: 10px; padding: 4px 8px; min-height: 0; color: var(--ink-dim); }
+
+#reveal { position: fixed; right: 16px; top: calc(62px + env(safe-area-inset-top, 0px)); width: min(360px, calc(100vw - 32px)); padding: 16px 18px; border-color: rgba(217, 180, 90, 0.5); }
+#reveal h2 { margin: 0 0 6px; font-family: var(--display); font-weight: 400; font-size: 22px; letter-spacing: 0.08em; color: #f6d27a; }
+#reveal p { margin: 0 0 10px; font-size: 14.5px; line-height: 1.5; }
+#reveal .row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+#loading { position: fixed; inset: 0; display: grid; place-items: center; background: var(--desk); z-index: 10; transition: opacity 0.5s; }
+#loading div { text-align: center; }
+#loading h1 { font-family: var(--display); font-weight: 400; letter-spacing: 0.2em; font-size: 28px; margin: 0 0 8px; }
+#loading p { color: var(--ink-dim); margin: 0; font-size: 15px; }
+#loading.gone { opacity: 0; pointer-events: none; }
+#nogl { position: fixed; inset: 0; display: none; place-items: center; padding: 24px; text-align: center; }
+
+button .short { display: none; }
+@media (max-width: 640px) {
+  button .long { display: none; }
+  button .short { display: inline; }
+  #toolbar kbd { display: none; }
+  #brand h1 { font-size: 18px; }
+  #brand p { display: none; }
+  #toolbar button span.lbl { display: none; }
+  #toolbar { gap: 2px; }
+  button { padding: 7px 8px; }
+  .drawer { top: auto; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); max-height: 60%; }
+  #reveal { top: auto; bottom: calc(130px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (prefers-reduced-motion: reduce) { #toast, #loading { transition: none; } }
+
+</style>
+<canvas id="scene" aria-label="A folding paper street plan of the invented city of Merrow, lying on a desk"></canvas>
+
+<div id="loading"><div><h1>MERROW</h1><p>Printing the plan&hellip;</p></div></div>
+<div id="nogl" class="chrome"><p>This plan needs WebGL to fold. Try a current desktop browser.</p></div>
+
+<header id="brand" class="chrome">
+  <h1>MERROW</h1>
+  <p id="status">A pocket plan in thirty-two panels. <b>Somewhere in its folds is a walk the city forgot.</b></p>
+</header>
+
+<div id="topright">
+  <button id="btnHelp" class="chrome" aria-expanded="false" title="How to fold"><span class="long">How to fold</span><span class="short" aria-hidden="true">?</span></button>
+  <button id="btnKey" class="chrome" aria-expanded="false" title="Hints and the answer"><span class="long">Cartographer&rsquo;s key</span><span class="short">Key</span></button>
+</div>
+
+<div id="intro" class="chrome">
+  <h2>FOLDED AS BOUGHT</h2>
+  <p>Drag the cover downward to open it panel by panel, or let it fall open.</p>
+  <button id="btnOpen" class="btn-primary">Open the map</button>
+</div>
+
+<nav id="toolbar" class="chrome" aria-label="Folding tools">
+  <button id="mValley" aria-pressed="true" title="Valley fold: paper comes toward you (V)">
+    <svg class="crease-icon" viewBox="0 0 26 10" aria-hidden="true"><line x1="1" y1="5" x2="25" y2="5" stroke="currentColor" stroke-width="1.6" stroke-dasharray="4 2.6"/></svg><span class="lbl">Valley</span> <kbd>V</kbd></button>
+  <button id="mMountain" aria-pressed="false" title="Mountain fold: paper goes behind (M, or hold Shift)">
+    <svg class="crease-icon" viewBox="0 0 26 10" aria-hidden="true"><line x1="1" y1="5" x2="25" y2="5" stroke="currentColor" stroke-width="1.6" stroke-dasharray="6 2 1.4 2"/></svg><span class="lbl">Mountain</span> <kbd>M</kbd></button>
+  <span class="sep"></span>
+  <button id="btnUndo" title="Undo the last fold (Z)"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3 2 6l3 3M2.5 6H10a4 4 0 0 1 0 8H7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span class="lbl">Undo</span></button>
+  <button id="btnUnfold" title="Unfold everything"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 3.5 5.5 2l5 1.5 4-1.5v10.5l-4 1.5-5-1.5-4 1.5zM5.5 2v10.5M10.5 3.5V14" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span class="lbl">Unfold</span></button>
+  <button id="btnTurn" title="Turn the sheet over (T)"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2h7l3 3v9H3z M10 2v3h3" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6 9.5h4M8.5 8l1.5 1.5L8.5 11" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span class="lbl">Turn over</span></button>
+  <button id="btnAround" title="Spin the sheet half a turn on the desk (R)"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2v3h-3" fill="none" stroke="currentColor" stroke-width="1.4"/></svg><span class="lbl">Turn around</span></button>
+  <span class="sep"></span>
+  <button id="btnLamp" aria-expanded="false" title="Move the lamp"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 7h8l-2-5H6z M8 7v6 M5 14h6" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span class="lbl">Lamp</span></button>
+  <button id="btnSound" aria-pressed="true" title="Paper sounds"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10l-4-3H2z M11 5.5a3.5 3.5 0 0 1 0 5" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span class="lbl">Sound</span></button>
+  <button id="btnFrame" title="Fit the sheet to the window (F)"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5V2h3M11 2h3v3M14 11v3h-3M5 14H2v-3" fill="none" stroke="currentColor" stroke-width="1.4"/></svg><span class="lbl">Fit</span></button>
+</nav>
+
+<div id="lamp" class="chrome" hidden>
+  <label for="lampAz">Direction <input id="lampAz" type="range" min="0" max="360" value="135"></label>
+  <label for="lampEl">Height <input id="lampEl" type="range" min="6" max="85" value="38"></label>
+  <div class="row"><button id="lampRake">Raking light</button><button id="lampHigh">Overhead</button><button id="lampReset">Desk lamp</button></div>
+</div>
+
+<div id="toast" class="chrome" role="status" aria-live="polite"></div>
+<div id="tip"></div>
+
+<aside id="help" class="drawer chrome" hidden>
+  <button class="close" data-close="help" aria-label="Close">&times;</button>
+  <h2>HOW TO FOLD</h2>
+  <ul>
+    <li>Press on a panel and drag it across one of the scored creases. Let go past halfway and it folds.</li>
+    <li><b>Valley</b> brings the flap over toward you; <b>mountain</b> sends it behind. Press V or M, or hold Shift while dragging to swap.</li>
+    <li>You lift what is on top. A valley fold carries everything lying on the flap; a mountain fold carries everything under it. Paper never passes through paper.</li>
+    <li>Turn over (T) to read the reverse. Turn around (R) spins the sheet on the desk.</li>
+    <li>Z undoes a fold. Creases stay in the paper after you undo them, as they would.</li>
+    <li>Scroll or pinch to zoom. Drag the desk to slide the map. Right-drag to tilt and look along the folds.</li>
+  </ul>
+  <p class="dim">Lower the lamp to read the creases by raking light.</p>
+</aside>
+
+<aside id="key" class="drawer chrome" hidden>
+  <button class="close" data-close="key" aria-label="Close">&times;</button>
+  <h2>CARTOGRAPHER&rsquo;S KEY</h2>
+  <p class="dim">Hints open one at a time. The answer is below them.</p>
+  <div class="hint"><button data-hint="h1">Hint 1</button><p id="h1" class="spoiler" hidden>The legend lists one symbol you never see whole on the open plan. The street index on the reverse still gives it four squares.</p></div>
+  <div class="hint"><button data-hint="h2">Hint 2</button><p id="h2" class="spoiler" hidden>The rhyme in the corner names five lanes. Find each one. Every one of them meets a street that runs exactly along a crease.</p></div>
+  <div class="hint"><button data-hint="h3">Hint 3</button><p id="h3" class="spoiler" hidden>Two boundaries run dead straight along the scored lines. The reverse explains how the printers mark a fold, and the legend draws the boundaries the same way.</p></div>
+  <div class="hint"><button data-hint="h4">Hint 4</button><p id="h4" class="spoiler" hidden>Four quarters of one round court sit at four junctions in four parishes. Make them touch.</p></div>
+  <h3>The answer</h3>
+  <button data-hint="sol">Show the answer</button>
+  <div id="sol" class="spoiler" hidden>
+    <p>Pleat out columns D and E: mountain along the parish line (C|D), valley along the ward line (D|E). Then pleat out rows 2 and 3 the same way: mountain along the parish line under North Parade, valley along the river. Half the city disappears, and the round runs from Holloway &amp; Pike&rsquo;s door through Wick Lane, Tallow Passage, Taper Row, Chandlers Mews and Ember Steps to Lantern Court.</p>
+    <button id="btnSolve" class="btn-primary">Fold it for me</button>
+  </div>
+  <h3>The false lead</h3>
+  <button data-hint="decoy">Show the false lead</button>
+  <div id="decoy" class="spoiler" hidden>
+    <p>The Lantern on the open plan is a pub. Pleat out columns C and D and Wick Lane runs straight on into Gaslight Row and Mantle Lane, and the pub&rsquo;s half-round closes up with a half-round beer garden from across the sheet. A perfect circle at the end of a perfect street. The rhyme never mentions gas.</p>
+    <button id="btnDecoy">Fold the false lead</button>
+  </div>
+  <h3>How the page knows</h3>
+  <p class="dim">After every fold it checks the real stack of paper: every point along the round, and around the court, has to be face up, on top, and laid out on the desk in one piece at the right spacing. Any sequence of folds that achieves that counts.</p>
+</aside>
+
+<section id="reveal" class="chrome" hidden aria-live="polite">
+  <h2>The Lantern, found</h2>
+  <p>Wick Lane, Tallow Passage, Taper Row, Chandlers Mews, Ember Steps: the lamplighters&rsquo; round runs again and ends at Lantern Court, where the four parishes met. On the open plan none of these lanes touch.</p>
+  <div class="row"><button id="revealKeep" class="btn-primary">Keep it folded</button><button id="revealUnfold">Unfold</button></div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
+<script>
+/* ------------------------------------------------------------------
+   Fold engine. The sheet is pre-scored into an 8 x 4 grid of panels.
+   Every fold runs along a scored crease, so every panel always maps
+   onto exactly one world cell by an axis-aligned isometry:
+       X = sx * x + tx      Y = sy * y + ty      (cell units)
+   sx, sy in {+1,-1}. A panel shows its printed front when sx*sy = +1.
+   `order` is a global bottom-to-top stacking order of panel ids.
+------------------------------------------------------------------- */
+(function (G) {
+  const FM = (G.FM = G.FM || {});
+  const NC = 8, NR = 4;
+  FM.NC = NC; FM.NR = NR;
+
+  const pid = (c, r) => r * NC + c;
+  FM.pid = pid;
+
+  // paper-adjacent panel pairs. kind 'v' = they share a vertical edge (x = c+1)
+  const PAIRS = [];
+  for (let r = 0; r < NR; r++) for (let c = 0; c < NC; c++) {
+    if (c < NC - 1) PAIRS.push({ a: pid(c, r), b: pid(c + 1, r), kind: 'v', c: c + 1, r });
+    if (r < NR - 1) PAIRS.push({ a: pid(c, r), b: pid(c, r + 1), kind: 'h', c, r: r + 1 });
+  }
+  FM.PAIRS = PAIRS;
+
+  function flatState() {
+    const panels = [];
+    for (let r = 0; r < NR; r++) for (let c = 0; c < NC; c++) panels.push({ c, r, sx: 1, sy: 1, tx: 0, ty: 0 });
+    return { panels, order: panels.map((_, i) => i) };
+  }
+  function clone(s) { return { panels: s.panels.map(p => ({ ...p })), order: s.order.slice() }; }
+  function cellOf(p) {
+    return [p.sx === 1 ? p.c + p.tx : p.tx - p.c - 1, p.sy === 1 ? p.r + p.ty : p.ty - p.r - 1];
+  }
+  const faceUp = p => p.sx * p.sy === 1;
+  // world coordinate (cells) of the shared edge of a pair
+  function edgePos(pr, s) {
+    const a = s.panels[pr.a];
+    return pr.kind === 'v' ? a.sx * pr.c + a.tx : a.sy * pr.r + a.ty;
+  }
+  // world cell index along the edge (row for vertical edges, column for horizontal)
+  function edgeAlong(pr, s) {
+    const cell = cellOf(s.panels[pr.a]);
+    return pr.kind === 'v' ? cell[1] : cell[0];
+  }
+  function positions(s) { const pos = new Array(s.panels.length); s.order.forEach((id, i) => (pos[id] = i)); return pos; }
+  function bbox(s) {
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    for (const p of s.panels) { const [X, Y] = cellOf(p); x0 = Math.min(x0, X); y0 = Math.min(y0, Y); x1 = Math.max(x1, X + 1); y1 = Math.max(y1, Y + 1); }
+    return { x0, y0, x1, y1 };
+  }
+  // stacks: key "X,Y" -> panel ids bottom->top
+  function stacks(s) {
+    const m = new Map();
+    for (const id of s.order) { const k = cellOf(s.panels[id]).join(','); if (!m.has(k)) m.set(k, []); m.get(k).push(id); }
+    return m;
+  }
+  function topAt(s, X, Y) { const st = stacks(s).get(X + ',' + Y); return st ? st[st.length - 1] : -1; }
+
+  /* Non-crossing check along every crease segment.
+     taco    = two connected panels folded onto the same side of an edge
+     tortilla= two connected panels lying flat across the edge            */
+  function validate(s) {
+    const pos = positions(s);
+    const groups = new Map();
+    for (const pr of PAIRS) {
+      const A = s.panels[pr.a], B = s.panels[pr.b];
+      // sanity: both transforms put the shared edge in the same place
+      const eB = pr.kind === 'v' ? B.sx * pr.c + B.tx : B.sy * pr.r + B.ty;
+      const e = edgePos(pr, s);
+      if (e !== eB) return { ok: false, reason: 'torn' };
+      const ca = cellOf(A), cb = cellOf(B);
+      const ax = pr.kind === 'v' ? 0 : 1;
+      const key = pr.kind + ':' + e + ':' + edgeAlong(pr, s);
+      if (!groups.has(key)) groups.set(key, []);
+      if (ca[0] === cb[0] && ca[1] === cb[1]) {
+        const side = ca[ax] < e ? -1 : 1;
+        groups.get(key).push({ t: 'taco', side, lo: Math.min(pos[pr.a], pos[pr.b]), hi: Math.max(pos[pr.a], pos[pr.b]) });
+      } else {
+        const aLow = ca[ax] < e; // a sits on the low side of the edge
+        groups.get(key).push({ t: 'tort', lo: aLow ? pos[pr.a] : pos[pr.b], hiS: aLow ? pos[pr.b] : pos[pr.a] });
+      }
+    }
+    for (const items of groups.values()) {
+      for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++) {
+        const p = items[i], q = items[j];
+        if (p.t === 'taco' && q.t === 'taco') {
+          if (p.side !== q.side) continue;
+          if ((p.lo < q.lo && q.lo < p.hi && p.hi < q.hi) || (q.lo < p.lo && p.lo < q.hi && q.hi < p.hi)) return { ok: false, reason: 'crossing folds' };
+        } else if (p.t === 'tort' && q.t === 'tort') {
+          if ((p.lo - q.lo) * (p.hiS - q.hiS) < 0) return { ok: false, reason: 'layers would pass through each other' };
+        } else {
+          const taco = p.t === 'taco' ? p : q, tort = p.t === 'taco' ? q : p;
+          const z = taco.side < 0 ? tort.lo : tort.hiS;
+          if (taco.lo < z && z < taco.hi) return { ok: false, reason: 'a fold is in the way' };
+        }
+      }
+    }
+    return { ok: true };
+  }
+
+  /* op = { axis:'x'|'y', L:int, side:-1|1 (which side of L moves), mode:'valley'|'mountain', seed: panel id } */
+  function computeFold(s, op) {
+    const { axis, L, side, mode, seed } = op;
+    const N = s.panels.length;
+    const cells = s.panels.map(cellOf);
+    const ai = axis === 'x' ? 0 : 1;
+    const onMoving = cells.map(c => (side < 0 ? c[ai] < L : c[ai] >= L));
+    if (seed < 0 || !onMoving[seed]) return { ok: false, reason: 'nothing to lift there' };
+    const adj = Array.from({ length: N }, () => []);
+    for (const pr of PAIRS) {
+      if (!onMoving[pr.a] || !onMoving[pr.b]) continue;
+      const edgeAxis = pr.kind === 'v' ? 'x' : 'y';
+      if (edgeAxis === axis && edgePos(pr, s) === L) continue; // hinge on the fold line
+      adj[pr.a].push(pr.b); adj[pr.b].push(pr.a);
+    }
+    const pos = positions(s);
+    const inS = new Array(N).fill(false);
+    const addComp = start => {
+      const st = [start]; inS[start] = true;
+      while (st.length) { const i = st.pop(); for (const j of adj[i]) if (!inS[j]) { inS[j] = true; st.push(j); } }
+    };
+    addComp(seed);
+    // flap closure: anything lying on top of a lifted (valley) / under a tucked (mountain) panel comes along
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (let i = 0; i < N; i++) {
+        if (!onMoving[i] || inS[i]) continue;
+        for (let j = 0; j < N; j++) {
+          if (!inS[j] || cells[i][0] !== cells[j][0] || cells[i][1] !== cells[j][1]) continue;
+          if (mode === 'valley' ? pos[i] > pos[j] : pos[i] < pos[j]) { addComp(i); changed = true; break; }
+        }
+      }
+    }
+    const moving = [];
+    for (let i = 0; i < N; i++) if (inS[i]) moving.push(i);
+    if (moving.length === N) return { ok: false, reason: 'the whole sheet would move; try another edge', moving, inS };
+    // a fold needs a hinge: some moving panel joined across the line to a still one
+    let hinged = false;
+    for (const pr of PAIRS) {
+      if (inS[pr.a] === inS[pr.b]) continue;
+      const edgeAxis = pr.kind === 'v' ? 'x' : 'y';
+      if (edgeAxis === axis && edgePos(pr, s) === L) { hinged = true; break; }
+    }
+    if (!hinged) return { ok: false, reason: 'no crease there', moving, inS };
+    const ns = clone(s);
+    for (const i of moving) {
+      const p = ns.panels[i];
+      if (axis === 'x') { p.sx = -p.sx; p.tx = 2 * L - p.tx; } else { p.sy = -p.sy; p.ty = 2 * L - p.ty; }
+    }
+    const stat = s.order.filter(i => !inS[i]);
+    const mov = s.order.filter(i => inS[i]).reverse();
+    ns.order = mode === 'valley' ? stat.concat(mov) : mov.concat(stat);
+    const v = validate(ns);
+    // creases this fold sets: hinge pairs on the line, with their paper-side sense
+    const creases = [];
+    if (v.ok) {
+      const npos = positions(ns);
+      for (const pr of PAIRS) {
+        if (inS[pr.a] === inS[pr.b]) continue;
+        const edgeAxis = pr.kind === 'v' ? 'x' : 'y';
+        if (edgeAxis !== axis || edgePos(pr, s) !== L) continue;
+        const st = inS[pr.a] ? pr.b : pr.a, mv = inS[pr.a] ? pr.a : pr.b;
+        const ca = cellOf(ns.panels[st]), cb = cellOf(ns.panels[mv]);
+        if (ca[0] !== cb[0] || ca[1] !== cb[1]) continue; // unfolding, not folding
+        const valley = (npos[mv] > npos[st]) === faceUp(ns.panels[st]);
+        creases.push({ key: pr.kind + ',' + pr.c + ',' + pr.r, kind: pr.kind, c: pr.c, r: pr.r, valley });
+      }
+    }
+    return { ok: v.ok, reason: v.reason, state: ns, moving, inS, creases };
+  }
+
+  // turn the whole sheet over about a vertical (axis 'x') or horizontal line through its middle
+  function turnOver(s, axis = 'x') {
+    const b = bbox(s), ns = clone(s);
+    const twoK = axis === 'x' ? b.x0 + b.x1 : b.y0 + b.y1;
+    for (const p of ns.panels) {
+      if (axis === 'x') { p.sx = -p.sx; p.tx = twoK - p.tx; } else { p.sy = -p.sy; p.ty = twoK - p.ty; }
+    }
+    ns.order = s.order.slice().reverse();
+    return ns;
+  }
+  // spin the sheet 180 degrees on the desk
+  function turnAround(s) {
+    const b = bbox(s), ns = clone(s);
+    for (const p of ns.panels) { p.sx = -p.sx; p.tx = b.x0 + b.x1 - p.tx; p.sy = -p.sy; p.ty = b.y0 + b.y1 - p.ty; }
+    return ns;
+  }
+  function isFlat(s) {
+    const p0 = s.panels[0];
+    return s.panels.every(p => p.sx === p0.sx && p.sy === p0.sy && p.tx === p0.tx && p.ty === p0.ty);
+  }
+
+  // world point (cells, fractional) of a paper point (map units)
+  function paperToWorld(p, x, y, CW, CH) { return [p.sx * x / CW + p.tx, p.sy * y / CH + p.ty]; }
+
+  /* Composite check: are all these paper points visible, face up, and laid out
+     on the desk exactly as the composite coordinates say (one rigid placement)? */
+  function compositeCheck(s, samples, CW, CH) {
+    const st = stacks(s);
+    let L = null, T = null, seen = 0;
+    for (const sm of samples) {
+      const [x, y] = sm.paper, [X, Y] = sm.comp;
+      const c = Math.floor(x / CW), r = Math.floor(y / CH);
+      if (c < 0 || c >= NC || r < 0 || r >= NR) return { ok: false, why: 'off sheet' };
+      const id = pid(c, r), p = s.panels[id];
+      const cell = cellOf(p), stack = st.get(cell.join(','));
+      if (stack[stack.length - 1] !== id) return { ok: false, why: 'covered', at: sm };
+      if (!faceUp(p)) return { ok: false, why: 'face down', at: sm };
+      const w = paperToWorld(p, x, y, CW, CH);
+      if (!L) { L = [p.sx, p.sy]; T = [w[0] - L[0] * X / CW, w[1] - L[1] * Y / CH]; }
+      if (p.sx !== L[0] || p.sy !== L[1]) return { ok: false, why: 'orientation', at: sm };
+      const tx = w[0] - L[0] * X / CW, ty = w[1] - L[1] * Y / CH;
+      if (Math.abs(tx - T[0]) > 1e-6 || Math.abs(ty - T[1]) > 1e-6) return { ok: false, why: 'misaligned', at: sm };
+      seen++;
+    }
+    return { ok: true, seen };
+  }
+
+  Object.assign(FM, { flatState, clone, cellOf, faceUp, edgePos, positions, bbox, stacks, topAt, validate, computeFold, turnOver, turnAround, isFlat, paperToWorld, compositeCheck });
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* ------------------------------------------------------------------
+   The secret. Routes are authored in COMPOSITE coordinates: the picture
+   you see once the right strips are tucked away. Each mapping takes a
+   composite point back to the paper point printed on the flat sheet.
+------------------------------------------------------------------- */
+(function (G) {
+  const FM = (G.FM = G.FM || {});
+  FM.W = 960; FM.H = 660; FM.CW = 120; FM.CH = 165; FM.MARGIN = 18;
+
+  // Real fold: columns D,E and rows 2,3 tuck away. C meets F; row 1 meets row 4.
+  const real = {
+    id: 'real',
+    toPaper: ([X, Y]) => [X < 360 ? X : X + 240, Y < 165 ? Y : Y + 330],
+    seamsX: [360], seamsY: [165],
+    lanes: [
+      { name: 'Wick Lane', pts: [[140, 78], [165, 76], [200, 72], [240, 67], [280, 64], [320, 62], [360, 60]] },
+      { name: 'Tallow Passage', pts: [[360, 60], [400, 58], [440, 57], [475, 62], [500, 74], [516, 94], [522, 118], [520, 142], [520, 165]] },
+      { name: 'Taper Row', pts: [[520, 165], [520, 188], [514, 212], [496, 232], [468, 244], [430, 249], [395, 250], [360, 250]] },
+      { name: 'Chandlers Mews', pts: [[360, 250], [332, 250], [310, 246], [296, 236], [300, 222]] },
+      { name: 'Ember Steps', pts: [[300, 222], [316, 209], [341.6150, 183.3848]] },
+    ],
+    center: [360, 165], R: 26,
+  };
+
+  // False lead: columns C,D tuck away. B meets E. Wick Lane runs on into Gaslight Row,
+  // and the half-round Lantern pub closes up with the half-round beer garden.
+  const decoy = {
+    id: 'decoy',
+    toPaper: ([X, Y]) => [X < 240 ? X : X + 240, Y],
+    seamsX: [240], seamsY: [],
+    lanes: [
+      { name: 'Wick Lane', pts: [[140, 78], [165, 76], [200, 72], [240, 67]] },
+      { name: 'Gaslight Row', pts: [[240, 67], [278, 63], [306, 66], [324, 80], [330, 100]] },
+      { name: 'Mantle Lane', pts: [[330, 100], [322, 116], [300, 122], [270, 121], [254, 120]] },
+    ],
+    center: [240, 120], R: 14,
+  };
+  FM.PUZZLE = { real, decoy };
+
+  // paper polylines (pieces) for a route, split at its seams
+  function paperPieces(def) {
+    const out = [];
+    for (const lane of def.lanes) {
+      out.push({ name: lane.name, pts: lane.pts.map((p, i, a) => {
+        // vertices sitting exactly on a seam belong to the side of their neighbour
+        const nb = a[i === 0 ? 1 : i - 1];
+        const mid = [(p[0] + nb[0]) / 2, (p[1] + nb[1]) / 2];
+        const m = def.toPaper(mid), q = def.toPaper(p);
+        let x = q[0], y = q[1];
+        for (const s of def.seamsX) if (Math.abs(p[0] - s) < 1e-9) x = mid[0] < s ? s : def.toPaper([s + 1e-6, p[1]])[0];
+        for (const s of def.seamsY) if (Math.abs(p[1] - s) < 1e-9) y = mid[1] < s ? s : def.toPaper([p[0], s + 1e-6])[1];
+        void m;
+        return [Math.round(x * 1e4) / 1e4, Math.round(y * 1e4) / 1e4];
+      }) });
+    }
+    return out;
+  }
+  FM.paperPieces = paperPieces;
+
+  // sample points for the composite check
+  function samples(def, step = 4) {
+    const out = [];
+    const near = (X, Y) => def.seamsX.some(s => Math.abs(X - s) < 1.5) || def.seamsY.some(s => Math.abs(Y - s) < 1.5);
+    for (const lane of def.lanes) {
+      const P = lane.pts;
+      for (let i = 0; i < P.length - 1; i++) {
+        const [x0, y0] = P[i], [x1, y1] = P[i + 1];
+        const n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / step));
+        for (let k = 0; k <= n; k++) {
+          const X = x0 + (x1 - x0) * k / n, Y = y0 + (y1 - y0) * k / n;
+          if (!near(X, Y)) out.push({ comp: [X, Y], paper: def.toPaper([X, Y]) });
+        }
+      }
+    }
+    const [cx, cy] = def.center;
+    for (const rad of [def.R * 0.3, def.R * 0.6, def.R * 0.9]) for (let k = 0; k < 16; k++) {
+      const a = (k + 0.5) * Math.PI / 8, X = cx + rad * Math.cos(a), Y = cy + rad * Math.sin(a);
+      if (!near(X, Y)) out.push({ comp: [X, Y], paper: def.toPaper([X, Y]) });
+    }
+    return out;
+  }
+  FM.samples = samples;
+
+  FM.checkRoute = (state, which) => FM.compositeCheck(state, FM._samples[which] || (FM._samples[which] = samples(FM.PUZZLE[which])), FM.CW, FM.CH);
+  FM._samples = {};
+
+  /* ---- scripted fold sequences (seeds picked live from the state) ---- */
+  // fold so that paper crease `k` (column edge x=k, or row edge y=k) is the hinge and the
+  // part of the sheet containing paper column/row `tailIdx` moves.
+  function creaseOp(s, axis, k, tailPanel, mode) {
+    const ref = axis === 'x' ? s.panels[FM.pid(k, s.panels[tailPanel].r)] : s.panels[FM.pid(s.panels[tailPanel].c, k)];
+    const L = axis === 'x' ? ref.sx * k + ref.tx : ref.sy * k + ref.ty;
+    const cell = FM.cellOf(s.panels[tailPanel]);
+    const side = (axis === 'x' ? cell[0] : cell[1]) >= L ? 1 : -1;
+    // seed: the topmost panel at the tail panel's cell that lies on the moving side
+    const stack = FM.stacks(s).get(cell.join(','));
+    const seed = mode === 'valley' ? stack[stack.length - 1] : stack[stack.length - 1];
+    return { axis, L, side, mode, seed };
+  }
+  FM.creaseOp = creaseOp;
+
+  // the folding the map came with from the printer: accordion the columns, then the rows
+  FM.factorySequence = function (s0) {
+    const steps = [];
+    let s = s0;
+    const run = (axis, k, tail) => {
+      const op = creaseOp(s, axis, k, tail, 'mountain');
+      const res = FM.computeFold(s, op);
+      if (!res.ok) throw new Error('factory fold failed ' + axis + k + ' ' + res.reason);
+      steps.push({ op, res, before: s });
+      s = res.state;
+    };
+    // printed side down first, so the outside of the packet is the reverse (cover on top)
+    s = FM.turnOver(s, 'x');
+    steps.push({ turn: 'x', before: s0 });
+    for (let k = FM.NC - 1; k >= 1; k--) run('x', k, FM.pid(0, 0));
+    for (let k = 1; k < FM.NR; k++) run('y', k, FM.pid(FM.NC - 1, FM.NR - 1));
+    return { steps, state: s };
+  };
+
+  // the solution, from a flat front-up sheet in its home position
+  FM.solutionScript = [
+    { axis: 'x', k: 3, tail: [3, 0], mode: 'mountain' }, // parish line, C|D, away from you
+    { axis: 'x', k: 4, tail: [7, 0], mode: 'mountain' }, // ward line, D|E: tuck the rest back out
+    { axis: 'y', k: 1, tail: [0, 1], mode: 'mountain' }, // parish line, row 1|2
+    { axis: 'y', k: 2, tail: [0, 3], mode: 'mountain' }, // ward line along the river
+  ];
+  FM.decoyScript = [
+    { axis: 'x', k: 2, tail: [2, 0], mode: 'mountain' },
+    { axis: 'x', k: 3, tail: [7, 0], mode: 'mountain' },
+  ];
+  FM.runScriptStep = function (s, st) {
+    const tail = FM.pid(st.tail[0], st.tail[1]);
+    const op = creaseOp(s, st.axis, st.k, tail, st.mode);
+    return { op, res: FM.computeFold(s, op) };
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* ------------------------------------------------------------------
+   MERROW — the city model. Everything in paper map units (960 x 660),
+   y pointing down, grid panels 120 x 165.
+------------------------------------------------------------------- */
+(function (G) {
+  const FM = (G.FM = G.FM || {});
+
+  /* ---------------- small geometry kit ---------------- */
+  const GEO = (FM.GEO = {});
+  GEO.rng = function (seed) {
+    let a = seed >>> 0;
+    return function () {
+      a |= 0; a = (a + 0x6d2b79f5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  };
+  GEO.area = P => { let s = 0; for (let i = 0; i < P.length; i++) { const a = P[i], b = P[(i + 1) % P.length]; s += a[0] * b[1] - b[0] * a[1]; } return s / 2; };
+  GEO.centroid = P => {
+    let A = 0, cx = 0, cy = 0;
+    for (let i = 0; i < P.length; i++) { const a = P[i], b = P[(i + 1) % P.length]; const f = a[0] * b[1] - b[0] * a[1]; A += f; cx += (a[0] + b[0]) * f; cy += (a[1] + b[1]) * f; }
+    if (Math.abs(A) < 1e-9) return P[0].slice();
+    return [cx / (3 * A), cy / (3 * A)];
+  };
+  // keep the part of convex polygon P where n.x >= d
+  GEO.clipHalf = (P, n, d) => {
+    const out = [];
+    for (let i = 0; i < P.length; i++) {
+      const a = P[i], b = P[(i + 1) % P.length];
+      const da = n[0] * a[0] + n[1] * a[1] - d, db = n[0] * b[0] + n[1] * b[1] - d;
+      if (da >= 0) out.push(a);
+      if ((da >= 0) !== (db >= 0)) { const t = da / (da - db); out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); }
+    }
+    return out;
+  };
+  GEO.pip = (pt, P) => {
+    let c = false;
+    for (let i = 0, j = P.length - 1; i < P.length; j = i++) {
+      const a = P[i], b = P[j];
+      if ((a[1] > pt[1]) !== (b[1] > pt[1]) && pt[0] < ((b[0] - a[0]) * (pt[1] - a[1])) / (b[1] - a[1]) + a[0]) c = !c;
+    }
+    return c;
+  };
+  GEO.rect = (x0, y0, x1, y1) => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+  GEO.catmull = (pts, step = 2) => {
+    const out = [];
+    const P = [pts[0], ...pts, pts[pts.length - 1]];
+    for (let i = 1; i < P.length - 2; i++) {
+      const p0 = P[i - 1], p1 = P[i], p2 = P[i + 1], p3 = P[i + 2];
+      const n = Math.max(2, Math.ceil(Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / step));
+      for (let k = 0; k < n; k++) {
+        const t = k / n, t2 = t * t, t3 = t2 * t;
+        out.push([0, 1].map(j => 0.5 * (2 * p1[j] + (-p0[j] + p2[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t2 + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * t3)));
+      }
+    }
+    out.push(pts[pts.length - 1].slice());
+    return out;
+  };
+  GEO.len = P => { let s = 0; for (let i = 1; i < P.length; i++) s += Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]); return s; };
+  GEO.pointAt = (P, d) => {
+    for (let i = 1; i < P.length; i++) {
+      const l = Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]);
+      if (d <= l || i === P.length - 1) {
+        const t = l ? Math.min(1, d / l) : 0;
+        return { p: [P[i - 1][0] + (P[i][0] - P[i - 1][0]) * t, P[i - 1][1] + (P[i][1] - P[i - 1][1]) * t], a: Math.atan2(P[i][1] - P[i - 1][1], P[i][0] - P[i - 1][0]) };
+      }
+      d -= l;
+    }
+    return { p: P[P.length - 1], a: 0 };
+  };
+  GEO.offset = (P, off) => P.map((p, i) => {
+    const a = P[Math.max(0, i - 1)], b = P[Math.min(P.length - 1, i + 1)];
+    const dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1;
+    return [p[0] - (dy / l) * off, p[1] + (dx / l) * off];
+  });
+  GEO.segDist = (p, a, b) => {
+    const dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy;
+    let t = l2 ? ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2 : 0; t = Math.max(0, Math.min(1, t));
+    return Math.hypot(p[0] - a[0] - dx * t, p[1] - a[1] - dy * t);
+  };
+  GEO.polyDist = (p, P) => { let m = 1e9; for (let i = 1; i < P.length; i++) m = Math.min(m, GEO.segDist(p, P[i - 1], P[i])); return m; };
+  GEO.roundRect = (x0, y0, x1, y1, r, n = 5) => {
+    const out = [];
+    const c = [[x1 - r, y0 + r, -Math.PI / 2], [x1 - r, y1 - r, 0], [x0 + r, y1 - r, Math.PI / 2], [x0 + r, y0 + r, Math.PI]];
+    for (const [cx, cy, a0] of c) for (let k = 0; k <= n; k++) { const a = a0 + (k / n) * Math.PI / 2; out.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
+    return out;
+  };
+  GEO.ellipse = (cx, cy, rx, ry, rot = 0, n = 36) => {
+    const out = [];
+    for (let k = 0; k < n; k++) { const a = (k / n) * Math.PI * 2, x = rx * Math.cos(a), y = ry * Math.sin(a); out.push([cx + x * Math.cos(rot) - y * Math.sin(rot), cy + x * Math.sin(rot) + y * Math.cos(rot)]); }
+    return out;
+  };
+
+  /* ---------------- the water ---------------- */
+  const riverCtl = [[6, 300], [60, 295], [120, 298], [180, 314], [240, 336], [300, 350], [360, 350], [420, 338], [480, 324], [540, 316], [600, 320], [650, 333], [690, 341], [720, 340]];
+  const riverC = GEO.catmull(riverCtl, 2);
+  const riverW = x => 40 + 16 * Math.max(0, Math.min(1, x / 700));
+  const northBank = riverC.map((p, i) => { const q = GEO.offset(riverC, -riverW(p[0]) / 2)[i]; return q; });
+  const southBank = riverC.map((p, i) => GEO.offset(riverC, riverW(p[0]) / 2)[i]);
+  const river = northBank.concat(southBank.slice().reverse());
+  const pool = GEO.roundRect(708, 270, 816, 408, 24);
+  const mouth = GEO.rect(800, 300, 846, 376);
+  const sea = [[946, 186], [904, 188], [872, 196], [850, 210], [836, 232], [830, 262], [827, 300], [827, 376], [832, 410], [844, 438], [864, 458], [894, 470], [946, 474]];
+  const pikesBasin = GEO.rect(744, 236, 798, 282);
+  const lennBasin = GEO.rect(732, 396, 792, 444);
+  const pond = GEO.ellipse(500, 590, 26, 11, -0.18, 40);
+  FM.water = { river, riverC, northBank, southBank, riverW, pool, mouth, sea, pikesBasin, lennBasin, pond, all: [river, pool, mouth, sea, pikesBasin, lennBasin] };
+  FM.inWater = pt => FM.water.all.some(P => GEO.pip(pt, P));
+
+  /* ---------------- land use regions ---------------- */
+  FM.parks = [
+    { name: "Odo's Green", poly: GEO.roundRect(28, 24, 104, 56, 6), kind: 'park', label: [66, 41] },
+    { name: 'Tanners Common', poly: [[18, 335], [70, 330], [120, 336], [138, 352], [140, 420], [100, 432], [18, 436]], kind: 'park', label: [70, 400] },
+    { name: 'Lenn Park', poly: GEO.roundRect(366, 501, 594, 636, 10), kind: 'park', label: [430, 528] },
+    { name: 'Botanic Garden', poly: GEO.roundRect(774, 512, 836, 590, 6), kind: 'park', label: [805, 531] },
+    { name: 'Bell Hill', poly: [[826, 50], [870, 46], [880, 70], [872, 92], [834, 94]], kind: 'park', label: [852, 58] },
+    { name: 'Northgate Cemetery', poly: GEO.rect(884, 52, 936, 150), kind: 'cemetery', label: [910, 140] },
+    { name: 'Embankment Gardens', poly: [[396, 266], [452, 262], [456, 286], [400, 296]], kind: 'park' },
+    { name: 'Swan Eyot', poly: GEO.ellipse(176, 315, 17, 5, 0.25, 30), kind: 'island', label: [176, 322] },
+    { name: "St Clement's Churchyard", poly: GEO.rect(774, 600, 806, 634), kind: 'cemetery' },
+  ];
+  FM.industrial = [
+    { name: 'Gasworks', poly: GEO.rect(488, 172, 596, 248) },
+    { name: 'docks-n', poly: [[700, 170], [840, 170], [840, 268], [700, 268]] },
+    { name: 'docks-s', poly: [[700, 410], [840, 410], [840, 491], [700, 491]] },
+    { name: 'goods yard', poly: GEO.rect(370, 26, 474, 62) },
+  ];
+  FM.gasholders = [[528, 204, 14], [566, 216, 11]];
+  FM.railway = { pts: [[946, 38], [700, 37], [560, 36], [480, 38]], land: [[946, 28], [474, 28], [474, 48], [946, 48]] };
+  FM.station = { poly: GEO.rect(380, 30, 468, 58), name: 'Merrow Central' };
+
+  /* ---------------- districts drive the street pattern ---------------- */
+  function style(x, y) {
+    if (((x - 190) / 150) ** 2 + ((y - 255) / 118) ** 2 < 1) return { area: 260, jit: 0.22, orient: null, gap: 2.4, min: 8, kind: 'old' };
+    if (y < 165) {
+      if (x < 360) return { area: 360, jit: 0.14, orient: 0.03, gap: 2.7, min: 9, kind: 'built' };
+      if (x < 600) return { area: 520, jit: 0.04, orient: 0, gap: 2.9, min: 10, kind: 'built' };
+      return { area: 400, jit: 0.07, orient: -0.06, gap: 2.7, min: 9, kind: 'built' };
+    }
+    if (y < 495) {
+      if (x > 700) return { area: 820, jit: 0.02, orient: 0, gap: 3.2, min: 12, kind: 'industrial' };
+      return { area: 460, jit: 0.07, orient: 0, gap: 2.8, min: 9, kind: 'built' };
+    }
+    if (x < 360) return { area: 400, jit: 0.1, orient: 0.08, gap: 2.7, min: 9, kind: 'built' };
+    return { area: 430, jit: 0.05, orient: 0.15, gap: 2.7, min: 9, kind: 'built' };
+  }
+
+  /* ---------------- hand-laid roads ---------------- */
+  // class A: parades. B: secondary. C: streets. Chords made by forced splits become C/B roads too.
+  const ROADW = { A: 9, B: 6.5, C: 4.5, Q: 5, L: 2.3 };
+  FM.ROADW = ROADW;
+  const R = (name, cls, pts, extra = {}) => ({ name, cls, pts, ...extra });
+  FM.roads = [
+    R('North Parade', 'A', [[18, 165], [942, 165]], { labelAt: [[420, 165], [540, 165]] }),
+    R('South Parade', 'A', [[18, 495], [942, 495]], { labelAt: [[420, 495], [540, 495]] }),
+    R('Mount Street', 'B', [[360, 18], [360, 165]], { side: [-1, 'v'] }),
+    R('Bridge Street', 'B', [[360, 165], [360, 495]], { labelAt: [[360, 222], [360, 445]], bridge: true }),
+    R('Chapel Street', 'B', [[360, 495], [360, 642]], { side: [-1, 'v'] }),
+    R('Bell Street', 'B', [[600, 18], [600, 165]], { side: [1, 'v'] }),
+    R('Fen Street', 'B', [[600, 495], [600, 642]], { side: [1, 'v'] }),
+    R('Vale Street', 'B', [[480, 165], [480, 495]], { labelAt: [[480, 215], [480, 445]], bridge: true }),
+  ];
+  // forced splits per top-level cell, applied in order to the piece holding their midpoint
+  const F = (name, cls, a, b) => ({ name, cls, a, b, w: ROADW[cls] });
+  const cells = [
+    { id: 'NW', rect: [18, 18, 360, 165], ins: [0, 0, 3.25, 4.5], forced: [
+      F('Northgate', 'B', [18, 104], [360, 97]),
+      F('Pump Street', 'C', [244.5, 18], [244.5, 99.6]),
+      F('Pump Street', 'C', [244.5, 99.6], [244.5, 165]),
+      F('Odo Street', 'C', [128, 18], [128, 101.6]),
+      F('Wool Street', 'C', [244.5, 34], [360, 33]),
+      F('Hart Street', 'C', [18, 136], [244.5, 138]),
+    ] },
+    { id: 'NC', rect: [360, 18, 600, 165], ins: [3.25, 0, 3.25, 4.5], forced: [
+      F('Station Approach', 'C', [465, 58], [465, 165]),
+      F('Carter Street', 'C', [360, 100], [465, 100]),
+      F('Gas Street', 'C', [465, 142], [600, 142]),
+    ] },
+    { id: 'NE', rect: [600, 18, 942, 165], ins: [3.25, 0, 0, 4.5], forced: [
+      F('Bell Hill Road', 'B', [600, 112], [942, 92]),
+      F('Heron Street', 'C', [680, 107.3], [680, 165]),
+      F('Brannoc Street', 'C', [820, 18], [820, 99.1]),
+      F('Swan Street', 'C', [856, 97.0], [856, 165]),
+    ] },
+    { id: 'MW', rect: [18, 165, 360, 495], ins: [0, 4.5, 3.25, 4.5], forced: [
+      F('Old Bridge Road', 'B', [150, 165], [150, 495]),
+      F('Market Street', 'B', [150, 205], [360, 205]),
+      F('Tannery Road', 'C', [150, 454.3], [360, 458]),
+      F('Tannery Road', 'C', [18, 452], [150, 454.3]),
+      F('Minster Street', 'C', [272, 165], [272, 205]),
+    ] },
+    { id: 'MC', rect: [360, 165, 480, 495], ins: [3.25, 4.5, 3.25, 4.5], forced: [
+      F('Guild Street', 'C', [360, 212], [480, 212]),
+      F('Ferry Road', 'C', [360, 446], [480, 446]),
+    ] },
+    { id: 'ME', rect: [480, 165, 942, 495], ins: [3.25, 4.5, 0, 4.5], forced: [
+      F('Harbour Road', 'B', [700, 165], [700, 495]),
+      F('Lennside Road', 'B', [480, 262], [700, 262]),
+      F('Customs Road', 'C', [700, 218], [942, 218]),
+      F('Ropewalk', 'C', [480, 462], [700, 462]),
+      F('Wharf Road', 'C', [700, 458], [942, 462]),
+    ] },
+    { id: 'SW', rect: [18, 495, 360, 642], ins: [0, 4.5, 3.25, 0], forced: [
+      F('Southgate', 'B', [18, 612], [360, 606]),
+      F('All Hallows Road', 'C', [210, 495], [210, 608.5]),
+    ] },
+    { id: 'SE', rect: [600, 495, 942, 642], ins: [3.25, 4.5, 0, 0], forced: [
+      F('Garden Road', 'B', [600, 604], [942, 598]),
+      F('Clement Street', 'C', [850, 495], [850, 599.5]),
+      F('Quarry Street', 'C', [700, 602.2], [700, 642]),
+    ] },
+  ];
+
+  /* ---------------- lanes ---------------- */
+  const pieces = FM.paperPieces(FM.PUZZLE.real);
+  const dpieces = FM.paperPieces(FM.PUZZLE.decoy).filter(p => p.name !== 'Wick Lane');
+  const byName = n => pieces.find(p => p.name === n) || dpieces.find(p => p.name === n);
+  FM.lanes = [
+    // the lamplighters' round (flat-map extensions join each piece to an ordinary street)
+    { name: 'Wick Lane', pts: [[128, 79], ...byName('Wick Lane').pts], route: true },
+    { name: 'Tallow Passage', pts: byName('Tallow Passage').pts, route: true },
+    { name: 'Taper Row', pts: byName('Taper Row').pts, route: true },
+    { name: 'Chandlers Mews', pts: byName('Chandlers Mews').pts, route: true },
+    { name: 'Ember Steps', pts: byName('Ember Steps').pts, route: true, steps: true },
+    // the gas-lit false lead
+    { name: 'Gaslight Row', pts: [[465, 69], ...byName('Gaslight Row').pts], decoy: true },
+    { name: 'Mantle Lane', pts: byName('Mantle Lane').pts, decoy: true },
+    // ordinary lanes
+    { name: "Cooper's Passage", pts: [[172, 210], [186, 222], [196, 238], [204, 262]] },
+    { name: 'Fish Steps', pts: [[318, 209], [321, 236], [324, 262], [327, 291]], steps: true },
+    { name: 'Salt Lane', pts: [[40, 186], [66, 196], [92, 222], [104, 248]] },
+    { name: 'Glovers Alley', pts: [[34, 80], [66, 84], [100, 90]] },
+    { name: 'Mercy Steps', pts: [[786, 122], [791, 142], [794, 160.5]], steps: true },
+    { name: 'Pudding Lane', pts: [[132, 499], [146, 518], [158, 540]] },
+    { name: 'Netmakers Row', pts: [[612, 420], [646, 426], [688, 432]] },
+    { name: "Bishop's Mews", pts: [[226, 230], [244, 234], [262, 240]] },
+    { name: 'Cinder Path', pts: [[604, 172], [610, 196], [614, 224]] },
+    { name: 'Lamb Passage', pts: [[628, 110.4], [640, 122], [648, 138], [652, 160.5]] },
+    { name: 'Stable Yard', pts: [[640, 607.5], [652, 622], [664, 640]] },
+    { name: 'Weavers Walk', pts: [[812, 600.5], [822, 618], [834, 640]] },
+    { name: 'Tithe Barn Lane', pts: [[40, 500], [52, 520], [70, 538]] },
+    { name: 'Rook Alley', pts: [[886, 172], [900, 178], [912, 182]] },
+  ];
+
+  /* ---------------- the Lantern and the pub ---------------- */
+  FM.circus = { r: 26, sym: 6.5, quarters: [
+    { at: [360, 165], q: [-1, -1], sq: 'C1' }, { at: [600, 165], q: [1, -1], sq: 'F1' },
+    { at: [360, 495], q: [-1, 1], sq: 'C4' }, { at: [600, 495], q: [1, 1], sq: 'F4' },
+  ] };
+  FM.pub = { left: [240, 120], right: [480, 120], r: 13, clear: 16 };
+  FM.shop = { at: [146, 85], name: 'Holloway & Pike' };
+
+  /* ---------------- landmarks ---------------- */
+  // types: church, ph, po, hosp, mus, school, view, light, market, ferry, station, fountain
+  FM.landmarks = [
+    { t: 'church', at: [62, 116], name: "St Ansel's", lab: [6, 1] },
+    { t: 'church', at: [214, 246], name: 'Cathedral of St Odo', big: true, lab: [9, 8] },
+    { t: 'church', at: [796, 66], name: "St Brannoc's", lab: [6, 1] },
+    { t: 'church', at: [262, 540], name: 'All Hallows', lab: [-6, -6] },
+    { t: 'church', at: [790, 616], name: "St Clement's", lab: [-6, -4] },
+    { t: 'ph', at: [226, 120], name: 'The Lantern', lab: [-6, 1], right: true },
+    { t: 'ph', at: [652, 140], name: 'Three Herons', lab: [6, 1] },
+    { t: 'ph', at: [56, 460], name: 'Ferryman', lab: [6, 1] },
+    { t: 'ph', at: [786, 470], name: 'The Anchor', lab: [6, 1] },
+    { t: 'ph', at: [428, 128], name: 'Railway Tavern', lab: [6, 1] },
+    { t: 'po', at: [332, 218], name: 'Head Post Office', lab: [-6, 8], right: true },
+    { t: 'hosp', at: [896, 528], name: 'Lenn Infirmary', lab: [0, 14], center: true },
+    { t: 'mus', at: [650, 624], name: 'City Museum', lab: [6, 1] },
+    { t: 'school', at: [184, 40], name: 'Northgate Sch', lab: [6, 1] },
+    { t: 'school', at: [86, 576], name: 'Southfields Sch', lab: [6, 1] },
+    { t: 'school', at: [540, 128], name: 'Gas Street Sch', lab: [6, 1] },
+    { t: 'view', at: [852, 76], name: '', lab: [0, 0] },
+    { t: 'light', at: [926, 176], name: 'Merrow Light', lab: [-4, -6], right: true },
+    { t: 'market', at: [120, 222], name: 'Butter Market', lab: [0, 10], center: true },
+    { t: 'hall', at: [300, 234], name: 'Guildhall', lab: [0, 10], center: true },
+    { t: 'hall', at: [420, 236], name: 'Corn Exchange', lab: [0, 10], center: true },
+    { t: 'hall', at: [770, 196], name: 'Custom House', lab: [0, -8], center: true },
+    { t: 'fountain', at: [100, 222], name: '', lab: [0, 0] },
+    { t: 'bandstand', at: [440, 590], name: 'Bandstand', lab: [0, 9], center: true },
+  ];
+
+  /* ---------------- names for the procedural streets ---------------- */
+  const NAMEPOOL = ('Abbey Row,Anchor Street,Ash Grove,Bakers Row,Barrow Street,Bridle Way,Brook Street,Burgess Street,Canal Street,Castle Street,Cherry Row,Church Street,Clay Street,Cloth Hall Street,Coldharbour,Copper Street,Corn Street,Crane Street,Cross Street,Dairy Row,Dean Street,Dock Street,Dove Street,Draper Street,Elm Row,Exchange Street,Flint Street,Friars Walk,Garden Row,Gate Street,Glebe Road,Granary Street,Green Street,Guild Row,Hay Market,Heron Way,High Street,Holly Walk,Hop Gardens,Kiln Street,King Street,Lark Rise,Ley Street,Lock Street,Long Row,Maltings,Mariner Street,Market Row,Marsh Road,Mason Street,Meadow Road,Mercer Street,Mill Street,Minster Yard,Moor Street,New Street,Nun Street,Oak Street,Orchard Street,Packhorse Road,Pelican Street,Pier Road,Pinfold Street,Potters Row,Priory Road,Quay Street,Queen Street,Rope Street,Saddler Street,Sand Street,School Street,Shambles,Ship Street,Silver Street,Skinner Street,Smith Street,Spinner Street,Spring Gardens,Stable Row,Swan Lane,Tannery Street,Temple Street,Thorn Street,Tithe Street,Tower Street,Union Street,Water Street,Weavers Row,Well Street,Wharf Street,Willow Walk,Windmill Street,Wren Street,Yew Street,Abbot Street,Almond Row,Barley Street,Beck Street,Bramble Row,Cable Street,Chalk Street,Cobb Street,Dyer Street,Fuller Street,Grain Street,Harrow Road,Hythe Street,Jewry Street,Leat Street,Mallard Street,Nettle Row,Osier Street,Pump Row,Rush Street,Sexton Street,Teasel Row,Vintner Street,Warren Street,Wey Street').split(',');
+
+  /* ---------------- build ---------------- */
+  FM.buildCity = function () {
+    const rnd = GEO.rng(1958);
+    const blocks = [], chords = [], forcedRoads = [];
+    const split = (P, n, d, w) => [GEO.clipHalf(P, n, d + w / 2), GEO.clipHalf(P, [-n[0], -n[1]], -(d - w / 2))];
+    const chordOf = (P, n, d) => {
+      // segment of line n.x=d inside convex P
+      const pts = [];
+      for (let i = 0; i < P.length; i++) {
+        const a = P[i], b = P[(i + 1) % P.length];
+        const da = n[0] * a[0] + n[1] * a[1] - d, db = n[0] * b[0] + n[1] * b[1] - d;
+        if ((da >= 0) !== (db >= 0)) { const t = da / (da - db); pts.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); }
+      }
+      return pts.length >= 2 ? [pts[0], pts[1]] : null;
+    };
+    function recurse(P, depth) {
+      const A = Math.abs(GEO.area(P));
+      if (P.length < 3 || A < 4) return;
+      const c = GEO.centroid(P), st = style(c[0], c[1]);
+      // principal axis via longest extent among candidate directions
+      let best = null;
+      const cand = [];
+      if (st.orient !== null) { cand.push(st.orient, st.orient + Math.PI / 2); } else { for (let k = 0; k < 8; k++) cand.push((k / 8) * Math.PI); }
+      for (const th of cand) {
+        const u = [Math.cos(th), Math.sin(th)];
+        let lo = 1e9, hi = -1e9, lo2 = 1e9, hi2 = -1e9;
+        for (const p of P) { const s = p[0] * u[0] + p[1] * u[1], t = -p[0] * u[1] + p[1] * u[0]; lo = Math.min(lo, s); hi = Math.max(hi, s); lo2 = Math.min(lo2, t); hi2 = Math.max(hi2, t); }
+        if (!best || hi - lo > best.ext) best = { th, ext: hi - lo, lo, hi, w2: hi2 - lo2 };
+      }
+      const big = A > st.area * (0.55 + rnd() * 0.9);
+      if (!big || best.ext < st.min * 2.2) { blocks.push({ poly: P, kind: st.kind }); return; }
+      const gap = st.gap * (depth < 2 ? 1.15 : 1);
+      const roundness = Q => { let per = 0; for (let i = 0; i < Q.length; i++) per += Math.hypot(Q[(i + 1) % Q.length][0] - Q[i][0], Q[(i + 1) % Q.length][1] - Q[i][1]); return (4 * Math.PI * Math.abs(GEO.area(Q))) / (per * per || 1); };
+      for (let attempt = 0; attempt < 14; attempt++) {
+        const th = best.th + (rnd() - 0.5) * 2 * st.jit * (attempt < 4 ? 1 : 0.3);
+        const n = [Math.cos(th), Math.sin(th)];
+        let lo = 1e9, hi = -1e9;
+        for (const p of P) { const s = p[0] * n[0] + p[1] * n[1]; lo = Math.min(lo, s); hi = Math.max(hi, s); }
+        const d = lo + (hi - lo) * (attempt < 4 ? 0.38 + rnd() * 0.24 : 0.2 + rnd() * 0.6);
+        const ch = chordOf(P, n, d);
+        if (!ch) continue;
+        const last = attempt >= 12 && A > st.area * 2.4;
+        // keep new streets from shadowing a lane
+        let near = 0;
+        for (let k = 0; k <= 8; k++) {
+          const p = [ch[0][0] + (ch[1][0] - ch[0][0]) * k / 8, ch[0][1] + (ch[1][1] - ch[0][1]) * k / 8];
+          if (laneGuards.some(L => GEO.polyDist(p, L) < 6.5)) near++;
+        }
+        if (near >= 3 && !last) continue;
+        const [a, b] = split(P, n, d, gap);
+        if (a.length < 3 || b.length < 3) continue;
+        const Aa = Math.abs(GEO.area(a)), Ab = Math.abs(GEO.area(b));
+        if (!last && (Math.min(Aa, Ab) < A * 0.2 || roundness(a) < 0.34 || roundness(b) < 0.34)) continue;
+        chords.push({ seg: ch, w: gap, depth, kind: st.kind });
+        recurse(a, depth + 1); recurse(b, depth + 1);
+        return;
+      }
+      blocks.push({ poly: P, kind: st.kind });
+    }
+    const laneGuards = FM.lanes.map(l => l.pts);
+    for (const cell of cells) {
+      const [x0, y0, x1, y1] = cell.rect, [il, it, ir, ib] = cell.ins;
+      let pieces = [GEO.rect(x0 + il, y0 + it, x1 - ir, y1 - ib)];
+      for (const f of cell.forced) {
+        const mid = [(f.a[0] + f.b[0]) / 2, (f.a[1] + f.b[1]) / 2];
+        const idx = pieces.findIndex(P => GEO.pip(mid, P));
+        if (idx < 0) continue;
+        const dx = f.b[0] - f.a[0], dy = f.b[1] - f.a[1], l = Math.hypot(dx, dy);
+        const n = [-dy / l, dx / l], d = n[0] * f.a[0] + n[1] * f.a[1];
+        const P = pieces[idx];
+        const [a, b] = split(P, n, d, f.w);
+        pieces.splice(idx, 1, a, b);
+        forcedRoads.push({ name: f.name, cls: f.cls, pts: [f.a, f.b] });
+      }
+      for (const P of pieces) recurse(P, 0);
+    }
+    // land use
+    const inAny = (pt, list) => list.find(r => GEO.pip(pt, r.poly));
+    for (const b of blocks) {
+      const c = GEO.centroid(b.poly);
+      const ind = inAny(c, FM.industrial);
+      if (ind) b.kind = 'industrial';
+      if (GEO.pip(c, FM.railway.land)) b.kind = 'rail';
+      b.c = c;
+      b.wet = FM.inWater(c);
+    }
+    // street names for procedural chords
+    const used = new Set([...FM.roads, ...forcedRoads, ...FM.lanes].map(r => r.name));
+    const pool = NAMEPOOL.filter(n => !used.has(n));
+    const nameRnd = GEO.rng(77);
+    for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(nameRnd() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+    const named = [];
+    const sorted = chords.slice().sort((a, b) => GEO.len(b.seg) - GEO.len(a.seg));
+    for (const ch of sorted) {
+      const L = GEO.len(ch.seg);
+      const mid = [(ch.seg[0][0] + ch.seg[1][0]) / 2, (ch.seg[0][1] + ch.seg[1][1]) / 2];
+      if (L < 26 || FM.inWater(mid) || FM.parks.some(p => GEO.pip(mid, p.poly)) || inAny(mid, FM.industrial)) continue;
+      ch.cand = true; named.push(ch);
+    }
+    return { blocks, chords, forcedRoads, named, pool };
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* ------------------------------------------------------------------
+   Printing the sheet: front (the plan) and reverse (cover, index, guide).
+------------------------------------------------------------------- */
+(function (G) {
+  const FM = (G.FM = G.FM || {});
+  const GEO = FM.GEO;
+  const W = FM.W, H = FM.H, M = FM.MARGIN;
+
+  const FONT = {
+    serif: '"EB Garamond", Garamond, "Times New Roman", serif',
+    fell: '"IM Fell English SC", "EB Garamond", Garamond, serif',
+    fellR: '"IM Fell English", "EB Garamond", Garamond, serif',
+  };
+  FM.FONT = FONT;
+  const C = (FM.INK = {
+    paper: '#f1e8d2', street: '#fbf6e9', built: '#e6c19c', old: '#ddb38f', blockLine: '#b98d68',
+    ind: '#d6cab6', indLine: '#a8977d', park: '#c3d6a0', parkLine: '#93ab72', cem: '#cddbb3',
+    rail: '#ddd5c6', water: '#a7c9d8', bank: '#5f90a8', aFill: '#efc35a', aCase: '#6e5539',
+    bFill: '#f7e19f', bCase: '#836c50', cFill: '#fffbf0', cCase: '#a08b72', lane: '#fffaf0', laneCase: '#9c8466',
+    ink: '#33271c', soft: '#5d4b39', waterInk: '#2f6680', red: '#a8322a', parish: '#7a4a88', ward: '#3f5f93', bldg: '#c08a64',
+  });
+
+  /* ---------------- text helpers ---------------- */
+  function setFont(ctx, size, family = FONT.serif, style = '', weight = '') { ctx.font = `${style} ${weight} ${size}px ${family}`.trim(); }
+  function spacedWidth(ctx, text, sp) { let w = 0; for (const ch of text) w += ctx.measureText(ch).width + sp; return w - sp; }
+  function drawSpaced(ctx, text, x, y, sp, align = 'center', mode = 'fill') {
+    const w = spacedWidth(ctx, text, sp);
+    let cx = align === 'center' ? x - w / 2 : align === 'right' ? x - w : x;
+    const ta = ctx.textAlign; ctx.textAlign = 'left';
+    for (const ch of text) { if (mode === 'stroke') ctx.strokeText(ch, cx, y); else ctx.fillText(ch, cx, y); cx += ctx.measureText(ch).width + sp; }
+    ctx.textAlign = ta;
+    return w;
+  }
+  FM.drawSpaced = drawSpaced; FM.setFont = setFont; FM.spacedWidth = spacedWidth;
+
+  /* ---------------- oriented-box collision for labels ---------------- */
+  function Placer() {
+    const boxes = [];
+    const corners = b => {
+      const c = Math.cos(b.a), s = Math.sin(b.a);
+      return [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([i, j]) => [b.x + i * b.hw * c - j * b.hh * s, b.y + i * b.hw * s + j * b.hh * c]);
+    };
+    const overlap = (A, B) => {
+      if (Math.hypot(A.x - B.x, A.y - B.y) > Math.hypot(A.hw, A.hh) + Math.hypot(B.hw, B.hh)) return false;
+      const ca = corners(A), cb = corners(B);
+      for (const b of [A, B]) for (const ang of [b.a, b.a + Math.PI / 2]) {
+        const ax = [Math.cos(ang), Math.sin(ang)];
+        const pa = ca.map(p => p[0] * ax[0] + p[1] * ax[1]), pb = cb.map(p => p[0] * ax[0] + p[1] * ax[1]);
+        if (Math.max(...pa) < Math.min(...pb) || Math.max(...pb) < Math.min(...pa)) return false;
+      }
+      return true;
+    };
+    return {
+      boxes,
+      free: (list, ignoreTag) => list.every(b => !boxes.some(o => o.tag !== ignoreTag && overlap(b, o))),
+      add: (list, tag) => { for (const b of list) boxes.push({ ...b, tag }); },
+      inside: list => list.every(b => corners(b).every(([x, y]) => x > M + 1 && x < W - M - 1 && y > M + 1 && y < H - M - 1)),
+    };
+  }
+
+  // straight label centred at p, along angle a (kept upright)
+  function boxFor(p, a, w, h, pad = 0.6) { return { x: p[0], y: p[1], hw: w / 2 + pad, hh: h / 2 + pad * 0.5, a }; }
+  const upright = a => { while (a > Math.PI / 2) a -= Math.PI; while (a < -Math.PI / 2) a += Math.PI; return a; };
+
+  // per-character layout along a path
+  function pathLayout(ctx, text, path, centerD, sp = 0) {
+    let P = path;
+    if (P[P.length - 1][0] < P[0][0]) P = P.slice().reverse(), (centerD = GEO.len(path) - centerD);
+    const ws = [...text].map(ch => ctx.measureText(ch).width);
+    const total = ws.reduce((s, w) => s + w, 0) + sp * (ws.length - 1);
+    let d = centerD - total / 2;
+    const L = GEO.len(P);
+    if (d < 0 || d + total > L) return null;
+    const out = [];
+    [...text].forEach((ch, i) => { const at = GEO.pointAt(P, d + ws[i] / 2); out.push({ ch, p: at.p, a: at.a, w: ws[i] }); d += ws[i] + sp; });
+    // reject if it bends too sharply
+    for (let i = 1; i < out.length; i++) { let da = Math.abs(out[i].a - out[i - 1].a); if (da > Math.PI) da = 2 * Math.PI - da; if (da > 0.55) return null; }
+    return out;
+  }
+  function drawPathText(ctx, layout, fill, halo, haloW) {
+    if (halo) {
+      ctx.strokeStyle = halo; ctx.lineWidth = haloW; ctx.lineJoin = 'round';
+      for (const g of layout) { ctx.save(); ctx.translate(g.p[0], g.p[1]); ctx.rotate(g.a); ctx.strokeText(g.ch, -g.w / 2, 0); ctx.restore(); }
+    }
+    ctx.fillStyle = fill;
+    for (const g of layout) { ctx.save(); ctx.translate(g.p[0], g.p[1]); ctx.rotate(g.a); ctx.fillText(g.ch, -g.w / 2, 0); ctx.restore(); }
+  }
+
+  /* ---------------- shapes ---------------- */
+  const pathPoly = (ctx, P) => { ctx.beginPath(); P.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); };
+  const pathLine = (ctx, P) => { ctx.beginPath(); P.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); };
+
+  function star4(ctx, x, y, R, r) {
+    ctx.beginPath();
+    for (let k = 0; k < 8; k++) { const a = -Math.PI / 2 + (k * Math.PI) / 4, rr = k % 2 ? r : R; const px = x + rr * Math.cos(a), py = y + rr * Math.sin(a); k ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+    ctx.closePath();
+  }
+  function lanternSymbol(ctx, x, y, s = 1) {
+    ctx.save();
+    ctx.beginPath(); ctx.arc(x, y, 6.5 * s, 0, Math.PI * 2); ctx.fillStyle = '#fbf3e0'; ctx.fill();
+    ctx.lineWidth = 0.9 * s; ctx.strokeStyle = C.red; ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, 4.9 * s, 0, Math.PI * 2); ctx.lineWidth = 0.3 * s; ctx.stroke();
+    star4(ctx, x, y, 5.6 * s, 1.45 * s); ctx.fillStyle = C.red; ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y, 0.9 * s, 0, Math.PI * 2); ctx.fillStyle = '#fbf3e0'; ctx.fill();
+    ctx.restore();
+  }
+  FM.lanternSymbol = lanternSymbol;
+
+  function symbol(ctx, t, x, y, s = 1, big = false) {
+    ctx.save();
+    ctx.fillStyle = C.ink; ctx.strokeStyle = C.ink; ctx.lineCap = 'butt';
+    if (t === 'church') {
+      if (big) {
+        ctx.fillStyle = '#6b4a35';
+        ctx.fillRect(x - 9, y - 2.6, 18, 5.2); ctx.fillRect(x + 1.5, y - 6.5, 4, 13);
+        ctx.fillStyle = C.ink; ctx.lineWidth = 0.7; ctx.beginPath(); ctx.moveTo(x - 9, y - 4.5); ctx.lineTo(x - 9, y - 10); ctx.moveTo(x - 11, y - 8.2); ctx.lineTo(x - 7, y - 8.2); ctx.stroke();
+      } else {
+        ctx.beginPath(); ctx.arc(x, y + 1.3 * s, 1.5 * s, 0, Math.PI * 2); ctx.fill();
+        ctx.lineWidth = 0.65 * s; ctx.beginPath(); ctx.moveTo(x, y - 0.4 * s); ctx.lineTo(x, y - 4.6 * s); ctx.moveTo(x - 1.5 * s, y - 3.2 * s); ctx.lineTo(x + 1.5 * s, y - 3.2 * s); ctx.stroke();
+      }
+    } else if (t === 'ph' || t === 'po' || t === 'school' || t === 'mus') {
+      const txt = { ph: 'PH', po: 'PO', school: 'Sch', mus: 'Mus' }[t];
+      setFont(ctx, 2.9 * s, FONT.serif, '', '600'); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y);
+    } else if (t === 'hosp') {
+      ctx.fillStyle = '#fbf6ea'; ctx.fillRect(x - 3 * s, y - 3 * s, 6 * s, 6 * s); ctx.lineWidth = 0.5 * s; ctx.strokeRect(x - 3 * s, y - 3 * s, 6 * s, 6 * s);
+      ctx.fillStyle = C.red; ctx.fillRect(x - 0.8 * s, y - 2.2 * s, 1.6 * s, 4.4 * s); ctx.fillRect(x - 2.2 * s, y - 0.8 * s, 4.4 * s, 1.6 * s);
+    } else if (t === 'view') {
+      ctx.lineWidth = 0.5 * s;
+      for (let k = 0; k < 7; k++) { const a = Math.PI + (k / 6) * Math.PI; ctx.beginPath(); ctx.moveTo(x + 1.2 * s * Math.cos(a), y + 1.2 * s * Math.sin(a)); ctx.lineTo(x + 4 * s * Math.cos(a), y + 4 * s * Math.sin(a)); ctx.stroke(); }
+      ctx.beginPath(); ctx.arc(x, y, 1 * s, 0, Math.PI * 2); ctx.fill();
+    } else if (t === 'light') {
+      ctx.lineWidth = 0.45 * s;
+      for (let k = 0; k < 8; k++) { const a = (k / 8) * Math.PI * 2; ctx.beginPath(); ctx.moveTo(x + 2.2 * s * Math.cos(a), y + 2.2 * s * Math.sin(a)); ctx.lineTo(x + 4.2 * s * Math.cos(a), y + 4.2 * s * Math.sin(a)); ctx.stroke(); }
+      ctx.beginPath(); ctx.arc(x, y, 1.6 * s, 0, Math.PI * 2); ctx.fill();
+    } else if (t === 'market') {
+      ctx.fillStyle = '#efe2c6'; ctx.fillRect(x - 6, y - 4, 12, 8); ctx.lineWidth = 0.4; ctx.strokeRect(x - 6, y - 4, 12, 8);
+      ctx.lineWidth = 0.25; for (let k = -6; k < 6; k += 1.6) { ctx.beginPath(); ctx.moveTo(x + k, y - 4); ctx.lineTo(Math.min(x + 6, x + k + 8), y - 4 + Math.min(8, 6 - k)); ctx.stroke(); }
+    } else if (t === 'hall') {
+      ctx.fillStyle = '#7d5a43'; ctx.fillRect(x - 6, y - 3.4, 12, 6.8);
+    } else if (t === 'fountain') {
+      ctx.fillStyle = C.water; ctx.beginPath(); ctx.arc(x, y, 2.2, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = C.bank; ctx.lineWidth = 0.4; ctx.stroke();
+    } else if (t === 'bandstand') {
+      ctx.fillStyle = '#efe7d2'; pathPoly(ctx, GEO.ellipse(x, y, 4, 4, Math.PI / 8, 8)); ctx.fill(); ctx.lineWidth = 0.45; ctx.stroke();
+    } else if (t === 'gasholder') {
+      ctx.fillStyle = '#cfc4b1'; ctx.beginPath(); ctx.arc(x, y, 3.2 * s, 0, Math.PI * 2); ctx.fill(); ctx.lineWidth = 0.5 * s; ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, y, 1.9 * s, 0, Math.PI * 2); ctx.lineWidth = 0.3 * s; ctx.stroke();
+    }
+    ctx.restore();
+  }
+  FM.symbol = symbol;
+
+  function strokeRoad(ctx, pts, w, color) { ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = 'butt'; ctx.lineJoin = 'round'; pathLine(ctx, pts); ctx.stroke(); }
+  function roadRound(ctx, pts, w, color) { ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; pathLine(ctx, pts); ctx.stroke(); }
+
+  /* ---------------- paper grain ---------------- */
+  function grainCanvas(seed, tint) {
+    const g = document.createElement('canvas'); g.width = g.height = 256;
+    const c = g.getContext('2d'), img = c.createImageData(256, 256), r = GEO.rng(seed);
+    for (let i = 0; i < 256 * 256; i++) {
+      const v = 200 + r() * 55;
+      img.data[i * 4] = v; img.data[i * 4 + 1] = v - 4; img.data[i * 4 + 2] = v - 12; img.data[i * 4 + 3] = 255;
+    }
+    c.putImageData(img, 0, 0);
+    c.globalAlpha = 0.18; c.strokeStyle = tint;
+    for (let k = 0; k < 70; k++) { c.lineWidth = 0.4 + r() * 0.6; c.beginPath(); let x = r() * 256, y = r() * 256; c.moveTo(x, y); for (let j = 0; j < 4; j++) { x += (r() - 0.5) * 18; y += (r() - 0.5) * 18; c.lineTo(x, y); } c.stroke(); }
+    return g;
+  }
+  function ageSheet(ctx, seed) {
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    const cw = ctx.canvas.width, ch = ctx.canvas.height;
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.globalAlpha = 0.22;
+    ctx.fillStyle = ctx.createPattern(grainCanvas(seed, '#8a7a60'), 'repeat'); ctx.fillRect(0, 0, cw, ch);
+    // mottling and edge toning
+    ctx.globalAlpha = 1;
+    const r = GEO.rng(seed + 5);
+    for (let k = 0; k < 26; k++) {
+      const x = r() * cw, y = r() * ch, rad = (0.05 + r() * 0.12) * cw;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, rad); g.addColorStop(0, 'rgba(190,160,110,0.06)'); g.addColorStop(1, 'rgba(190,160,110,0)');
+      ctx.fillStyle = g; ctx.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+    }
+    const eg = ctx.createRadialGradient(cw / 2, ch / 2, Math.min(cw, ch) * 0.42, cw / 2, ch / 2, Math.max(cw, ch) * 0.72);
+    eg.addColorStop(0, 'rgba(180,140,80,0)'); eg.addColorStop(1, 'rgba(180,140,80,0.22)');
+    ctx.fillStyle = eg; ctx.fillRect(0, 0, cw, ch);
+    ctx.restore();
+  }
+
+  /* =================================================================
+     FRONT
+  ================================================================== */
+  FM.drawFront = function (canvas, S, city) {
+    const ctx = canvas.getContext('2d');
+    canvas.width = Math.round(W * S); canvas.height = Math.round(H * S);
+    ctx.setTransform(S, 0, 0, S, 0, 0);
+    ctx.textBaseline = 'middle';
+    const placer = Placer();
+    const labels = []; // {name, at:[x,y], kind}
+    const sq = (x, y) => 'ABCDEFGH'[Math.max(0, Math.min(7, Math.floor(x / 120)))] + (Math.max(0, Math.min(3, Math.floor(y / 165))) + 1);
+
+    // sheet
+    ctx.fillStyle = C.paper; ctx.fillRect(0, 0, W, H);
+    ctx.save();
+    ctx.beginPath(); ctx.rect(M, M, W - 2 * M, H - 2 * M); ctx.clip();
+    ctx.fillStyle = C.street; ctx.fillRect(M, M, W - 2 * M, H - 2 * M);
+
+    // ---- blocks
+    for (const b of city.blocks) {
+      const fill = b.kind === 'old' ? C.old : b.kind === 'industrial' ? C.ind : b.kind === 'rail' ? C.rail : C.built;
+      const line = b.kind === 'industrial' ? C.indLine : C.blockLine;
+      pathPoly(ctx, b.poly); ctx.fillStyle = fill; ctx.fill(); ctx.lineWidth = 0.32; ctx.strokeStyle = line; ctx.stroke();
+    }
+    // building texture inside blocks: faint hatched courtyards on old town blocks
+    {
+      const r = GEO.rng(9);
+      for (const b of city.blocks) {
+        if (b.kind !== 'old' && b.kind !== 'built') continue;
+        const A = Math.abs(GEO.area(b.poly));
+        if (A < 160 || r() < 0.7) continue;
+        const c = b.c, k = 0.36 + r() * 0.14;
+        const inner = b.poly.map(p => [c[0] + (p[0] - c[0]) * k, c[1] + (p[1] - c[1]) * k]);
+        pathPoly(ctx, inner); ctx.fillStyle = 'rgba(251,246,233,0.42)'; ctx.fill(); ctx.lineWidth = 0.2; ctx.strokeStyle = 'rgba(160,120,90,0.4)'; ctx.stroke();
+      }
+    }
+
+    // ---- railway land, industrial yards
+    pathPoly(ctx, FM.railway.land); ctx.fillStyle = C.rail; ctx.fill();
+    for (const [x, y, rr] of FM.gasholders) { ctx.beginPath(); ctx.arc(x, y, rr + 2.2, 0, Math.PI * 2); ctx.fillStyle = C.ind; ctx.fill(); }
+
+    // ---- parks
+    for (const p of FM.parks) {
+      if (p.kind === 'island') continue;
+      pathPoly(ctx, p.poly); ctx.fillStyle = p.kind === 'cemetery' ? C.cem : C.park; ctx.fill(); ctx.lineWidth = 0.4; ctx.strokeStyle = C.parkLine; ctx.stroke();
+      const r = GEO.rng(p.name.length * 31);
+      // trees
+      const bb = p.poly.reduce((a, q) => [Math.min(a[0], q[0]), Math.min(a[1], q[1]), Math.max(a[2], q[0]), Math.max(a[3], q[1])], [1e9, 1e9, -1e9, -1e9]);
+      const n = Math.abs(GEO.area(p.poly)) / (p.kind === 'cemetery' ? 30 : 60);
+      for (let k = 0; k < n; k++) {
+        const x = bb[0] + r() * (bb[2] - bb[0]), y = bb[1] + r() * (bb[3] - bb[1]);
+        if (!GEO.pip([x, y], p.poly) || GEO.polyDist([x, y], [...p.poly, p.poly[0]]) < 2.5) continue;
+        if (p.kind === 'cemetery') { ctx.strokeStyle = '#6f7f5a'; ctx.lineWidth = 0.35; ctx.beginPath(); ctx.moveTo(x, y - 1.3); ctx.lineTo(x, y + 1.3); ctx.moveTo(x - 0.8, y - 0.5); ctx.lineTo(x + 0.8, y - 0.5); ctx.stroke(); }
+        else { ctx.beginPath(); ctx.arc(x, y, 0.9 + r() * 0.8, 0, Math.PI * 2); ctx.fillStyle = 'rgba(95,130,70,0.42)'; ctx.fill(); }
+      }
+    }
+    // Lenn Park paths
+    ctx.save(); ctx.setLineDash([1.6, 1.1]); ctx.strokeStyle = '#8a7a5c'; ctx.lineWidth = 0.5;
+    for (const P of [[[372, 512], [420, 540], [470, 560], [530, 556], [588, 520]], [[380, 630], [430, 600], [480, 576], [560, 600], [590, 630]], [[480, 505], [470, 540], [480, 576]]]) { pathLine(ctx, GEO.catmull(P, 2)); ctx.stroke(); }
+    ctx.restore();
+
+    // ---- circus quarters: rounded plaza corners at four junctions
+    const R = FM.circus.r;
+    for (const q of FM.circus.quarters) {
+      const [cx, cy] = q.at, [qx, qy] = q.q;
+      ctx.save();
+      ctx.beginPath(); ctx.rect(Math.min(cx, cx + qx * (R + 4)), Math.min(cy, cy + qy * (R + 4)), R + 4, R + 4); ctx.clip();
+      ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fillStyle = C.street; ctx.fill();
+      ctx.lineWidth = 0.45; ctx.strokeStyle = C.blockLine; ctx.stroke();
+      // ring of plane trees
+      for (let k = 0; k < 24; k++) { const a = (k + 0.5) * Math.PI / 12; const x = cx + (R - 3.6) * Math.cos(a), y = cy + (R - 3.6) * Math.sin(a); ctx.beginPath(); ctx.arc(x, y, 1.15, 0, Math.PI * 2); ctx.fillStyle = 'rgba(95,130,70,0.55)'; ctx.fill(); }
+      ctx.restore();
+    }
+    // ---- the Lantern public house (half round) and the half-round garden across the sheet
+    {
+      const { left, right, r, clear } = FM.pub;
+      ctx.save(); ctx.beginPath(); ctx.rect(left[0] - clear - 1, left[1] - clear - 1, clear + 1, 2 * clear + 2); ctx.clip();
+      ctx.beginPath(); ctx.arc(left[0], left[1], clear, 0, Math.PI * 2); ctx.fillStyle = C.street; ctx.fill();
+      ctx.beginPath(); ctx.arc(left[0], left[1], r, 0, Math.PI * 2); ctx.fillStyle = C.bldg; ctx.fill(); ctx.lineWidth = 0.4; ctx.strokeStyle = '#7e5a40'; ctx.stroke();
+      ctx.restore();
+      ctx.save(); ctx.beginPath(); ctx.rect(right[0], right[1] - clear - 1, clear + 1, 2 * clear + 2); ctx.clip();
+      ctx.beginPath(); ctx.arc(right[0], right[1], clear, 0, Math.PI * 2); ctx.fillStyle = C.street; ctx.fill();
+      ctx.beginPath(); ctx.arc(right[0], right[1], r, 0, Math.PI * 2); ctx.fillStyle = C.park; ctx.fill(); ctx.lineWidth = 0.4; ctx.strokeStyle = C.parkLine; ctx.stroke();
+      for (const [dx, dy] of [[4, -6], [8, 2], [3, 6], [9, -3]]) { ctx.beginPath(); ctx.arc(right[0] + dx, right[1] + dy, 1.2, 0, Math.PI * 2); ctx.fillStyle = 'rgba(95,130,70,0.5)'; ctx.fill(); }
+      ctx.restore();
+    }
+
+    // ---- water
+    const W_ = FM.water;
+    ctx.lineJoin = 'round';
+    for (const P of W_.all) { pathPoly(ctx, P); ctx.lineWidth = 1.5; ctx.strokeStyle = C.bank; ctx.stroke(); }
+    for (const P of W_.all) { pathPoly(ctx, P); ctx.fillStyle = C.water; ctx.fill(); }
+    // water lining (old engraving style)
+    ctx.save(); for (const P of W_.all) { pathPoly(ctx, P); } ctx.clip('nonzero');
+    ctx.strokeStyle = 'rgba(70,120,150,0.18)'; ctx.lineWidth = 0.3;
+    for (let k = 0; k < 3; k++) { for (const P of [W_.northBank, W_.southBank]) { pathLine(ctx, GEO.offset(P, (P === W_.northBank ? 1 : -1) * (2.2 + k * 2.2))); ctx.stroke(); } }
+    ctx.restore();
+    // pond in Lenn Park
+    pathPoly(ctx, W_.pond); ctx.fillStyle = C.water; ctx.fill(); ctx.lineWidth = 0.6; ctx.strokeStyle = C.bank; ctx.stroke();
+    // island
+    const isl = FM.parks.find(p => p.kind === 'island');
+    pathPoly(ctx, isl.poly); ctx.fillStyle = C.park; ctx.fill(); ctx.lineWidth = 0.5; ctx.strokeStyle = C.bank; ctx.stroke();
+    // quay edges round the Pool
+    ctx.strokeStyle = '#4e4a44'; ctx.lineWidth = 0.7;
+    for (const P of [W_.pool, W_.pikesBasin, W_.lennBasin]) { pathPoly(ctx, P); ctx.stroke(); }
+    // ferry
+    ctx.save(); ctx.setLineDash([1.2, 1.4]); ctx.strokeStyle = C.ink; ctx.lineWidth = 0.45; pathLine(ctx, [[772, 290], [776, 340], [772, 392]]); ctx.stroke(); ctx.restore();
+
+    // ---- quays (offset along the banks)
+    const clipX = (P, x0, x1) => P.filter(p => p[0] >= x0 && p[0] <= x1);
+    const nq = GEO.offset(clipX(W_.northBank, 226, 704), -3.4), sq_ = GEO.offset(clipX(W_.southBank, 226, 704), 3.4);
+    const roadsAll = [];
+    roadsAll.push({ name: 'North Quay', cls: 'Q', pts: nq, curve: true }, { name: 'South Quay', cls: 'Q', pts: sq_, curve: true });
+    for (const r of FM.roads) roadsAll.push(r);
+    for (const r of city.forcedRoads) roadsAll.push(r);
+    const widthOf = r => FM.ROADW[r.cls];
+    const caseOf = r => (r.cls === 'A' ? C.aCase : r.cls === 'B' ? C.bCase : C.cCase);
+    const fillOf = r => (r.cls === 'A' ? C.aFill : r.cls === 'B' ? C.bFill : C.cFill);
+
+    // ---- lanes (under the roads, so roads close their ends)
+    for (const l of FM.lanes) roadRound(ctx, l.pts, FM.ROADW.L + 0.9, C.laneCase);
+    for (const l of FM.lanes) roadRound(ctx, l.pts, FM.ROADW.L, C.lane);
+    for (const l of FM.lanes) if (l.steps) {
+      ctx.strokeStyle = C.laneCase; ctx.lineWidth = 0.28;
+      const L = GEO.len(l.pts);
+      for (let d = 3; d < L - 2; d += 1.6) { const { p, a } = GEO.pointAt(l.pts, d); const nx = -Math.sin(a), ny = Math.cos(a); ctx.beginPath(); ctx.moveTo(p[0] - nx * 1.1, p[1] - ny * 1.1); ctx.lineTo(p[0] + nx * 1.1, p[1] + ny * 1.1); ctx.stroke(); }
+    }
+
+    // ---- bridges: parapets where a road crosses water
+    const bridges = [];
+    for (const r of roadsAll) {
+      if (r.curve) continue;
+      const [a, b] = [r.pts[0], r.pts[r.pts.length - 1]];
+      const L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      let inW = false, s0 = 0;
+      for (let d = 0; d <= L; d += 1) {
+        const p = [a[0] + (b[0] - a[0]) * d / L, a[1] + (b[1] - a[1]) * d / L];
+        const w = FM.inWater(p);
+        if (w && !inW) { inW = true; s0 = d; }
+        if ((!w || d + 1 > L) && inW) { inW = false; bridges.push({ r, a: [a[0] + (b[0] - a[0]) * (s0 - 2.5) / L, a[1] + (b[1] - a[1]) * (s0 - 2.5) / L], b: [a[0] + (b[0] - a[0]) * (d + 1.5) / L, a[1] + (b[1] - a[1]) * (d + 1.5) / L] }); }
+      }
+    }
+    for (const br of bridges) strokeRoad(ctx, [br.a, br.b], widthOf(br.r) + 3.2, '#3d342b');
+    for (const br of bridges) strokeRoad(ctx, [br.a, br.b], widthOf(br.r) + 1.6, C.water);
+
+    // ---- roads: casings, then fills by class
+    const order = ['Q', 'C', 'B', 'A'];
+    for (const cls of order) for (const r of roadsAll) if (r.cls === cls) strokeRoad(ctx, r.pts, widthOf(r) + 1.1, caseOf(r));
+    for (const cls of order) for (const r of roadsAll) if (r.cls === cls) strokeRoad(ctx, r.pts, widthOf(r), fillOf(r));
+    // re-open plazas over the road edges so the corner reads as a curve
+    // (nothing: the plaza sits in the corner, roads pass alongside)
+
+    // ---- railway
+    ctx.save();
+    strokeRoad(ctx, FM.railway.pts, 2.2, '#2a241f');
+    ctx.setLineDash([3, 3]); strokeRoad(ctx, FM.railway.pts, 1.2, '#f6f0e2'); ctx.restore();
+    pathPoly(ctx, FM.station.poly); ctx.fillStyle = '#b0453a'; ctx.fill(); ctx.lineWidth = 0.5; ctx.strokeStyle = '#5a201b'; ctx.stroke();
+    ctx.fillStyle = '#f3e6d0'; ctx.fillRect(388, 41.5, 72, 2.2);
+
+    // ---- gasholders
+    for (const [x, y, rr] of FM.gasholders) { ctx.beginPath(); ctx.arc(x, y, rr, 0, Math.PI * 2); ctx.fillStyle = '#cdbfa8'; ctx.fill(); ctx.lineWidth = 0.6; ctx.strokeStyle = '#5c5144'; ctx.stroke(); ctx.beginPath(); ctx.arc(x, y, rr * 0.62, 0, Math.PI * 2); ctx.lineWidth = 0.3; ctx.stroke(); }
+
+    // ---- boundaries: parish (mountain-style dash-dot) and ward (valley-style dashes)
+    const boundary = (P, kind) => {
+      ctx.save();
+      ctx.strokeStyle = kind === 'parish' ? 'rgba(122,74,136,0.13)' : 'rgba(63,95,147,0.12)'; ctx.lineWidth = 3.4; ctx.lineCap = 'butt'; pathLine(ctx, P); ctx.stroke();
+      ctx.strokeStyle = kind === 'parish' ? C.parish : C.ward; ctx.lineWidth = 0.72;
+      ctx.setLineDash(kind === 'parish' ? [6.5, 1.7, 1.1, 1.7] : [4.6, 2.4]); pathLine(ctx, P); ctx.stroke();
+      ctx.restore();
+    };
+    const PX = 360 - 1.4, PY = 165 - 1.4;
+    boundary([[PX, M], [PX, H - M]], 'parish');
+    boundary([[M, PY], [W - M, PY]], 'parish');
+    boundary([[480, M], [480, H - M]], 'ward');
+    boundary([[M, 330], [W - M, 330]], 'ward');
+
+    // ---- the Lantern's four quarters, at the four junctions
+    for (const q of FM.circus.quarters) {
+      const [cx, cy] = q.at, [qx, qy] = q.q;
+      ctx.save(); ctx.beginPath(); ctx.rect(Math.min(cx, cx + qx * 9), Math.min(cy, cy + qy * 9), 9, 9); ctx.clip();
+      lanternSymbol(ctx, cx, cy, 1); ctx.restore();
+    }
+
+    // ---- shop
+    ctx.fillStyle = C.red; ctx.fillRect(FM.shop.at[0] - 1.6, FM.shop.at[1] - 1.6, 3.2, 3.2);
+
+    // ---- landmarks
+    for (const l of FM.landmarks) symbol(ctx, l.t, l.at[0], l.at[1], 1, l.big);
+
+    /* ================= labels ================= */
+    // obstacles: creases (labels keep off folds), cartouches, symbols
+    const creaseBoxes = [];
+    for (let k = 1; k < 8; k++) creaseBoxes.push({ x: k * 120, y: H / 2, hw: 1.1, hh: H / 2, a: 0 });
+    for (let k = 1; k < 4; k++) creaseBoxes.push({ x: W / 2, y: k * 165, hw: W / 2, hh: 1.1, a: 0 });
+    placer.add(creaseBoxes, 'crease');
+    const boxR = (x0, y0, x1, y1) => ({ x: (x0 + x1) / 2, y: (y0 + y1) / 2, hw: (x1 - x0) / 2, hh: (y1 - y0) / 2, a: 0 });
+    const CART = { title: [22, 548, 198, 638], legend: [846, 214, 936, 462], rhyme: [848, 566, 936, 638] };
+    for (const k in CART) placer.add([boxR(...CART[k])], 'cart');
+    for (const l of FM.landmarks) placer.add([boxFor(l.at, 0, 6, 6)], 'sym');
+    for (const q of FM.circus.quarters) placer.add([boxFor(q.at, 0, 10, 10)], 'sym');
+    placer.add([boxFor(FM.shop.at, 0, 4, 4)], 'sym');
+    for (const [x, y, rr] of FM.gasholders) placer.add([boxFor([x, y], 0, rr * 2, rr * 2)], 'sym');
+    placer.add([boxR(380, 30, 468, 58)], 'sym');
+
+    const placeStraight = (text, P, opts) => {
+      const { size, family = FONT.serif, style = '', weight = '', color = C.ink, halo = null, haloW = 1, sp = 0, ts = [0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8], ignore = null, kind = 'street', name = text, force = false, offset = 0 } = opts;
+      setFont(ctx, size, family, style, weight);
+      const w = sp ? spacedWidth(ctx, text, sp) : ctx.measureText(text).width;
+      const a0 = P[0], a1 = P[P.length - 1];
+      const L = Math.hypot(a1[0] - a0[0], a1[1] - a0[1]);
+      if (w + 4 > L && !force) return false;
+      const ang = upright(Math.atan2(a1[1] - a0[1], a1[0] - a0[0]));
+      for (const t of ts) {
+        let p = [a0[0] + (a1[0] - a0[0]) * t, a0[1] + (a1[1] - a0[1]) * t];
+        p = [p[0] - Math.sin(ang) * offset, p[1] + Math.cos(ang) * offset];
+        const tw = Math.abs((w / 2 + 2) / L);
+        if (!force && (t - tw < 0 || t + tw > 1)) continue;
+        const bx = [boxFor(p, ang, w, size * 0.9)];
+        if (!placer.inside(bx)) continue;
+        if (!force && !placer.free(bx, ignore)) continue;
+        placer.add(bx, kind);
+        ctx.save(); ctx.translate(p[0], p[1]); ctx.rotate(ang);
+        if (halo) { ctx.strokeStyle = halo; ctx.lineWidth = haloW; ctx.lineJoin = 'round'; if (sp) drawSpaced(ctx, text, 0, 0.15, sp, 'center', 'stroke'); else { ctx.textAlign = 'center'; ctx.strokeText(text, 0, 0.15); } }
+        ctx.fillStyle = color;
+        if (sp) drawSpaced(ctx, text, 0, 0.15, sp); else { ctx.textAlign = 'center'; ctx.fillText(text, 0, 0.15); }
+        ctx.restore();
+        labels.push({ name, at: p, kind, sq: sq(p[0], p[1]) });
+        return true;
+      }
+      return false;
+    };
+    const placePath = (text, P, opts) => {
+      const { size, family = FONT.serif, style = 'italic', weight = '', color = C.ink, halo = C.lane, haloW = 0.9, sp = 0, at = [0.5, 0.4, 0.6, 0.3, 0.7], kind = 'lane', name = text, ignore = null } = opts;
+      setFont(ctx, size, family, style, weight);
+      const L = GEO.len(P);
+      for (const t of at) {
+        const lay = pathLayout(ctx, text, P, L * t, sp);
+        if (!lay) continue;
+        const bx = lay.map(g => boxFor(g.p, g.a, g.w, size * 0.85, 0.15));
+        if (!placer.inside(bx) || !placer.free(bx, ignore)) continue;
+        placer.add(bx, kind);
+        drawPathText(ctx, lay, color, halo, haloW);
+        const mid = lay[Math.floor(lay.length / 2)].p;
+        labels.push({ name, at: mid, kind, sq: sq(mid[0], mid[1]) });
+        return true;
+      }
+      return false;
+    };
+
+    // water names
+    ctx.textBaseline = 'middle';
+    const riverMid = W_.riverC;
+    placePath('RIVER LENN', riverMid.filter(p => p[0] > 30 && p[0] < 140), { size: 6, style: 'italic', color: C.waterInk, halo: null, sp: 2.2, kind: 'water', name: 'River Lenn', ignore: 'crease' });
+    placePath('RIVER  LENN', riverMid.filter(p => p[0] > 500 && p[0] < 620), { size: 6, style: 'italic', color: C.waterInk, halo: null, sp: 2.2, kind: 'water', name: 'River Lenn', ignore: 'crease' });
+    placeStraight('THE POOL', [[730, 330], [800, 330]], { size: 6.4, style: 'italic', color: C.waterInk, sp: 2, kind: 'water', ignore: 'crease', force: true });
+    placeStraight("Pike's Basin", [[748, 260], [796, 260]], { size: 3.2, style: 'italic', color: C.waterInk, kind: 'water', force: true });
+    placeStraight('Lenn Basin', [[736, 424], [790, 424]], { size: 3.2, style: 'italic', color: C.waterInk, kind: 'water', force: true });
+    placeStraight('Merrow Sound', [[860, 202], [930, 202]], { size: 3.6, style: 'italic', color: C.waterInk, sp: 0.6, kind: 'water', force: true });
+    placeStraight('Swan Eyot', [[160, 324.5], [196, 329]], { size: 2.6, style: 'italic', color: '#3d5a2c', kind: 'water', force: true });
+
+    // districts
+    const district = (t, x, y, size, sp = 2.4) => {
+      setFont(ctx, size, FONT.serif, '', '500');
+      const w = spacedWidth(ctx, t, sp);
+      ctx.save(); ctx.fillStyle = 'rgba(92,58,34,0.42)'; drawSpaced(ctx, t, x, y, sp); ctx.restore();
+      placer.add([boxFor([x, y], 0, w, size * 0.8)], 'district');
+    };
+    district('OLD TOWN', 238, 284, 8.6, 3.2);
+    district('NORTHGATE', 92, 150, 5.6, 2);
+    district('BELL HILL', 712, 128, 6.4, 2.4);
+    district('LENNSIDE', 560, 432, 7, 2.8);
+    district('DOCKSIDE', 650, 200, 5.4, 2.2);
+    district('NEWHAVEN', 742, 628, 5.6, 2.2);
+    district('SOUTHFIELDS', 112, 528, 5.6, 2);
+    district('TANNERS', 66, 380, 5, 2);
+
+    // the lamplighters' round, the false lead, and the other lanes (priority over street names)
+    const laneAt = { 'Wick Lane': [0.55, 0.62, 0.7], 'Tallow Passage': [0.22, 0.3, 0.16], 'Taper Row': [0.68, 0.6, 0.75], 'Chandlers Mews': [0.42, 0.35, 0.5], 'Ember Steps': [0.52, 0.45, 0.6], 'Gaslight Row': [0.32, 0.42, 0.25], 'Mantle Lane': [0.55, 0.48, 0.62] };
+    for (const l of FM.lanes) {
+      const ok = placePath(l.name, l.pts, { size: l.route || l.decoy ? 3.15 : 2.9, at: laneAt[l.name] || [0.5, 0.4, 0.6, 0.3, 0.7], ignore: null });
+      if (!ok && (l.route || l.decoy)) console.warn('lane label not placed', l.name);
+    }
+    // seam streets labelled beside the road, inside their own panel
+    const sideLabel = (t, x, y) => { placeStraight(t, [[x, y + 20], [x, y - 20]], { size: 3.3, color: C.ink, halo: C.street, haloW: 0.9, force: true, kind: 'street' }); };
+    sideLabel('Mount Street', 352.2, 122);
+    sideLabel('Chapel Street', 352.2, 548);
+    sideLabel('Bell Street', 607.8, 86);
+    sideLabel('Fen Street', 607.8, 548);
+    // main roads
+    for (const r of FM.roads) {
+      if (!r.labelAt) continue;
+      const big = r.cls === 'A';
+      for (const p of r.labelAt) {
+        const vert = r.pts[0][0] === r.pts[1][0];
+        const seg = vert ? [[p[0], p[1] + 30], [p[0], p[1] - 30]] : [[p[0] - 30, p[1]], [p[0] + 30, p[1]]];
+        placeStraight(big ? r.name.toUpperCase() : r.name, seg, { size: big ? 4.2 : 3.7, sp: big ? 0.7 : 0, weight: big ? '600' : '500', color: C.ink, force: true, kind: 'street', name: r.name, ignore: 'crease' });
+      }
+    }
+    // quays and forced streets
+    placePath('North Quay', nq.filter(p => p[0] > 540 && p[0] < 660), { size: 3.3, style: '', halo: C.cFill, kind: 'street' });
+    placePath('South Quay', sq_.filter(p => p[0] > 250 && p[0] < 350), { size: 3.3, style: '', halo: C.cFill, kind: 'street' });
+    const seenForced = new Set();
+    for (const r of city.forcedRoads) {
+      if (seenForced.has(r.name)) continue;
+      const all = city.forcedRoads.filter(q => q.name === r.name);
+      let done = false;
+      for (const q of all.sort((a, b) => GEO.len(b.pts) - GEO.len(a.pts))) {
+        if (placeStraight(r.cls === 'B' ? r.name : r.name, q.pts, { size: r.cls === 'B' ? 3.7 : 3.3, weight: r.cls === 'B' ? '500' : '', color: C.ink, kind: 'street', ts: [0.5, 0.35, 0.65, 0.25, 0.75, 0.15, 0.85] })) { done = true; break; }
+      }
+      if (done) seenForced.add(r.name);
+    }
+    // bridges
+    const bridgeNames = { 'Bridge Street': 'Odo Bridge', 'Vale Street': 'Vale Bridge', 'Old Bridge Road': 'Old Bridge', 'Harbour Road': 'Swing Bridge' };
+    for (const br of bridges) {
+      const n = bridgeNames[br.r.name]; if (!n) continue;
+      const mid = [(br.a[0] + br.b[0]) / 2, (br.a[1] + br.b[1]) / 2];
+      placeStraight(n, [[mid[0] + 6, mid[1] - 22], [mid[0] + 6, mid[1] + 22]], { size: 2.8, style: 'italic', color: C.ink, halo: C.water, haloW: 0.6, kind: 'bridge', force: true, ts: [0.5] });
+    }
+    // landmarks
+    for (const l of FM.landmarks) {
+      if (!l.name) continue;
+      setFont(ctx, l.big ? 3.6 : 3, FONT.serif, 'italic');
+      const w = ctx.measureText(l.name).width;
+      const x = l.center ? l.at[0] : l.right ? l.at[0] + l.lab[0] - w / 2 : l.at[0] + l.lab[0] + w / 2, y = l.at[1] + l.lab[1];
+      placeStraight(l.name, [[x - w / 2 - 3, y], [x + w / 2 + 3, y]], { size: l.big ? 3.6 : 3, style: 'italic', color: C.soft, halo: 'rgba(251,246,233,0.85)', haloW: 0.8, kind: 'place', force: true, ts: [0.5] });
+    }
+    placeStraight('Holloway & Pike', [[150, 89], [182, 89]], { size: 2.6, style: 'italic', color: C.red, halo: 'rgba(251,246,233,0.9)', haloW: 0.7, kind: 'place', force: true, ts: [0.5] });
+    placeStraight('Merrow Central', [[392, 52], [458, 52]], { size: 3.4, weight: '600', color: '#fff4e6', kind: 'place', force: true, ts: [0.5] });
+    placeStraight('Gasworks', [[520, 234], [576, 234]], { size: 3.2, style: 'italic', color: C.soft, kind: 'place', force: true, ts: [0.5] });
+    for (const p of FM.parks) if (p.label && p.kind !== 'island') {
+      setFont(ctx, 3, FONT.serif, 'italic'); const w = ctx.measureText(p.name).width;
+      placeStraight(p.name, [[p.label[0] - w / 2 - 2, p.label[1]], [p.label[0] + w / 2 + 2, p.label[1]]], { size: 3, style: 'italic', color: '#3d5a2c', kind: 'place', force: true, ts: [0.5] });
+    }
+    // parish & ward names either side of their lines
+    const sideName = (t, x, y, a, color) => { setFont(ctx, 2.7, FONT.serif, 'italic'); const w = spacedWidth(ctx, t, 0.5); ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.fillStyle = color; drawSpaced(ctx, t, 0, 0, 0.5); ctx.restore(); placer.add([boxFor([x, y], a, w, 2.6)], 'place'); };
+    sideName('St Odo', PX - 9, 84, -Math.PI / 2, C.parish); sideName('St Brannoc', PX + 6, 84, -Math.PI / 2, C.parish);
+    sideName('All Hallows', PX - 9, 300, -Math.PI / 2, C.parish); sideName('St Clement', PX + 6, 300, -Math.PI / 2, C.parish);
+    sideName('St Brannoc', 640, PY - 7, 0, C.parish); sideName('St Clement', 640, PY + 7, 0, C.parish);
+    sideName('St Odo', 300, PY - 7, 0, C.parish); sideName('All Hallows', 300, PY + 7, 0, C.parish);
+    sideName('Castle Ward', 470, 590, -Math.PI / 2, C.ward); sideName('Harbour Ward', 489, 590, -Math.PI / 2, C.ward);
+    sideName('Castle Ward', 60, 337, 0, C.ward);
+
+    // procedural street names, longest first
+    const pool = city.pool.slice();
+    for (const ch of city.named) {
+      if (!pool.length) break;
+      const name = pool[0];
+      if (placeStraight(name, ch.seg, { size: 2.85, color: C.ink, halo: 'rgba(251,246,233,0.75)', haloW: 0.6, kind: 'street', ts: [0.5, 0.35, 0.65] })) pool.shift();
+    }
+
+    ctx.restore(); // frame clip
+
+    /* ================= frame & margins ================= */
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 0.9; ctx.strokeRect(M, M, W - 2 * M, H - 2 * M);
+    ctx.lineWidth = 0.3; ctx.strokeRect(M - 2.6, M - 2.6, W - 2 * M + 5.2, H - 2 * M + 5.2);
+    setFont(ctx, 6, FONT.fell); ctx.fillStyle = C.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (let c = 0; c < 8; c++) { ctx.fillText('ABCDEFGH'[c], c * 120 + 60, 8.6); ctx.fillText('ABCDEFGH'[c], c * 120 + 60, H - 9.4); }
+    for (let r = 0; r < 4; r++) { ctx.fillText(String(r + 1), 8.4, r * 165 + 82.5); ctx.fillText(String(r + 1), W - 8.4, r * 165 + 82.5); }
+    // ticks at the grid lines
+    ctx.lineWidth = 0.4;
+    for (let c = 1; c < 8; c++) { ctx.beginPath(); ctx.moveTo(c * 120, M - 2.6); ctx.lineTo(c * 120, M - 6); ctx.moveTo(c * 120, H - M + 2.6); ctx.lineTo(c * 120, H - M + 6); ctx.stroke(); }
+    for (let r = 1; r < 4; r++) { ctx.beginPath(); ctx.moveTo(M - 2.6, r * 165); ctx.lineTo(M - 6, r * 165); ctx.moveTo(W - M + 2.6, r * 165); ctx.lineTo(W - M + 6, r * 165); ctx.stroke(); }
+    setFont(ctx, 2.5, FONT.serif, 'italic'); ctx.fillStyle = C.soft;
+    ctx.textAlign = 'left'; ctx.fillText('Published by Holloway & Pike, map-sellers, 7 Wick Lane, Merrow', 70, 2.9);
+    ctx.textAlign = 'right'; ctx.fillText('Scored for folding. To refold, see reverse.', 890, 2.9);
+    ctx.textAlign = 'center';
+    ctx.fillText('Copyright. Certain particulars on this plan do not exist on the ground; they are inserted to detect copying.', 480, H - 3);
+
+    /* ================= cartouches ================= */
+    const panelBox = ([x0, y0, x1, y1], fill = '#f7f0de') => {
+      ctx.fillStyle = 'rgba(80,60,40,0.12)'; ctx.fillRect(x0 + 1.2, y0 + 1.2, x1 - x0, y1 - y0);
+      ctx.fillStyle = fill; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 0.8; ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+      ctx.lineWidth = 0.28; ctx.strokeRect(x0 + 1.8, y0 + 1.8, x1 - x0 - 3.6, y1 - y0 - 3.6);
+    };
+    // title
+    {
+      const b = CART.title; panelBox(b);
+      const cx = (b[0] + b[2]) / 2;
+      ctx.fillStyle = C.ink; ctx.textAlign = 'center';
+      setFont(ctx, 4.4, FONT.fell); drawSpaced(ctx, "HOLLOWAY'S POCKET PLAN OF", cx, b[1] + 11, 0.9);
+      setFont(ctx, 27, FONT.fell); drawSpaced(ctx, 'MERROW', cx, b[1] + 31, 3.2);
+      ctx.lineWidth = 0.35; ctx.beginPath(); ctx.moveTo(cx - 56, b[1] + 45); ctx.lineTo(cx - 8, b[1] + 45); ctx.moveTo(cx + 8, b[1] + 45); ctx.lineTo(cx + 56, b[1] + 45); ctx.stroke();
+      star4(ctx, cx, b[1] + 45, 3, 0.9); ctx.fillStyle = C.red; ctx.fill();
+      ctx.fillStyle = C.ink;
+      setFont(ctx, 3.6, FONT.serif, 'italic'); ctx.fillText('a plan of the city and its river, with the Pool and docks', cx, b[1] + 53);
+      setFont(ctx, 3.2, FONT.serif); ctx.fillText('Surveyed and drawn by Ines Holloway', cx, b[1] + 62);
+      ctx.fillText('Revised edition, 1958  ·  Price two shillings', cx, b[1] + 68);
+      setFont(ctx, 2.7, FONT.serif, 'italic'); ctx.fillStyle = C.soft; ctx.fillText('Holloway & Pike, 7 Wick Lane, Merrow', cx, b[1] + 80);
+    }
+    // legend
+    {
+      const b = CART.legend; panelBox(b);
+      const x0 = b[0] + 6, tx = b[0] + 22;
+      ctx.fillStyle = C.ink; ctx.textAlign = 'center'; setFont(ctx, 5.2, FONT.fell); drawSpaced(ctx, 'REFERENCE', (b[0] + b[2]) / 2, b[1] + 9, 1.4);
+      let y = b[1] + 20; const dy = 9.15;
+      const item = (draw, text) => { draw(x0, y); ctx.fillStyle = C.ink; ctx.textAlign = 'left'; setFont(ctx, 3.35, FONT.serif); ctx.fillText(text, tx, y + 0.2); y += dy; };
+      const sw = (fill, line) => (x, yy) => { ctx.fillStyle = fill; ctx.fillRect(x, yy - 2.6, 13, 5.2); ctx.strokeStyle = line; ctx.lineWidth = 0.35; ctx.strokeRect(x, yy - 2.6, 13, 5.2); };
+      const rd = (w, fill, cas) => (x, yy) => { strokeRoad(ctx, [[x, yy], [x + 13, yy]], w + 1.1, cas); strokeRoad(ctx, [[x, yy], [x + 13, yy]], w, fill); };
+      item(rd(5.4, C.aFill, C.aCase), 'Main road');
+      item(rd(4.2, C.bFill, C.bCase), 'Secondary road');
+      item(rd(3.2, C.cFill, C.cCase), 'Street');
+      item(rd(1.8, C.lane, C.laneCase), 'Lane, passage or steps');
+      item((x, yy) => { ctx.save(); strokeRoad(ctx, [[x, yy], [x + 13, yy]], 2.2, '#2a241f'); ctx.setLineDash([2, 2]); strokeRoad(ctx, [[x, yy], [x + 13, yy]], 1.2, '#f6f0e2'); ctx.restore(); }, 'Railway');
+      item(sw('#b0453a', '#5a201b'), 'Station');
+      item(sw(C.built, C.blockLine), 'Built-up area');
+      item(sw(C.park, C.parkLine), 'Park or open space');
+      item(sw(C.cem, C.parkLine), 'Cemetery');
+      item(sw(C.water, C.bank), 'Water');
+      item((x, yy) => symbol(ctx, 'church', x + 6.5, yy + 0.6), 'Church');
+      item((x, yy) => symbol(ctx, 'ph', x + 6.5, yy), 'Public house');
+      item((x, yy) => symbol(ctx, 'po', x + 6.5, yy), 'Post office');
+      item((x, yy) => symbol(ctx, 'hosp', x + 6.5, yy, 0.8), 'Hospital');
+      item((x, yy) => symbol(ctx, 'mus', x + 6.5, yy), 'Museum');
+      item((x, yy) => symbol(ctx, 'view', x + 6.5, yy + 1.5), 'Viewpoint');
+      item((x, yy) => symbol(ctx, 'light', x + 6.5, yy, 0.8), 'Lighthouse');
+      item((x, yy) => symbol(ctx, 'gasholder', x + 6.5, yy), 'Gasholder');
+      item((x, yy) => { ctx.save(); ctx.strokeStyle = C.ward; ctx.lineWidth = 0.75; ctx.setLineDash([4.6 * 0.7, 2.4 * 0.7]); pathLine(ctx, [[x, yy], [x + 13, yy]]); ctx.stroke(); ctx.restore(); }, 'Ward boundary');
+      item((x, yy) => { ctx.save(); ctx.strokeStyle = C.parish; ctx.lineWidth = 0.75; ctx.setLineDash([6.5 * 0.6, 1.7 * 0.6, 1.1 * 0.6, 1.7 * 0.6]); pathLine(ctx, [[x, yy], [x + 13, yy]]); ctx.stroke(); ctx.restore(); }, 'Parish boundary');
+      item((x, yy) => lanternSymbol(ctx, x + 6.5, yy, 0.62), 'Site of the Lantern');
+      // scale bar + north point
+      y += 1;
+      const sx = b[0] + 8, sl = 54; // 54 units = 300 yards
+      ctx.fillStyle = C.ink;
+      for (let k = 0; k < 6; k++) { ctx.fillStyle = k % 2 ? '#f7f0de' : C.ink; ctx.fillRect(sx + (k * sl) / 6, y, sl / 6, 1.8); }
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 0.3; ctx.strokeRect(sx, y, sl, 1.8);
+      setFont(ctx, 2.6, FONT.serif); ctx.fillStyle = C.ink; ctx.textAlign = 'center';
+      ctx.fillText('0', sx, y + 4.6); ctx.fillText('100', sx + sl / 3, y + 4.6); ctx.fillText('200', sx + 2 * sl / 3, y + 4.6); ctx.fillText('300 yards', sx + sl + 2, y + 4.6);
+      const nx = b[2] - 12, ny = y - 2;
+      ctx.beginPath(); ctx.moveTo(nx, ny - 6); ctx.lineTo(nx + 2.4, ny + 3); ctx.lineTo(nx, ny + 1.6); ctx.closePath(); ctx.fillStyle = C.ink; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(nx, ny - 6); ctx.lineTo(nx - 2.4, ny + 3); ctx.lineTo(nx, ny + 1.6); ctx.closePath(); ctx.strokeStyle = C.ink; ctx.lineWidth = 0.35; ctx.stroke();
+      setFont(ctx, 3, FONT.fell); ctx.fillText('N', nx, ny - 8.6);
+    }
+    // rhyme
+    {
+      const b = CART.rhyme; panelBox(b, '#f8f1df');
+      const cx = (b[0] + b[2]) / 2;
+      ctx.fillStyle = C.ink; ctx.textAlign = 'center';
+      setFont(ctx, 3.7, FONT.fell); drawSpaced(ctx, "THE LAMPLIGHTER'S ROUND", cx, b[1] + 9.5, 0.45);
+      setFont(ctx, 2.7, FONT.serif, 'italic'); ctx.fillStyle = C.soft; ctx.fillText('as sung by Merrow children', cx, b[1] + 15.5);
+      ctx.fillStyle = C.ink; setFont(ctx, 3.55, FONT.serif, 'italic');
+      const lines = ['First the Wick and Tallow’s way,', 'Taper’s row at close of day,', 'Chandlers’ mews and Ember’s stair —', 'where four meet, the Lantern’s there.'];
+      lines.forEach((t, i) => ctx.fillText(t, cx, b[1] + 25 + i * 8.4));
+      star4(ctx, cx, b[1] + 63, 2.2, 0.7); ctx.fillStyle = C.red; ctx.fill();
+    }
+
+    ageSheet(ctx, 11);
+
+    // index for the reverse
+    const index = new Map();
+    for (const l of labels) {
+      if (l.kind !== 'street' && l.kind !== 'lane') continue;
+      if (!index.has(l.name)) index.set(l.name, new Set());
+      index.get(l.name).add(l.sq);
+    }
+    index.set('Lantern Court (site of)', new Set(FM.circus.quarters.map(q => q.sq)));
+    const places = [];
+    for (const l of FM.landmarks) if (l.name) places.push({ name: l.name, sq: sq(l.at[0], l.at[1]), t: l.t });
+    for (const p of FM.parks) if (p.label) places.push({ name: p.name, sq: sq(p.label[0], p.label[1]), t: p.kind });
+    places.push({ name: 'Merrow Central Station', sq: 'D1', t: 'station' }, { name: 'Gasworks', sq: 'E2', t: 'ind' }, { name: "Holloway & Pike, map-sellers", sq: 'B1', t: 'shop' });
+    return { labels, index, places, placer };
+  };
+
+  /* =================================================================
+     REVERSE  (drawn as seen when the sheet is turned over left-to-right)
+  ================================================================== */
+  FM.drawBack = function (canvas, S, info) {
+    const ctx = canvas.getContext('2d');
+    canvas.width = Math.round(W * S); canvas.height = Math.round(H * S);
+    ctx.setTransform(S, 0, 0, S, 0, 0);
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = '#efe5cd'; ctx.fillRect(0, 0, W, H);
+    const PW = 120, PH = 165, pad = 7;
+    const ink = C.ink, accent = '#1f4f5c', red = C.red;
+    const cellRect = (j, r, w = 1, h = 1) => [j * PW + pad, r * PH + pad, (j + w) * PW - pad, (r + h) * PH - pad];
+    const head = (t, x0, y0, x1) => {
+      ctx.fillStyle = accent; ctx.textAlign = 'center'; setFont(ctx, 5, FONT.fell); drawSpaced(ctx, t, (x0 + x1) / 2, y0 + 6, 0.9);
+      ctx.strokeStyle = accent; ctx.lineWidth = 0.35; ctx.beginPath(); ctx.moveTo(x0 + 6, y0 + 9.5); ctx.lineTo(x1 - 6, y0 + 9.5); ctx.stroke();
+    };
+    const para = (text, x0, y, x1, size = 3.4, lh = 4.7, style = '', color = ink, align = 'left') => {
+      setFont(ctx, size, FONT.serif, style); ctx.fillStyle = color; ctx.textAlign = align;
+      const words = text.split(' '); let line = '';
+      const ax = align === 'center' ? (x0 + x1) / 2 : x0;
+      for (const w of words) {
+        const t = line ? line + ' ' + w : w;
+        if (ctx.measureText(t).width > x1 - x0 && line) { ctx.fillText(line, ax, y); y += lh; line = w; } else line = t;
+      }
+      if (line) { ctx.fillText(line, ax, y); y += lh; }
+      return y;
+    };
+    // faint panel rules so text keeps off the folds
+    ctx.strokeStyle = 'rgba(80,60,40,0.12)'; ctx.lineWidth = 0.3;
+    for (let j = 0; j < 8; j++) for (let r = 0; r < 4; r++) ctx.strokeRect(j * PW + 3, r * PH + 3, PW - 6, PH - 6);
+
+    /* ---- COVER: back of H1 = reverse column 0, row 0 ---- */
+    {
+      const [x0, y0, x1, y1] = [0, 0, PW, PH];
+      ctx.fillStyle = '#1f4f5c'; ctx.fillRect(x0 + 2, y0 + 2, PW - 4, PH - 4);
+      ctx.strokeStyle = '#e9d9a8'; ctx.lineWidth = 0.6; ctx.strokeRect(x0 + 6, y0 + 6, PW - 12, PH - 12); ctx.lineWidth = 0.25; ctx.strokeRect(x0 + 8, y0 + 8, PW - 16, PH - 16);
+      const cx = PW / 2;
+      ctx.fillStyle = '#e9d9a8'; ctx.textAlign = 'center';
+      setFont(ctx, 4.4, FONT.fell); drawSpaced(ctx, "HOLLOWAY'S", cx, 22, 1.4);
+      setFont(ctx, 4, FONT.fell); drawSpaced(ctx, 'POCKET PLAN OF', cx, 29, 1.1);
+      setFont(ctx, 21, FONT.fell); drawSpaced(ctx, 'MERROW', cx, 49, 1.6);
+      // a lantern on the river
+      ctx.save(); ctx.translate(cx, 92);
+      ctx.strokeStyle = '#e9d9a8'; ctx.lineWidth = 0.6;
+      for (let k = 0; k < 5; k++) { ctx.beginPath(); for (let x = -40; x <= 40; x += 2) { const y = 18 + k * 3.2 + Math.sin(x * 0.18 + k) * 0.9; x === -40 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); } ctx.stroke(); }
+      ctx.fillStyle = '#e9d9a8'; ctx.fillRect(-1, -30, 2, 44);
+      ctx.beginPath(); ctx.moveTo(-9, -12); ctx.lineTo(9, -12); ctx.lineTo(6, -28); ctx.lineTo(-6, -28); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#f6c95e'; ctx.beginPath(); ctx.moveTo(-5.2, -14); ctx.lineTo(5.2, -14); ctx.lineTo(3.6, -26); ctx.lineTo(-3.6, -26); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#e9d9a8'; ctx.beginPath(); ctx.moveTo(-8, -28); ctx.lineTo(0, -35); ctx.lineTo(8, -28); ctx.closePath(); ctx.fill();
+      const g = ctx.createRadialGradient(0, -20, 1, 0, -20, 30); g.addColorStop(0, 'rgba(246,201,94,0.35)'); g.addColorStop(1, 'rgba(246,201,94,0)'); ctx.fillStyle = g; ctx.fillRect(-32, -52, 64, 64);
+      ctx.restore();
+      setFont(ctx, 3.6, FONT.serif, 'italic'); ctx.fillStyle = '#e9d9a8';
+      ctx.fillText('with street index, places of interest', cx, 132); ctx.fillText('and the walks of the old city', cx, 137);
+      setFont(ctx, 3.2, FONT.fell); drawSpaced(ctx, 'REVISED EDITION  ·  1958', cx, 150, 0.6);
+      void x1; void y1;
+    }
+
+    /* ---- STREET INDEX ---- */
+    const entries = [...info.index.entries()].map(([n, s]) => ({ n, s: [...s].sort() })).sort((a, b) => a.n.replace(/^(St |The )/, '').localeCompare(b.n.replace(/^(St |The )/, '')));
+    const slots = [[1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0]];
+    let ei = 0;
+    const IDX_LH = 4.55;
+    for (let si = 0; si < slots.length && ei < entries.length; si++) {
+      const [j, r] = slots[si]; const [x0, y0, x1, y1] = cellRect(j, r);
+      let y = y0 + 4;
+      if (si === 0) { head('STREET INDEX', x0, y0 - 2, x1); y = y0 + 15; setFont(ctx, 2.7, FONT.serif, 'italic'); ctx.fillStyle = C.soft; ctx.textAlign = 'left'; ctx.fillText('Squares lettered west to east, numbered', x0, y); ctx.fillText('north to south, as printed on the plan.', x0, y + 3.6); y += 10; }
+      let letter = null;
+      while (ei < entries.length && y < y1 - 3) {
+        const e = entries[ei];
+        const L = e.n.replace(/^(St |The )/, '')[0];
+        if (L !== letter) { letter = L; if (y > y1 - 12) break; y += 1.4; setFont(ctx, 4.2, FONT.fell); ctx.fillStyle = accent; ctx.textAlign = 'left'; ctx.fillText(L, x0, y + 1.2); y += IDX_LH + 0.8; }
+        setFont(ctx, 3.2, FONT.serif); ctx.fillStyle = ink; ctx.textAlign = 'left';
+        const ref = e.s.join(' ');
+        ctx.fillText(e.n, x0, y);
+        const nw = ctx.measureText(e.n).width;
+        setFont(ctx, 3.2, FONT.serif, '', '600'); ctx.textAlign = 'right'; ctx.fillText(ref, x1, y);
+        const rw = ctx.measureText(ref).width;
+        ctx.fillStyle = 'rgba(60,45,30,0.45)'; for (let x = x0 + nw + 1.6; x < x1 - rw - 1.4; x += 1.5) ctx.fillRect(x, y - 0.4, 0.38, 0.38);
+        y += IDX_LH; ei++;
+      }
+    }
+    void ei;
+
+    /* ---- PLACES OF INTEREST ---- */
+    {
+      const [x0, y0, x1] = cellRect(0, 1);
+      head('PLACES OF INTEREST', x0, y0 - 2, x1);
+      let y = y0 + 16;
+      const ps = info.places.slice().sort((a, b) => a.name.localeCompare(b.name));
+      for (const p of ps) {
+        setFont(ctx, 3.2, FONT.serif); ctx.fillStyle = ink; ctx.textAlign = 'left';
+        const nm = p.t === 'ph' ? p.name + ' (PH)' : p.name;
+        ctx.fillText(nm, x0, y); setFont(ctx, 3.2, FONT.serif, '', '600'); ctx.textAlign = 'right'; ctx.fillText(p.sq, x1, y);
+        y += 4.5;
+      }
+    }
+
+    /* ---- MERROW IN BRIEF ---- */
+    {
+      const [x0, y0, x1] = cellRect(2, 1, 2, 1);
+      head('MERROW IN BRIEF', x0, y0 - 2, x1);
+      const colW = (x1 - x0 - 8) / 2;
+      const text1 = 'Merrow grew up where the Lenn widens into the Pool before it meets the Sound. The old town keeps its crooked lanes on the north bank; the Parades, laid out in 1790, run arrow-straight a furlong either side of the river. Odo Bridge carries the old north road over the water.';
+      const text2 = 'For two hundred years the city was lit by hand. Each evening the lamplighters set out from the chandlers’ quarter and walked their round, ending at the Lantern, a great iron lamp-house that stood where the four old parishes of St Odo, St Brannoc, All Hallows and St Clement met.';
+      const text3 = 'The Lantern burned in the Guildhall fire of 1911 and was not rebuilt. Gas lamps took over the streets, the parish lines were redrawn, and the round was forgotten. Old lighters used to say it could still be walked, by anyone who knew how to fold the town.';
+      let y = para(text1, x0, y0 + 16, x0 + colW, 3.25, 4.45);
+      y = para(text2, x0, y + 2, x0 + colW, 3.25, 4.45);
+      para(text3, x0 + colW + 8, y0 + 16, x1, 3.25, 4.45);
+      ctx.save(); ctx.translate(x0 + colW + 8 + colW / 2, y0 + 108); lanternSymbol(ctx, 0, 0, 1.6); ctx.restore();
+      setFont(ctx, 2.8, FONT.serif, 'italic'); ctx.fillStyle = C.soft; ctx.textAlign = 'center'; ctx.fillText('The Lantern, from an engraving of 1840', x0 + colW + 8 + colW / 2, y0 + 124);
+    }
+
+    /* ---- THREE WALKS (includes the gas-lit false trail) ---- */
+    {
+      const [x0, y0, x1] = cellRect(4, 1);
+      head('THREE WALKS', x0, y0 - 2, x1);
+      let y = y0 + 16;
+      const walk = (title, body) => { setFont(ctx, 3.5, FONT.serif, 'italic', '600'); ctx.fillStyle = accent; ctx.textAlign = 'left'; ctx.fillText(title, x0, y); y = para(body, x0, y + 4.6, x1, 3.1, 4.25) + 2.5; };
+      walk('The Gaslight Walk', 'From our door in Wick Lane, follow the gas company’s lamps along Gaslight Row and Mantle Lane to the beer garden of the Lantern (PH), where every Merrow walk ends sooner or later.');
+      walk('The Waterside', 'North Quay to the Swing Bridge, round the Pool by the Custom House, back by South Quay and Odo Bridge. Two hours.');
+      walk('Bell Hill', 'Up Bell Street to St Brannoc’s and the viewpoint: the whole of the Sound on a clear evening.');
+    }
+
+    /* ---- HOW TO REFOLD ---- */
+    {
+      const [x0, y0, x1] = cellRect(5, 1);
+      head('TO REFOLD THIS PLAN', x0, y0 - 2, x1);
+      let y = para('The sheet is scored on every panel line. Our folders mark a crease in the old printers’ way:', x0, y0 + 16, x1, 3.15, 4.3);
+      const row = (dash, label, sub) => {
+        ctx.save(); ctx.strokeStyle = ink; ctx.lineWidth = 0.7; ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(x0, y + 1); ctx.lineTo(x0 + 22, y + 1); ctx.stroke(); ctx.restore();
+        setFont(ctx, 3.3, FONT.serif, '', '600'); ctx.fillStyle = ink; ctx.textAlign = 'left'; ctx.fillText(label, x0 + 26, y + 2); setFont(ctx, 3, FONT.serif, 'italic'); ctx.fillText(sub, x0 + 26, y + 6.2); y += 13;
+      };
+      y += 3;
+      row([3.2, 1.7], 'Valley fold', 'dashes: fold towards you');
+      row([4.5, 1.2, 0.8, 1.2], 'Mountain fold', 'dot and dash: fold away');
+      // little diagram: a pleat
+      const dx = x0 + 6, dy = y + 4;
+      ctx.strokeStyle = ink; ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(dx, dy + 14); ctx.lineTo(dx + 26, dy + 14); ctx.lineTo(dx + 40, dy + 2); ctx.lineTo(dx + 54, dy + 14); ctx.lineTo(dx + 84, dy + 14); ctx.stroke();
+      setFont(ctx, 2.6, FONT.serif, 'italic'); ctx.fillStyle = C.soft; ctx.textAlign = 'center'; ctx.fillText('a mountain and a valley side by side make a pleat', (x0 + x1) / 2, dy + 22);
+      y = dy + 30;
+      para('To refold as bought: turn the plan face down; fold the panels together like a fan, starting from the cover; then fold the strip in four the same way.', x0, y, x1, 3.1, 4.2);
+    }
+
+
+    const ad = (j, r, w, h, fn) => { const [x0, y0, x1, y1] = cellRect(j, r, w, h); ctx.strokeStyle = ink; ctx.lineWidth = 0.6; ctx.strokeRect(x0, y0, x1 - x0, y1 - y0); ctx.lineWidth = 0.25; ctx.strokeRect(x0 + 1.6, y0 + 1.6, x1 - x0 - 3.2, y1 - y0 - 3.2); fn(x0, y0, x1, y1, (x0 + x1) / 2); };
+    /* ---- A NOTE FROM THE SURVEYOR ---- */
+    {
+      const [x0, y0, x1] = cellRect(1, 1);
+      head('FROM THE SURVEYOR', x0, y0 - 2, x1);
+      let y = para('This plan keeps to the old practice of the house. The sheet is scored along its panels so that it folds without cracking the ink, and our boundaries are drawn in the printers\u2019 own marks.', x0, y0 + 16, x1, 3.2, 4.4);
+      y = para('A plan, like a town, keeps more than it shows. Those who learned the lamplighters\u2019 round as children will find it here still, if they fold with care and do not believe the first lamp they come to.', x0, y + 2, x1, 3.2, 4.4);
+      setFont(ctx, 3.6, FONT.fellR, 'italic'); ctx.fillStyle = ink; ctx.textAlign = 'right'; ctx.fillText('I. H.', x1, y + 5);
+      setFont(ctx, 2.8, FONT.serif, 'italic'); ctx.fillStyle = C.soft; ctx.fillText('Wick Lane, Lady Day 1958', x1, y + 10);
+    }
+    /* ---- THE LAMPLIGHTERS ---- */
+    ad(7, 1, 1, 1, (x0, y0, x1, y1, cx) => {
+      ctx.fillStyle = ink; ctx.textAlign = 'center'; setFont(ctx, 4.2, FONT.fell); drawSpaced(ctx, 'THE LIGHTERS', cx, y0 + 15, 1);
+      setFont(ctx, 3.2, FONT.serif, 'italic'); ctx.fillText('Merrow guild, chartered 1711', cx, y0 + 21);
+      let y = para('Forty men with ladders, wick-tins and tapers lit the city every dusk. Each round began at a chandler\u2019s door and ended at the Lantern; a lighter who skipped a lamp paid a penny to the guild box.', x0 + 6, y0 + 32, x1 - 6, 3.1, 4.3, '', ink, 'center');
+      ctx.save(); ctx.translate(cx, y + 26); ctx.strokeStyle = ink; ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.moveTo(-10, 18); ctx.lineTo(-4, -18); ctx.moveTo(4, -18); ctx.lineTo(10, 18); for (let k = -12; k <= 14; k += 6) { const w = 4 + (k + 18) / 36 * 6; ctx.moveTo(-w, k); ctx.lineTo(w, k); } ctx.stroke();
+      ctx.restore();
+    });
+    /* ---- adverts, timetable, notes ---- */
+    ad(6, 1, 1, 1, (x0, y0, x1, y1, cx) => {
+      ctx.fillStyle = ink; ctx.textAlign = 'center'; setFont(ctx, 4, FONT.fell); drawSpaced(ctx, "PIKE'S", cx, y0 + 18, 1.2);
+      setFont(ctx, 9, FONT.fell); ctx.fillText('Lamp Oil', cx, y0 + 32);
+      setFont(ctx, 3.4, FONT.serif, 'italic'); ctx.fillText('A clean flame and no smoke', cx, y0 + 41); ctx.fillText('since the days of the lighters', cx, y0 + 46);
+      ctx.save(); ctx.translate(cx, y0 + 82); ctx.fillStyle = ink; ctx.beginPath(); ctx.ellipse(0, 6, 13, 9, 0, 0, Math.PI * 2); ctx.fill(); ctx.fillRect(-2, -12, 4, 12); ctx.fillStyle = '#f6c95e'; ctx.beginPath(); ctx.ellipse(0, -16, 2.6, 5, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+      setFont(ctx, 3.2, FONT.serif); ctx.fillText('Sold by every chandler in Merrow', cx, y1 - 22); setFont(ctx, 3, FONT.serif, 'italic'); ctx.fillText('Tallow Passage, Merrow', cx, y1 - 14);
+    });
+    ad(0, 2, 1, 1, (x0, y0, x1, y1, cx) => {
+      ctx.fillStyle = ink; ctx.textAlign = 'center'; setFont(ctx, 3.6, FONT.fell); drawSpaced(ctx, 'MERROW GAS LIGHT', cx, y0 + 16, 0.6); drawSpaced(ctx, '& COKE COMPANY', cx, y0 + 22, 0.6);
+      setFont(ctx, 8.5, FONT.fellR, 'italic'); ctx.fillText('The modern way', cx, y0 + 40);
+      para('Every street in the city lit by gas since 1912. Showrooms in Gas Street: cookers, fires and mantles on easy terms.', x0 + 6, y0 + 52, x1 - 6, 3.2, 4.4, '', ink, 'center');
+      for (const [k, rr] of [[0, 14], [1, 11]]) { ctx.beginPath(); ctx.arc(cx - 14 + k * 28, y1 - 30, rr, 0, Math.PI * 2); ctx.strokeStyle = ink; ctx.lineWidth = 0.6; ctx.stroke(); ctx.beginPath(); ctx.arc(cx - 14 + k * 28, y1 - 30, rr * 0.6, 0, Math.PI * 2); ctx.lineWidth = 0.3; ctx.stroke(); }
+    });
+    ad(1, 2, 1, 1, (x0, y0, x1, y1, cx) => {
+      ctx.fillStyle = ink; ctx.textAlign = 'center'; setFont(ctx, 4.2, FONT.fell); drawSpaced(ctx, 'LENN FERRIES', cx, y0 + 16, 0.9);
+      para('Pool Ferry, Custom House steps to Lenn Basin, every twenty minutes from six until the lamps are lit.', x0 + 6, y0 + 28, x1 - 6, 3.1, 4.3, '', ink, 'center');
+      let y = y0 + 58;
+      setFont(ctx, 3.2, FONT.serif); ctx.textAlign = 'left';
+      for (const [a, b] of [['Merrow Central', 'trains to the coast'], ['Pool Ferry', 'every 20 min'], ['Sound Steamer', 'Sundays, 10.15'], ['Swing Bridge', 'opens at high water']]) { ctx.fillStyle = ink; ctx.fillText(a, x0 + 6, y); ctx.textAlign = 'right'; setFont(ctx, 3, FONT.serif, 'italic'); ctx.fillText(b, x1 - 6, y); ctx.textAlign = 'left'; setFont(ctx, 3.2, FONT.serif); y += 6; }
+    });
+    // inset map of the district (two panels)
+    ad(2, 2, 2, 1, (x0, y0, x1, y1, cx) => {
+      ctx.fillStyle = ink; ctx.textAlign = 'center'; setFont(ctx, 4.6, FONT.fell); drawSpaced(ctx, 'MERROW AND DISTRICT', cx, y0 + 13, 1);
+      const mx0 = x0 + 8, my0 = y0 + 20, mw = x1 - x0 - 16, mh = y1 - y0 - 30;
+      ctx.fillStyle = '#e9dfc4'; ctx.fillRect(mx0, my0, mw, mh);
+      ctx.fillStyle = C.water; ctx.beginPath(); ctx.moveTo(mx0 + mw * 0.72, my0); ctx.bezierCurveTo(mx0 + mw * 0.66, my0 + mh * 0.4, mx0 + mw * 0.8, my0 + mh * 0.7, mx0 + mw * 0.74, my0 + mh); ctx.lineTo(mx0 + mw, my0 + mh); ctx.lineTo(mx0 + mw, my0); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = C.bank; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(mx0, my0 + mh * 0.55); ctx.bezierCurveTo(mx0 + mw * 0.3, my0 + mh * 0.45, mx0 + mw * 0.5, my0 + mh * 0.62, mx0 + mw * 0.71, my0 + mh * 0.5); ctx.stroke();
+      ctx.fillStyle = '#d9a982'; ctx.beginPath(); ctx.ellipse(mx0 + mw * 0.6, my0 + mh * 0.52, 16, 11, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#2a241f'; ctx.lineWidth = 0.7; ctx.setLineDash([2, 1.5]); ctx.beginPath(); ctx.moveTo(mx0, my0 + mh * 0.25); ctx.lineTo(mx0 + mw * 0.58, my0 + mh * 0.45); ctx.stroke(); ctx.setLineDash([]);
+      setFont(ctx, 3.2, FONT.serif, 'italic'); ctx.fillStyle = ink;
+      ctx.fillText('MERROW', mx0 + mw * 0.6, my0 + mh * 0.53); ctx.fillText('Lenn Valley', mx0 + mw * 0.22, my0 + mh * 0.66); ctx.fillText('Merrow Sound', mx0 + mw * 0.88, my0 + mh * 0.3);
+      ctx.fillText('Ashby', mx0 + mw * 0.25, my0 + mh * 0.2); ctx.fillText('Fennick', mx0 + mw * 0.4, my0 + mh * 0.85); ctx.fillText('Hollin Point', mx0 + mw * 0.86, my0 + mh * 0.85);
+      ctx.strokeStyle = ink; ctx.lineWidth = 0.4; ctx.strokeRect(mx0, my0, mw, mh);
+    });
+    ad(4, 2, 1, 1, (x0, y0, x1, y1, cx) => {
+      ctx.fillStyle = ink; ctx.textAlign = 'center'; setFont(ctx, 4.2, FONT.fell); drawSpaced(ctx, 'HOLLOWAY & PIKE', cx, y0 + 16, 0.6);
+      setFont(ctx, 3.3, FONT.serif, 'italic'); ctx.fillText('map-sellers and engravers', cx, y0 + 22);
+      let y = y0 + 34; setFont(ctx, 3.2, FONT.serif);
+      for (const t of ['Pocket Plan of Merrow', 'The Lenn Valley, one inch', 'Charts of Merrow Sound', 'Walks about the Old Town', 'Plans of the Docks, 1930']) { ctx.fillText(t, cx, y); y += 5.2; }
+      para('Every street on our plans goes somewhere. Come and see us at No. 7 Wick Lane, at the sign of the folded map.', x0 + 6, y + 6, x1 - 6, 3.1, 4.3, 'italic', ink, 'center');
+    });
+    ad(5, 2, 1, 1, (x0, y0, x1, y1, cx) => {
+      ctx.fillStyle = ink; ctx.textAlign = 'center'; setFont(ctx, 4.4, FONT.fell); drawSpaced(ctx, 'THE ANCHOR', cx, y0 + 18, 1);
+      setFont(ctx, 3.3, FONT.serif, 'italic'); ctx.fillText('Lenn Basin', cx, y0 + 24);
+      para('Ales, oysters, and a fire in winter. Rooms for travellers by the night or the week.', x0 + 6, y0 + 36, x1 - 6, 3.2, 4.4, '', ink, 'center');
+      ctx.save(); ctx.translate(cx, y1 - 38); ctx.strokeStyle = ink; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.moveTo(0, -14); ctx.lineTo(0, 12); ctx.moveTo(-7, -8); ctx.lineTo(7, -8); ctx.stroke(); ctx.beginPath(); ctx.arc(0, 2, 12, 0.25, Math.PI - 0.25); ctx.stroke(); ctx.beginPath(); ctx.arc(0, -16, 2.4, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+    });
+    const notes = (j, r, title = 'NOTES') => { const [x0, y0, x1, y1] = cellRect(j, r); head(title, x0, y0 - 2, x1); ctx.strokeStyle = 'rgba(31,79,92,0.35)'; ctx.lineWidth = 0.3; for (let y = y0 + 20; y < y1 - 2; y += 7) { ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke(); } };
+    notes(6, 2); notes(7, 2);
+    // distances
+    {
+      const [x0, y0, x1] = cellRect(1, 3);
+      head('DISTANCES', x0, y0 - 2, x1);
+      let y = y0 + 17;
+      for (const [a, b] of [['Ashby', '7 miles'], ['Fennick', '11 miles'], ['Hollin Point', '5 miles'], ['Lenn Head', '23 miles'], ['the coast road', '2 miles'], ['Odo Bridge to the Pool', '½ mile'], ['Northgate to Southgate', '¾ mile']]) {
+        setFont(ctx, 3.2, FONT.serif); ctx.fillStyle = ink; ctx.textAlign = 'left'; ctx.fillText(a, x0, y); ctx.textAlign = 'right'; ctx.fillText(b, x1, y); y += 5;
+      }
+      para('Distances by road from Odo Bridge, the city’s measuring point.', x0, y + 4, x1, 3, 4.1, 'italic', C.soft);
+    }
+    ad(2, 3, 2, 1, (x0, y0, x1, y1, cx) => {
+      ctx.fillStyle = ink; ctx.textAlign = 'center'; setFont(ctx, 4.4, FONT.fell); drawSpaced(ctx, 'HOTELS & LODGINGS', cx, y0 + 14, 0.8);
+      let y = y0 + 26;
+      const rows = [['The Parade Hotel', 'North Parade', 'C1'], ['Pool House', 'Customs Road', 'G2'], ['Railway Hotel', 'Station Approach', 'D1'], ['Mrs Ash, rooms', 'Hart Street', 'B1'], ['Sound View', 'Bell Hill Road', 'H1'], ['The Ferryman', 'Tannery Road', 'A3']];
+      for (const [a, b, c] of rows) { setFont(ctx, 3.3, FONT.serif); ctx.fillStyle = ink; ctx.textAlign = 'left'; ctx.fillText(a, x0 + 8, y); setFont(ctx, 3.1, FONT.serif, 'italic'); ctx.fillText(b, x0 + 80, y); setFont(ctx, 3.2, FONT.serif, '', '600'); ctx.textAlign = 'right'; ctx.fillText(c, x1 - 8, y); y += 6; }
+      para('Lamps are lit at dusk. Visitors are asked not to walk the old town lanes after dark without one.', x0 + 8, y + 6, x1 - 8, 3.1, 4.3, 'italic', C.soft, 'center');
+    });
+    notes(4, 3, 'MEMORANDA'); notes(5, 3, 'MEMORANDA');
+    ad(6, 3, 2, 1, (x0, y0, x1, y1, cx) => {
+      ctx.fillStyle = ink; ctx.textAlign = 'center'; setFont(ctx, 4.6, FONT.fell); drawSpaced(ctx, 'THE PARADES', cx, y0 + 15, 1);
+      para('North and South Parade were laid out together by the city surveyor in 1790, one furlong each side of the river, so that a lamp on one answered a lamp on the other across the water. They are the widest streets in Merrow and the only two that mirror one another exactly.', x0 + 10, y0 + 28, x1 - 10, 3.3, 4.6, '', ink, 'center');
+      setFont(ctx, 3, FONT.serif, 'italic'); ctx.fillStyle = C.soft; ctx.fillText('Bands play on the Parades on summer evenings.', cx, y1 - 16);
+    });
+
+    /* ---- back cover: reverse column 0, row 3 (printed upside down, as it is on the packet's underside) ---- */
+    {
+      ctx.save(); ctx.translate(PW, 4 * PH); ctx.rotate(Math.PI);
+      ctx.fillStyle = '#e8dcbc'; ctx.fillRect(2, 2, PW - 4, PH - 4);
+      ctx.strokeStyle = ink; ctx.lineWidth = 0.5; ctx.strokeRect(6, 6, PW - 12, PH - 12);
+      const cx = PW / 2;
+      ctx.fillStyle = ink; ctx.textAlign = 'center'; setFont(ctx, 4.2, FONT.fell); drawSpaced(ctx, 'HOLLOWAY & PIKE', cx, 26, 0.7);
+      setFont(ctx, 3.3, FONT.serif, 'italic'); ctx.fillText('map-sellers since 1821', cx, 33);
+      ctx.save(); ctx.translate(cx, 72);
+      ctx.strokeStyle = ink; ctx.lineWidth = 0.6; ctx.fillStyle = '#f3ead2';
+      // the sign of the folded map
+      ctx.beginPath(); ctx.moveTo(-24, -14); ctx.lineTo(-8, -18); ctx.lineTo(8, -14); ctx.lineTo(24, -18); ctx.lineTo(24, 14); ctx.lineTo(8, 18); ctx.lineTo(-8, 14); ctx.lineTo(-24, 18); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-8, -18); ctx.lineTo(-8, 14); ctx.moveTo(8, -14); ctx.lineTo(8, 18); ctx.stroke();
+      star4(ctx, 0, 0, 4.5, 1.3); ctx.fillStyle = C.red; ctx.fill();
+      ctx.restore();
+      setFont(ctx, 3.3, FONT.serif); ctx.fillText('7 Wick Lane, Merrow', cx, 108);
+      setFont(ctx, 3, FONT.serif, 'italic'); ctx.fillText('at the sign of the folded map', cx, 114);
+      setFont(ctx, 2.8, FONT.serif); ctx.fillText('Printed in Merrow. 2/-', cx, 150);
+      ctx.restore();
+    }
+
+    // header band across the top of rows 1-3 of the reverse? (kept quiet) — sheet edge rule
+    ctx.strokeStyle = 'rgba(40,30,20,0.5)'; ctx.lineWidth = 0.5; ctx.strokeRect(1.5, 1.5, W - 3, H - 3);
+    ageSheet(ctx, 23);
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* ------------------------------------------------------------------
+   The desk: a WebGL sheet of 32 scored panels you can fold.
+------------------------------------------------------------------- */
+(function () {
+  'use strict';
+  const FM = window.FM;
+  const $ = s => document.querySelector(s);
+  const U = 0.1, CWU = 12, CHU = 16.5, LAYER = 0.12, BASE = 0.03;
+  const NXS = 18, NYS = 26;
+  const PI = Math.PI;
+  const smooth = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  const easeInOut = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const LITE = /lite/.test(location.hash);
+
+  const THREE = window.THREE;
+  let renderer;
+  try {
+    if (!THREE) throw new Error('no three');
+    renderer = new THREE.WebGLRenderer({ canvas: $('#scene'), antialias: true });
+  } catch (e) {
+    $('#loading').classList.add('gone'); $('#nogl').style.display = 'grid'; return;
+  }
+  renderer.setPixelRatio(LITE ? 1 : Math.min(2, window.devicePixelRatio || 1));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x15100c);
+  const camera = new THREE.PerspectiveCamera(30, 1, 1, 3000);
+
+  /* ---------------- desk ---------------- */
+  function woodTexture() {
+    const c = document.createElement('canvas'); c.width = c.height = 1024;
+    const g = c.getContext('2d'), r = FM.GEO.rng(42);
+    g.fillStyle = '#3b2a1e'; g.fillRect(0, 0, 1024, 1024);
+    for (let k = 0; k < 900; k++) {
+      const y = r() * 1024, a = 0.03 + r() * 0.08, w = 0.6 + r() * 2.4;
+      g.strokeStyle = r() < 0.5 ? `rgba(20,12,7,${a})` : `rgba(120,82,52,${a * 0.8})`; g.lineWidth = w;
+      g.beginPath(); g.moveTo(0, y);
+      for (let x = 0; x <= 1024; x += 32) g.lineTo(x, y + Math.sin(x * 0.006 + k) * 6 + Math.sin(x * 0.03 + k * 0.7) * 1.5);
+      g.stroke();
+    }
+    const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(5, 5); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+    return t;
+  }
+  const desk = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), new THREE.MeshStandardMaterial({ map: woodTexture(), roughness: 0.62, metalness: 0, depthWrite: false }));
+  desk.receiveShadow = true; desk.renderOrder = -1;
+  scene.add(desk);
+
+  /* ---------------- lights ---------------- */
+  const lamp = new THREE.DirectionalLight(0xfff0d8, 2.7);
+  lamp.castShadow = true;
+  const COARSE = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+  lamp.shadow.mapSize.set(LITE ? 1024 : COARSE ? 2048 : 4096, LITE ? 1024 : COARSE ? 2048 : 4096);
+  lamp.shadow.bias = -0.0004; lamp.shadow.normalBias = 0.035; lamp.shadow.radius = 3;
+  scene.add(lamp); scene.add(lamp.target);
+  const hemi = new THREE.HemisphereLight(0xe2e8ff, 0x3d2a1b, 0.85);
+  scene.add(hemi);
+  const lampCfg = { az: 135, el: 38 };
+  let lampDim = 1, lampDimT = 1;
+
+  /* ---------------- textures and materials (filled at boot) ---------------- */
+  let frontTex, backTex, normF, normB, wearF, wearB, matF, matB, bendMat;
+  const NMX = 1152, NMY = 792;
+  const creaseMem = new Map(); // key 'v,c,r' | 'h,c,r' -> {v, m}
+  const memOf = key => creaseMem.get(key) || { v: 0, m: 0 };
+
+  function paperMaterial(map, nmap, wear, side) {
+    const m = new THREE.MeshStandardMaterial({ map, normalMap: nmap, roughness: 0.9, metalness: 0, side });
+    m.normalScale.set(1, 1);
+    m.customProgramCacheKey = () => 'paper-' + side;
+    m.onBeforeCompile = sh => {
+      sh.uniforms.wearMap = { value: wear };
+      sh.fragmentShader = 'uniform sampler2D wearMap;\n' + sh.fragmentShader.replace('#include <map_fragment>', `#include <map_fragment>
+        vec4 wr = texture2D(wearMap, vMapUv);
+        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.955, 0.93, 0.87), wr.r * 0.78);
+        diffuseColor.rgb *= 1.0 - wr.g * 0.16;`);
+    };
+    return m;
+  }
+
+  /* crease memory -> normal map (crisp crease lines) + wear map (cracked ink, grime) */
+  function rebuildCreaseMaps() {
+    const h = new Float32Array(NMX * NMY), crack = new Float32Array(NMX * NMY), grime = new Float32Array(NMX * NMY);
+    const R = 3.2, A = 0.07;
+    for (let j = 0; j < NMY; j++) {
+      const y = 660 - ((j + 0.5) * 660) / NMY;
+      const row = Math.min(3, Math.floor(y / 165)), ky = Math.round(y / 165), dy = Math.abs(y - ky * 165);
+      for (let i = 0; i < NMX; i++) {
+        const x = ((i + 0.5) * 960) / NMX;
+        const col = Math.min(7, Math.floor(x / 120)), kx = Math.round(x / 120), dx = Math.abs(x - kx * 120);
+        let hh = 0, cr = 0, gr = 0;
+        if (kx >= 1 && kx <= 7 && dx < 6) {
+          const m = memOf('v,' + kx + ',' + row), tot = m.v + m.m;
+          if (tot > 0) {
+            const net = Math.max(-1, Math.min(1, (m.m - m.v) / 1.2));
+            if (dx < R) hh += A * net * (1 - dx / R) ** 2 * Math.min(1, 0.55 + tot * 0.25);
+            cr = Math.max(cr, Math.min(1, 0.35 + tot * 0.22) * Math.max(0, 1 - dx / 0.75));
+            gr = Math.max(gr, Math.min(1, tot * 0.3) * Math.max(0, 1 - dx / 5));
+          }
+        }
+        if (ky >= 1 && ky <= 3 && dy < 6) {
+          const m = memOf('h,' + col + ',' + ky), tot = m.v + m.m;
+          if (tot > 0) {
+            const net = Math.max(-1, Math.min(1, (m.m - m.v) / 1.2));
+            if (dy < R) hh += A * net * (1 - dy / R) ** 2 * Math.min(1, 0.55 + tot * 0.25);
+            cr = Math.max(cr, Math.min(1, 0.35 + tot * 0.22) * Math.max(0, 1 - dy / 0.75));
+            gr = Math.max(gr, Math.min(1, tot * 0.3) * Math.max(0, 1 - dy / 5));
+          }
+        }
+        const k = j * NMX + i; h[k] = hh; crack[k] = cr; grime[k] = gr;
+      }
+    }
+    const px = 96 / NMX, py = 66 / NMY;
+    const fill = (hgt, mirror, nArr, wArr) => {
+      for (let j = 0; j < NMY; j++) for (let i = 0; i < NMX; i++) {
+        const si = mirror ? NMX - 1 - i : i;
+        const H = (ii, jj) => { ii = Math.max(0, Math.min(NMX - 1, ii)); jj = Math.max(0, Math.min(NMY - 1, jj)); return (mirror ? -1 : 1) * hgt[jj * NMX + (mirror ? NMX - 1 - ii : ii)]; };
+        const dhx = (H(i + 1, j) - H(i - 1, j)) / (2 * px), dhy = (H(i, j + 1) - H(i, j - 1)) / (2 * py);
+        let nx = -dhx, ny = -dhy, nz = 1; const l = Math.hypot(nx, ny, nz); nx /= l; ny /= l; nz /= l;
+        const o = (j * NMX + i) * 4;
+        nArr[o] = (nx * 0.5 + 0.5) * 255; nArr[o + 1] = (ny * 0.5 + 0.5) * 255; nArr[o + 2] = (nz * 0.5 + 0.5) * 255; nArr[o + 3] = 255;
+        const sk = j * NMX + si;
+        wArr[o] = crack[sk] * 255; wArr[o + 1] = grime[sk] * 255; wArr[o + 2] = 0; wArr[o + 3] = 255;
+      }
+    };
+    fill(h, false, normF.image.data, wearF.image.data);
+    fill(h, true, normB.image.data, wearB.image.data);
+    for (const t of [normF, normB, wearF, wearB]) t.needsUpdate = true;
+  }
+  function dataTex() {
+    const t = new THREE.DataTexture(new Uint8Array(NMX * NMY * 4), NMX, NMY, THREE.RGBAFormat);
+    t.magFilter = THREE.LinearFilter; t.minFilter = THREE.LinearMipmapLinearFilter; t.generateMipmaps = true; t.anisotropy = 4;
+    return t;
+  }
+
+  /* ---------------- panels ---------------- */
+  const panels = [];
+  const pickables = [];
+  function noise(x, y) { return 0.07 * Math.sin(x * 0.011 + 1.3) * Math.sin(y * 0.016 + 0.4) + 0.04 * Math.sin(x * 0.029 + y * 0.021 + 2.1) + 0.025 * Math.sin(x * 0.07 - y * 0.05); }
+  function reliefAt(x, y) {
+    // broad tenting: remembered creases do not lie flat
+    let z = noise(x, y);
+    const Rr = 30, A = 0.34;
+    const row = Math.min(3, Math.floor(y / 165)), col = Math.min(7, Math.floor(x / 120));
+    for (const kx of [Math.floor(x / 120), Math.ceil(x / 120)]) {
+      if (kx < 1 || kx > 7) continue; const d = Math.abs(x - kx * 120); if (d >= Rr) continue;
+      const m = memOf('v,' + kx + ',' + row), tot = m.v + m.m; if (!tot) continue;
+      z += A * Math.max(-1, Math.min(1, (m.m - m.v) / 1.2)) * (1 - d / Rr) ** 2;
+    }
+    for (const ky of [Math.floor(y / 165), Math.ceil(y / 165)]) {
+      if (ky < 1 || ky > 3) continue; const d = Math.abs(y - ky * 165); if (d >= Rr) continue;
+      const m = memOf('h,' + col + ',' + ky), tot = m.v + m.m; if (!tot) continue;
+      z += A * Math.max(-1, Math.min(1, (m.m - m.v) / 1.2)) * (1 - d / Rr) ** 2;
+    }
+    return z;
+  }
+  function buildPanels() {
+    for (let r = 0; r < FM.NR; r++) for (let c = 0; c < FM.NC; c++) {
+      const nv = (NXS + 1) * (NYS + 1);
+      const pos = new Float32Array(nv * 3), nor = new Float32Array(nv * 3), uvF = new Float32Array(nv * 2), uvB = new Float32Array(nv * 2), px = new Float32Array(nv), py = new Float32Array(nv);
+      for (let j = 0; j <= NYS; j++) for (let i = 0; i <= NXS; i++) {
+        const k = j * (NXS + 1) + i, x = c * 120 + (i * 120) / NXS, y = r * 165 + (j * 165) / NYS;
+        pos[k * 3] = x * U; pos[k * 3 + 1] = -y * U; nor[k * 3 + 2] = 1;
+        uvF[k * 2] = x / 960; uvF[k * 2 + 1] = 1 - y / 660; uvB[k * 2] = 1 - x / 960; uvB[k * 2 + 1] = 1 - y / 660;
+        px[k] = x; py[k] = y;
+      }
+      const idx = [];
+      for (let j = 0; j < NYS; j++) for (let i = 0; i < NXS; i++) {
+        const a = j * (NXS + 1) + i, b = a + 1, d = a + NXS + 1, e = d + 1;
+        idx.push(a, d, e, a, e, b);
+      }
+      const P = new THREE.BufferAttribute(pos, 3), N = new THREE.BufferAttribute(nor, 3), I = new THREE.BufferAttribute(new Uint16Array(idx), 1);
+      const gF = new THREE.BufferGeometry(), gB = new THREE.BufferGeometry();
+      gF.setAttribute('position', P); gF.setAttribute('normal', N); gF.setAttribute('uv', new THREE.BufferAttribute(uvF, 2)); gF.setIndex(I);
+      gB.setAttribute('position', P); gB.setAttribute('normal', N); gB.setAttribute('uv', new THREE.BufferAttribute(uvB, 2)); gB.setIndex(I);
+      gF.computeBoundingSphere(); gB.boundingSphere = gF.boundingSphere;
+      const front = new THREE.Mesh(gF, matF), back = new THREE.Mesh(gB, matB);
+      front.castShadow = true; front.receiveShadow = true; back.receiveShadow = true;
+      const id = FM.pid(c, r);
+      front.userData.id = id; back.userData.id = id;
+      const group = new THREE.Group(); group.matrixAutoUpdate = false; group.add(front); group.add(back);
+      scene.add(group);
+      pickables.push(front, back);
+      panels.push({ id, c, r, group, gF, P, px, py, base: new Float32Array(nv), relief: 0, reliefT: 0, dirty: true });
+    }
+  }
+  function rebuildReliefBases() {
+    for (const pn of panels) { for (let k = 0; k < pn.base.length; k++) pn.base[k] = reliefAt(pn.px[k], pn.py[k]); pn.dirty = true; }
+  }
+  function applyRelief(pn) {
+    const pos = pn.P.array;
+    for (let k = 0; k < pn.base.length; k++) pos[k * 3 + 2] = pn.base[k] * pn.relief;
+    pn.P.needsUpdate = true;
+    pn.gF.computeVertexNormals();
+    pn.dirty = false;
+  }
+  function setReliefTargets(s) {
+    const st = FM.stacks(s);
+    for (const ids of st.values()) for (const id of ids) panels[id].reliefT = ids.length === 1 ? 1 : 0;
+  }
+
+  /* ---------------- bends: the paper's thickness at folded edges ---------------- */
+  const bendMesh = new THREE.Mesh(new THREE.BufferGeometry(), null);
+  bendMesh.castShadow = true; bendMesh.receiveShadow = true;
+  scene.add(bendMesh);
+  function rebuildBends(s, z, skip) {
+    const pos = [], nrm = [];
+    const quad = (a, b, c, d, na, nb, nc, nd) => { pos.push(...a, ...b, ...c, ...a, ...c, ...d); nrm.push(...na, ...nb, ...nc, ...na, ...nc, ...nd); };
+    for (const pr of FM.PAIRS) {
+      if (skip && (skip[pr.a] || skip[pr.b])) continue;
+      const A = s.panels[pr.a], B = s.panels[pr.b];
+      const ca = FM.cellOf(A), cb = FM.cellOf(B);
+      const e = FM.edgePos(pr, s);
+      const za = z[pr.a], zb = z[pr.b];
+      const along = pr.kind === 'v' ? ca[1] : ca[0];
+      const t0 = pr.kind === 'v' ? -CHU * along : CWU * along, t1 = pr.kind === 'v' ? -CHU * (along + 1) : CWU * (along + 1);
+      const E = pr.kind === 'v' ? CWU * e : -CHU * e;
+      const P3 = (perp, t, zz) => (pr.kind === 'v' ? [perp, t, zz] : [t, perp, zz]);
+      const N3 = (perp, zz) => (pr.kind === 'v' ? [perp, 0, zz] : [0, perp, zz]);
+      if (ca[0] === cb[0] && ca[1] === cb[1]) {
+        const cellLow = (pr.kind === 'v' ? ca[0] : ca[1]) < e;
+        let dir = cellLow ? 1 : -1; if (pr.kind === 'h') dir = -dir; // three y runs opposite to map rows
+        const zc = (za + zb) / 2, rr = Math.max(0.03, Math.abs(za - zb) / 2);
+        const SEG = 8;
+        for (let k = 0; k < SEG; k++) {
+          const a0 = -PI / 2 + (k * PI) / SEG, a1 = -PI / 2 + ((k + 1) * PI) / SEG;
+          const p0 = E + dir * rr * Math.cos(a0), q0 = zc + rr * Math.sin(a0), p1 = E + dir * rr * Math.cos(a1), q1 = zc + rr * Math.sin(a1);
+          quad(P3(p0, t0, q0), P3(p0, t1, q0), P3(p1, t1, q1), P3(p1, t0, q1), N3(dir * Math.cos(a0), Math.sin(a0)), N3(dir * Math.cos(a0), Math.sin(a0)), N3(dir * Math.cos(a1), Math.sin(a1)), N3(dir * Math.cos(a1), Math.sin(a1)));
+        }
+      } else if (Math.abs(za - zb) > 1e-4) {
+        // the sheet steps down a layer where it runs flat over a fold
+        const n = N3(1, 0);
+        quad(P3(E, t0, za), P3(E, t1, za), P3(E, t1, zb), P3(E, t0, zb), n, n, n, n);
+      }
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute('normal', new THREE.Float32BufferAttribute(nrm, 3));
+    bendMesh.geometry.dispose(); bendMesh.geometry = g;
+  }
+
+  /* ---------------- state, poses ---------------- */
+  let state = FM.flatState();
+  let history = [];
+  let anim = null, queue = [];
+  let heights = new Float32Array(32);
+  const tmpM = new THREE.Matrix4(), rotM = new THREE.Matrix4(), tA = new THREE.Matrix4(), tB = new THREE.Matrix4();
+  function heightsOf(s) { const z = new Float32Array(32); for (const ids of FM.stacks(s).values()) ids.forEach((id, k) => (z[id] = BASE + k * LAYER)); return z; }
+  function baseMatrix(p, z, m) { return m.set(p.sx, 0, 0, CWU * p.tx, 0, p.sy, 0, -CHU * p.ty, 0, 0, p.sx * p.sy, z, 0, 0, 0, 1); }
+  function poseStatic() {
+    for (const pn of panels) { baseMatrix(state.panels[pn.id], heights[pn.id], pn.group.matrix); pn.group.matrixWorldNeedsUpdate = true; }
+  }
+  function rebuildStatic() {
+    heights = heightsOf(state);
+    poseStatic();
+    setReliefTargets(state);
+    rebuildBends(state, heights, null);
+    bendMesh.visible = true;
+    fitShadow();
+  }
+  function rotAbout(axis, pivot, alpha, out) {
+    tA.makeTranslation(pivot.x, pivot.y, pivot.z); tB.makeTranslation(-pivot.x, -pivot.y, -pivot.z);
+    if (axis === 'x') rotM.makeRotationY(-alpha); else if (axis === 'y') rotM.makeRotationX(alpha); else rotM.makeRotationZ(alpha);
+    return out.copy(tA).multiply(rotM).multiply(tB);
+  }
+  const pivotV = new THREE.Vector3();
+  function poseAnim(a, theta) {
+    const f = theta / PI;
+    if (a.kind === 'fold') {
+      const s3 = a.axis === 'x' ? a.side : -a.side;
+      const alpha = (a.mode === 'valley' ? 1 : -1) * s3 * theta;
+      pivotV.set(a.axis === 'x' ? CWU * a.L : 0, a.axis === 'y' ? -CHU * a.L : 0, a.zAxis);
+      rotAbout(a.axis, pivotV, alpha, tmpM);
+      const e = smooth(0.55, 1, f);
+      for (const pn of panels) {
+        const i = pn.id, p = a.pre.panels[i], m = pn.group.matrix;
+        if (a.inS[i]) {
+          baseMatrix(p, a.zPre[i], m); m.premultiply(tmpM);
+          m.elements[14] += e * (a.zPost[i] - (2 * a.zAxis - a.zPre[i]));
+        } else baseMatrix(p, a.zPre[i] + (a.zPost[i] - a.zPre[i]) * smooth(0.45, 1, f), m);
+        pn.group.matrixWorldNeedsUpdate = true;
+      }
+    } else if (a.kind === 'turn' || a.kind === 'around') {
+      const b = FM.bbox(a.pre);
+      const cx = CWU * (b.x0 + b.x1) / 2, cy = -CHU * (b.y0 + b.y1) / 2;
+      let zmax = 0; for (let i = 0; i < 32; i++) zmax = Math.max(zmax, a.zPre[i]);
+      const e = smooth(0.6, 1, f);
+      if (a.kind === 'turn') {
+        const halfW = CWU * (b.x1 - b.x0) / 2;
+        const zMid = (zmax + BASE) / 2;
+        pivotV.set(cx, 0, zMid + (halfW + 1.5) * Math.sin(theta));
+        rotAbout('x', pivotV, theta, tmpM);
+        for (const pn of panels) {
+          const i = pn.id, m = pn.group.matrix;
+          baseMatrix(a.pre.panels[i], a.zPre[i], m); m.premultiply(tmpM);
+          m.elements[14] += e * (a.zPost[i] - (2 * zMid - a.zPre[i]));
+          pn.group.matrixWorldNeedsUpdate = true;
+        }
+      } else {
+        pivotV.set(cx, cy, 0);
+        rotAbout('z', pivotV, theta, tmpM);
+        const lift = 1.6 * Math.sin(theta);
+        for (const pn of panels) {
+          const i = pn.id, m = pn.group.matrix;
+          baseMatrix(a.pre.panels[i], a.zPre[i], m); m.premultiply(tmpM);
+          m.elements[14] += lift;
+          pn.group.matrixWorldNeedsUpdate = true;
+        }
+      }
+    }
+  }
+  function makeFoldAnim(pre, res, op) {
+    const zPre = heightsOf(pre), zPost = heightsOf(res.state);
+    let zAxis;
+    if (op.mode === 'valley') { zAxis = -1e9; for (const i of res.moving) zAxis = Math.max(zAxis, zPre[i]); zAxis += LAYER * 0.5; }
+    else { zAxis = 1e9; for (const i of res.moving) zAxis = Math.min(zAxis, zPre[i]); zAxis -= LAYER * 0.5; }
+    return { kind: 'fold', pre, post: res.state, inS: res.inS, moving: res.moving, axis: op.axis, L: op.L, side: op.side, mode: op.mode, zPre, zPost, zAxis, creases: res.creases, op };
+  }
+  const easeOut = t => 1 - Math.pow(1 - t, 3);
+  function beginAnim(a, from, to, dur, onDone, ease = easeInOut) {
+    a.from = from; a.to = to; a.u = 0; a.dur = Math.max(0.05, dur); a.onDone = onDone; a.ease = ease;
+    anim = a;
+    // bends: keep the ones that do not move
+    if (a.kind === 'fold') rebuildBends(a.pre, a.zPre, a.inS); else bendMesh.visible = false;
+    for (const pn of panels) pn.reliefT = 0;
+    if (a.kind === 'fold') for (const pn of panels) if (!a.inS[pn.id] && FM.stacks(a.post).get(FM.cellOf(a.post.panels[pn.id]).join(',')).length === 1 && FM.stacks(a.pre).get(FM.cellOf(a.pre.panels[pn.id]).join(',')).length === 1) pn.reliefT = 1;
+  }
+  function stepAnim(dt) {
+    if (!anim || anim.dragging) return;
+    const a = anim;
+    a.u = Math.min(1, a.u + dt / a.dur);
+    poseAnim(a, PI * (a.from + (a.to - a.from) * a.ease(a.u)));
+    if (a.u >= 1) { anim = null; a.onDone && a.onDone(); nextInQueue(); }
+  }
+
+  /* ---------------- committing changes ---------------- */
+  function commitFold(a) {
+    state = a.post;
+    history.push({ kind: 'fold', a });
+    for (const c of a.creases || []) { const m = { ...memOf(c.key) }; if (c.valley) m.v = Math.min(4, m.v + 1); else m.m = Math.min(4, m.m + 1); creaseMem.set(c.key, m); }
+    if (a.creases && a.creases.length) { rebuildCreaseMaps(); rebuildReliefBases(); }
+    rebuildStatic(); afterChange();
+    if (!userMovedCam && !queue.length) frame(state);
+  }
+  function doFoldAnimated(op, dur = 0.8) {
+    const res = FM.computeFold(state, op);
+    if (!res.ok) return false;
+    const a = makeFoldAnim(state, res, op);
+    sound.rustle(0.8 + res.moving.length / 40);
+    beginAnim(a, 0, 1, dur, () => commitFold(a));
+    return true;
+  }
+  function doTurn(kind, dur = 1.1) {
+    const post = kind === 'turn' ? FM.turnOver(state, 'x') : FM.turnAround(state);
+    const a = { kind, pre: state, post, zPre: heightsOf(state), zPost: heightsOf(post) };
+    sound.rustle(kind === 'turn' ? 1.4 : 0.6);
+    beginAnim(a, 0, 1, dur, () => { state = post; history.push({ kind, a }); rebuildStatic(); afterChange(); });
+  }
+  function undo(dur = 0.6, quiet = false) {
+    const h = history[history.length - 1];
+    if (!h) return false;
+    history.pop();
+    const a = h.a;
+    if (!quiet) sound.rustle(0.6);
+    state = a.pre; // logical state flips now; the pose catches up
+    beginAnim(a, 1, 0, dur, () => { rebuildStatic(); afterChange(); });
+    return true;
+  }
+  function nextInQueue() { while (!anim && queue.length) { const f = queue.shift(); f(); } }
+  function enqueue(...fns) { queue.push(...fns); nextInQueue(); }
+  function unfoldAll(fast = 0.3, then) {
+    queue.length = 0;
+    const steps = history.length;
+    const fns = [];
+    for (let k = 0; k < steps; k++) fns.push(() => { undo(fast, k % 3 !== 0); });
+    if (then) fns.push(then);
+    enqueue(...fns);
+  }
+  function runScript(script, dur = 0.95) {
+    const fns = script.map(st => () => {
+      const { op, res } = FM.runScriptStep(state, st);
+      if (!res.ok) { toast('That fold is blocked from here.'); queue.length = 0; return; }
+      doFoldAnimated(op, dur);
+    });
+    enqueue(...fns);
+  }
+
+  /* ---------------- after every change ---------------- */
+  let revealed = false;
+  function afterChange() {
+    updateUI();
+    const ok = FM.checkRoute(state, 'real').ok;
+    if (ok && !revealed) startReveal();
+    else if (!ok && revealed) endReveal();
+  }
+
+  /* ---------------- camera ---------------- */
+  const cam = { x: 0, y: 0, dist: 140, tilt: 0.22, az: 0 }, camT = { ...cam };
+  let userMovedCam = false;
+  function paperBox3(s) {
+    const b = FM.bbox(s);
+    return { x0: CWU * b.x0, x1: CWU * b.x1, y0: -CHU * b.y1, y1: -CHU * b.y0 };
+  }
+  function frame(s, instant = false, pad = 1.18) {
+    const b = paperBox3(s);
+    const w = b.x1 - b.x0, h = b.y1 - b.y0;
+    const aspect = renderer.domElement.clientWidth / Math.max(1, renderer.domElement.clientHeight);
+    const tv = Math.tan((camera.fov * PI) / 360);
+    const dist = Math.max(h / 2 / tv, w / 2 / (tv * aspect)) * pad + 6;
+    Object.assign(camT, { x: (b.x0 + b.x1) / 2, y: (b.y0 + b.y1) / 2 - dist * 0.025, dist: Math.max(22, dist), az: 0 });
+    if (instant) Object.assign(cam, camT);
+    userMovedCam = false;
+  }
+  function updateCamera(dt) {
+    const k = 1 - Math.exp(-dt * 7);
+    for (const key of ['x', 'y', 'dist', 'tilt', 'az']) cam[key] += (camT[key] - cam[key]) * k;
+    const d = cam.dist;
+    camera.position.set(cam.x + d * Math.sin(cam.tilt) * Math.sin(cam.az), cam.y - d * Math.sin(cam.tilt) * Math.cos(cam.az), d * Math.cos(cam.tilt));
+    camera.up.set(-Math.sin(cam.az), Math.cos(cam.az), 0);
+    camera.lookAt(cam.x, cam.y, 0);
+  }
+  function fitShadow() {
+    const b = paperBox3(state);
+    const cx = (b.x0 + b.x1) / 2, cy = (b.y0 + b.y1) / 2, ext = Math.max(b.x1 - b.x0, b.y1 - b.y0) / 2 + 14;
+    lamp.target.position.set(cx, cy, 0);
+    const az = (lampCfg.az * PI) / 180, el = (lampCfg.el * PI) / 180;
+    lamp.position.set(cx + Math.cos(el) * Math.cos(az) * 140, cy + Math.cos(el) * Math.sin(az) * 140, Math.sin(el) * 140);
+    const sc = lamp.shadow.camera;
+    sc.left = -ext; sc.right = ext; sc.top = ext; sc.bottom = -ext; sc.near = 20; sc.far = 300;
+    sc.updateProjectionMatrix();
+  }
+
+  /* ---------------- fold guide (a printed crease line that follows the drag) ---------------- */
+  function guideTex(pattern) {
+    const c = document.createElement('canvas'); c.width = 256; c.height = 8;
+    const g = c.getContext('2d'); g.fillStyle = '#f2c766';
+    let x = 0, k = 0; while (x < 256) { const w = pattern[k % pattern.length] * 8; if (k % 2 === 0) g.fillRect(x, 1, w, 6); x += w; k++; }
+    const t = new THREE.CanvasTexture(c); t.wrapS = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; return t;
+  }
+  const guideTexV = guideTex([4.6, 2.4, 4.6, 2.4, 4.6, 2.4, 4.6, 2.4]), guideTexM = guideTex([6.5, 1.7, 1.1, 1.7, 6.5, 1.7, 1.1, 1.7]);
+  const guideMat = new THREE.MeshBasicMaterial({ map: guideTexV, transparent: true, depthTest: false });
+  const guide = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), guideMat);
+  guide.renderOrder = 10; guide.visible = false; scene.add(guide);
+  function showGuide(axis, L, mode, ok) {
+    const b = paperBox3(state);
+    const len = axis === 'x' ? b.y1 - b.y0 + 6 : b.x1 - b.x0 + 6;
+    guide.geometry.dispose(); guide.geometry = new THREE.PlaneGeometry(len, 0.42);
+    guideMat.map = mode === 'valley' ? guideTexV : guideTexM;
+    guideMat.map.repeat.set(len / 8, 1);
+    guideMat.color.set(ok ? 0xffffff : 0xff8a7a);
+    let zmax = 0; for (let i = 0; i < 32; i++) zmax = Math.max(zmax, heights[i]);
+    if (axis === 'x') { guide.position.set(CWU * L, (b.y0 + b.y1) / 2, zmax + 0.4); guide.rotation.set(0, 0, PI / 2); }
+    else { guide.position.set((b.x0 + b.x1) / 2, -CHU * L, zmax + 0.4); guide.rotation.set(0, 0, 0); }
+    guide.visible = true;
+  }
+
+  /* ---------------- pointer interaction ---------------- */
+  const el = renderer.domElement;
+  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+  const tip = $('#tip');
+  let drag = null; const touches = new Map();
+  function setNdc(e) { const r = el.getBoundingClientRect(); ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); ray.setFromCamera(ndc, camera); }
+  function planePoint(e, z = 0) { setNdc(e); const o = ray.ray.origin, d = ray.ray.direction; if (Math.abs(d.z) < 1e-6) return null; const t = (z - o.z) / d.z; return new THREE.Vector3(o.x + d.x * t, o.y + d.y * t, z); }
+  function pickPanel(e) { setNdc(e); const hit = ray.intersectObjects(pickables, false)[0]; return hit ? { id: hit.object.userData.id, point: hit.point } : null; }
+  const effMode = e => ((e && e.shiftKey) ? (mode === 'valley' ? 'mountain' : 'valley') : mode);
+
+  el.addEventListener('contextmenu', e => e.preventDefault());
+  el.addEventListener('pointerdown', e => {
+    sound.unlock();
+    el.setPointerCapture(e.pointerId);
+    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (touches.size === 2) { if (drag && drag.kind === 'fold') cancelFoldDrag(); drag = { kind: 'pinch', d0: pinchDist(), dist0: camT.dist, mid: pinchMid() }; return; }
+    if (e.button === 2 || (e.button === 0 && e.altKey)) { drag = { kind: 'orbit', x: e.clientX, y: e.clientY }; return; }
+    if (e.button === 1) { drag = { kind: 'pan', start: planePoint(e), cx: camT.x, cy: camT.y }; return; }
+    const hit = !anim && !queue.length ? pickPanel(e) : null;
+    if (hit) {
+      drag = { kind: 'fold', id: hit.id, g: hit.point.clone(), gz: hit.point.z, sx: e.clientX, sy: e.clientY, op: null, res: null, theta: 0 };
+      el.classList.add('dragging');
+    } else drag = { kind: 'pan', start: planePoint(e), cx: camT.x, cy: camT.y };
+  });
+  function pinchDist() { const v = [...touches.values()]; return Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y); }
+  function pinchMid() { const v = [...touches.values()]; return { x: (v[0].x + v[1].x) / 2, y: (v[0].y + v[1].y) / 2 }; }
+
+  el.addEventListener('pointermove', e => {
+    if (touches.has(e.pointerId)) touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (!drag) {
+      if (e.pointerType === 'mouse' && !anim) { const h = pickPanel(e); el.classList.toggle('over-paper', !!h); }
+      return;
+    }
+    if (drag.kind === 'pinch' && touches.size === 2) {
+      camT.dist = Math.max(16, Math.min(420, drag.dist0 * drag.d0 / Math.max(10, pinchDist()))); userMovedCam = true; return;
+    }
+    if (drag.kind === 'orbit') {
+      camT.az += (e.clientX - drag.x) * 0.005; camT.tilt = Math.max(0, Math.min(1.05, camT.tilt + (e.clientY - drag.y) * 0.004));
+      drag.x = e.clientX; drag.y = e.clientY; userMovedCam = true; return;
+    }
+    if (drag.kind === 'pan') {
+      const p = planePoint(e); if (!p || !drag.start) return;
+      camT.x = cam.x - (p.x - drag.start.x); camT.y = cam.y - (p.y - drag.start.y);
+      cam.x = camT.x; cam.y = camT.y; updateCamera(0);
+      userMovedCam = true; return;
+    }
+    if (drag.kind === 'fold') updateFoldDrag(e);
+  });
+  function updateFoldDrag(e) {
+    const p = planePoint(e, drag.gz);
+    if (!p) return;
+    const g = drag.g;
+    const gX = g.x / CWU, gY = -g.y / CHU, pX = p.x / CWU, pY = -p.y / CHU;
+    const dxm = (pX - gX) * 120, dym = (pY - gY) * 165;
+    tip.style.display = 'block'; tip.style.left = e.clientX + 'px'; tip.style.top = e.clientY + 'px';
+    if (Math.hypot(dxm, dym) < 5) { setDragTheta(0); tip.innerHTML = tipHtml(effMode(e), true, 'drag across a crease'); guide.visible = false; return; }
+    const axis = Math.abs(dxm) >= Math.abs(dym) ? 'x' : 'y';
+    const gv = axis === 'x' ? gX : gY, pv = axis === 'x' ? pX : pY, dir = Math.sign(pv - gv) || 1;
+    let L = Math.round((gv + pv) / 2);
+    if (dir > 0) L = Math.max(L, Math.floor(gv) + 1); else L = Math.min(L, Math.ceil(gv) - 1);
+    const b = FM.bbox(state), lo = axis === 'x' ? b.x0 : b.y0, hi = axis === 'x' ? b.x1 : b.y1;
+    const m = effMode(e);
+    if (L < lo || L > hi) { setDragTheta(0); guide.visible = false; tip.innerHTML = tipHtml(m, false, 'no crease that way'); drag.op = null; return; }
+    const op = { axis, L, side: dir > 0 ? -1 : 1, mode: m, seed: drag.id };
+    const key = JSON.stringify(op);
+    if (!drag.op || JSON.stringify(drag.op) !== key) {
+      drag.op = op; drag.res = FM.computeFold(state, op);
+      if (anim && anim.dragging) { poseStatic(); }
+      if (drag.res.moving) {
+        const a = drag.res.ok ? makeFoldAnim(state, drag.res, op) : makeFoldAnim(state, { ...drag.res, state: drag.res.state || state, moving: drag.res.moving, inS: drag.res.inS }, op);
+        a.dragging = true; a.ok = drag.res.ok; anim = a;
+        rebuildBends(state, heights, a.inS);
+        for (const pn of panels) pn.reliefT = a.inS[pn.id] ? 0 : pn.reliefT;
+      } else { anim = null; rebuildBends(state, heights, null); }
+    }
+    const t = Math.max(0, Math.min(1, (dir * (pv - gv)) / (2 * Math.abs(L - gv))));
+    const ok = drag.res.ok;
+    drag.theta = ok ? PI * t : Math.min(PI * t, 0.12 * PI) * (0.7 + 0.3 * Math.sin(performance.now() * 0.02));
+    setDragTheta(drag.theta);
+    showGuide(axis, L, m, ok);
+    tip.innerHTML = ok ? tipHtml(m, true, t > 0.45 ? 'let go to fold' : (m === 'valley' ? 'valley fold' : 'mountain fold')) : tipHtml(m, false, drag.res.reason || 'won’t fold');
+  }
+  function tipHtml(m, ok, text) {
+    const dash = m === 'valley' ? '4 2.6' : '6 2 1.4 2';
+    return `<svg width="22" height="8" viewBox="0 0 22 8"><line x1="1" y1="4" x2="21" y2="4" stroke="${ok ? '#f2c766' : '#f0a090'}" stroke-width="1.6" stroke-dasharray="${dash}"/></svg><span class="${ok ? '' : 'no'}">${text}</span>`;
+  }
+  function setDragTheta(th) { if (anim && anim.dragging) poseAnim(anim, th); }
+  function cancelFoldDrag() {
+    if (anim && anim.dragging) { const a = anim; a.dragging = false; const t = drag ? drag.theta / PI : 0; anim = null; if (t > 0) beginAnim(a, t, 0, 0.35 * t + 0.05, () => rebuildStatic(), easeOut); else rebuildStatic(); }
+    guide.visible = false; tip.style.display = 'none'; el.classList.remove('dragging');
+  }
+  el.addEventListener('pointerup', e => endPointer(e));
+  el.addEventListener('pointercancel', e => endPointer(e, true));
+  function endPointer(e, cancelled) {
+    touches.delete(e.pointerId);
+    if (!drag) return;
+    if (drag.kind === 'fold') {
+      const a = anim && anim.dragging ? anim : null;
+      const t = drag.theta / PI;
+      guide.visible = false; tip.style.display = 'none'; el.classList.remove('dragging');
+      if (a && a.ok && t > 0.42 && !cancelled) {
+        a.dragging = false; anim = null;
+        sound.rustle(0.7 + a.moving.length / 40);
+        beginAnim(a, t, 1, 0.55 * (1 - t) + 0.12, () => commitFold(a), easeOut);
+        hideIntro();
+      } else if (a) {
+        a.dragging = false; anim = null;
+        if (!a.ok && t > 0.2) toast('The paper won’t fold that way: ' + (drag.res && drag.res.reason ? drag.res.reason : 'something is in the way') + '.');
+        beginAnim(a, Math.min(t, a.ok ? t : 0.12), 0, 0.3, () => rebuildStatic(), easeOut);
+      } else if (drag.res && !drag.res.ok && drag.op) toast('The paper won’t fold that way: ' + drag.res.reason + '.');
+    }
+    if (touches.size < 2 && drag.kind === 'pinch') { drag = null; return; }
+    drag = null;
+  }
+  el.addEventListener('wheel', e => {
+    e.preventDefault();
+    const before = planePoint(e);
+    const nd = Math.max(16, Math.min(420, camT.dist * Math.exp(e.deltaY * 0.0012)));
+    if (before) { const k = 1 - nd / camT.dist; camT.x += (before.x - camT.x) * k; camT.y += (before.y - camT.y) * k; }
+    camT.dist = nd; userMovedCam = true;
+  }, { passive: false });
+
+  /* ---------------- sound: synthesized paper ---------------- */
+  const sound = (() => {
+    let ctx = null, on = true;
+    return {
+      unlock() { if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ctx = null; } } if (ctx && ctx.state === 'suspended') ctx.resume(); },
+      set(v) { on = v; },
+      get on() { return on; },
+      rustle(strength = 1) {
+        if (!on || !ctx) return;
+        const dur = 0.28 + 0.12 * Math.min(2, strength), sr = ctx.sampleRate, n = Math.floor(sr * dur);
+        const buf = ctx.createBuffer(1, n, sr), d = buf.getChannelData(0);
+        let crack = 0;
+        for (let i = 0; i < n; i++) {
+          const t = i / n;
+          if (Math.random() < 0.0016 * strength) crack = 0.6 + Math.random() * 0.6;
+          crack *= 0.992;
+          const env = Math.sin(PI * Math.min(1, t * 1.6)) * (1 - t) ** 0.6;
+          d[i] = (Math.random() * 2 - 1) * (0.18 + crack) * env;
+        }
+        const src = ctx.createBufferSource(); src.buffer = buf;
+        const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2300 + Math.random() * 1200; bp.Q.value = 0.55;
+        const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 700;
+        const gn = ctx.createGain(); gn.gain.value = 0.22 * Math.min(1.6, strength);
+        src.connect(bp).connect(hp).connect(gn).connect(ctx.destination); src.start();
+      },
+      chime() {
+        if (!on || !ctx) return;
+        const t0 = ctx.currentTime + 0.9;
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+          const o = ctx.createOscillator(), g = ctx.createGain();
+          o.type = 'sine'; o.frequency.value = f;
+          g.gain.setValueAtTime(0, t0 + i * 0.32); g.gain.linearRampToValueAtTime(0.07, t0 + i * 0.32 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + i * 0.32 + 2.4);
+          o.connect(g).connect(ctx.destination); o.start(t0 + i * 0.32); o.stop(t0 + i * 0.32 + 2.5);
+        });
+      },
+    };
+  })();
+
+  /* ---------------- reveal: the lamps come on along the round ---------------- */
+  let reveal = null;
+  function routeWorld(s) {
+    const pts = [];
+    const def = FM.PUZZLE.real, z = heightsOf(s);
+    for (const lane of def.lanes) {
+      const P = lane.pts;
+      for (let i = 0; i < P.length - 1; i++) {
+        const n = Math.max(1, Math.ceil(Math.hypot(P[i + 1][0] - P[i][0], P[i + 1][1] - P[i][1]) / 1.5));
+        for (let k = (pts.length ? 1 : 0); k <= n; k++) {
+          let X = P[i][0] + (P[i + 1][0] - P[i][0]) * k / n, Y = P[i][1] + (P[i + 1][1] - P[i][1]) * k / n;
+          // nudge off the seams so the lookup lands on a printed panel
+          if (Math.abs(X - 360) < 0.6) X += 0.6 * Math.sign(P[i + 1][0] - P[i][0] || 1);
+          if (Math.abs(Y - 165) < 0.6) Y += 0.6 * Math.sign(P[i + 1][1] - P[i][1] || 1);
+          const [x, y] = def.toPaper([X, Y]);
+          const id = FM.pid(Math.min(7, Math.floor(x / 120)), Math.min(3, Math.floor(y / 165)));
+          const p = s.panels[id];
+          const w = FM.paperToWorld(p, x, y, 120, 165);
+          pts.push(new THREE.Vector3(CWU * w[0], -CHU * w[1], z[id] + 0.06));
+        }
+      }
+    }
+    const [cx, cy] = def.toPaper([360 - 0.5, 165 - 0.5]);
+    const cp = s.panels[FM.pid(2, 0)], cw = FM.paperToWorld(cp, cx + 0.5, cy + 0.5, 120, 165);
+    let zt = 0; for (let i = 0; i < 32; i++) zt = Math.max(zt, z[i]);
+    return { pts, center: new THREE.Vector3(CWU * cw[0], -CHU * cw[1], zt + 0.08) };
+  }
+  function glowTexture() {
+    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const g = c.getContext('2d'), gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, 'rgba(255,240,200,1)'); gr.addColorStop(0.18, 'rgba(255,200,110,0.85)'); gr.addColorStop(0.5, 'rgba(255,150,60,0.25)'); gr.addColorStop(1, 'rgba(255,120,40,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  }
+  const GLOW = glowTexture();
+  function haloTexture() {
+    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const g = c.getContext('2d'), gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, 'rgba(255,190,90,0)'); gr.addColorStop(0.2, 'rgba(255,190,90,0)'); gr.addColorStop(0.3, 'rgba(255,215,140,0.9)'); gr.addColorStop(0.45, 'rgba(255,170,70,0.35)'); gr.addColorStop(1, 'rgba(255,120,40,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  }
+  const HALO = haloTexture();
+  function startReveal() {
+    revealed = true;
+    const { pts, center } = routeWorld(state);
+    // ribbon along the round
+    const pos = [], sArr = [], side = [], idx = [];
+    let s = 0; const w = 0.32;
+    for (let i = 0; i < pts.length; i++) {
+      const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)];
+      const tx = b.x - a.x, ty = b.y - a.y, l = Math.hypot(tx, ty) || 1;
+      if (i) s += pts[i].distanceTo(pts[i - 1]);
+      const nx = -ty / l * w, ny = tx / l * w;
+      pos.push(pts[i].x + nx, pts[i].y + ny, pts[i].z, pts[i].x - nx, pts[i].y - ny, pts[i].z);
+      sArr.push(s, s); side.push(1, -1);
+      if (i) { const k = i * 2; idx.push(k - 2, k - 1, k, k - 1, k + 1, k); }
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute('aS', new THREE.Float32BufferAttribute(sArr, 1));
+    g.setAttribute('aSide', new THREE.Float32BufferAttribute(side, 1));
+    g.setIndex(idx);
+    const mat = new THREE.ShaderMaterial({
+      uniforms: { uHead: { value: 0 }, uTime: { value: 0 }, uFade: { value: 1 } },
+      vertexShader: 'attribute float aS; attribute float aSide; varying float vS; varying float vSide; void main(){ vS = aS; vSide = aSide; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+      fragmentShader: `varying float vS; varying float vSide; uniform float uHead; uniform float uTime; uniform float uFade;
+        void main(){
+          float lit = 1.0 - smoothstep(uHead - 4.0, uHead, vS);
+          float head = exp(-pow((vS - uHead) / 2.2, 2.0));
+          float edge = 1.0 - abs(vSide);
+          float fl = 0.82 + 0.18 * sin(uTime * 6.0 + vS * 0.7) * sin(uTime * 2.3 + vS * 0.13);
+          float a = (lit * 0.5 * fl + head * 1.4) * smoothstep(0.0, 0.9, edge) * uFade;
+          gl_FragColor = vec4(vec3(1.0, 0.68, 0.30) * a, a);
+        }`,
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    });
+    const ribbon = new THREE.Mesh(g, mat); ribbon.renderOrder = 5; scene.add(ribbon);
+    const flame = new THREE.Sprite(new THREE.SpriteMaterial({ map: GLOW, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true }));
+    flame.scale.set(3.2, 3.2, 1); flame.renderOrder = 6; scene.add(flame);
+    const heart = new THREE.Sprite(new THREE.SpriteMaterial({ map: HALO, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 }));
+    heart.position.copy(center); heart.scale.set(5.6, 5.6, 1); heart.renderOrder = 6; scene.add(heart);
+    const torch = new THREE.PointLight(0xffb45a, 0, 26, 1.6); scene.add(torch);
+    const glowLight = new THREE.PointLight(0xffc070, 0, 30, 1.4); glowLight.position.copy(center).add(new THREE.Vector3(0, 0, 3)); scene.add(glowLight);
+    reveal = { ribbon, mat, flame, heart, torch, glowLight, pts, total: s, head: -6, t: 0, done: false, fade: 1, ending: false };
+    lampDimT = 0.32;
+
+    sound.chime && sound.chime();
+  }
+  function endReveal() {
+    revealed = false;
+    $('#reveal').hidden = true;
+    if (reveal) reveal.ending = true;
+    lampDimT = 1;
+  }
+  function stepReveal(dt) {
+    if (!reveal) return;
+    const r = reveal;
+    r.t += dt; r.mat.uniforms.uTime.value = r.t;
+    if (r.ending) {
+      r.fade -= dt * 1.8; r.mat.uniforms.uFade.value = Math.max(0, r.fade);
+      r.flame.material.opacity = Math.max(0, r.fade); r.heart.material.opacity = Math.max(0, r.fade);
+      r.torch.intensity *= 0.9; r.glowLight.intensity *= 0.9;
+      if (r.fade <= 0) { for (const o of [r.ribbon, r.flame, r.heart, r.torch, r.glowLight]) scene.remove(o); r.ribbon.geometry.dispose(); reveal = null; }
+      return;
+    }
+    if (r.t < 0.9) return; // let the room darken first
+    r.head = Math.min(r.total + 8, r.head + dt * 34);
+    r.mat.uniforms.uHead.value = r.head;
+    // flame position along the path
+    let s = 0, p = r.pts[r.pts.length - 1];
+    for (let i = 1; i < r.pts.length; i++) { const l = r.pts[i].distanceTo(r.pts[i - 1]); if (s + l >= r.head) { p = r.pts[i - 1].clone().lerp(r.pts[i], (r.head - s) / l); break; } s += l; }
+    const going = r.head < r.total;
+    r.flame.position.copy(p).add(new THREE.Vector3(0, 0, 0.5));
+    r.flame.material.opacity = going ? 0.95 : Math.max(0, r.flame.material.opacity - dt * 2);
+    r.torch.position.copy(p).add(new THREE.Vector3(0, 0, 2.2));
+    r.torch.intensity = going ? 38 * (0.85 + 0.15 * Math.sin(r.t * 13)) : r.torch.intensity * 0.94;
+    if (r.head >= r.total && !r.cardShown) { r.cardShown = true; setTimeout(() => { if (reveal === r && !r.ending) $('#reveal').hidden = false; }, 1100); }
+    if (r.head >= r.total) {
+      r.heartA = Math.min(0.8, (r.heartA || 0) + dt * 0.8);
+      r.heart.material.opacity = r.heartA * (0.8 + 0.2 * Math.sin(r.t * 3));
+      r.glowLight.intensity = Math.min(22, r.glowLight.intensity + dt * 22);
+    }
+  }
+
+  /* ---------------- UI ---------------- */
+  let toastTimer = 0;
+  function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600); }
+  function setMode(m) { mode = m; $('#mValley').setAttribute('aria-pressed', m === 'valley'); $('#mMountain').setAttribute('aria-pressed', m === 'mountain'); }
+  let mode = 'valley';
+  let introShown = true, factoryLen = -1;
+  function hideIntro() { if (introShown) { introShown = false; $('#intro').hidden = true; } }
+  function busy() { return !!anim || queue.length > 0; }
+  function updateUI() {
+    $('#btnUndo').disabled = history.length === 0;
+    $('#btnUnfold').disabled = history.length === 0;
+    const flat = FM.isFlat(state);
+    const faceUp = FM.faceUp(state.panels[0]);
+    let msg;
+    if (flat && faceUp && state.panels[0].sx === 1) msg = 'A pocket plan in thirty-two panels. <b>Somewhere in its folds is a walk the city forgot.</b>';
+    else if (flat && !faceUp) msg = 'The reverse: street index, notes and the old walks. <b>Turn it over to see the plan.</b>';
+    else if (flat) msg = 'Upside down. <b>Turn it around</b> to read it.';
+    else if (history.length === factoryLen && introShown) msg = 'Folded as bought, cover up. <b>Open it, or drag a panel to unfold it yourself.</b>';
+    else { const folds = history.filter(h => h.kind === 'fold').length; msg = `${folds} fold${folds === 1 ? '' : 's'} in the paper. <b>${revealed ? 'The round is lit.' : 'Somewhere in its folds is a walk the city forgot.'}</b>`; }
+    $('#status').innerHTML = msg;
+  }
+  const toggleDrawer = id => { const d = $('#' + id); const open = d.hidden; for (const x of ['help', 'key']) { $('#' + x).hidden = true; $(x === 'help' ? '#btnHelp' : '#btnKey').setAttribute('aria-expanded', 'false'); } d.hidden = !open; $(id === 'help' ? '#btnHelp' : '#btnKey').setAttribute('aria-expanded', String(open)); };
+  $('#btnHelp').onclick = () => toggleDrawer('help');
+  $('#btnKey').onclick = () => toggleDrawer('key');
+  document.querySelectorAll('[data-close]').forEach(b => (b.onclick = () => { $('#' + b.dataset.close).hidden = true; }));
+  document.querySelectorAll('[data-hint]').forEach(b => (b.onclick = () => { const p = $('#' + b.dataset.hint); p.hidden = !p.hidden; }));
+  $('#mValley').onclick = () => setMode('valley');
+  $('#mMountain').onclick = () => setMode('mountain');
+  $('#btnUndo').onclick = () => { if (!busy()) undo(); };
+  $('#btnUnfold').onclick = () => { if (!busy()) { hideIntro(); unfoldAll(0.3, () => { if (!userMovedCam) frame(state); }); if (!userMovedCam) frame(FM.flatState()); } };
+  $('#btnTurn').onclick = () => { if (!busy()) { hideIntro(); doTurn('turn'); } };
+  $('#btnAround').onclick = () => { if (!busy()) doTurn('around', 0.9); };
+  $('#btnFrame').onclick = () => frame(state);
+  $('#btnOpen').onclick = () => { sound.unlock(); hideIntro(); frame(FM.flatState()); unfoldAll(0.34); };
+  $('#btnSound').onclick = () => { sound.set(!sound.on); $('#btnSound').setAttribute('aria-pressed', String(sound.on)); };
+  $('#btnLamp').onclick = () => { const l = $('#lamp'); l.hidden = !l.hidden; $('#btnLamp').setAttribute('aria-expanded', String(!l.hidden)); };
+  const syncLamp = () => { lampCfg.az = +$('#lampAz').value; lampCfg.el = +$('#lampEl').value; fitShadow(); };
+  $('#lampAz').oninput = syncLamp; $('#lampEl').oninput = syncLamp;
+  $('#lampRake').onclick = () => { $('#lampEl').value = 9; syncLamp(); };
+  $('#lampHigh').onclick = () => { $('#lampEl').value = 80; syncLamp(); };
+  $('#lampReset').onclick = () => { $('#lampEl').value = 38; $('#lampAz').value = 135; syncLamp(); };
+  const playScript = script => { if (busy()) return; hideIntro(); $('#key').hidden = true; $('#btnKey').setAttribute('aria-expanded', 'false'); userMovedCam = false; const go = () => { frame(FM.flatState()); runScript(script); enqueue(() => { frame(state); }); }; if (history.length) unfoldAll(0.22, go); else go(); };
+  $('#btnSolve').onclick = () => playScript(FM.solutionScript);
+  $('#btnDecoy').onclick = () => playScript(FM.decoyScript);
+  $('#revealKeep').onclick = () => { $('#reveal').hidden = true; };
+  $('#revealUnfold').onclick = () => { $('#reveal').hidden = true; if (!busy()) unfoldAll(0.3, () => frame(state)); };
+  window.addEventListener('keydown', e => {
+    if (e.target && /input|textarea/i.test(e.target.tagName)) return;
+    const k = e.key.toLowerCase();
+    if (k === 'v') setMode('valley');
+    else if (k === 'm') setMode('mountain');
+    else if (k === 'z' || k === 'backspace') { if (!busy()) undo(); }
+    else if (k === 't') { if (!busy()) { hideIntro(); doTurn('turn'); } }
+    else if (k === 'r') { if (!busy()) doTurn('around', 0.9); }
+    else if (k === 'f') frame(state);
+    else if (k === 'escape') { for (const x of ['help', 'key', 'lamp']) $('#' + x).hidden = true; }
+    else return;
+    e.preventDefault();
+  });
+
+  /* ---------------- resize & loop ---------------- */
+  function resize() {
+    const w = window.innerWidth, h = window.innerHeight;
+    renderer.setSize(w, h, false); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+  let last = performance.now();
+  function loop(now) {
+    const dt = Math.min(window.__merrowDtCap || 0.05, (now - last) / 1000) * (window.__merrowSpeed || 1); last = now;
+    stepAnim(dt);
+    for (const pn of panels) {
+      if (Math.abs(pn.relief - pn.reliefT) > 0.002) { pn.relief += (pn.reliefT - pn.relief) * Math.min(1, dt * 5); pn.dirty = true; }
+      if (pn.dirty) applyRelief(pn);
+    }
+    lampDim += (lampDimT - lampDim) * Math.min(1, dt * 1.6);
+    lamp.intensity = 2.7 * lampDim; hemi.intensity = 0.85 * (0.45 + 0.55 * lampDim);
+    stepReveal(dt);
+    updateCamera(dt);
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  }
+
+  /* ---------------- boot ---------------- */
+  async function boot() {
+    resize();
+    const faces = ['400 10px "EB Garamond"', 'italic 400 10px "EB Garamond"', '500 10px "EB Garamond"', '600 10px "EB Garamond"', 'italic 600 10px "EB Garamond"', '10px "IM Fell English SC"', 'italic 10px "IM Fell English"', '400 10px "Alegreya Sans"'];
+    try { await Promise.race([Promise.all(faces.map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 3500))]); } catch (e) { /* fall back to system serif */ }
+    await new Promise(r => setTimeout(r, 30));
+    const big = renderer.capabilities.maxTextureSize >= 4096 && !LITE;
+    const coarse = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+    const city = FM.buildCity();
+    const fc = document.createElement('canvas'), bc = document.createElement('canvas');
+    const info = FM.drawFront(fc, big ? (coarse ? 3.2 : 4) : 2.6, city);
+    FM.drawBack(bc, big ? (coarse ? 2.8 : 3.4) : 2.4, info);
+    const aniso = renderer.capabilities.getMaxAnisotropy();
+    frontTex = new THREE.CanvasTexture(fc); backTex = new THREE.CanvasTexture(bc);
+    for (const t of [frontTex, backTex]) { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = aniso; }
+    normF = dataTex(); normB = dataTex(); wearF = dataTex(); wearB = dataTex();
+    matF = paperMaterial(frontTex, normF, wearF, THREE.FrontSide);
+    matB = paperMaterial(backTex, normB, wearB, THREE.BackSide);
+    matF.shadowSide = THREE.DoubleSide;
+    bendMat = new THREE.MeshStandardMaterial({ color: 0xece2c9, roughness: 0.92, side: THREE.DoubleSide });
+    bendMesh.material = bendMat;
+    buildPanels();
+    // the map arrives folded as bought: the printer's folds are its first creases
+    const fac = FM.factorySequence(FM.flatState());
+    for (const st of fac.steps) {
+      if (st.turn) { history.push({ kind: 'turn', a: { kind: 'turn', pre: st.before, post: FM.turnOver(st.before, 'x'), zPre: heightsOf(st.before), zPost: heightsOf(FM.turnOver(st.before, 'x')) } }); continue; }
+      const a = makeFoldAnim(st.before, st.res, st.op);
+      history.push({ kind: 'fold', a });
+      for (const c of st.res.creases) { const m = { ...memOf(c.key) }; if (c.valley) m.v += 1; else m.m += 1; creaseMem.set(c.key, m); }
+    }
+    state = fac.state;
+    factoryLen = history.length;
+    rebuildCreaseMaps(); rebuildReliefBases();
+    rebuildStatic();
+    frame(state, true, 2.6);
+    cam.tilt = camT.tilt = 0.2;
+    updateUI();
+    requestAnimationFrame(t => { last = t; loop(t); });
+    setTimeout(() => $('#loading').classList.add('gone'), 120);
+    // test hooks
+    window.__merrow = {
+      get state() { return state; }, get busy() { return busy(); }, get revealed() { return revealed; }, get history() { return history.length; },
+      open: () => $('#btnOpen').click(), solve: () => $('#btnSolve').click(), decoy: () => $('#btnDecoy').click(), unfold: () => $('#btnUnfold').click(),
+      fold: op => doFoldAnimated(op, 0.4), frame: () => frame(state, true), camera: (o) => Object.assign(camT, o), cam,
+      lamp: (az, el) => { lampCfg.az = az; lampCfg.el = el; fitShadow(); }, panelHeights: () => Array.from(heights),
+      check: w => FM.checkRoute(state, w),
+      finishReveal: () => { if (reveal) { reveal.t = 2; reveal.head = reveal.total + 7; } },
+      mode: m => setMode(m),
+      worldScreen: (X, Y) => {
+        let zt = 0; for (let i = 0; i < 32; i++) zt = Math.max(zt, heights[i]);
+        const v = new THREE.Vector3(CWU * X, -CHU * Y, zt).project(camera);
+        const r = el.getBoundingClientRect();
+        return [((v.x + 1) / 2) * r.width + r.left, ((1 - v.y) / 2) * r.height + r.top];
+      },
+      paperWorld: (x, y) => { const id = FM.pid(Math.min(7, Math.floor(x / 120)), Math.min(3, Math.floor(y / 165))); return FM.paperToWorld(state.panels[id], x, y, 120, 165); },
+      paperScreen: (x, y) => {
+        const id = FM.pid(Math.min(7, Math.floor(x / 120)), Math.min(3, Math.floor(y / 165)));
+        const w = FM.paperToWorld(state.panels[id], x, y, 120, 165);
+        const v = new THREE.Vector3(CWU * w[0], -CHU * w[1], heights[id]).project(camera);
+        const r = el.getBoundingClientRect();
+        return [((v.x + 1) / 2) * r.width + r.left, ((1 - v.y) / 2) * r.height + r.top];
+      },
+    };
+  }
+  boot();
+})();
+
+</script>
+
+</body></html>

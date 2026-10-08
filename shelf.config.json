@@ -1,0 +1,71 @@
+{
+  "title": "Artifact Shelf",
+  "tagline": "Small interactive things, each one a single HTML file.",
+  "description": "A shelf of small interactive web artifacts: simulations, explainers, generative art, games and toys. Each one is a single HTML file you can run, read and keep.",
+  "url": "https://dogum.github.io",
+  "base": "/artifact-shelf/",
+  "language": "en",
+  "author": {
+    "name": "Greg",
+    "url": "https://github.com/dogum"
+  },
+  "repo": "https://github.com/dogum/artifact-shelf",
+  "branch": "main",
+  "madeWith": "Made in conversation with Claude",
+  "backlink": true,
+  "shelves": [
+    {
+      "id": "simulations",
+      "name": "Simulations",
+      "blurb": "Physics and systems you can poke at.",
+      "hue": 205,
+      "schemaCategory": "EducationalApplication"
+    },
+    {
+      "id": "explainers",
+      "name": "Explainers",
+      "blurb": "Interactive pieces that teach one idea well.",
+      "hue": 38,
+      "stage": "tall",
+      "schemaCategory": "EducationalApplication"
+    },
+    {
+      "id": "generative-art",
+      "name": "Generative Art",
+      "blurb": "Procedural worlds, creatures and pictures.",
+      "hue": 330,
+      "schemaCategory": "MultimediaApplication"
+    },
+    {
+      "id": "games",
+      "name": "Games",
+      "blurb": "Things to play, win and lose.",
+      "hue": 150,
+      "schemaCategory": "GameApplication"
+    },
+    {
+      "id": "toys",
+      "name": "Toys",
+      "blurb": "Small things that feel good to touch.",
+      "hue": 12,
+      "schemaCategory": "EntertainmentApplication"
+    },
+    {
+      "id": "tools",
+      "name": "Tools",
+      "blurb": "Utilities that do one job.",
+      "hue": 260,
+      "schemaCategory": "UtilitiesApplication"
+    }
+  ],
+  "projects": [
+    {
+      "id": "procedural-art",
+      "name": "procedural-art",
+      "repo": "dogum/procedural-art",
+      "url": "https://dogum.github.io/procedural-art/",
+      "blurb": "Real mountains, glass and paintings made with code and real elevation data. Two Claude skills and a browser app that draws any mountain on Earth.",
+      "public": true
+    }
+  ]
+}

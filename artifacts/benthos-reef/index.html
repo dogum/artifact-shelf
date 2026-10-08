@@ -1,0 +1,2604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Benthos reef</title>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  --abyss:#031018; --ink:#eae6dc; --muted:#a3b0b1; --amber:#e0a75e; --coral:#e27a62;
+  --chip:rgba(3,16,24,.66); --chip-line:rgba(234,230,220,.16);
+  --panel:#eef2f0; --panel-ink:#10222a; --panel-muted:#4f626a; --panel-line:rgba(16,34,42,.14); --choice:#fff; --lock:rgba(16,34,42,.35);
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --panel:#0c1c23; --panel-ink:#eae6dc; --panel-muted:#9eabac; --panel-line:rgba(234,230,220,.14); --choice:#12262f; --lock:rgba(234,230,220,.3); } }
+:root[data-theme="dark"]{ --panel:#0c1c23; --panel-ink:#eae6dc; --panel-muted:#9eabac; --panel-line:rgba(234,230,220,.14); --choice:#12262f; --lock:rgba(234,230,220,.3); }
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--abyss);color:var(--ink);font-family:var(--serif);-webkit-font-smoothing:antialiased}
+body{position:relative;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#gl,#ui{position:fixed;top:0;left:0;width:100vw;height:100vh;height:100dvh;display:block}
+#gl{touch-action:none}
+#ui{pointer-events:none}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.hud{position:absolute;left:0;right:0;display:flex;justify-content:space-between;gap:12px;padding:12px 14px;pointer-events:none}
+.hud.top{top:0;align-items:flex-start}
+.hud.bottom{bottom:0;align-items:flex-end}
+.play-only{transition:opacity .3s}
+body:not(.playing) .play-only{opacity:0;pointer-events:none}
+.clock{font-size:clamp(36px,8vw,54px);line-height:.95;font-variant-numeric:tabular-nums;letter-spacing:-.02em;text-shadow:0 1px 12px rgba(0,0,0,.5)}
+.goal{margin-top:8px;width:150px}
+.goal span{font-size:15px;font-style:italic;color:var(--muted)}
+.goal .track{height:3px;border-radius:2px;background:var(--chip-line);margin-top:5px;overflow:hidden}
+.goal .track i{display:block;height:100%;width:0;background:var(--amber);transition:width .25s}
+.goal.done span{color:var(--amber)}
+.tr{display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:auto}
+.icon{width:40px;height:40px;border-radius:50%;background:var(--chip);border:1px solid var(--chip-line);font-size:14px;font-style:italic}
+.perf{font:11px/1.55 var(--mono);color:var(--muted);text-align:right;background:var(--chip);border:1px solid var(--chip-line);border-radius:7px;padding:6px 9px;min-width:92px}
+.perf b{color:var(--ink);font-weight:500}
+.perf[hidden]{display:none}
+.cams{display:flex;background:var(--chip);border:1px solid var(--chip-line);border-radius:999px;padding:3px;pointer-events:auto}
+.cams button{background:none;border:0;border-radius:999px;padding:8px 14px;font-size:15px;line-height:1}
+.cams button[aria-pressed="true"]{background:var(--amber);color:#1d1407}
+.acts{display:flex;align-items:flex-end;gap:12px;pointer-events:auto}
+.act{position:relative;width:70px;height:70px;border-radius:50%;background:var(--chip);border:1px solid var(--chip-line);font-size:14px;font-style:italic;display:grid;place-items:center;touch-action:none}
+.act.big{width:78px;height:78px;font-size:15px}
+.act::before{content:"";position:absolute;inset:-4px;border-radius:50%;background:conic-gradient(var(--amber) calc(var(--p,1)*360deg),transparent 0);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px))}
+.act.on{background:var(--amber);color:#1d1407}
+.act.wait{color:var(--muted)}
+.status{position:absolute;left:50%;top:14px;transform:translateX(-50%);pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:max-content;max-width:60vw}
+.tag{font-size:14px;font-style:italic;padding:6px 12px;border-radius:999px;background:var(--chip);border:1px solid var(--chip-line);opacity:0;transition:opacity .25s}
+.tag.on{opacity:1}
+.tag.warn{border-color:rgba(226,122,98,.55);color:#f2b3a3}
+.tag.safe{border-color:rgba(224,167,94,.5);color:#f0cf9f}
+.toasts{position:absolute;left:50%;top:36%;transform:translateX(-50%);pointer-events:none;text-align:center}
+.toast{font-size:20px;font-style:italic;color:var(--amber);text-shadow:0 1px 10px rgba(0,0,0,.6);animation:rise 1.1s ease-out forwards;white-space:nowrap}
+@keyframes rise{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-38px)}}
+#flash{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(226,122,98,0) 35%,rgba(226,122,98,.55) 100%);opacity:0;transition:opacity .6s}
+#flash.on{opacity:1;transition:opacity .05s}
+#dread{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(226,122,98,0) 55%,rgba(170,60,50,.45) 100%);opacity:0}
+.eaten{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);font-size:clamp(24px,5vw,34px);font-style:italic;color:#f7c9bb;opacity:0;pointer-events:none;transition:opacity .3s;text-shadow:0 2px 16px rgba(0,0,0,.7);white-space:nowrap}
+.eaten.on{opacity:1}
+.joy{position:fixed;width:124px;height:124px;margin:-62px 0 0 -62px;border-radius:50%;border:1px solid rgba(234,230,220,.28);pointer-events:none;display:none}
+.joy i{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:rgba(234,230,220,.22)}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,16,24,.4);overflow-y:auto}
+.overlay[hidden]{display:none}
+.card{width:100%;max-width:440px;background:var(--panel);color:var(--panel-ink);border-radius:16px;padding:22px 20px 20px;box-shadow:0 20px 60px rgba(0,0,0,.45);margin:auto}
+.card h1{font-size:34px;line-height:1.05;margin:0 0 8px;font-weight:600;letter-spacing:-.02em}
+.card h2{font-size:15px;font-weight:600;margin:16px 0 8px;color:var(--panel-muted);font-style:italic}
+.card p{margin:0 0 4px;color:var(--panel-muted);font-size:16px;line-height:1.5}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.choice{display:block;text-align:left;background:var(--choice);border:1px solid var(--panel-line);border-radius:10px;padding:9px 11px}
+.choice b{font-size:16px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.choice span{font-size:14px;color:var(--panel-muted);line-height:1.4;display:block;margin-top:2px}
+.choice[aria-pressed="true"]{border-color:var(--amber);box-shadow:inset 0 0 0 1px var(--amber)}
+.levels{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.about{font-size:15px!important;margin-top:10px!important;min-height:3em}
+.lvl{background:var(--choice);border:1px solid var(--panel-line);border-radius:10px;padding:10px 8px;text-align:center}
+.lvl b{display:block;font-size:16px;font-weight:600}
+.lvl small{display:block;font-size:13px;color:var(--panel-muted);margin-top:2px}
+.lvl .st{font-size:15px;letter-spacing:2px;color:var(--amber);margin-top:4px;display:block}
+.lvl[aria-pressed="true"]{border-color:var(--amber);box-shadow:inset 0 0 0 1px var(--amber)}
+.lvl:disabled{opacity:.45;cursor:not-allowed}
+.go{width:100%;border:0;border-radius:10px;padding:14px;font-size:18px;font-weight:600;background:var(--amber);color:#1d1407;margin-top:16px}
+.go:disabled{opacity:.45;cursor:progress}
+.bar{height:3px;border-radius:2px;background:var(--panel-line);margin:10px 0 2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--amber);transition:width .15s}
+.fine{font-size:13px;color:var(--panel-muted);margin:12px 0 0;line-height:1.45}
+.stars{font-size:40px;letter-spacing:6px;color:var(--amber);line-height:1;margin:6px 0 10px}
+.stars s{text-decoration:none;color:var(--lock)}
+.score{font-size:19px;margin:0 0 6px}
+.sum{font-size:16px;line-height:1.55;color:var(--panel-muted)}
+.sum div{margin-bottom:4px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.row2 .go{margin-top:0}
+.ghost{width:100%;border:1px solid var(--panel-line);border-radius:10px;padding:13px;font-size:17px;background:none;color:var(--panel-ink)}
+.ghost[hidden],.go[hidden]{display:none}
+.saved{font-size:13px;color:var(--panel-muted);text-align:center;margin-top:8px;min-height:1em}
+@media (prefers-reduced-motion:reduce){.toast{animation:none;opacity:0}#flash{transition:none}}
+@media (max-width:520px){.choices{grid-template-columns:repeat(2,1fr)}.levels{grid-template-columns:repeat(2,1fr)}.cams button{padding:8px 11px;font-size:14px}.status{top:104px}.perf{font-size:10px}.card h1{font-size:30px}}
+</style>
+</head>
+<body>
+<canvas id="gl" aria-label="Reef scene"></canvas>
+<canvas id="ui" aria-hidden="true"></canvas>
+<div id="dread"></div>
+
+<div class="hud top">
+  <div class="play-only">
+    <div class="clock" id="clock">1:00</div>
+    <div class="goal" id="goal"><span id="goaltxt">0 of 8 points</span><div class="track"><i id="goalbar"></i></div></div>
+  </div>
+  <div class="tr">
+    <button class="icon" id="mute" aria-label="Sound off">off</button>
+    <div class="perf" id="perf" hidden>—</div>
+  </div>
+</div>
+<div class="status play-only"><div class="tag warn" id="hunted"></div><div class="tag safe" id="hidden"></div></div>
+
+<div class="hud bottom play-only">
+  <div class="cams" role="group" aria-label="Camera">
+    <button data-cam="chase" aria-pressed="true">Chase</button>
+    <button data-cam="side" aria-pressed="false">Side</button>
+    <button data-cam="top" aria-pressed="false">Top</button>
+  </div>
+  <div class="acts">
+    <button class="act" id="dash" aria-label="Dash">dash</button>
+    <button class="act big" id="ability">flare</button>
+  </div>
+</div>
+<div class="joy" id="joy"><i></i></div>
+
+<div class="overlay" id="menu">
+  <div class="card">
+    <h1>Benthos reef</h1>
+    <p>Every animal here is drawn live from the gallery’s own code. Eat what you can, hide from what can eat you, one minute at a time.</p>
+    <div class="bar"><i id="load"></i></div>
+    <h2>Play as</h2>
+    <div class="choices" id="choices"></div>
+    <p class="about" id="about"></p>
+    <h2>Reef</h2>
+    <div class="levels" id="levels"></div>
+    <button class="go" id="go" disabled>Preparing the reef…</button>
+    <div class="fine" id="howto">Drag anywhere to steer. Hold dash to sprint. Every animal has its own move.</div>
+  </div>
+</div>
+
+<div class="overlay" id="over" hidden>
+  <div class="card">
+    <h1 id="resTitle">Reef cleared</h1>
+    <div class="stars" id="stars"></div>
+    <div class="score" id="score"></div>
+    <div class="sum" id="sum"></div>
+    <div class="row2"><button class="go" id="next">Next reef</button><button class="ghost" id="again">Try again</button></div>
+    <div class="row2"><button class="ghost" id="card">Save result card</button><button class="ghost" id="back">Change animal</button></div>
+    <div class="saved" id="saved"></div>
+  </div>
+</div>
+<script>
+/* ---- the gallery's own code, verbatim ---- */
+var TAU = Math.PI * 2, HP = Math.PI / 2;
+
+function crv(P) {
+  var n = P.length;
+  return function (s) {
+    var f = s * (n - 1), i = Math.min(n - 2, Math.floor(f)), u = f - i;
+    var p0 = P[Math.max(0, i - 1)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(n - 1, i + 2)];
+    var u2 = u * u, u3 = u2 * u, o = [0, 0, 0];
+    for (var k = 0; k < 3; k++) {
+      o[k] = 0.5 * ((2 * p1[k]) + (-p0[k] + p2[k]) * u +
+        (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * u2 +
+        (-p0[k] + 3 * p1[k] - 3 * p2[k] + p3[k]) * u3);
+    }
+    return o;
+  };
+}
+
+function limb(st, path, rad, NS, NA, boost, arc) {
+  var ns = Math.max(7, Math.round(NS / st.step)), h = 0.004;
+  var a0 = arc ? arc[0] : 0, a1 = arc ? arc[1] : TAU;
+  for (var a = 0; a < ns; a++) {
+    var s = a / (ns - 1), p = path(s);
+    var p1 = path(Math.min(1, s + h)), p0 = path(Math.max(0, s - h));
+    var tx = p1[0] - p0[0], ty = p1[1] - p0[1], tz = p1[2] - p0[2];
+    var tl = Math.sqrt(tx * tx + ty * ty + tz * tz) || 1; tx /= tl; ty /= tl; tz /= tl;
+    var ux = 0, uy = 1, uz = 0;
+    if (Math.abs(ty) > 0.94) { ux = 1; uy = 0; uz = 0; }
+    var ex = ty * uz - tz * uy, ey = tz * ux - tx * uz, ez = tx * uy - ty * ux;
+    var el = Math.sqrt(ex * ex + ey * ey + ez * ez) || 1; ex /= el; ey /= el; ez /= el;
+    var fx = ty * ez - tz * ey, fy = tz * ex - tx * ez, fz = tx * ey - ty * ex;
+    for (var b = 0; b < NA; b++) {
+      var w = a0 + (a1 - a0) * (b / NA), c = Math.cos(w), n = Math.sin(w), r = rad(s, w);
+      var bo = (typeof boost === 'function') ? boost(s, w) : boost;
+      st.cast(p[0] + r * (c * ex + n * fx), p[1] + r * (c * ey + n * fy),
+              p[2] + r * (c * ez + n * fz), bo);
+    }
+  }
+}
+
+function blade(st, N, fn, boost) {
+  var n = Math.max(6, Math.round(N / st.step));
+  for (var a = 0; a < n; a++) {
+    for (var b = 0; b < 13; b++) {
+      var p = fn(a / (n - 1), b / 12);
+      st.cast(p[0], p[1], p[2], boost);
+    }
+  }
+}
+
+function ball(st, cx, cy, cz, r, N, boost, sq) {
+  var n = Math.max(80, Math.round(N / st.step));
+  for (var i = 0; i < n; i++) {
+    var u = i * 2.399963229728653, v = 1 - 2 * (i + 0.5) / n;
+    var sr = Math.sqrt(1 - v * v);
+    st.cast(cx + r * sr * Math.cos(u), cy + r * v * (sq || 1), cz + r * sr * Math.sin(u), boost);
+  }
+}
+
+function hsh(k) { var x = Math.sin(k * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); }
+
+function perp2(d) {
+  var ux = 0, uy = 1, uz = 0;
+  if (Math.abs(d[1]) > 0.94) { ux = 1; uy = 0; uz = 0; }
+  var ex = d[1] * uz - d[2] * uy, ey = d[2] * ux - d[0] * uz, ez = d[0] * uy - d[1] * ux;
+  var el = Math.sqrt(ex * ex + ey * ey + ez * ez) || 1; ex /= el; ey /= el; ez /= el;
+  return [[ex, ey, ez], [d[1] * ez - d[2] * ey, d[2] * ex - d[0] * ez, d[0] * ey - d[1] * ex]];
+}
+
+function shark(st, P, T) {
+  var s3 = st.step, i, k, g, L = 320, beat = T * 2.4;
+  var mid = function (s) { return [-160 + L * s, 0, P.swim * (22 * Math.pow(s, 1.6) + 3) * Math.sin(s * 5.2 - beat) - P.swim * 3 * Math.sin(-beat)]; };
+  var Rh = function (s) {
+    var r = s < 0.4 ? 36 * Math.pow(Math.sin(HP * Math.min(1, (s + 0.012) / 0.4)), 0.62)
+                    : 5 + 31 * Math.pow(Math.cos(HP * Math.min(1, (s - 0.4) / 0.55)), 1.25);
+    return r * (0.72 + 0.28 * Math.min(1, s / 0.12));            // flatter snout
+  };
+  var Rw = function (s) { return Rh(s) * 0.84; };
+  var side = function (s) {                                      // lateral unit vector: the tangent turned 90 degrees in plan
+    var a = mid(Math.min(1, s + 0.003)), b = mid(Math.max(0, s - 0.003)), tx = a[0] - b[0], tz = a[2] - b[2], l = Math.sqrt(tx * tx + tz * tz) || 1;
+    return [-tz / l, tx / l];
+  };
+  var sp = function (s, w, k) { var c = mid(s), e = side(s); k = k || 1;
+    return [c[0] + e[0] * Rw(s) * Math.cos(w) * k, c[1] + Rh(s) * Math.sin(w) * k, c[2] + e[1] * Rw(s) * Math.cos(w) * k]; };
+  for (i = 0; i < 30000; i += s3) {                              // skin: golden-angle scatter, pale belly
+    var s = (i + 0.5) / 30000, w = i * 2.399963229728653, p = sp(s, w);
+    st.cast(p[0], p[1], p[2], Math.sin(w) > -0.15 ? 1.0 : 0.58);
+  }
+  for (g = -1; g <= 1; g += 2) {
+    var we = g > 0 ? 0.3 : Math.PI - 0.3, pe = sp(0.075, we, 1.02);
+    ball(st, pe[0], pe[1], pe[2], 3.6, 160, 2.6);                // eyes
+    for (k = 0; k < 5; k++) for (i = 0; i < 40; i += s3) {       // five gill slits
+      var gw = -0.5 + 0.8 * i / 39, pg = sp(0.165 + k * 0.017, g > 0 ? gw : Math.PI - gw, 1.02);
+      st.cast(pg[0], pg[1], pg[2], 1.9);
+    }
+  }
+  for (i = 0; i < 120; i += s3) {                                // mouth, a crescent under the snout
+    var mq = i / 119 - 0.5, pm = sp(0.07 + 0.03 * mq * mq * 4, -HP + mq * 2.2, 1.03); st.cast(pm[0], pm[1], pm[2], 1.5);
+  }
+  var tip = function (v) { return v > 0.8 ? 0.85 + 1.7 * P.tip : 0.85; };   // the black tips, as the brightest points: a photographic negative
+  function fin(N, M, fn) {                                        // a planar sheet whose points carry their own brightness
+    var n = Math.max(6, Math.round(N / s3));
+    for (var a = 0; a < n; a++) for (var b = 0; b < M; b++) { var r = fn(a / (n - 1), b / (M - 1)); st.cast(r[0], r[1], r[2], r[3]); }
+  }
+  function upright(s0, s1, sA, H, dir) {                          // dorsal / anal: root along the body, apex swept back
+    fin(30, 16, function (u, v) { var s = s0 + (s1 - s0) * u, ss = s + (sA - s) * v, c = mid(ss);
+      return [c[0] - 4 * v * (1 - v) * u * H / 20, c[1] + dir * (Rh(ss) * 0.95 + H * v * (1 - 0.35 * u)), c[2], tip(v)]; });
+  }
+  upright(0.33, 0.46, 0.50, 58, 1);                              // first dorsal
+  upright(0.72, 0.78, 0.81, 15, 1);                              // second dorsal
+  upright(0.73, 0.79, 0.82, 14, -1);                             // anal
+  var dl = 0.9 - 0.45 * P.pect + 0.06 * Math.sin(T * 1.3);
+  for (g = -1; g <= 1; g += 2) {
+    (function (g) {
+      var ca = mid(0.43), ea = side(0.43), out = Rw(0.43) + 80 * Math.cos(dl), dn = -Rh(0.43) * 0.5 - 80 * Math.sin(dl);
+      var apex = [ca[0] + ea[0] * g * out, ca[1] + dn, ca[2] + ea[1] * g * out];
+      fin(34, 18, function (u, v) {                               // pectorals
+        var r = sp(0.21 + 0.10 * u, g > 0 ? -0.62 : Math.PI + 0.62, 0.98);
+        return [r[0] + (apex[0] - r[0]) * v, r[1] + (apex[1] - r[1]) * v, r[2] + (apex[2] - r[2]) * v, tip(v)];
+      });
+      var cp = mid(0.58), ep = side(0.58);                        // pelvics
+      fin(14, 10, function (u, v) {
+        var r = sp(0.55 + 0.06 * u, g > 0 ? -1.0 : Math.PI + 1.0, 0.98);
+        return [r[0] + 14 * v, r[1] - 14 * v, r[2] + ep[1] * g * 10 * v, 0.9];
+      });
+    })(g);
+  }
+  var c1 = mid(1), h1 = Rh(1);                                   // heterocercal caudal: the long upper lobe carries the spine
+  var edge = crv([[66, 66, 0], [48, 36, 0], [32, 6, 0], [40, -18, 0], [42, -38, 0]]);
+  fin(60, 18, function (u, v) {
+    var e = edge(u), ry = h1 * 0.9 * (1 - 2 * u), lag = P.swim * 16 * Math.sin(5.2 - beat - 0.8) * v;
+    var b = (v > 0.8 && (u < 0.12 || u > 0.9)) ? 0.85 + 1.7 * P.tip : (v > 0.94 ? 1.4 : 0.85);
+    return [c1[0] + e[0] * v, c1[1] + ry + (e[1] - ry) * v, c1[2] + lag, b];
+  });
+}
+
+function moray(st, P, T) {
+  var s3 = st.step, i, k, g;
+  var path = function (u) {
+    return [56 * P.swim * Math.sin(u * 5.0 - T * 1.7) * Math.pow(u, 0.65),
+            24 * P.swim * Math.sin(u * 3.2 - T * 1.35) * u - 4,
+            -172 + 344 * u];
+  };
+  var rad = function (u) { return 28 - 22 * Math.pow(u, 1.25) + 0.7; };
+  var mottle = function (u, w) {                        // blotchy skin, brightness only
+    var m = Math.sin(u * 26 + 1.7 * Math.sin(w * 3)) * Math.sin(w * 2.4 + u * 9);
+    return m > 0.12 ? 1.75 : 0.62;
+  };
+  limb(st, path, function (u, w) {
+    return rad(u) * (1 + 0.42 * u * Math.abs(Math.sin(w)));    // laterally compressed tail
+  }, 240, 26, mottle);
+  blade(st, 115, function (u, w) {                      // continuous dorsal fin
+    var p = path(u), r = rad(u) * (1 + 0.42 * u);
+    var h = 15 * Math.pow(Math.sin(Math.PI * (0.08 + 0.9 * u)), 0.4) * (0.5 + 0.8 * u);
+    return [p[0], p[1] + r + w * h, p[2] + 3 * Math.sin(w * 3 + u * 20 - T * 3)];
+  }, 1.1);
+  var hd = path(0), gape = 0.16 + 0.42 * P.gape;
+  for (g = -1; g <= 1; g += 2) {                        // upper and lower jaw
+    (function (g) {
+      limb(st, crv([[hd[0], hd[1] + g * 4, hd[2] + 4],
+                    [hd[0], hd[1] + g * (10 + 22 * gape), hd[2] - 26],
+                    [hd[0], hd[1] + g * (12 + 40 * gape), hd[2] - 52]]),
+           function (s, w) { return (13 - 8 * s) * (1 + 0.25 * Math.abs(Math.cos(w))); }, 30, 12, 1.05);
+      for (k = 0; k < 13; k++) {                        // teeth
+        var s2 = 0.14 + k * 0.065;
+        var jy = hd[1] + g * (4 + (6 + 40 * gape) * s2), jz = hd[2] + 4 - 56 * s2;
+        for (var q = -1; q <= 1; q += 2) for (i = 0; i < 22; i += s3) {
+          var e = i / 21;
+          st.cast(hd[0] + q * 7 * (1 - 0.3 * s2), jy - g * 9 * e, jz + 1.5 * e, 2.4);
+        }
+      }
+    })(g);
+  }
+  for (g = -1; g <= 1; g += 2) ball(st, hd[0] + g * 13, hd[1] + 9, hd[2] - 14, 5, 300, 2.6);
+  for (g = -1; g <= 1; g += 2) for (i = 0; i < 120; i += s3) {   // gill opening
+    var a2 = i / 119 * TAU;
+    st.cast(hd[0] + g * (rad(0.16) * 0.92), hd[1] + 6 * Math.sin(a2), hd[2] + 52 + 9 * Math.cos(a2), 1.7);
+  }
+}
+
+function lionfish(st, P, T) {
+  var s3 = st.step, i, k, g;
+  var sway = P.sway;
+  var spine = crv([[-104, 0, 0], [-70, 2, 0], [-30, 4, 0], [10, 3, 0], [50, 0, 0], [84, -3, 0], [104, -4, 0]]);
+  var bod = function (s) { var p = spine(s); return [p[0], p[1], p[2] + 7 * sway * Math.sin(s * 3.5 - T * 1.6) * s]; };
+  var R = function (s) { return 33 * Math.pow(Math.sin(Math.PI * (0.04 + 0.80 * s)), 0.55) + 1; };
+  limb(st, bod, function (s, w) { return R(s) * (1 - 0.42 * Math.cos(w) * Math.cos(w)); }, 150, 22,
+       function (s, w) { return 0.7 + 0.9 * P.stripe * (Math.sin(s * 27) > 0.35 ? 1 : 0.15); }); // bands: threshold a fast sine
+  for (g = -1; g <= 1; g += 2) {                                   // eyes, plumes above them
+    ball(st, -80, 13, g * 17, 6.2, 320, 2.3);
+    blade(st, 8, function (u, w) { return [-82 + 4 * u, 20 + 16 * u + (w - .5) * 4 * u, g * (16 + 3 * u)]; }, 1.4);
+  }
+  limb(st, crv([[-104, -8, -12], [-108, -12, 0], [-104, -8, 12]]),      // mouth
+       function (s) { return 2.2; }, 14, 6, 1.5);
+  /* a fin is a fan of rays with a membrane between neighbours */
+  function fan(base, N, dir, len, memb, flut, ph) {
+    var tips = [];
+    for (k = 0; k < N; k++) {
+      (function (k) {
+        var d = dir(k), L = len(k), fl = flut * Math.sin(T * 2.4 + ph + k * 0.5);
+        limb(st, function (s) { return [base[0] + d[0] * L * s, base[1] + d[1] * L * s, base[2] + d[2] * L * s + fl * s * s]; },
+             function (s) { return 1.5 * (1 - 0.6 * s) + 0.3; }, Math.round(L / 2.4) + 5, 5, 1.7);
+        tips.push([d, L, fl]);
+      })(k);
+    }
+    for (k = 0; k < N - 1; k++) {
+      (function (a, b) {
+        blade(st, Math.round(memb * 26) + 6, function (u, w) {
+          var uu = u * memb, La = a[1] * uu, Lb = b[1] * uu;
+          return [base[0] + a[0][0] * La * (1 - w) + b[0][0] * Lb * w,
+                  base[1] + a[0][1] * La * (1 - w) + b[0][1] * Lb * w,
+                  base[2] + a[0][2] * La * (1 - w) + b[0][2] * Lb * w + (a[2] * (1 - w) + b[2] * w) * uu * uu];
+        }, 0.5);
+      })(tips[k], tips[k + 1]);
+    }
+  }
+  var ND = 13;                                                     // 13 venomous dorsal spines, membrane only at the base
+  for (k = 0; k < ND; k++) {
+    (function (k) {
+      var s0 = 0.16 + 0.54 * k / (ND - 1), b = bod(s0), L = (66 - 26 * k / ND) * P.spine;
+      var a = 1.35 - 0.55 * k / ND, fl = 5 * P.sway * Math.sin(T * 2.2 + k * 0.7);
+      limb(st, function (s) { return [b[0] + Math.cos(a) * L * s, b[1] + R(s0) * 0.9 + Math.sin(a) * L * s, b[2] + fl * s * s]; },
+           function (s) { return 1.6 * (1 - 0.65 * s) + 0.3; }, 26, 5, 1.8);
+      if (k < ND - 1) {
+        var s1 = 0.16 + 0.54 * (k + 1) / (ND - 1), b2 = bod(s1), L2 = (66 - 26 * (k + 1) / ND) * P.spine, a2 = 1.35 - 0.55 * (k + 1) / ND;
+        blade(st, 12, function (u, w) {
+          var uu = u * 0.42;
+          return [b[0] * (1 - w) + b2[0] * w + (Math.cos(a) * L * (1 - w) + Math.cos(a2) * L2 * w) * uu,
+                  (b[1] + R(s0) * 0.9) * (1 - w) + (b2[1] + R(s1) * 0.9) * w + (Math.sin(a) * L * (1 - w) + Math.sin(a2) * L2 * w) * uu,
+                  b[2] * (1 - w) + b2[2] * w + fl * uu * uu];
+        }, 0.5);
+      }
+    })(k);
+  }
+  (function () {                                                   // soft dorsal, fully webbed
+    var b = bod(0.76);
+    fan([b[0], b[1] + R(0.76) * 0.9, b[2]], 9, function (k) { var a = 1.25 - 0.9 * k / 8; return [Math.cos(a), Math.sin(a), 0]; },
+        function (k) { return (28 - 8 * Math.abs(k - 4) / 4) * P.spine; }, 0.9, 4 * P.sway, 1.0);
+  })();
+  for (g = -1; g <= 1; g += 2) {                                   // the great pectoral fans
+    (function (g) {
+      var b = bod(0.24);
+      fan([b[0], b[1] - 4, b[2] + g * R(0.24) * 0.75], 14,
+          function (k) { var a = 1.15 - 2.5 * k / 13, x = Math.cos(a) * 0.55 + 0.35, y = Math.sin(a), z = g * (0.35 + 0.85 * P.flare) * (1 - 0.35 * Math.abs(y));
+                         var l = Math.sqrt(x * x + y * y + z * z); return [x / l, y / l, z / l]; },
+          function (k) { return (56 + 26 * Math.sin(Math.PI * (0.1 + 0.8 * k / 13))) * P.flare * 0.8 + 20; },
+          0.55, 6 * P.sway, g * 1.3);
+      var pb = bod(0.34);                                          // pelvic fins
+      fan([pb[0], pb[1] - R(0.34) * 0.9, pb[2] + g * 8], 6,
+          function (k) { var a = -1.5 + 0.5 * k / 5; return [Math.cos(a) * 0.6 + 0.3, Math.sin(a), g * 0.35]; },
+          function (k) { return 30 * P.flare + 8; }, 0.8, 3 * P.sway, g * 0.6);
+    })(g);
+  }
+  (function () {                                                   // anal fin
+    var b = bod(0.72);
+    fan([b[0], b[1] - R(0.72) * 0.9, b[2]], 8, function (k) { var a = -1.35 + 0.55 * k / 7; return [Math.cos(a) * 0.7 + 0.2, Math.sin(a), 0]; },
+        function (k) { return 24 * P.spine + 4; }, 0.9, 3 * P.sway, 2.2);
+  })();
+  (function () {                                                   // rounded caudal
+    var b = bod(1);
+    fan(b, 13, function (k) { var a = 0.85 - 1.7 * k / 12; return [Math.cos(a), Math.sin(a), 0]; },
+        function (k) { return 36 + 8 * Math.cos((k - 6) / 6 * 1.4); }, 1.0, 9 * P.sway, 3.0);
+  })();
+}
+
+function clownfish(st, P, T) {
+  var s3 = st.step, i, k, g, wag = P.waggle;
+  var mid = function (s) { return [-80 + 165 * s, 0, wag * (7 * s * s * Math.sin(s * 4 - T * 3.1) + 1.5 * Math.sin(T * 3.1))]; };
+  var Rh = function (s) { return 44 * Math.pow(Math.sin(Math.PI * (0.03 + 0.9 * s)), 0.6) + 2; };
+  var Rw = function (s) { return Rh(s) * 0.5; };                 // laterally compressed
+  var bw = 0.042 * P.bands, rim = 0.013;
+  var band = function (s, sw) {                                  // three white bars, each edged in black
+    var m = 1 - sw * sw, d = Math.min(Math.abs(s - (0.215 - 0.02 * m)), Math.abs(s - (0.535 - 0.045 * m)), Math.abs(s - 0.9));
+    return d < bw ? 2.3 : (d < bw + rim ? 0 : 1);
+  };
+  for (i = 0; i < 26000; i += s3) {
+    var s = (i + 0.5) / 26000, w = i * 2.399963229728653, b = band(s, Math.sin(w));
+    if (b === 0) continue;                                       // black is simply where no point lands
+    var c = mid(s); st.cast(c[0], c[1] + Rh(s) * Math.sin(w), c[2] + Rw(s) * Math.cos(w), b);
+  }
+  for (g = -1; g <= 1; g += 2) {                                 // big eyes
+    var ce = mid(0.12);
+    ball(st, ce[0], ce[1] + 9, ce[2] + g * Rw(0.12) * 0.82, 7.5, 330, 1.0);
+    ball(st, ce[0] - 1, ce[1] + 9, ce[2] + g * (Rw(0.12) * 0.82 + 4.5), 3.6, 150, 2.8);
+  }
+  function sheet(N, M, fn) {                                     // a fin: orange fill, a gap of black, a white margin
+    var n = Math.max(6, Math.round(N / s3));
+    for (var a = 0; a < n; a++) for (var q = 0; q < M; q++) {
+      var v = q / (M - 1); if (v > 0.8 && v < 0.88) continue;
+      var r = fn(a / (n - 1), v); st.cast(r[0], r[1], r[2], v >= 0.88 ? 2.0 : 0.75);
+    }
+  }
+  sheet(44, 18, function (u, v) {                                // dorsal: spiny front, notch, soft rear
+    var h = u < 0.42 ? 6 + 13 * Math.pow(Math.sin(Math.PI * u / 0.42), 0.5) * (1 + 0.18 * Math.abs(Math.sin(u * 42)))
+                     : 6 + 24 * Math.pow(Math.max(0, Math.sin(Math.PI * (u - 0.42) / 0.58)), 0.6);
+    var s = 0.25 + 0.6 * u, c = mid(s);
+    return [c[0] + 5 * v, c[1] + Rh(s) * 0.96 + h * v, c[2] + 3 * wag * v * v * Math.sin(T * 4 + u * 6)];
+  });
+  sheet(22, 16, function (u, v) {                                // anal
+    var s = 0.62 + 0.24 * u, c = mid(s), h = 4 + 20 * Math.pow(Math.sin(Math.PI * u), 0.6);
+    return [c[0] + 5 * v, c[1] - Rh(s) * 0.96 - h * v, c[2] + 3 * wag * v * v * Math.sin(T * 4 + u * 6 + 1)];
+  });
+  var ct = mid(1);
+  sheet(40, 18, function (u, v) {                                // rounded tail
+    var a = -0.95 + 1.9 * u, r = 38 * (0.9 + 0.1 * Math.cos(a * 1.5)), lag = wag * 9 * Math.sin(4 - T * 3.1 - 0.7) * v;
+    var ry = Rh(1) * 0.8 * Math.sin(a);
+    return [ct[0] + r * Math.cos(a) * v, ct[1] + ry + (r * Math.sin(a) - ry) * v, ct[2] + lag];
+  });
+  for (g = -1; g <= 1; g += 2) {
+    (function (g) {
+      var al = 0.35 + 0.55 * P.row * (0.5 + 0.5 * Math.sin(T * 5.5 + (g > 0 ? 0 : Math.PI)));   // pectorals row in alternation
+      var cp = mid(0.26);
+      sheet(22, 14, function (u, v) {
+        var y0 = -10 + 16 * u, Lr = 28 * Math.pow(Math.sin(Math.PI * (0.1 + 0.8 * u)), 0.5);
+        return [cp[0] + 2 + Math.cos(al) * Lr * v, cp[1] + y0 * (1 + 0.5 * v), cp[2] + g * (Rw(0.26) * 0.9 + Math.sin(al) * Lr * v)];
+      });
+      var cv = mid(0.32);
+      sheet(12, 12, function (u, v) {                            // pelvics
+        return [cv[0] + 6 * u + 12 * v, cv[1] - Rh(0.32) * 0.9 - 18 * v, cv[2] + g * (3 + 6 * v)];
+      });
+    })(g);
+  }
+}
+
+function pufferfish(st, P, T) {
+  var s3 = st.step, i, k, g, u, th;
+  var p = P.inflate;
+  var AZ = 86 - 22 * p, BY = 36 + 32 * p, CX = 30 + 36 * p;
+  var prof = function (u) { return Math.pow(Math.sin(Math.PI * (0.045 + 0.915 * u)), 0.58 - 0.16 * p); };
+  for (i = 0; i < 9600; i += s3) {                      // body
+    u = ((i / 96) | 0) / 99; th = (i % 96) / 96 * TAU;
+    var r = prof(u);
+    st.cast(CX * r * Math.cos(th), BY * r * Math.sin(th), -AZ + 2 * AZ * u);
+  }
+  var NS = 210, L = 3 + 26 * p;
+  for (k = 0; k < NS; k++) {                            // erectile spines, Fibonacci-spaced
+    if (k % st.step) continue;
+    var v = 1 - 2 * (k + 0.5) / NS, sr = Math.sqrt(Math.max(0, 1 - v * v)), an = k * 2.399963229728653;
+    var dx = sr * Math.cos(an), dy = v, dz = sr * Math.sin(an);
+    if (dz < -0.72) continue;                           // clear the face
+    var sx = CX * dx, sy = BY * dy, sz = AZ * dz;
+    var nx = dx / CX, ny = dy / BY, nz = dz / AZ;
+    var nl = Math.sqrt(nx * nx + ny * ny + nz * nz) || 1; nx /= nl; ny /= nl; nz /= nl;
+    for (i = 0; i < 9; i++) {
+      var e = i / 8, rr = 2.6 * (1 - e);
+      for (var q = 0; q < 4; q++) {
+        var wq = q / 4 * TAU;
+        st.cast(sx + nx * L * e + rr * Math.cos(wq) * 0.9,
+                sy + ny * L * e + rr * Math.sin(wq) * 0.9,
+                sz + nz * L * e, 1.0 + 1.4 * e);
+      }
+    }
+  }
+  for (g = -1; g <= 1; g += 2) {                        // eyes
+    ball(st, g * CX * 0.74, BY * 0.44, -AZ * 0.50, 13, 700, 1.2);
+    ball(st, g * CX * 0.90, BY * 0.46, -AZ * 0.54, 6, 320, 2.8);
+  }
+  for (i = 0; i < 340; i += s3) {                       // beak
+    var q2 = i / 339, aa = (q2 - 0.5) * 2.2;
+    st.cast(14 * Math.sin(aa), -BY * 0.30 + 7 * Math.cos(aa) * (q2 > 0.5 ? -0.5 : 1), -AZ * 0.985, 2.4);
+  }
+  for (g = -1; g <= 1; g += 2) blade(st, 20, function (u2, w) {   // pectoral fins, fast
+    var fl = 5 * P.fin * Math.sin(u2 * 3 - T * 9);
+    var wd = 20 * Math.sin(Math.PI * (0.1 + 0.85 * u2));
+    return [g * (CX * 0.86 + u2 * 34), (w - 0.5) * 2 * wd * 0.9 + fl, -AZ * 0.10 + u2 * 8];
+  }, 1.0);
+  blade(st, 18, function (u2, w) {                      // dorsal
+    var wd = 17 * Math.sin(Math.PI * (0.1 + 0.85 * u2));
+    return [(w - 0.5) * 4, BY * 0.90 + u2 * 26, AZ * 0.42 + (w - 0.5) * 2 * wd * 0.7];
+  }, 1.0);
+  blade(st, 18, function (u2, w) {                      // anal
+    var wd = 15 * Math.sin(Math.PI * (0.1 + 0.85 * u2));
+    return [(w - 0.5) * 4, -BY * 0.90 - u2 * 22, AZ * 0.44 + (w - 0.5) * 2 * wd * 0.7];
+  }, 1.0);
+  blade(st, 26, function (u2, w) {                      // caudal fan
+    var wd = 26 * Math.pow(u2, 0.6);
+    var sw = 7 * P.fin * Math.sin(-T * 4.2);
+    return [(w - 0.5) * 5 + sw * u2, (w - 0.5) * 2 * wd, AZ * 0.92 + u2 * 46];
+  }, 1.0);
+}
+
+function shrimp(st, P, T) {
+  var s3 = st.step, i, k, g, s;
+  var beat = function (ph) { return Math.sin(T * 4.2 - ph); };
+  var cara = crv([[-58, 20, 0], [-40, 15, 0], [-18, 8, 0], [4, 1, 0]]);
+  limb(st, cara, function (s, w) {
+    return (13 + 8 * Math.sin(Math.PI * (0.15 + 0.7 * s))) * (1 + 0.05 * Math.cos(w * 5));
+  }, 48, 15);
+  limb(st, crv([[-52, 24, 0], [-74, 30, 0], [-94, 34, 0], [-110, 35, 0]]),   // rostrum
+       function (s, w) { return (4.2 * (1 - 0.85 * s) + 0.4) * (1 + 0.5 * Math.max(0, Math.sin(w)) * (Math.sin(s * 26) > 0 ? 1 : 0)); },
+       34, 9, 1.2);
+  var abd = crv([[4, 1, 0], [26, -5, 0], [48, -18, 0], [68, -38, 0], [82, -64, 0], [88, -88, 0]]);
+  var flex = 1;
+  for (k = 0; k < 6; k++) {                             // six abdominal segments
+    (function (k) {
+      var s0 = k / 6, s1 = (k + 0.92) / 6;
+      limb(st, function (u) { return abd(s0 + (s1 - s0) * u); },
+           function (u, w) {
+             var sc = 1 - 0.10 * k;
+             return (18 * sc) * (1 + 0.10 * Math.pow(Math.abs(Math.sin(w)), 2)) *
+                    (0.82 + 0.28 * Math.sin(Math.PI * u));
+           }, 22, 15);
+    })(k);
+  }
+  for (g = -2; g <= 2; g++) (function (g) {             // tail fan
+    var ang = g * (0.30 + 0.16 * P.fan), L = g === 0 ? 40 : 38 - 2 * Math.abs(g);
+    var b = abd(1), ca = Math.cos(ang), sa = Math.sin(ang);
+    blade(st, 26, function (s, t) {
+      var wdt = (g === 0 ? 8 : 7.5) * Math.sin(Math.PI * (0.12 + 0.8 * s));
+      var al = L * s, ac = (t - 0.5) * 2 * wdt;
+      return [b[0] + al * 0.55 * ca - ac * sa, b[1] - al * 0.84, (al * sa * 0.6 + ac * ca) + g * 4];
+    }, 0.95);
+  })(g);
+  for (k = 0; k < 5; k++) for (g = -1; g <= 1; g += 2) {  // pleopods, metachronal wave
+    (function (k, g) {
+      var bs = abd(0.06 + k * 0.155), ph = k * 1.15, sw = beat(ph) * P.swim;
+      limb(st, crv([[bs[0], bs[1] - 12, g * 5],
+                    [bs[0] + 8 * sw, bs[1] - 26, g * 12],
+                    [bs[0] + 16 * sw, bs[1] - 36, g * 15]]),
+           function (s) { return 3.4 * (1 - 0.6 * s) + 0.4; }, 14, 7, 1.1);
+    })(k, g);
+  }
+  for (k = 0; k < 5; k++) for (g = -1; g <= 1; g += 2) {  // walking legs
+    (function (k, g) {
+      var bx = -36 + k * 10, sw = beat(k * 0.9) * P.swim * 0.4;
+      limb(st, crv([[bx, -6, g * 8], [bx + 4, -22, g * 18], [bx + 12 + 8 * sw, -40, g * 22],
+                    [bx + 16 + 10 * sw, -56, g * 20]]),
+           function (s) { return 3 * (1 - 0.75 * s) + 0.35; }, 22, 7);
+    })(k, g);
+  }
+  for (g = -1; g <= 1; g += 2) {                        // antennae
+    (function (g) {
+      var w = P.ant * 12 * Math.sin(T * 1.5 + g);
+      limb(st, crv([[-54, 14, g * 8], [-86, 6 + w * 0.3, g * 22], [-124, -6 + w, g * 40],
+                    [-158, -26 + w * 1.4, g * 54], [-182, -54, g * 62]]),
+           function (s) { return 2.6 * (1 - 0.85 * s) + 0.3; }, 44, 6);
+      ball(st, -54, 20, g * 11, 5.4, 260, 2.4);
+    })(g);
+  }
+}
+
+function copepod(st, P, T) {
+  var s3 = st.step, i, k, g;
+  var tw = Math.pow(Math.max(0, Math.sin(T * 2.4)), 7) * P.kick;      // a copepod moves in jerks: seventh power of a sine
+  var pro = crv([[-72, 0, 0], [-40, 1, 0], [0, 0, 0], [30, -2, 0]]);
+  limb(st, pro, function (s, w) {
+    return 26 * Math.pow(Math.sin(Math.PI * (0.06 + 0.86 * s)), 0.62) * (1 + 0.05 * Math.abs(Math.sin(s * 12))) * (1 - 0.18 * Math.pow(Math.sin(w), 2));
+  }, 110, 20, function (s, w) { return 0.85 + 1.0 * (Math.abs(Math.sin(s * 4 * Math.PI)) > 0.985 ? 1 : 0); }); // segment seams
+  var NU = 5, x0 = 30;                                                 // urosome: five short cylinders, then the forked tail
+  var uro = function (s) { var d = tw * 0.5; return [x0 + 58 * s, -2 - 22 * d * s * s, 0]; };
+  for (k = 0; k < NU; k++) {
+    (function (k) {
+      var a = k / NU, b = (k + 0.86) / NU;
+      limb(st, function (s) { return uro(a + (b - a) * s); }, function (s) { return 7.5 - 3.4 * (a + (b - a) * s); }, 12, 10, 0.95);
+    })(k);
+  }
+  var tip = uro(1), fd = 22 * tw * 0.5;
+  for (g = -1; g <= 1; g += 2) {                                       // furca, with the caudal setae
+    (function (g) {
+      limb(st, function (s) { return [tip[0] + 16 * s, tip[1] - fd * s * 0.4, tip[2] + g * (2 + 5 * s)]; }, function (s) { return 2.3 - 1.2 * s; }, 12, 6, 1.2);
+      for (k = 0; k < 4; k++) {
+        (function (k) { var a = g * (0.15 + 0.35 * k), L = 38 - 7 * k;
+          limb(st, function (s) { return [tip[0] + 16 + Math.cos(a * 0.6) * L * s, tip[1] - fd * 0.4 - 8 * k * s * 0.4 - 4 * s * s * (1 - tw), tip[2] + g * 7 + Math.sin(a) * L * s]; },
+               function (s) { return 0.8 * (1 - 0.5 * s) + 0.25; }, 20, 3, 1.5);
+        })(k);
+      }
+    })(g);
+  }
+  ball(st, -66, 8, 0, 4.2, 220, 3.0);                                 // the single naupliar eye
+  for (g = -1; g <= 1; g += 2) {                                       // first antennae: the long ones, swept back on the kick
+    (function (g) {
+      var sweep = 1 - 0.55 * tw, A = P.antenna;
+      var ant = crv([[-64, 4, g * 10], [-44 + 14 * tw, 12, g * 56 * sweep * A], [-2 + 22 * tw, 10, g * 94 * sweep * A], [34 + 30 * tw, 2, g * 112 * sweep * A]]);
+      limb(st, ant, function (s) { return 2.3 * (1 - 0.7 * s) + 0.3; }, 80, 6, 1.4);
+      for (k = 1; k < 11; k++) {                                       // setae, alternating sides
+        (function (k) { var s0 = k / 11, p = ant(s0), q = ant(s0 + 0.01), side = (k % 2 ? 1 : -1);
+          var L = 9 + 6 * Math.sin(s0 * Math.PI);
+          limb(st, function (s) { return [p[0] + side * 0.5 * L * s, p[1] + side * L * s * 0.8, p[2] + g * 0.3 * L * s]; }, function (s) { return 0.7 - 0.3 * s + 0.2; }, 7, 3, 1.3);
+        })(k);
+      }
+      var sa = crv([[-70, -4, g * 9], [-78, -12, g * 22], [-72, -24, g * 34]]);   // second antenna, short and hooked
+      limb(st, sa, function (s) { return 1.6 - 0.9 * s + 0.2; }, 20, 5, 1.2);
+    })(g);
+  }
+  for (k = 0; k < 4; k++) for (g = -1; g <= 1; g += 2) {               // four pairs of swimming legs, paddling with the twitch
+    (function (k, g) {
+      var p = pro(0.42 + 0.14 * k), r = 26 * Math.pow(Math.sin(Math.PI * (0.06 + 0.86 * (0.42 + 0.14 * k))), 0.62) * 0.85;
+      var a = -1.45 + 0.9 * tw - 0.15 * k;
+      blade(st, 9, function (u, w) { return [p[0] + Math.cos(a) * 18 * u + 3 * w, p[1] - r + Math.sin(a) * 18 * u, p[2] + g * (6 + 4 * w + 3 * u)]; }, 0.9);
+    })(k, g);
+  }
+  if (P.eggs > 0.02) for (g = -1; g <= 1; g += 2) {                    // two egg sacs slung under the urosome
+    for (k = 0; k < 16; k++) {
+      var u = k * 2.399963229728653, v = 1 - 2 * (k + 0.5) / 16, sr = Math.sqrt(1 - v * v);
+      ball(st, 46 + 9 * sr * Math.cos(u) * P.eggs + 8 * v, -14 - 6 * P.eggs + 6 * v, g * (10 + 7 * sr * Math.sin(u) * P.eggs), 3.1 * P.eggs, 70, 1.6);
+    }
+  }
+}
+
+function manta(st, P, T) {
+  var s3 = st.step, i, k, g, SP = 188, ph = T * 1.25;
+  var bank = P.bank * 0.32 * Math.sin(T * 0.55), cb = Math.cos(bank), sb = Math.sin(bank);
+  var S = { step: s3, cast: function (x, y, z, b) { st.cast(x * cb - y * sb, x * sb + y * cb, z, b); } };  // a whole-body roll, applied by wrapping cast
+  var le = function (t) { return -92 + 92 * Math.pow(Math.abs(t), 1.5); };
+  var ch = function (t) { var a = Math.min(1, Math.abs(t)); return 168 * Math.pow(1 - a, 0.62) * (1 - 0.25 * a) + 4; };
+  var fy = function (t, c) { var a = Math.abs(t);
+    return P.flap * 62 * Math.sin(ph - 1.5 * a) * Math.pow(a, 1.5) + P.flap * 10 * a * Math.sin(ph - 2.3) * (c - 0.3); };
+  var th = function (t, c) {
+    return (22 * Math.exp(-Math.pow(t * SP / 42, 2)) + 4 * (1 - Math.abs(t))) * Math.pow(Math.max(0, Math.sin(Math.PI * (0.02 + 0.96 * c))), 0.5); };
+  for (i = 0; i < 16000; i += s3) {                              // the wing, both surfaces
+    var t = ((i / 120) | 0) / 132 * 2 - 1, c = (i % 120) / 119;
+    var x = t * SP, z = le(t) + c * ch(t), y = fy(t, c), h = th(t, c);
+    S.cast(x, y + h, z); S.cast(x, y - h * 0.6, z, 0.7);
+  }
+  for (i = 0; i < 2400; i += s3) {                               // leading and trailing edges, drawn bright
+    var tt = ((i / 2) | 0) / 1199 * 2 - 1, cc = i % 2;
+    S.cast(tt * SP, fy(tt, cc), le(tt) + cc * ch(tt), 1.5);
+  }
+  for (g = -1; g <= 1; g += 2) {                                 // cephalic lobes: a sheet rolled into a horn, unrolled into a scoop
+    var rr = 3 + 30 * P.lobes, bx = g * 30, by = fy(bx / SP, 0) + 2, bz = le(bx / SP) + 4;
+    for (i = 0; i < 900; i += s3) {
+      var u = ((i / 18) | 0) / 49, q = (i % 18) / 17, W = 18 * (1 - 0.35 * u), ang = q * W / rr;
+      S.cast(bx - g * rr * (1 - Math.cos(ang)), by - rr * Math.sin(ang), bz - 40 * u, (q > 0.94 || u > 0.97) ? 1.7 : 0.9);
+    }
+    ball(S, g * 36, 7, -80, 4.4, 180, 2.4);                      // eyes, on the sides of the head
+  }
+  for (i = 0; i < 220; i += s3) {                                // the wide terminal mouth
+    var am = i / 220 * TAU; S.cast(22 * Math.cos(am), -3 + 5 * Math.sin(am), -91, 1.7);
+  }
+  for (k = 0; k < 5; k++) for (g = -1; g <= 1; g += 2) {         // five gill slits each side, underneath
+    for (i = 0; i < 50; i += s3) {
+      var gq = i / 49, gx = g * (24 + 18 * gq), gz = -42 + k * 11 - 5 * gq, gt = gx / SP, gc = (gz - le(gt)) / ch(gt);
+      S.cast(gx, fy(gt, gc) - th(gt, gc) * 0.6 - 1, gz, 1.6);
+    }
+  }
+  blade(S, 16, function (u, w) {                                 // small dorsal fin
+    var z = 48 + 22 * w - 6 * u; return [0, th(0, 0.72) + fy(0, 0.8) + 14 * u * (1 - w), z];
+  }, 1.1);
+  limb(S, function (u) {                                         // whip tail
+    return [8 * P.flap * Math.sin(u * 3 - ph) * u, fy(0, 1) + 2 + 6 * Math.sin(u * 2.4 - ph) * u, 76 + 92 * u];
+  }, function (u) { return 3.6 * Math.pow(1 - u, 0.7) + 0.4; }, 50, 7);
+  for (g = -1; g <= 1; g += 2) blade(S, 12, function (u, w) {    // pelvic fins trailing the disc
+    return [g * (8 + 14 * w), fy(0, 1) - 4, 58 + 26 * u * (1 - 0.4 * w)];
+  }, 0.9);
+}
+
+function seaturtle(st, P, T) {
+  var s3 = st.step, i, k, g, a, th, u;
+  var stroke = Math.sin(T * 1.5) * P.stroke;
+  var CW = 94, CL = 120, CH = 30 + 26 * P.dome;
+  var shell = function (a, th) {
+    var rz = CL * (1 + 0.09 * Math.cos(th));
+    return [a * CW * Math.sin(th), CH * Math.pow(Math.max(0, 1 - a * a), 0.62) - 6, a * rz * Math.cos(th)];
+  };
+  for (i = 0; i < 13000; i += s3) {                     // carapace
+    a = ((i / 130) | 0) / 99; th = (i % 130) / 130 * TAU;
+    var p = shell(a, th);
+    st.cast(p[0], p[1], p[2]);
+    if (a > 0.97) st.cast(p[0], -12 + p[1] * 0.12, p[2], 0.8);
+  }
+  for (i = 0; i < 3600; i += s3) {                      // plastron
+    a = ((i / 60) | 0) / 59; th = (i % 60) / 60 * TAU;
+    var p2 = shell(a * 0.9, th);
+    st.cast(p2[0], -13 - 5 * Math.pow(Math.max(0, 1 - a * a), 0.5), p2[2], 0.6);
+  }
+  for (k = 0; k < 4; k++) for (i = 0; i < 460; i += s3) {  // longitudinal scute seams
+    a = i / 459; th = [0.30, -0.30, 0.86, -0.86][k];
+    var p3 = shell(a, th * (1 + 0.25 * a));
+    st.cast(p3[0], p3[1] + 1.2, p3[2], 2.0);
+  }
+  for (k = 0; k < 5; k++) for (i = 0; i < 300; i += s3) {  // transverse seams
+    th = -1.05 + (i / 299) * 2.1; a = 0.15 + k * 0.2;
+    var p4 = shell(0.98, th), p5 = shell(0.02, th);
+    var f = a;
+    st.cast(p4[0] * f + p5[0] * (1 - f), shell(f, th)[1] + 1.2, p4[2] * f + p5[2] * (1 - f), 1.6);
+  }
+  for (k = 0; k < 26; k++) for (i = 0; i < 40; i += s3) {  // marginal scutes
+    th = k / 26 * TAU; a = 0.86 + 0.13 * (i / 39);
+    var p6 = shell(a, th + 0.11);
+    st.cast(p6[0], p6[1], p6[2], 1.7);
+  }
+  limb(st, crv([[0, 6, -CL * 0.86], [0, 10, -CL * 1.06], [0, 6, -CL * 1.24]]),   // neck
+       function (s) { return 26 - 6 * s; }, 20, 13);
+  for (i = 0; i < 2200; i += s3) {                      // head + beak
+    u = ((i / 60) | 0) / 36; th = (i % 60) / 60 * TAU;
+    var r = 25 * Math.pow(Math.sin(Math.PI * (0.14 + 0.78 * u)), 0.42) * (1 - 0.35 * u);
+    st.cast(r * Math.cos(th) * 1.06, 6 + r * 0.86 * Math.sin(th), -CL * 1.16 - 42 * u);
+  }
+  for (g = -1; g <= 1; g += 2) ball(st, g * 17, 12, -CL * 1.22, 6, 300, 2.4);
+  for (g = -1; g <= 1; g += 2) blade(st, 42, function (u, w) {   // front flippers
+    var sw = stroke * (0.55 + 0.7 * u);
+    var L = 168 * u;
+    var wd = 30 * Math.pow(Math.sin(Math.PI * (0.12 + 0.8 * u)), 0.55) * (1 - 0.45 * u);
+    var ax = g * (CW * 0.62 + L * 0.80), az = -48 + L * 0.64 - 22 * u * u;
+    return [ax + (w - 0.5) * 2 * wd * 0.25, 2 + 34 * sw * Math.pow(u, 1.5) + (w - 0.5) * 4,
+            az + (w - 0.5) * 2 * wd];
+  }, 1.0);
+  for (g = -1; g <= 1; g += 2) blade(st, 24, function (u, w) {   // rear flippers
+    var L = 74 * u, wd = 22 * Math.sin(Math.PI * (0.15 + 0.8 * u)) * (1 - 0.4 * u);
+    return [g * (CW * 0.55 + L * 0.8) + (w - 0.5) * wd * 0.3,
+            -6 - 14 * stroke * 0.4 * u + (w - 0.5) * 3,
+            CL * 0.72 + L * 0.55 + (w - 0.5) * 2 * wd];
+  }, 0.95);
+}
+
+function jellyfish(st, P, T) {
+  var s3 = st.step, i, k, v, th, ang, r, y;
+  var ph = Math.sin(T * 2.0), sq = 1 - 0.17 * P.pulse * ph, tl = 1 + 0.32 * P.pulse * ph;
+  var bell = function (v, th) {
+    var a = v * (Math.PI * 0.53);
+    var rr = 92 * sq * Math.sin(a) - 15 * P.pulse * Math.max(0, ph) * Math.pow(v, 7);
+    return [rr * Math.cos(th), 54 * tl * Math.cos(a) - 8, rr * Math.sin(th)];
+  };
+  for (i = 0; i < 11000; i += s3) {                     // translucent bell
+    v = ((i / 110) | 0) / 99; th = (i % 110) / 110 * TAU;
+    var p = bell(v, th);
+    st.cast(p[0], p[1], p[2], 0.85);
+  }
+  for (k = 0; k < 16; k++) for (i = 0; i < 60; i += s3) {  // radial canals
+    var p2 = bell(0.12 + 0.88 * (i / 59), k * TAU / 16);
+    st.cast(p2[0], p2[1] - 1.5, p2[2], 1.7);
+  }
+  for (k = 0; k < 4; k++) for (i = 0; i < 900; i += s3) {  // four horseshoe gonads
+    var q = (i % 30) / 29, m = ((i / 30) | 0) / 29;
+    var sp = (m - 0.5) * 2.5, rr2 = 0.34 + 0.16 * q + 0.05 * Math.cos(sp * 1.6);
+    var p3 = bell(rr2, k * TAU / 4 + sp * 0.42);
+    st.cast(p3[0], p3[1] - 3, p3[2], 1.9);
+  }
+  for (k = 0; k < 88; k++) {                            // marginal tentacles
+    (function (k) {
+      var th2 = k / 88 * TAU, m = bell(1, th2);
+      var lag = Math.sin(T * 2.0 - 1.1) * P.pulse;
+      var dl = 34 + 22 * Math.sin(k * 2.3);
+      limb(st, crv([[m[0], m[1], m[2]],
+                    [m[0] * (1 + 0.10 * lag), m[1] - dl * 0.5, m[2] * (1 + 0.10 * lag)],
+                    [m[0] * (1 + 0.16 * lag), m[1] - dl, m[2] * (1 + 0.16 * lag)]]),
+           function (s) { return 1.7 * (1 - 0.7 * s) + 0.25; }, 10, 5, 1.0);
+    })(k);
+  }
+  for (k = 0; k < 4; k++) blade(st, 44, function (s, t) {  // four frilly oral arms
+    var a2 = k * TAU / 4 + 0.35 * P.arm * Math.sin(s * 3.4 - T * 1.6 + k);
+    var rr3 = 10 + 26 * Math.pow(s, 0.7);
+    var frill = (t - 0.5) * 20 * Math.sin(Math.PI * s) * (1 + 0.5 * Math.sin(s * 22 + k));
+    var yy = -14 - 150 * s + 22 * Math.pow(s, 3);
+    return [rr3 * Math.cos(a2) + frill * Math.cos(a2 + HP),
+            yy + 5 * Math.sin(s * 12 + t * 3 - T * 1.8),
+            rr3 * Math.sin(a2) + frill * Math.sin(a2 + HP)];
+  }, 0.95);
+}
+
+function coral(st, P, T) {
+  var s3 = st.step, tips = [];
+  var maxd = Math.round(P.depth);
+  function grow(p, d, len, rad, depth, seed) {
+    var sw = P.sway * 0.055 * Math.sin(T * 1.05 + seed * 0.7);
+    var fr = perp2(d);
+    var end = [p[0] + d[0] * len + fr[0][0] * sw * len, p[1] + d[1] * len, p[2] + d[2] * len + fr[0][2] * sw * len];
+    var mid = [(p[0] + end[0]) / 2 + fr[1][0] * sw * len * 0.6, (p[1] + end[1]) / 2,
+               (p[2] + end[2]) / 2 + fr[1][2] * sw * len * 0.6];
+    var pth = crv([p, mid, end]);
+    limb(st, pth, function (s) { return rad * (1 - 0.40 * s) + 0.55; },
+         Math.max(11, (len * 0.85) | 0), 12);
+    var nc = Math.max(2, (len / 7) | 0);
+    for (var c = 0; c < nc; c++) {                             // axial corallites
+      var s0 = 0.12 + (c / nc) * 0.82, cp = pth(s0), cr = (rad * (1 - 0.40 * s0) + 0.55) * 1.25;
+      var cf = perp2(d);
+      for (var q = 0; q < 7; q += (st.step > 3 ? 2 : 1)) {
+        var wq = q / 7 * TAU + c, cc = Math.cos(wq) * cr, ss = Math.sin(wq) * cr;
+        st.cast(cp[0] + cf[0][0] * cc + cf[1][0] * ss, cp[1] + cf[0][1] * cc + cf[1][1] * ss,
+                cp[2] + cf[0][2] * cc + cf[1][2] * ss, 1.9);
+      }
+    }
+    if (depth <= 1 || len < 9) { tips.push([end, d, rad]); return; }
+    var n = 2 + (hsh(seed) > 0.52 ? 1 : 0);
+    for (var i = 0; i < n; i++) {
+      var ang = (i / n) * TAU + hsh(seed + i * 2) * 2.4;
+      var spread = (0.30 + 0.55 * P.angle) * (0.65 + 0.7 * hsh(seed + i * 3));
+      var cs = Math.cos(spread), sn = Math.sin(spread), ca = Math.cos(ang), sa = Math.sin(ang);
+      var nd = [cs * d[0] + sn * (ca * fr[0][0] + sa * fr[1][0]),
+                cs * d[1] + sn * (ca * fr[0][1] + sa * fr[1][1]),
+                cs * d[2] + sn * (ca * fr[0][2] + sa * fr[1][2])];
+      var nl = Math.sqrt(nd[0] * nd[0] + nd[1] * nd[1] + nd[2] * nd[2]) || 1;
+      nd[0] /= nl; nd[1] /= nl; nd[2] /= nl;
+      grow(end, nd, len * (0.62 + 0.15 * hsh(seed + i * 5)), rad * 0.66, depth - 1, seed * 3 + i + 1);
+    }
+  }
+  grow([0, -96, 0], [0, 1, 0], 66, 12, maxd, 1);
+
+  for (var t = 0; t < tips.length; t++) {                      // polyps at every tip
+    if (t % st.step) continue;
+    (function (t) {
+      var e = tips[t][0], d = tips[t][1], r = tips[t][2], fr = perp2(d);
+      var ext = P.polyp, L = 9 * ext + 1;
+      for (var q = 0; q < 6; q++) {
+        var wq = q / 6 * TAU + t;
+        var ox = fr[0][0] * Math.cos(wq) + fr[1][0] * Math.sin(wq);
+        var oy = fr[0][1] * Math.cos(wq) + fr[1][1] * Math.sin(wq);
+        var oz = fr[0][2] * Math.cos(wq) + fr[1][2] * Math.sin(wq);
+        limb(st, crv([[e[0], e[1], e[2]],
+                      [e[0] + (ox * 0.6 + d[0] * 0.8) * L, e[1] + (oy * 0.6 + d[1] * 0.8) * L,
+                       e[2] + (oz * 0.6 + d[2] * 0.8) * L],
+                      [e[0] + (ox * 1.3 + d[0] * 0.9) * L, e[1] + (oy * 1.3 + d[1] * 0.9) * L,
+                       e[2] + (oz * 1.3 + d[2] * 0.9) * L]]),
+             function (s) { return 1.0 * (1 - 0.55 * s) + 0.25; }, 7, 4, 2.1);
+      }
+    })(t);
+  }
+}
+
+function anemone(st, P, T) {
+  var s3 = st.step, i, k, u, th;
+  var con = 1 - 0.42 * P.close;
+  for (i = 0; i < 8400; i += s3) {                      // column with verrucae
+    u = ((i / 84) | 0) / 99; th = (i % 84) / 84 * TAU;
+    var r = (50 - 20 * Math.pow(u, 0.7)) * (0.55 + 0.45 * con)
+          * (1 + 0.055 * Math.sin(th * 14) * Math.sin(u * 22));
+    st.cast(r * Math.cos(th), -74 + 78 * u * con, r * Math.sin(th));
+  }
+  for (i = 0; i < 3000; i += s3) {                      // oral disc
+    u = Math.sqrt((((i / 60) | 0)) / 49); th = (i % 60) / 60 * TAU;
+    var rr = 6 + u * 40 * con;
+    st.cast(rr * Math.cos(th), 4 * con + 3 * (1 - u * u), rr * Math.sin(th), 0.85);
+  }
+  for (i = 0; i < 700; i += s3) {                       // mouth
+    u = Math.sqrt((((i / 50) | 0)) / 13); th = (i % 50) / 50 * TAU;
+    st.cast(u * 13 * Math.cos(th) * 1.5, 7 * con + 5 * (1 - u), u * 13 * Math.sin(th), 1.5);
+  }
+  var NT = 220;
+  for (k = 0; k < NT; k++) {
+    if (k % st.step) continue;
+    (function (k) {
+      var ring = k % 5, idx = (k / 5) | 0, per = NT / 5;
+      var a = idx / per * TAU + ring * 0.44 + 0.13 * Math.sin(k);
+      var rb = (11 + ring * 8.2) * con;
+      var L = (46 + 26 * Math.sin(k * 1.7) + 9 * ring) * P.len * con;
+      var sw = P.sway * Math.sin(T * 1.55 + a * 2.2 + rb * 0.05);
+      var droop = 0.34 + 0.30 * Math.sin(k * 2.3);
+      var ca = Math.cos(a), sa = Math.sin(a);
+      limb(st, crv([
+        [rb * ca, 5 * con, rb * sa],
+        [(rb + L * 0.34) * ca + sw * 5 * sa, 5 * con + L * 0.52, (rb + L * 0.34) * sa - sw * 5 * ca],
+        [(rb + L * 0.80) * ca + sw * 13 * sa, 5 * con + L * (0.86 - droop * 0.5),
+         (rb + L * 0.80) * sa - sw * 13 * ca],
+        [(rb + L * 1.06) * ca + sw * 20 * sa, 5 * con + L * (0.94 - droop),
+         (rb + L * 1.06) * sa - sw * 20 * ca]]),
+        function (s) {
+          return 3.4 * Math.pow(1 - s, 0.55) + 0.5 + 1.9 * Math.exp(-Math.pow((s - 0.95) / 0.055, 2));
+        }, 20, 7, function (s) { return s > 0.86 ? 2.2 : 1.0; });
+    })(k);
+  }
+}
+
+function octopus(st, P, T) {
+  var s3 = st.step, i, v, o, r, a, s, w;
+  var mR = function (v) { return 43 * Math.pow(Math.sin(Math.PI * (0.11 + 0.85 * v)), 0.62); };
+  var mY = function (v) { return 158 - 142 * v; };
+
+  for (i = 0; i < 7200; i += s3) {                     // mantle sac
+    v = ((i / 100) | 0) / 71; o = (i % 100) / 100 * TAU;
+    r = mR(v) * (1 + 0.055 * P.pulse * Math.sin(v * 6 - T * 1.6));
+    st.cast(r * Math.cos(o), mY(v), 0.84 * r * Math.sin(o));
+  }
+  for (i = 0; i < 2400; i += s3) {                     // head / neck
+    v = ((i / 80) | 0) / 29; o = (i % 80) / 80 * TAU;
+    r = 27 - 9 * Math.pow(v, 1.6) + 5 * Math.sin(v * 3.1);
+    st.cast(r * Math.cos(o), 16 - 40 * v, 0.9 * r * Math.sin(o));
+  }
+  ball(st, 25, 2, 0, 15, 620, 1.0, 0.82);              // eye bulges
+  ball(st, -25, 2, 0, 15, 620, 1.0, 0.82);
+  for (i = 0; i < 260; i += s3) {                      // horizontal slit pupils
+    s = i / 259; w = Math.sin(s * Math.PI);
+    st.cast(31, 3 + 3.6 * Math.sin(s * TAU) * 0.35, (s - 0.5) * 17, 2.6);
+    st.cast(-31, 3 + 3.6 * Math.sin(s * TAU) * 0.35, (s - 0.5) * 17, 2.6);
+  }
+
+  function armPhi(a, s) {
+    return a * TAU / 8 + 0.62 * P.curl * Math.pow(s, 1.7)
+         + 0.24 * P.wave * Math.sin(s * 6 - T * 2.2 + a * 2.1) * s;
+  }
+  function armRho(s) { return 15 + 49 * Math.sin(s * 1.3) + 58 * Math.pow(s, 2.4) - 40 * Math.pow(s, 5); }
+  function armY(s) { return -26 - 254 * s + 108 * Math.pow(s, 3); }
+
+  for (a = 0; a < 8; a++) {                            // eight arms
+    (function (a) {
+      limb(st, function (s) {
+        var p = armPhi(a, s), R = armRho(s);
+        return [R * Math.cos(p), armY(s), R * Math.sin(p) * 0.94];
+      }, function (s) { return 10 * Math.pow(1 - s, 0.85) + 0.4; }, 74, 11);
+    })(a);
+  }
+  for (i = 0; i < 8 * 150; i += s3) {                  // two sucker rows per arm
+    a = (i / 150) | 0; s = (i % 150) / 149;
+    if (Math.sin(s * 165) < 0.35) continue;
+    var p = armPhi(a, s), R = armRho(s), tr = (10 * Math.pow(1 - s, 0.85) + 0.4) * 0.96;
+    for (var k = -1; k <= 1; k += 2) {
+      var ps = p + k * 0.34;
+      st.cast((R - tr) * Math.cos(ps), armY(s), (R - tr) * Math.sin(ps) * 0.94, 2.3);
+    }
+  }
+  for (i = 0; i < 4200; i += s3) {                     // interbrachial web
+    a = (i / 525) | 0; var j = i % 525;
+    s = ((j / 15) | 0) / 34 * 0.33; w = (j % 15) / 14;
+    var pa = armPhi(a, s), pb = armPhi(a + 1, s);
+    var pw = pa + (pb - pa) * w, Rw = armRho(s) * (1 - 0.2 * Math.sin(Math.PI * w));
+    var yw = armY(s) + 30 * Math.sin(Math.PI * w) * (1 - s / 0.33);
+    st.cast(Rw * Math.cos(pw), yw, Rw * Math.sin(pw) * 0.94, 0.8);
+  }
+}
+
+function cuttlefish(st, P, T) {
+  var s3 = st.step, i, v, o, r, j, s, g, a, p, R, Y, q, w;
+  var mR = function (v) { return 41 * Math.pow(Math.sin(Math.PI * (0.06 + 0.92 * v)), 0.40); };
+  var mY = function (v) { return 152 - 152 * v; };
+
+  for (i = 0; i < 7040; i += s3) {                     // flattened shield mantle
+    v = ((i / 110) | 0) / 63; o = (i % 110) / 110 * TAU;
+    r = mR(v) * (1 + 0.055 * P.pulse * Math.sin(v * 9 - T * 1.7));
+    st.cast(r * Math.cos(o), mY(v), 0.40 * r * Math.sin(o));
+  }
+  if (P.chrom > 0.01) for (i = 0; i < 3680; i += s3) { // chromatophore waves
+    var b = (i / 460) | 0;
+    v = ((b / 8 + 0.10 * T * P.chrom) % 1) * 0.84 + 0.05;
+    o = (i % 460) / 460 * TAU; r = mR(v) * 1.012;
+    st.cast(r * Math.cos(o), mY(v), 0.40 * r * Math.sin(o), 1.15);
+  }
+  for (i = 0; i < 4400; i += s3) {                     // continuous fin skirt
+    j = (i / 22) | 0; v = j / 199 * 0.97 + 0.015; s = (i % 22) / 21; g = (j % 2) ? -1 : 1;
+    var fw = 31 * Math.pow(Math.sin(Math.PI * (0.02 + 0.96 * v)), 0.30);
+    st.cast(g * (mR(v) * 0.96 + s * fw), mY(v),
+            0.40 * mR(v) * 0 + 19 * P.fin * Math.sin(v * 15 - T * 3.1 + (g > 0 ? 1.1 : 0)) * Math.pow(s, 1.35));
+  }
+  for (a = 0; a < 8; a++) {                            // eight short arms
+    (function (a) {
+      limb(st, function (s) {
+        var p = a * TAU / 8 + 0.4 + 0.26 * P.arm * Math.sin(s * 6 - T * 2.3 + a * 1.9) * s;
+        var R = 9 + 20 * Math.sin(s * 1.5) + 20 * Math.pow(s, 2.4);
+        return [R * Math.cos(p), mY(1) - 96 * s + 34 * Math.pow(s, 3), R * Math.sin(p) * 0.8];
+      }, function (s) { return 6.4 * Math.pow(1 - s, 0.85) + 0.35; }, 42, 10);
+    })(a);
+  }
+  for (a = 0; a < 2; a++) {                            // two feeding tentacles + clubs
+    (function (a) {
+      var base = -HP + (a - 0.5) * 0.85;
+      limb(st, function (s) {
+        var p = base + 0.10 * P.arm * Math.sin(s * 7 - T * 2.3 + a * 2) * s;
+        var R = 8 + 7 * Math.sin(s * 1.4) + 8 * Math.pow(s, 2.6);
+        return [R * Math.cos(p), mY(1) - 205 * s + 66 * Math.pow(s, 3.2), R * Math.sin(p) * 0.8];
+      }, function (s) {
+        return 2.1 * Math.pow(1 - s, 0.5) + 6.2 * Math.exp(-Math.pow((s - 0.9) / 0.075, 2));
+      }, 60, 10);
+    })(a);
+  }
+  var ey = mY(0.90), ex = mR(0.90) * 0.80;
+  ball(st, ex + 3, ey, 0, 11.5, 560, 1.1, 1);
+  ball(st, -ex - 3, ey, 0, 11.5, 560, 1.1, 1);
+  for (i = 0; i < 460; i += s3) {                      // W-shaped pupils
+    p = (i % 460) / 459 * 4;
+    var wy = Math.abs(Math.abs(p - 2) - 1) * 4.6 - 2.3, wz = (p - 2) * 4.6;
+    st.cast(ex + 8, ey + wy, wz, 3.0);
+    st.cast(-ex - 8, ey + wy, wz, 3.0);
+  }
+}
+
+function squid(st, P, T) {
+  var s3 = st.step, i, v, o, r, a, j, s, g;
+  var mR = function (v) { return 35 * Math.pow(Math.sin(Math.PI * (0.02 + 0.62 * v)), 0.60); };
+  var mY = function (v) { return 176 - 168 * v; };
+
+  for (i = 0; i < 7800; i += s3) {                      // torpedo mantle
+    v = ((i / 100) | 0) / 77; o = (i % 100) / 100 * TAU;
+    r = mR(v) * (1 + 0.07 * P.pulse * Math.sin(v * 6 - T * 2.0));
+    st.cast(r * Math.cos(o), mY(v), 0.88 * r * Math.sin(o));
+  }
+  for (g = -1; g <= 1; g += 2) blade(st, 46, function (s, t) {  // terminal rhombic fins
+    var v = 0.015 + 0.40 * s, wdt = 40 * Math.pow(Math.sin(Math.PI * s), 0.75);
+    return [g * (mR(v) * 0.88 + t * wdt), mY(v),
+            10 * P.fin * Math.sin(s * 4.5 - T * 3.2 + (g > 0 ? 1.2 : 0)) * Math.pow(t, 1.3)];
+  }, 0.95);
+  for (i = 0; i < 2600; i += s3) {                      // head
+    v = ((i / 80) | 0) / 32; o = (i % 80) / 80 * TAU;
+    r = 25 - 5 * v + 4 * Math.sin(v * 3);
+    st.cast(r * Math.cos(o), 10 - 32 * v, 0.92 * r * Math.sin(o));
+  }
+  ball(st, 24, -2, 0, 12.5, 620, 1.3); ball(st, -24, -2, 0, 12.5, 620, 1.3);
+  for (i = 0; i < 300; i += s3) {                       // pupils
+    s = i / 299;
+    st.cast(33, -2 + 6 * Math.sin(s * TAU), 6 * Math.cos(s * TAU), 3.0);
+    st.cast(-33, -2 + 6 * Math.sin(s * TAU), 6 * Math.cos(s * TAU), 3.0);
+  }
+  limb(st, crv([[0, -4, 20], [0, -18, 26], [0, -30, 22]]),      // funnel
+       function (s) { return 8 - 3 * s; }, 16, 10, 1.1);
+  for (a = 0; a < 8; a++) (function (a) {               // eight arms
+    limb(st, function (s) {
+      var p = a * TAU / 8 + 0.32 * P.arm * Math.sin(s * 6 - T * 2.6 + a * 1.9) * s
+            + 0.30 * P.spread * Math.pow(s, 1.6);
+      var R = 10 + 16 * Math.sin(s * 1.4) + 30 * Math.pow(s, 2.2) * P.spread;
+      return [R * Math.cos(p), -22 - 112 * s + 26 * Math.pow(s, 3), R * Math.sin(p) * 0.92];
+    }, function (s) { return 7.5 * Math.pow(1 - s, 0.9) + 0.35; }, 46, 10);
+  })(a);
+  for (a = 0; a < 2; a++) (function (a) {               // two tentacles + clubs
+    var base = -Math.PI / 2 + (a - 0.5) * 0.7;
+    limb(st, function (s) {
+      var p = base + 0.14 * P.arm * Math.sin(s * 7 - T * 2.6 + a * 2) * s;
+      var R = 9 + 9 * Math.sin(s * 1.3) + 16 * Math.pow(s, 2.4) * P.spread;
+      return [R * Math.cos(p), -22 - 230 * s + 62 * Math.pow(s, 3.2), R * Math.sin(p) * 0.92];
+    }, function (s) {
+      return 2.3 * Math.pow(1 - s, 0.45) + 7 * Math.exp(-Math.pow((s - 0.9) / 0.08, 2));
+    }, 64, 10);
+  })(a);
+}
+
+function crab(st, P, T) {
+  var s3 = st.step, i, f, th, g, k, rr, step = Math.sin(T * 2.6);
+
+  for (i = 0; i < 7800; i += s3) {                     // carapace dome
+    f = ((i / 120) | 0) / 64; th = (i % 120) / 120 * TAU;
+    var sw = 1 + 0.045 * Math.sin(th * 9) * (Math.cos(th) < 0 ? 1 : 0.25);
+    var xx = 66 * f * Math.sin(th) * sw, zz = 46 * f * Math.cos(th) * sw;
+    st.cast(xx, 17 * Math.sqrt(Math.max(0, 1 - f * f)) - 2, zz);
+    if (f > 0.965) st.cast(xx, -9 + 6 * Math.sqrt(Math.max(0, 1 - f * f)), zz, 0.8);
+  }
+  for (g = -1; g <= 1; g += 2) {                       // eyestalks
+    limb(st, crv([[g * 13, 6, -40], [g * 15, 13, -49], [g * 16, 17, -55]]),
+         function (s) { return 3.2; }, 14, 8);
+    ball(st, g * 16, 19, -57, 5.4, 280, 2.4);
+  }
+  for (g = -1; g <= 1; g += 2) {                       // chelipeds
+    (function (g) {
+      var op = 0.2 + 0.55 * P.claw;
+      var a = crv([[g * 44, -2, -22], [g * 62, -10, -40], [g * 56, -4, -62]]);
+      limb(st, a, function (s) { return 7 - 2 * s; }, 26, 10);
+      var palm = crv([[g * 56, -4, -62], [g * 50, -1, -78], [g * 44, 1, -90]]);
+      limb(st, palm, function (s) { return 9 - 3 * s; }, 22, 11);
+      [-1, 1].forEach(function (fg) {
+        limb(st, crv([[g * 44, 1, -90], [g * 40 + fg * 4, 1 + fg * 6 * op, -102],
+                      [g * 36, 1 + fg * 13 * op, -113]]),
+             function (s) { return 4.6 * (1 - 0.8 * s) + 0.4; }, 18, 8);
+      });
+    })(g);
+  }
+  for (k = 0; k < 4; k++) for (g = -1; g <= 1; g += 2) {   // eight walking legs
+    (function (k, g) {
+      var bz = -18 + k * 20, ph = step * P.step * (k % 2 ? 1 : -1);
+      var out = 58 + 6 * Math.sin(k), dn = 6 + 3 * ph;
+      limb(st, crv([[g * 46, -4, bz],
+                    [g * (out + 14), 16 + dn, bz + 6],
+                    [g * (out + 40), 2 + dn * 0.5, bz + 12 + 8 * ph],
+                    [g * (out + 46), -34, bz + 16 + 10 * ph]]),
+           function (s) { return 5.2 * (1 - 0.82 * s) + 0.35; }, 30, 8);
+    })(k, g);
+  }
+  for (i = 0; i < 900; i += s3) {                      // abdominal flap, tucked under
+    f = ((i / 30) | 0) / 29; th = (i % 30) / 29;
+    st.cast((th - 0.5) * 30 * (1 - f * 0.75), -11 - 2 * f, 20 + 26 * f, 0.75);
+  }
+}
+
+function hermit(st, P, T) {
+  var s3 = st.step, i, k, g, th, r, rho, ps;
+  var b = 0.20 + 0.07 * P.spire, c = 0.44, rise = 0.30 + 0.42 * P.spire;
+  var A = 60, TH0 = -4.1 * TAU, E0 = Math.exp(b * TH0);
+  var put = function (u, v, w, bo) {                    // spiral in XY, spire toward viewer
+    st.cast(u, v, w * 0.80 - 24, bo);
+  };
+  var NST = 210, NAR = 54;
+  for (i = 0; i < NST * NAR; i += s3) {                 // gastropod shell
+    var t = Math.log(E0 + (((i / NAR) | 0) / (NST - 1)) * (1 - E0)) / b;
+    r = A * Math.exp(b * t); rho = c * r; ps = (i % NAR) / NAR * TAU;
+    var band = Math.sin(t * 8.5) > 0.2 ? 1.75 : 0.7;
+    var knob = 1 + 0.10 * Math.max(0, Math.sin(t * 8.5)) * Math.max(0, Math.cos(ps));
+    var rr = r + rho * knob * Math.sin(ps);
+    put(rr * Math.cos(t), rr * Math.sin(t), rise * r + rho * knob * Math.cos(ps), band);
+  }
+  var ax = A, arho = c * A;                             // aperture, roughly at (A,0)
+  var HX = 74, HY = -12;
+  for (i = 0; i < 2600; i += s3) {                      // cephalothorax poking out
+    var u = ((i / 60) | 0) / 42, o = (i % 60) / 60 * TAU;
+    var rr2 = 20 * Math.pow(Math.sin(Math.PI * (0.16 + 0.74 * u)), 0.45);
+    st.cast(HX + 4 - 34 * (1 - u), HY + rr2 * 0.72 * Math.sin(o) + 4, rr2 * Math.cos(o));
+  }
+  for (g = -1; g <= 1; g += 2) {                        // eyestalks + antennae
+    limb(st, crv([[HX + 4, HY + 8, g * 7], [HX + 16, HY + 16, g * 9], [HX + 24, HY + 20, g * 10]]),
+         function (s) { return 2.8; }, 12, 7);
+    ball(st, HX + 27, HY + 22, g * 10, 4.6, 280, 2.6);
+    var sw = P.wave * 7 * Math.sin(T * 1.7 + g);
+    limb(st, crv([[HX + 6, HY + 4, g * 10], [HX + 26, HY + 10 + sw * 0.4, g * 20],
+                  [HX + 48, HY + 4 + sw, g * 30], [HX + 64, HY - 10, g * 34]]),
+         function (s) { return 2.2 * (1 - 0.8 * s) + 0.3; }, 26, 6);
+  }
+  (function () {                                        // right cheliped: the door
+    var op = 0.16 + 0.42 * P.claw;
+    var arm = crv([[HX - 2, HY - 4, 16], [HX + 14, HY - 14, 30], [HX + 30, HY - 6, 30]]);
+    limb(st, arm, function (s) { return 10 - 2 * s; }, 26, 11);
+    var palm = crv([[HX + 30, HY - 6, 30], [HX + 46, HY - 2, 26], [HX + 58, HY + 2, 20]]);
+    limb(st, palm, function (s, w) { return (13 - 3 * s) * (1 + 0.09 * Math.cos(w * 6)); }, 26, 13);
+    [-1, 1].forEach(function (f) {
+      limb(st, crv([[HX + 58, HY + 2, 20], [HX + 70, HY + 2 + f * 7 * op, 17],
+                    [HX + 80, HY + 2 + f * 15 * op, 13]]),
+           function (s) { return 5.5 * (1 - 0.8 * s) + 0.4; }, 18, 8);
+    });
+  })();
+  (function () {                                        // left cheliped: small
+    var op = 0.16 + 0.42 * P.claw;
+    limb(st, crv([[HX - 2, HY - 6, -16], [HX + 16, HY - 16, -26], [HX + 34, HY - 12, -24]]),
+         function (s) { return 6.5 - 1.5 * s; }, 22, 9);
+    limb(st, crv([[HX + 34, HY - 12, -24], [HX + 46, HY - 8, -21], [HX + 55, HY - 5, -17]]),
+         function (s) { return 8 - 2 * s; }, 20, 10);
+    [-1, 1].forEach(function (f) {
+      limb(st, crv([[HX + 55, HY - 5, -17], [HX + 64, HY - 5 + f * 5 * op, -15],
+                    [HX + 72, HY - 5 + f * 10 * op, -12]]),
+           function (s) { return 3.6 * (1 - 0.8 * s) + 0.3; }, 14, 7);
+    });
+  })();
+  for (k = 0; k < 2; k++) for (g = -1; g <= 1; g += 2) {  // two pairs of walking legs
+    (function (k, g) {
+      var st2 = P.step * 9 * Math.sin(T * 2.6 - k * 1.4 + (g > 0 ? 0 : Math.PI));
+      limb(st, crv([[HX - 8 - k * 8, HY - 8, g * 14],
+                    [HX + 6 - k * 6, HY - 26, g * 30],
+                    [HX + 18 + st2 - k * 4, HY - 40, g * 38],
+                    [HX + 24 + st2 * 1.4, HY - 62, g * 34]]),
+           function (s) { return 4.4 * (1 - 0.78 * s) + 0.35; }, 26, 8);
+    })(k, g);
+  }
+}
+
+function stingray(st, P, T) {
+  var s3 = st.step, i, s, t, k, g;
+  var Wd = function (s) { return 132 * Math.pow(Math.sin(Math.PI * Math.pow(s, 0.92)), 0.72); };
+  var Zd = function (s, t) { return -118 + 246 * s + 54 * Math.abs(t) * Math.pow(s, 0.42); };
+  var wav = function (s, t) {
+    return P.flap * 30 * Math.sin(s * 4.4 - T * 2.7) * Math.pow(Math.abs(t), 1.85)
+         + (P.arch - 1) * 30 * Math.pow(Math.abs(t), 2.1);
+  };
+  var Th = function (s, t) {
+    return 18 * Math.pow(Math.max(0, 1 - t * t), 0.72) * Math.pow(Math.sin(Math.PI * (0.04 + 0.92 * s)), 0.45);
+  };
+  for (i = 0; i < 13200; i += s3) {                     // the disc, both surfaces
+    s = ((i / 110) | 0) / 119; t = (i % 110) / 54.5 - 1;
+    var x = t * Wd(s), z = Zd(s, t), y = wav(s, t), th = Th(s, t);
+    st.cast(x, y + th, z);
+    st.cast(x, y - th * 0.62, z, 0.75);
+  }
+  for (i = 0; i < 1900; i += s3) {                      // wing margin, drawn bright
+    s = ((i / 2) | 0) / 949; g = (i % 2) ? 1 : -1;
+    st.cast(g * Wd(s), wav(s, g), Zd(s, g), 1.5);
+  }
+  limb(st, function (u) {                               // whip tail
+    return [22 * P.flap * Math.sin(u * 3.1 - T * 2.7) * u,
+            wav(1, 0) - 6 * u + 14 * P.flap * Math.sin(u * 2.6 - T * 2.7) * u,
+            180 + 158 * u];
+  }, function (u) { return 9.5 * Math.pow(1 - u, 0.62) + 0.5; }, 66, 9);
+  blade(st, 14, function (u, w) {                       // caudal barb
+    var uu = 0.30 + 0.16 * u;
+    return [(w - 0.5) * 7 * (1 - u), wav(1, 0) - 6 * uu + 3, 180 + 158 * uu + 24 * u];
+  }, 1.8);
+  for (g = -1; g <= 1; g += 2) {                        // eyes and spiracles
+    ball(st, g * 27, Th(0.22, 0.2) + 4, Zd(0.22, 0.2) - 6, 8.5, 340, 2.2);
+    for (i = 0; i < 120; i += s3) {
+      var a = i / 119 * TAU;
+      st.cast(g * (30 + 9 * Math.cos(a)), Th(0.30, 0.25) + 1, Zd(0.30, 0.25) + 7 * Math.sin(a), 1.6);
+    }
+  }
+  for (k = 0; k < 5; k++) for (g = -1; g <= 1; g += 2) { // five gill slits, underside
+    for (i = 0; i < 60; i += s3) {
+      var q = i / 59, sc = 0.40 + k * 0.055;
+      st.cast(g * (22 + 26 * q), -Th(sc, 0.25) * 0.62 - 1, Zd(sc, 0.25) - 8 * q, 1.5);
+    }
+  }
+}
+
+function seahorse(st, P, T) {
+  var s3 = st.step, i, k, s;
+  var sway = 0.09 * P.sway * Math.sin(T * 1.25);
+  var rot = function (p) {                              // gentle whole-body sway
+    return [p[0] * Math.cos(sway) - p[1] * Math.sin(sway),
+            p[0] * Math.sin(sway) + p[1] * Math.cos(sway), p[2]];
+  };
+  var trunk = crv([[-2, 104, 0], [6, 84, 0], [4, 58, 0], [-8, 30, 0], [-6, 4, 0], [6, -18, 0]]);
+  limb(st, function (s) { return rot(trunk(s)); },
+       function (s, w) {
+         return (16 - 6.5 * s) * (1 + 0.075 * Math.abs(Math.sin(s * 11 * Math.PI))
+                                    + 0.055 * Math.cos(w * 7));
+       }, 130, 18);
+
+  var CO = 0.55 + 0.95 * P.curl, cx = 6, cy = -62, R0 = 44;   // prehensile tail coil
+  var tail = function (s) {
+    var a = Math.PI / 2 - s * TAU * CO, R = R0 * (1 - 0.74 * s);
+    return rot([cx + R * Math.cos(a), cy + R * Math.sin(a), 0]);
+  };
+  limb(st, tail, function (s, w) {
+    return (10.5 * Math.pow(1 - s, 0.85) + 1.1) *
+           (1 + 0.10 * Math.abs(Math.sin(s * 30 * Math.PI)) + 0.06 * Math.cos(w * 6));
+  }, 172, 14);
+
+  var head = crv([[-2, 100, 0], [-14, 110, 0], [-30, 112, 0], [-46, 108, 0], [-58, 102, 0]]);
+  limb(st, function (s) { return rot(head(s)); },
+       function (s) { return 15 - 11 * Math.pow(s, 0.75); }, 62, 15);
+  for (k = -1; k <= 1; k += 2) {                        // eyes
+    var e = rot([-19, 108, 0]); ball(st, e[0], e[1], k * 10.5, 6.2, 340, 2.3);
+  }
+  for (k = 0; k < 4; k++) {                             // coronet
+    var c0 = rot([-4, 112, 0]), c1 = rot([-2 + k * 1.5, 128 - k * 2, 0]);
+    limb(st, crv([[c0[0], c0[1], (k - 1.5) * 5], [c1[0], c1[1], (k - 1.5) * 7]]),
+         function (s) { return 2.6 * (1 - 0.8 * s) + 0.3; }, 9, 6, 1.6);
+  }
+  blade(st, 56, function (s, t) {                       // dorsal fin, fluttering fast
+    var y = 52 - 66 * s, xb = 10 + 6 * Math.sin(s * 2.4);
+    var wdt = 22 * Math.pow(Math.sin(Math.PI * (0.06 + 0.88 * s)), 0.5);
+    var p = rot([xb + t * wdt, y, 0]);
+    return [p[0], p[1], 7 * P.flutter * Math.sin(s * 11 - T * 9) * Math.pow(t, 1.2)];
+  }, 1.05);
+  for (k = -1; k <= 1; k += 2) blade(st, 20, function (s, t) {   // pectoral fins
+    var p = rot([-4 + s * 6, 94 - s * 12, 0]);
+    var wdt = 15 * Math.sin(Math.PI * (0.1 + 0.85 * s));
+    return [p[0], p[1], k * (13 + t * wdt) + 3 * P.flutter * Math.sin(t * 4 - T * 8) * k];
+  }, 1.0);
+}
+
+function anglerfish(st, P, T) {
+  var s3 = st.step, i, k, g, x, y, z;
+  var gape = 0.12 + 0.62 * P.gape + 0.05 * Math.sin(T * 1.3), sw = P.sway;
+  var A = 72, B = 64, C = 58, HX = 16, HY = -16, SL = -0.3;           // head ellipsoid; jaw hinge; slope of the lip plane
+  var lip = function (x) { return HY + SL * (x - HX); };              // the lips rise toward the front: an upturned mouth
+  var bend = function (x) { var u = Math.max(0, (x - 30) / 100); return 10 * sw * u * u * Math.sin(u * 3 - T * 1.1); };
+  var jaw = function (x, y, z) {                                      // rotate about the hinge; the angle ramps in over 22 units,
+    var th = gape * Math.min(1, Math.max(0, (HX - x) / 22));          // so the cheek stretches instead of tearing
+    var dx = (x - HX) * (1 + 0.07 * th / gape), dy = y - HY, c = Math.cos(th), s = Math.sin(th);
+    return [HX + dx * c - dy * s, HY + dx * s + dy * c, z * (1 + 0.03 * th / gape)];
+  };
+  var put = function (x, y, z, b) {
+    if (x < HX && y < lip(x)) { var j = jaw(x, y, z); st.cast(j[0], j[1], j[2] + bend(j[0]), b); }
+    else st.cast(x, y, z + bend(x), b);
+  };
+  var N = 24000;
+  for (i = 0; i < N; i += s3) {                                       // skin: a Fibonacci sphere, split along the lip plane
+    var v = 1 - 2 * (i + 0.5) / N, r = Math.sqrt(1 - v * v), u = i * 2.399963229728653;
+    x = A * r * Math.cos(u); y = B * v; z = C * r * Math.sin(u);
+    put(x, y, z, 0.9 + 0.6 * (Math.sin(x * 0.5) * Math.sin(z * 0.45 + y * 0.3) > 0.72 ? 1 : 0));
+  }
+  var inside = function (x, y, z) { return (x * x) / (A * A) + (y * y) / (B * B) + (z * z) / (C * C) < 0.985; };
+  for (x = -A; x < HX; x += 2.4 * s3) for (z = -C; z < C; z += 2.4 * s3) {   // palate and tongue: the two faces of the cut, dim
+    y = lip(x); if (!inside(x, y, z)) continue;
+    st.cast(x, y + 0.5, z + bend(x), 0.35);
+    var jf = jaw(x, y - 0.5, z); st.cast(jf[0], jf[1], jf[2] + bend(jf[0]), 0.35);
+  }
+  var xf = HX; while (xf > -A && inside(xf - 1, lip(xf - 1), 0)) xf -= 1;   // where the lip plane leaves the head
+  var rimZ = function (x) { var y = lip(x); return C * Math.sqrt(Math.max(0, 1 - (x * x) / (A * A) - (y * y) / (B * B))); };
+  for (k = 0; k < 11; k++) for (g = -1; g <= 1; g += 2) {             // teeth, upper hanging down, lower jutting up and back
+    (function (k, g) {
+      var t = (k + 0.5) / 11, tx = HX - 10 + (xf + 2 - (HX - 10)) * t, tz = g * rimZ(tx) * 0.96, ty = lip(tx);
+      var Lu = (7 + 9 * t) * (k % 2 ? 1 : 0.6), Ll = (11 + 13 * t) * (k % 2 ? 0.65 : 1);
+      limb(st, function (s) { return [tx - 3 * s * s, ty - Lu * s, tz * (1 - 0.1 * s) + bend(tx)]; },
+           function (s) { return 1.5 * (1 - 0.8 * s) + 0.3; }, 10, 4, 2.3);
+      limb(st, function (s) { var p = jaw(tx + 6 * s * s, ty - 1 + Ll * s, tz * (1 - 0.12 * s)); return [p[0], p[1], p[2] + bend(p[0])]; },
+           function (s) { return 1.7 * (1 - 0.8 * s) + 0.3; }, 12, 4, 2.3);
+    })(k, g);
+  }
+  for (g = -1; g <= 1; g += 2) ball(st, -38, 24, g * 44, 4.5, 220, 2.1);   // tiny eyes
+  var L = P.lure, bx = -26, by = B * Math.sqrt(1 - (bx * bx) / (A * A)) - 2;
+  var nod = 6 * Math.sin(T * 0.8);                                    // illicium, arcing over the mouth, the esca dangling
+  var rod = crv([[bx, by, 0], [bx - 30 * L, by + 50 * L, 0], [bx - 70 * L, by + 58 * L + nod * 0.5, 0], [bx - 96 * L, by + 36 * L + nod, 2 * Math.sin(T)]]);
+  limb(st, rod, function (s) { return 2.4 * (1 - 0.5 * s) + 0.4; }, 90, 6, 1.3);
+  var e = rod(1), glow = 1.6 + 1.5 * P.glow * (0.5 + 0.5 * Math.sin(T * 2.6));
+  ball(st, e[0], e[1], e[2], 7, 420, glow);
+  ball(st, e[0], e[1], e[2], 14 + 3 * Math.sin(T * 2.6), 330, 0.18 * glow);   // halo: a sparse, dim shell
+  for (k = 0; k < 7; k++) {                                           // filaments on the esca
+    (function (k) { var a = k / 7 * TAU;
+      limb(st, crv([[e[0], e[1], e[2]], [e[0] + 9 * Math.cos(a), e[1] - 6 - 6 * Math.abs(Math.sin(a)) - 2 * Math.sin(T * 3 + k), e[2] + 9 * Math.sin(a)],
+                    [e[0] + 14 * Math.cos(a), e[1] - 14 - 4 * Math.sin(T * 2 + k), e[2] + 14 * Math.sin(a)]]),
+           function (s) { return 0.9 - 0.5 * s + 0.2; }, 12, 4, 1.4);
+    })(k);
+  }
+  for (g = -1; g <= 1; g += 2) {                                      // stubby pectorals
+    (function (g) {
+      blade(st, 14, function (u, w) { var a = -0.4 + 0.9 * w, px = 30 + Math.cos(a) * 24 * u;
+        return [px, -8 + Math.sin(a) * 24 * u, g * (52 + 8 * u) + bend(px)]; }, 0.9);
+    })(g);
+  }
+  blade(st, 14, function (u, w) { var a = 1.25 - 0.9 * w, px = 42 + Math.cos(a) * 24 * u;   // small dorsal
+    return [px, 50 + Math.sin(a) * 24 * u, bend(px)]; }, 0.9);
+  limb(st, function (s) { var px = 52 + 70 * s; return [px, -4 * s, bend(px)]; },           // caudal peduncle
+       function (s) { return 24 * (1 - 0.72 * Math.pow(s, 0.8)) + 1; }, 150, 30, 0.8);
+  var tx0 = 122;
+  for (k = 0; k < 9; k++) {                                           // caudal fan
+    (function (k) { var a = 0.9 - 1.8 * k / 8, Lc = 32 + 6 * Math.cos((k - 4) / 4 * 1.5);
+      limb(st, function (s) { var px = tx0 + Math.cos(a) * Lc * s; return [px, -4 + Math.sin(a) * Lc * s, bend(px) + 5 * sw * Math.sin(T * 2 + k * 0.4) * s * s]; },
+           function (s) { return 1.3 * (1 - 0.6 * s) + 0.3; }, 18, 4, 1.4);
+    })(k);
+  }
+  blade(st, 26, function (u, w) { var a = 0.9 - 1.8 * w, Lc = (32 + 6 * Math.cos((w - 0.5) * 3)) * u, px = tx0 + Math.cos(a) * Lc;
+    return [px, -4 + Math.sin(a) * Lc, bend(px) + 5 * sw * Math.sin(T * 2 + w * 3) * u * u]; }, 0.45);
+}
+
+function siphonophore(st, P, T) {
+  var s3 = st.step, i, k;
+  var drift = P.drift;
+  var stem = function (s) {                                            // s: 0 at the float, 1 at the bottom
+    return [22 * drift * Math.sin(s * 2.2 + T * 0.7), 180 - 300 * s, 18 * drift * Math.sin(s * 1.7 - T * 0.55)];
+  };
+  limb(st, stem, function (s) { return 2.2 + 1.2 * Math.sin(s * Math.PI); }, 300, 6, 1.15);
+  var top = stem(0);
+  ball(st, top[0], top[1] + 9, top[2], 8, 300, 1.5, 1.6);              // pneumatophore, the gas float
+  var NB = Math.round(10 * P.bells);                                    // nectophores: the swimming bells, a spiral of them
+  for (k = 0; k < NB; k++) {
+    (function (k) {
+      var s0 = 0.035 + 0.27 * k / Math.max(1, NB - 1), c = stem(s0), ang = k * 1.9;
+      var ph = T * 2.3 - k * 0.55, con = P.pulse * Math.pow(0.5 + 0.5 * Math.sin(ph), 3);
+      var rr = 15 - 3 * Math.sin(Math.PI * s0 / 0.3), cx = c[0] + Math.cos(ang) * (rr + 3), cz = c[2] + Math.sin(ang) * (rr + 3);
+      for (i = 0; i < 620; i += s3) {
+        var u = ((i / 31) | 0) / 19, v = (i % 31) / 31 * TAU, a = u * 1.25;
+        var rad = rr * Math.sin(a) * (1 - 0.28 * con * u * u), y = c[1] + rr * (Math.cos(a) - 0.25) * (1 + 0.18 * con * u);
+        st.cast(cx + rad * Math.cos(v), y, cz + rad * Math.sin(v), 0.85 + 0.9 * (u > 0.94 ? 1 : 0));
+      }
+      limb(st, crv([[c[0], c[1], c[2]], [cx, c[1] + 6, cz]]), function (s) { return 1.6; }, 8, 4, 1.3); // peduncle
+    })(k);
+  }
+  var NZ = 15;                                                          // siphosome: feeding polyps and their trailing tentacles
+  for (k = 0; k < NZ; k++) {
+    (function (k) {
+      var s0 = 0.34 + 0.64 * k / (NZ - 1), c = stem(s0), ang = k * 2.4 + 0.6;
+      var dx = Math.cos(ang), dz = Math.sin(ang);
+      ball(st, c[0] + dx * 7, c[1] - 2, c[2] + dz * 7, 4.6, 150, 1.5, 1.9);                        // gastrozooid
+      blade(st, 9, function (u, w) { var a = ang + (w - 0.5) * 1.4;                                // a bract, a little shield
+        return [c[0] + Math.cos(a) * 12 * u, c[1] + 6 + 8 * u - 8 * u * u, c[2] + Math.sin(a) * 12 * u]; }, 0.7);
+      var L = (70 + 70 * hsh(k)) * P.tent * (1.1 - 0.35 * k / NZ), ph = T * 0.9 + k * 1.3;   // lower polyps trail shorter
+      limb(st, function (u) {
+        return [c[0] + dx * (7 + 12 * u) + 11 * drift * Math.sin(u * 6.5 + ph) * u,
+                c[1] - 4 - L * u + 4 * Math.sin(u * 9 + ph),
+                c[2] + dz * (7 + 12 * u) + 11 * drift * Math.cos(u * 5.2 + ph * 0.8) * u];
+      }, function (u) { return 1.4 * (1 - 0.5 * u) + 0.4; }, Math.round(L / 1.2), 5,
+      function (u) { return Math.sin(u * 42 + k) > 0.55 ? 2.7 : 1.0; });                         // tentilla as beads
+    })(k);
+  }
+}
+
+function dumbo(st, P, T) {
+  var s3 = st.step, i, a, k, s, w, g, v, o, r, j;
+  var br = Math.sin(T * 1.1);                                    // one swim cycle: the web opens, then closes
+  var spread = 1 + 0.22 * P.web * br, lift = 7 * P.web * Math.sin(T * 1.1 - 0.9);
+  for (i = 0; i < 9000; i += s3) {                               // the bell: widest at the bottom, like a thimble
+    v = ((i / 100) | 0) / 89; o = (i % 100) / 100 * TAU;
+    r = 50 * Math.pow(Math.sin(Math.PI * (0.03 + 0.62 * v)), 0.6);
+    st.cast(r * Math.cos(o), 122 - 104 * v + lift, 0.92 * r * Math.sin(o));
+  }
+  for (g = -1; g <= 1; g += 2) {                                 // eyes
+    ball(st, g * 42, 34 + lift, 12, 11, 460, 1.0);
+    ball(st, g * 50, 35 + lift, 15, 4.6, 200, 2.8);
+  }
+  for (g = -1; g <= 1; g += 2) {                                 // the ear fins: paddles hinged on the bell
+    var al = 0.6 * P.fin * Math.sin(T * 2.2 + (g > 0 ? 0 : 0.35));
+    for (i = 0; i < 1300; i += s3) {
+      var u = ((i / 26) | 0) / 49, q = (i % 26) / 25;
+      var ch = 26 * Math.pow(Math.sin(Math.PI * (0.1 + 0.8 * u)), 0.6) * (1.15 - 0.3 * u);
+      var L = 50 * u, bend = 9 * P.fin * Math.sin(T * 2.2 - 1.1) * u * u;
+      var edge = (q < 0.05 || q > 0.95 || u > 0.97) ? 1.8 : 0.75;
+      st.cast(g * (46 + L * Math.cos(al)), 80 + lift + L * Math.sin(al) + bend + (q - 0.5) * 1.4 * ch, (q - 0.5) * 1.4 * ch, edge);   // chord tilted 45°, so the paddle shows its face
+    }
+  }
+  function phi(a, s) { return a * TAU / 8 + TAU / 16 + 0.08 * Math.sin(T * 0.9 + a * 1.7) * s; }
+  function rho(s) { return 22 + 134 * spread * s * (1 - 0.35 * s); }
+  function yy(s) { return 16 + lift - 108 * s * (1.9 - spread) + 28 * s * s * s; }
+  for (a = 0; a < 8; a++) {                                      // eight arms under the umbrella
+    (function (a) {
+      limb(st, function (s) { var p = phi(a, s), R = rho(s); return [R * Math.cos(p), yy(s), R * Math.sin(p) * 0.94]; },
+           function (s) { return 8 * Math.pow(1 - s, 0.8) + 0.6; }, 70, 9);
+    })(a);
+  }
+  for (i = 0; i < 8 * 140; i += s3) {                            // one sucker row and paired cirri: the cirrate signature
+    a = (i / 140) | 0; s = (i % 140) / 139;
+    var p = phi(a, s), R = rho(s), tr = 8 * Math.pow(1 - s, 0.8) + 0.6;
+    if (Math.sin(s * 120) > 0.55) st.cast((R - tr * 0.4) * Math.cos(p), yy(s) - tr * 0.9, (R - tr * 0.4) * Math.sin(p) * 0.94, 2.4);
+    if (Math.sin(s * 120 + 1.6) > 0.9) for (k = -1; k <= 1; k += 2) for (j = 1; j < 7; j++) {
+      var pc = p + k * 0.012 * j;
+      st.cast((R - tr - 0.9 * j) * Math.cos(pc), yy(s) - tr * 0.6 - 1.2 * j, (R - tr - 0.9 * j) * Math.sin(pc) * 0.94, 1.3);
+    }
+  }
+  for (i = 0; i < 8 * 600; i += s3) {                            // web: arm to arm almost to the tips, with a scalloped margin
+    a = (i / 600) | 0; var jj = i % 600;
+    w = (jj % 16) / 15; var se = 0.88 - 0.16 * Math.sin(Math.PI * w);
+    s = ((jj / 16) | 0) / 36 * se;
+    var pa = phi(a, s), pb = phi(a + 1, s), pw = pa + (pb - pa) * w, Rw = rho(s) * (1 - 0.06 * Math.sin(Math.PI * w));
+    st.cast(Rw * Math.cos(pw), yy(s) + 7 * Math.sin(Math.PI * w) * s * spread, Rw * Math.sin(pw) * 0.94,
+            s > se * 0.96 ? 1.7 : 0.62);
+  }
+}
+
+function urchin(st, P, T) {
+  var s3 = st.step, i, k, u, th;
+  var R = 52, FL = 0.80;
+  for (i = 0; i < 7200; i += s3) {                             // the test
+    u = ((i / 90) | 0) / 79; th = (i % 90) / 90 * TAU;
+    var aa = u * Math.PI, sr = Math.sin(aa);
+    st.cast(R * sr * Math.cos(th), R * FL * Math.cos(aa), R * sr * Math.sin(th));
+  }
+  for (k = 0; k < 5; k++) for (i = 0; i < 520; i += s3) {      // ambulacral pore pairs
+    var j = (i / 2) | 0, sgn = (i % 2) ? 1 : -1;
+    var aa2 = 0.16 + (j / 259) * 2.82, s2 = Math.sin(aa2);
+    var th2 = k * TAU / 5 + sgn * (0.10 + 0.05 * s2);
+    if (Math.sin(j * 0.55) < 0.1) continue;
+    st.cast(R * s2 * Math.cos(th2) * 1.01, R * FL * Math.cos(aa2) * 1.01, R * s2 * Math.sin(th2) * 1.01, 2.2);
+  }
+  var NSP = 190;
+  for (k = 0; k < NSP; k++) {                                  // spines on their tubercles
+    if (k % st.step) continue;
+    var v = 1 - 2 * (k + 0.5) / NSP, srr = Math.sqrt(Math.max(0, 1 - v * v)), an = k * 2.399963229728653;
+    var dx = srr * Math.cos(an), dy = v, dz = srr * Math.sin(an);
+    var nx = dx / R, ny = dy / (R * FL), nz = dz / R;
+    var nl = Math.sqrt(nx * nx + ny * ny + nz * nz) || 1; nx /= nl; ny /= nl; nz /= nl;
+    var fr = perp2([nx, ny, nz]);
+    var wob = P.sway * 0.10 * Math.sin(T * 1.5 + k * 1.9);
+    var ox2 = nx + fr[0][0] * wob, oy2 = ny + fr[0][1] * wob, oz2 = nz + fr[0][2] * wob;
+    var ol = Math.sqrt(ox2 * ox2 + oy2 * oy2 + oz2 * oz2) || 1; ox2 /= ol; oy2 /= ol; oz2 /= ol;
+    var sx = R * dx, sy = R * FL * dy, sz = R * dz;
+    var L = (46 + 44 * hsh(k)) * P.spine;
+    for (i = 0; i < 13; i++) {
+      var e = i / 12, rr2 = 2.5 * Math.pow(1 - e, 0.75) + 0.25;
+      for (var q = 0; q < 5; q++) {
+        var wq = q / 5 * TAU, cq = Math.cos(wq) * rr2, sq = Math.sin(wq) * rr2;
+        st.cast(sx + ox2 * L * e + fr[0][0] * cq + fr[1][0] * sq,
+                sy + oy2 * L * e + fr[0][1] * cq + fr[1][1] * sq,
+                sz + oz2 * L * e + fr[0][2] * cq + fr[1][2] * sq, 0.85 + 0.9 * (1 - e));
+      }
+    }
+  }
+  for (k = 0; k < 55; k++) {                                   // tube feet reaching past the spines
+    if (k % st.step) continue;
+    var kk = k * 4.7, v2 = 1 - 2 * ((k + 0.5) / 55) * 0.86, s3r = Math.sqrt(Math.max(0, 1 - v2 * v2));
+    var a3 = (k % 5) * TAU / 5 + 0.13 * (k % 2 ? 1 : -1);
+    var bx = R * s3r * Math.cos(a3), by = R * FL * v2, bz = R * s3r * Math.sin(a3);
+    var reach = (54 + 30 * hsh(kk)) * P.feet;
+    var wig = P.feet * 14 * Math.sin(T * 1.2 + k);
+    limb(st, crv([[bx, by, bz], [bx * 1.5, by * 1.4 + wig * 0.3, bz * 1.5],
+                  [bx / R * (R + reach) + wig, by * 1.7 + wig * 0.5, bz / R * (R + reach)]]),
+         function (s) { return 1.5 * (1 - 0.4 * s) + 0.3 + 1.4 * Math.exp(-Math.pow((s - 0.96) / 0.06, 2)); },
+         14, 5, 1.5);
+  }
+  for (k = 0; k < 5; k++) for (i = 0; i < 90; i += s3) {       // Aristotle's lantern
+    var e3 = i / 89, ang3 = k * TAU / 5;
+    st.cast(Math.cos(ang3) * 9 * (1 - e3 * 0.7), -R * FL - 2 - e3 * 13, Math.sin(ang3) * 9 * (1 - e3 * 0.7), 2.4);
+  }
+}
+
+function starfish(st, P, T) {
+  var s3 = st.step, i, k, u, th, g;
+  var reach = function (t) { return 27 + 78 * Math.pow(Math.abs(Math.cos(2.5 * t)), 1.7); };
+  var armness = function (t) { return Math.pow(Math.abs(Math.cos(2.5 * t)), 0.9); };
+  var lift = function (u, t) { return P.curl * 34 * Math.pow(u, 2.8) * armness(t); };
+
+  for (i = 0; i < 15000; i += s3) {                     // aboral + oral surfaces
+    u = ((i / 150) | 0) / 99; th = (i % 150) / 150 * TAU;
+    var R = reach(th), rho = u * R;
+    var thick = 15 * Math.pow(1 - u, 0.5) * (0.40 + 0.62 * armness(th));
+    var y = lift(u, th);
+    var x = rho * Math.cos(th), z = rho * Math.sin(th);
+    st.cast(x, y + thick, z);
+    st.cast(x, y - thick * 0.52, z, 0.8);
+  }
+  for (i = 0; i < 3400; i += s3) {                      // dorsal tubercles
+    u = ((i / 34) | 0) / 99; th = (i % 34) / 34 * TAU;
+    if (Math.sin(u * 46) < 0.55) continue;
+    var R2 = reach(th), rho2 = u * R2;
+    if (armness(th) < 0.25 && u > 0.5) continue;
+    var t2 = 15 * Math.pow(1 - u, 0.5) * (0.40 + 0.62 * armness(th));
+    st.cast(rho2 * Math.cos(th), lift(u, th) + t2 * 1.1, rho2 * Math.sin(th), 2.2);
+  }
+  for (k = 0; k < 5; k++) for (g = -1; g <= 1; g += 2) {  // tube feet in the grooves
+    (function (k, g) {
+      var base = k * TAU / 5;
+      for (i = 0; i < 220; i += s3) {
+        var s = (i % 22) / 21, m = ((i / 22) | 0) / 9;
+        var th2 = base + g * (0.055 + 0.05 * m);
+        var rho3 = 20 + m * (reach(base) - 24);
+        var wig = P.feet * 4.5 * Math.sin(m * 9 - T * 3.4 + k);
+        var f3 = Math.min(0.995, rho3 / reach(th2));
+        var t3 = 15 * Math.pow(1 - f3, 0.5) * 0.9;
+        st.cast(rho3 * Math.cos(th2) + wig * s * 0.4,
+                lift(f3, th2) - t3 * 0.5 - s * 11,
+                rho3 * Math.sin(th2) + wig * s * 0.4, 1.5);
+      }
+    })(k, g);
+  }
+  ball(st, 15, 13, -13, 5.5, 320, 2.6);                 // madreporite
+}
+
+function seacucumber(st, P, T) {
+  var s3 = st.step, i, k, g, u, a;
+  var path = function (u) {
+    return [15 * Math.sin(u * 2.3 - 0.8), -8 + 15 * Math.sin(Math.PI * u), -134 + 268 * u];
+  };
+  var body = function (u) {
+    return 35 * Math.pow(Math.sin(Math.PI * (0.09 + 0.82 * u)), 0.30) * (0.70 + 0.40 * P.fat)
+         * (1 + 0.11 * P.peri * Math.sin(u * 7.5 - T * 2.4));
+  };
+  limb(st, path, function (u, w) {
+    return body(u) * (1 + 0.055 * Math.sin(w * 9) * Math.sin(u * 26));
+  }, 192, 26);
+
+  for (k = 0; k < 4; k++) for (i = 0; i < 380; i += s3) {      // dorsal papillae
+    u = 0.07 + (((i / 10) | 0) / 37) * 0.86;
+    a = 1.5708 + (k - 1.5) * 0.62 + 0.10 * Math.sin(u * 9);
+    var e = (i % 10) / 9, p = path(u), r = body(u) * (1 + 0.55 * e * (0.6 + 0.5 * hsh(k * 40 + (i / 10 | 0))));
+    st.cast(p[0] + r * Math.cos(a), p[1] + r * Math.sin(a), p[2], 1.0 + 1.5 * e);
+  }
+  for (k = -1; k <= 1; k++) for (i = 0; i < 460; i += s3) {    // ventral tube feet
+    u = 0.06 + (((i / 12) | 0) / 37) * 0.88;
+    var wv = P.feet * Math.sin(u * 16 - T * 3.0 + k * 0.7);
+    a = -1.5708 + k * 0.52;
+    var e2 = (i % 12) / 11, p2 = path(u), rr = body(u);
+    st.cast(p2[0] + (rr + e2 * 15 * P.feet) * Math.cos(a) + wv * e2 * 3,
+            p2[1] + (rr + e2 * 15 * P.feet) * Math.sin(a), p2[2] + wv * e2 * 4, 1.4);
+  }
+  var mo = path(0.005);
+  for (k = 0; k < 10; k++) {                                   // branched oral tentacles
+    (function (k) {
+      var an = k / 10 * TAU, L = (34 + 9 * hsh(k)) * P.tent;
+      var tipx = mo[0] + 22 * Math.cos(an) * P.tent, tipy = mo[1] + 22 * Math.sin(an) * P.tent;
+      var tipz = mo[2] - L;
+      limb(st, crv([[mo[0], mo[1], mo[2] + 6], [mo[0] + 9 * Math.cos(an), mo[1] + 9 * Math.sin(an), mo[2] - L * 0.5],
+                    [tipx, tipy, tipz]]),
+           function (s) { return 3.4 * (1 - 0.55 * s) + 0.4; }, 16, 7, 1.1);
+      for (var j = 0; j < 6; j++) {                            // the dendritic crown
+        var b = j / 6 * TAU + k, sp = 11 * P.tent;
+        limb(st, crv([[tipx, tipy, tipz],
+                      [tipx + sp * 0.6 * Math.cos(b), tipy + sp * 0.6 * Math.sin(b), tipz - sp * 0.5],
+                      [tipx + sp * Math.cos(b) + 3 * Math.cos(b * 2), tipy + sp * Math.sin(b), tipz - sp * 0.9]]),
+             function (s) { return 1.7 * (1 - 0.6 * s) + 0.3; }, 8, 5, 1.9);
+      }
+    })(k);
+  }
+}
+
+function featherstar(st, P, T) {
+  var s3 = st.step, i, k, a;
+  for (i = 0; i < 1800; i += s3) {                             // calyx
+    var u = Math.sqrt((((i / 40) | 0)) / 44), th = (i % 40) / 40 * TAU;
+    st.cast(u * 17 * Math.cos(th), 6 - 11 * u * u, u * 17 * Math.sin(th), 0.9);
+  }
+  var NA = 10;
+  for (a = 0; a < NA; a++) {
+    (function (a) {
+      var A0 = a * TAU / NA;
+      var strk = P.stroke * Math.sin(T * 1.6 - a * 0.62);
+      var arm = function (s) {
+        var rr = 12 + 104 * s;
+        var yy = 3 + P.curl * 62 * Math.pow(s, 1.55) + strk * 30 * Math.pow(s, 2.1);
+        var aa = A0 + 0.20 * P.curl * Math.sin(s * 2.6);
+        return [rr * Math.cos(aa), yy, rr * Math.sin(aa)];
+      };
+      limb(st, arm, function (s) { return 3.6 * (1 - 0.62 * s) + 0.5; }, 50, 9, 1.1);
+      var NP = 34;
+      for (k = 0; k < NP; k++) {                               // pinnules, alternating sides
+        var s0 = 0.10 + k * (0.88 / NP), side = (k % 2) ? 1 : -1;
+        var p0 = arm(s0), p1 = arm(Math.min(1, s0 + 0.012));
+        var tx = p1[0] - p0[0], ty = p1[1] - p0[1], tz = p1[2] - p0[2];
+        var tl = Math.sqrt(tx * tx + ty * ty + tz * tz) || 1; tx /= tl; ty /= tl; tz /= tl;
+        var sxv = ty * 0 - tz * 1, syv = tz * 0 - tx * 0, szv = tx * 1 - ty * 0;   // t x (0,0,1)... horizontal
+        var sl = Math.sqrt(sxv * sxv + syv * syv + szv * szv) || 1;
+        sxv = sxv / sl * side; syv = syv / sl * side; szv = szv / sl * side;
+        var L = (30 - 17 * s0) * P.pinnule;
+        var m = [p0[0] + sxv * L * 0.55 + tx * L * 0.22, p0[1] + syv * L * 0.55 + ty * L * 0.22 + L * 0.16,
+                 p0[2] + szv * L * 0.55 + tz * L * 0.22];
+        var e = [p0[0] + sxv * L + tx * L * 0.42, p0[1] + syv * L + ty * L * 0.42 + L * 0.30,
+                 p0[2] + szv * L + tz * L * 0.42];
+        limb(st, crv([p0, m, e]), function (s) { return 1.55 * (1 - 0.7 * s) + 0.28; }, 10, 4, 1.35);
+      }
+    })(a);
+  }
+  for (k = 0; k < 26; k++) {                                   // cirri, gripping downward
+    (function (k) {
+      var an = k / 26 * TAU, L = 34 + 9 * hsh(k);
+      limb(st, crv([[9 * Math.cos(an), -6, 9 * Math.sin(an)],
+                    [(9 + L * 0.5) * Math.cos(an), -20 - 6 * P.cirri, (9 + L * 0.5) * Math.sin(an)],
+                    [(9 + L) * Math.cos(an), -30 - 16 * P.cirri, (9 + L) * Math.sin(an)]]),
+           function (s) { return 2.4 * (1 - 0.72 * s) + 0.3; }, 13, 6, 1.2);
+    })(k);
+  }
+}
+</script>
+<script>
+(function () {
+"use strict";
+var $ = function (s) { return document.querySelector(s); };
+var META = {"shark":{"name":"Blacktip reef shark","tint":[[238,240,244],[56,68,84]],"P":{"swim":1.0,"pect":1.0,"tip":1.0}},"moray":{"name":"Moray eel","tint":[[250,240,208],[58,80,52]],"P":{"swim":1.0,"gape":0.6}},"lionfish":{"name":"Lionfish","tint":[[255,232,214],[110,54,58]],"P":{"flare":1.0,"spine":1.0,"stripe":1.0,"sway":1.0}},"clownfish":{"name":"Clownfish","tint":[[255,222,186],[122,54,32]],"P":{"bands":1.0,"row":1.0,"waggle":1.0}},"pufferfish":{"name":"Pufferfish","tint":[[255,240,214],[96,86,64]],"P":{"inflate":0.7,"fin":1.0}},"shrimp":{"name":"Shrimp","tint":[[255,226,214],[118,62,74]],"P":{"swim":1.0,"ant":1.0,"fan":0.5}},"copepod":{"name":"Copepod","tint":[[255,240,220],[90,72,60]],"P":{"antenna":1.0,"kick":1.0,"eggs":1.0}},"manta":{"name":"Manta ray","tint":[[236,242,255],[40,56,86]],"P":{"flap":1.0,"lobes":0.3,"bank":1.0}},"seaturtle":{"name":"Sea turtle","tint":[[248,238,198],[58,88,64]],"P":{"stroke":1.0,"dome":0.7}},"jellyfish":{"name":"Moon jelly","tint":[[232,250,255],[52,92,116]],"P":{"pulse":1.0,"arm":1.0}},"coral":{"name":"Staghorn coral","tint":[[255,226,232],[62,80,102]],"P":{"angle":1.0,"depth":4.0,"polyp":0.6,"sway":1.0}},"anemone":{"name":"Sea anemone","tint":[[255,226,240],[96,44,84]],"P":{"len":1.0,"sway":1.0,"close":0.15}},"octopus":{"name":"Octopus","tint":[[255,238,218],[88,74,94]],"P":{"curl":1.0,"wave":1.0,"pulse":1.0}},"cuttlefish":{"name":"Cuttlefish","tint":[[236,248,250],[62,102,132]],"P":{"fin":1.0,"arm":1.0,"pulse":1.0,"chrom":1.0}},"squid":{"name":"Squid","tint":[[248,240,255],[78,68,104]],"P":{"pulse":1.0,"fin":1.0,"arm":1.0,"spread":1.0}},"crab":{"name":"Crab","tint":[[255,236,202],[116,74,50]],"P":{"claw":0.5,"step":1.0}},"hermit":{"name":"Hermit crab","tint":[[255,234,206],[100,66,58]],"P":{"spire":0.5,"claw":0.5,"step":1.0,"wave":1.0}},"stingray":{"name":"Stingray","tint":[[240,236,224],[54,72,92]],"P":{"flap":1.0,"arch":1.0}},"seahorse":{"name":"Seahorse","tint":[[255,238,200],[96,80,66]],"P":{"curl":0.6,"flutter":1.0,"sway":1.0}},"anglerfish":{"name":"Anglerfish","tint":[[214,240,255],[36,38,72]],"P":{"gape":0.7,"glow":1.0,"lure":1.0,"sway":1.0}},"siphonophore":{"name":"Siphonophore","tint":[[236,228,255],[46,56,92]],"P":{"bells":1.0,"pulse":1.0,"tent":1.0,"drift":1.0}},"dumbo":{"name":"Dumbo octopus","tint":[[255,226,234],[98,62,92]],"P":{"fin":1.0,"web":1.0}},"urchin":{"name":"Sea urchin","tint":[[248,236,255],[62,46,86]],"P":{"spine":1.0,"sway":1.0,"feet":0.8}},"starfish":{"name":"Starfish","tint":[[255,232,190],[122,68,44]],"P":{"curl":0.6,"feet":1.0}},"seacucumber":{"name":"Sea cucumber","tint":[[255,232,206],[74,58,72]],"P":{"peri":1.0,"feet":1.0,"tent":1.0,"fat":0.6}},"featherstar":{"name":"Feather star","tint":[[255,228,232],[76,52,90]],"P":{"curl":0.7,"pinnule":1.0,"stroke":0.6,"cirri":1.0}}};
+var TW = 2048;
+
+/* ================================================================== math */
+function add(a, b) { return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]; }
+function sub(a, b) { return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; }
+function scl(a, s) { return [a[0] * s, a[1] * s, a[2] * s]; }
+function len(a) { return Math.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]); }
+function nrm(a) { var l = len(a) || 1; return [a[0] / l, a[1] / l, a[2] / l]; }
+function dist(a, b) { var x = a[0] - b[0], y = a[1] - b[1], z = a[2] - b[2]; return Math.sqrt(x * x + y * y + z * z); }
+function cross(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
+function dot(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+function mix(a, b, t) { return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
+function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+function adiff(a, b) { var d = (b - a) % (Math.PI * 2); if (d > Math.PI) d -= Math.PI * 2; if (d < -Math.PI) d += Math.PI * 2; return d; }
+function rnd(k) { return hsh(k * 1.37 + 0.5); }
+function pick(arr) { return arr[(Math.random() * arr.length) | 0]; }
+function persp(fy, asp, n, f) { var t = 1 / Math.tan(fy / 2), nf = 1 / (n - f); return [t / asp, 0, 0, 0, 0, t, 0, 0, 0, 0, (f + n) * nf, -1, 0, 0, 2 * f * n * nf, 0]; }
+function lookAt(e, c, u) {
+  var z = nrm(sub(e, c)), x = nrm(cross(u, z)), y = cross(z, x);
+  return [x[0], y[0], z[0], 0, x[1], y[1], z[1], 0, x[2], y[2], z[2], 0, -dot(x, e), -dot(y, e), -dot(z, e), 1];
+}
+function mul4(a, b) {
+  var o = new Array(16);
+  for (var c = 0; c < 4; c++) for (var r = 0; r < 4; r++) { var s = 0; for (var k = 0; k < 4; k++) s += a[k * 4 + r] * b[c * 4 + k]; o[c * 4 + r] = s; }
+  return o;
+}
+function rot3(yaw, pitch, bank) {                   // R = Ry Rz Rx, column-major; column 0 is forward
+  var cy = Math.cos(yaw), sy = Math.sin(yaw), cz = Math.cos(pitch), sz = Math.sin(pitch), cx = Math.cos(bank), sx = Math.sin(bank);
+  return new Float32Array([cy * cz, sz, -sy * cz, -cy * sz * cx + sy * sx, cz * cx, sy * sz * cx + cy * sx, cy * sz * sx + sy * cx, -cz * sx, -sy * sz * sx + cy * cx]);
+}
+function fwdOf(yaw, pitch) { var cz = Math.cos(pitch); return [Math.cos(yaw) * cz, Math.sin(pitch), -Math.sin(yaw) * cz]; }
+
+/* ================================================================== world */
+var WX = 1500, WZ = 620, SURF = 640;
+function floorY(x, z) { return -8 + 16 * Math.sin(x * 0.0045) + 10 * Math.sin(z * 0.007 + x * 0.0021) + 6 * Math.sin(x * 0.013 + z * 0.011); }
+function sandFn(st) {
+  for (var x = -1720; x <= 1720; x += 8) for (var z = -780; z <= 780; z += 8) {
+    var k = x * 7.1 + z * 0.37, jx = x + (hsh(k) - 0.5) * 7, jz = z + (hsh(k + 3) - 0.5) * 7;
+    var rip = Math.sin(jx * 0.085 + 3 * Math.sin(jz * 0.012)) > 0.55 ? 1 : 0;
+    st.cast(jx, floorY(jx, jz), jz, 0.55 + 0.6 * rip + 0.5 * (hsh(k + 9) > 0.97 ? 1 : 0));
+  }
+}
+var ARCH_R = 118;
+function archFn(st) {
+  for (var i = 0; i < 16000; i++) {
+    var a = ((i / 64) | 0) / 249 * Math.PI, w = (i % 64) / 64 * TAU;
+    var r = 26 * (1 + 0.3 * Math.sin(a * 9 + w * 2) * Math.sin(w * 3 + a * 5) + 0.12 * Math.sin(a * 23 + w));
+    var R2 = ARCH_R + r * Math.cos(w);
+    st.cast(R2 * Math.cos(a), R2 * Math.sin(a) * 1.05, r * Math.sin(w) * 1.6, 0.8 + 0.9 * (hsh(i) > 0.94 ? 1 : 0));
+  }
+}
+function boulderFn(st) {
+  var N = 3200;
+  for (var i = 0; i < N; i++) {
+    var v = 1 - 2 * (i + 0.5) / N, s = Math.sqrt(1 - v * v), u = i * 2.399963229728653, x = s * Math.cos(u), y = v, z = s * Math.sin(u);
+    var r = 50 * (1 + 0.22 * Math.sin(x * 4 + y * 3) * Math.sin(z * 5 - y * 2) + 0.1 * Math.sin(u * 7));
+    st.cast(x * r * 1.2, y * r * 0.7, z * r, 0.65 + 0.7 * (hsh(i + 3) > 0.95 ? 1 : 0));
+  }
+}
+function snowFn(st) { for (var i = 0; i < 2600; i++) st.cast((hsh(i) - 0.5) * 1600, (hsh(i + 7) - 0.5) * 1000, (hsh(i + 13) - 0.5) * 1600, 0.35 + 0.5 * hsh(i + 21)); }
+function inkFn(st, T) {                              // octopus ink: a dark, lumpy cloud that billows out
+  for (var i = 0; i < 900; i++) {
+    var v = 1 - 2 * (i + 0.5) / 900, s = Math.sqrt(1 - v * v), u = i * 2.399963229728653;
+    var r = (18 + 95 * Math.sqrt(T)) * (0.45 + 0.55 * Math.cbrt(hsh(i + 5))) * (1 + 0.3 * Math.sin(u * 3 + v * 4));
+    st.cast(s * Math.cos(u) * r, v * r * 0.8 - 14 * T, s * Math.sin(u) * r, 2.4 * (1 - 0.55 * T));
+  }
+}
+function burstFn(st, T) {                            // the bite: a shell of sparks that swells and fades
+  for (var i = 0; i < 280; i++) {
+    var v = 1 - 2 * (i + 0.5) / 280, s = Math.sqrt(1 - v * v), u = i * 2.399963229728653, r = 4 + 44 * Math.pow(T, 0.7) * (0.7 + 0.6 * hsh(i));
+    st.cast(s * Math.cos(u) * r, v * r, s * Math.sin(u) * r, 2.6 * (1 - T));
+  }
+}
+
+/* ================================================================== species and the food web */
+var SP = {
+  shark:      { orient: 'x-', len: 250, step: 2, K: 12, rate: 2.4, cruise: 85, burst: 240, acc: 150, sense: 430, turn: 1.6, eats: ['lionfish', 'clownfish', 'octopus', 'seaturtle', 'moray', 'squid', 'cuttlefish'], y: [200, 500] },
+  moray:      { orient: 'z-', len: 190, step: 2, K: 12, rate: 1.7, cruise: 30, pcruise: 50, burst: 230, acc: 320, sense: 210, turn: 3.4, eats: ['lionfish', 'clownfish', 'shrimp', 'pufferfish', 'octopus', 'crab', 'seahorse', 'cuttlefish'], leash: 240 },
+  lionfish:   { orient: 'x-', len: 88, step: 2, K: 12, rate: 1.6, cruise: 38, burst: 125, acc: 170, sense: 240, turn: 2.6, eats: ['clownfish', 'shrimp', 'seahorse'], y: [40, 280] },
+  clownfish:  { orient: 'x-', len: 42, step: 2, K: 12, rate: 3.1, cruise: 55, burst: 165, acc: 280, sense: 160, turn: 4.2, eats: ['copepod'], y: [20, 220] },
+  pufferfish: { orient: 'z-', len: 62, step: 2, K: 12, rate: 4.2, cruise: 34, burst: 110, acc: 150, sense: 200, turn: 2.8, eats: ['shrimp', 'crab', 'hermit'], y: [30, 260], P: { inflate: 0.12 }, alt: { inflate: 1 } },
+  octopus:    { orient: 'yfwd', len: 105, step: 2, K: 12, rate: 2.2, cruise: 42, burst: 150, acc: 230, sense: 190, turn: 3.0, eats: ['crab', 'hermit', 'shrimp'], y: [20, 160] },
+  cuttlefish: { orient: 'yback', len: 88, step: 2, K: 12, rate: 3.1, cruise: 38, burst: 130, acc: 200, sense: 200, turn: 3.0, eats: ['shrimp', 'crab'], y: [30, 220] },
+  squid:      { orient: 'yfwd', len: 100, step: 2, K: 12, rate: 2.6, cruise: 60, burst: 210, acc: 260, sense: 240, turn: 3.0, eats: ['copepod', 'shrimp', 'clownfish'], y: [160, 460] },
+  anglerfish: { orient: 'x-', len: 110, step: 2, K: 12, rate: 1.3, cruise: 20, burst: 175, acc: 250, sense: 230, turn: 2.4, eats: ['clownfish', 'shrimp', 'lionfish', 'seahorse', 'squid'], y: [60, 300] },
+  stingray:   { orient: 'z-', len: 190, step: 2, K: 12, rate: 2.7, cruise: 40, burst: 120, acc: 90, sense: 170, turn: 1.5, eats: ['crab', 'shrimp', 'hermit'], floor: true, hover: 0.12 },
+  shrimp:     { orient: 'x-', len: 34, step: 2, K: 12, rate: 4.2, cruise: 30, burst: 200, acc: 460, sense: 0, turn: 5, eats: [], y: [8, 90] },
+  copepod:    { orient: 'x-', len: 13, step: 4, K: 12, rate: 2.4, cruise: 24, burst: 160, acc: 520, sense: 0, turn: 6, eats: [], y: [120, 420] },
+  crab:       { orient: 'none', len: 50, step: 3, K: 12, rate: 2.6, cruise: 18, burst: 70, acc: 140, sense: 0, turn: 3, eats: [], floor: true, hover: 0.25 },
+  hermit:     { orient: 'none', len: 46, step: 3, K: 12, rate: 2.6, cruise: 10, burst: 35, acc: 90, sense: 0, turn: 2, eats: [], floor: true, hover: 0.3 },
+  seahorse:   { orient: 'x-', len: 48, step: 2, K: 12, rate: 1.25, cruise: 9, burst: 45, acc: 60, sense: 0, turn: 1.5, eats: [], upright: true, y: [30, 160] },
+  manta:      { orient: 'z-', len: 300, step: 2, K: 16, rate: 1.25, cruise: 70, burst: 70, acc: 30, sense: 0, turn: 0.5, eats: [], y: [330, 540], P: { bank: 0 } },
+  seaturtle:  { orient: 'z-', len: 150, step: 2, K: 16, rate: 1.5, cruise: 42, pcruise: 48, burst: 80, acc: 60, sense: 260, turn: 0.9, eats: ['jellyfish'], y: [140, 440] },
+  jellyfish:  { orient: 'none', len: 95, step: 2, K: 12, rate: 2.0, cruise: 7, burst: 7, acc: 8, sense: 0, turn: 0, eats: [], y: [180, 500], vertical: true, sting: 48 },
+  siphonophore: { orient: 'none', len: 250, step: 2, K: 12, rate: 2.3, cruise: 6, burst: 6, acc: 6, sense: 0, turn: 0, eats: [], y: [260, 520], vertical: true, sting: 32, tall: 120 },
+  dumbo:      { orient: 'none', len: 105, step: 2, K: 12, rate: 1.1, cruise: 12, burst: 12, acc: 10, sense: 0, turn: 0, eats: [], y: [150, 450], vertical: true },
+  coral:      { orient: 'none', len: 170, step: 2, K: 8, rate: 1.05, base: true },
+  anemone:    { orient: 'none', len: 105, step: 2, K: 8, rate: 1.55, base: true },
+  urchin:     { orient: 'none', len: 58, step: 3, K: 8, rate: 1.5, base: true },
+  starfish:   { orient: 'none', len: 62, step: 3, K: 8, rate: 3.4, base: true },
+  featherstar:{ orient: 'none', len: 70, step: 3, K: 8, rate: 1.6, base: true },
+  seacucumber:{ orient: 'none', len: 70, step: 3, K: 8, rate: 2.4, base: true },
+  sand:       { raw: sandFn, K: 1, tint: [[232, 216, 184], [40, 54, 62]], grow: 2.4, glow: 1.5 },
+  arch:       { raw: archFn, K: 1, tint: [[204, 212, 220], [36, 50, 64]] },
+  boulder:    { raw: boulderFn, K: 1, tint: [[196, 204, 206], [34, 46, 58]] },
+  snow:       { raw: snowFn, K: 1, tint: [[210, 232, 240], [210, 232, 240]] },
+  burst:      { rawT: burstFn, K: 8, tint: [[255, 222, 170], [255, 170, 100]], grow: 1.6 },
+  ink:        { rawT: inkFn, K: 10, tint: [[40, 34, 52], [8, 8, 14]], grow: 2.2 }
+};
+var POINTS = { copepod: 1, shrimp: 1, crab: 2, hermit: 2, seahorse: 2, jellyfish: 2, clownfish: 3, pufferfish: 3, squid: 3, cuttlefish: 3, octopus: 4, lionfish: 4, seaturtle: 5, moray: 5 };
+var PLAYABLE = [
+  { id: 'lionfish', about: 'Eats shrimp, clownfish and seahorses. Morays and sharks hunt it.', move: 'Flare', hint: 'fans its venomous spines so nearby hunters back off' },
+  { id: 'clownfish', about: 'Eats copepods. Nearly everything hunts it.', move: 'Home', hint: 'darts to the nearest anemone, where only it is safe' },
+  { id: 'pufferfish', about: 'Eats shrimp and crabs. Only morays hunt it, and it is slow.', move: 'Inflate', hint: 'makes it too spiky to swallow, but it can barely swim' },
+  { id: 'octopus', about: 'Eats crabs, hermit crabs and shrimp. Morays and sharks hunt it.', move: 'Ink', hint: 'leaves a cloud that blinds whatever is chasing it' },
+  { id: 'moray', about: 'Eats almost anything smaller than itself. Only sharks hunt it.', move: 'Lunge', hint: 'is a fast strike that swallows whatever is in front' },
+  { id: 'seaturtle', about: 'Eats jellyfish, which sting everyone else. Sharks hunt it.', move: 'Tuck', hint: 'pulls it into its shell to wait the danger out' }
+];
+var GOALS = { lionfish: [20, 28, 36, 40], clownfish: [12, 16, 20, 22], pufferfish: [10, 13, 16, 18], octopus: [16, 22, 28, 32], moray: [90, 120, 150, 170], seaturtle: [10, 14, 18, 20] };
+var LEVELS = [
+  { name: 'Morning', note: 'one shark', deep: [0.010, 0.040, 0.058], shal: [0.045, 0.165, 0.205], fog: 1 / 1300, light: 1,
+    mix: { shark: 1, moray: 3, lionfish: 4, clownfish: 7, pufferfish: 3, shrimp: 12, copepod: 24, crab: 6, hermit: 4, octopus: 2, cuttlefish: 2, seahorse: 4, stingray: 1, manta: 1, seaturtle: 1, jellyfish: 4 } },
+  { name: 'Noon', note: 'two sharks', deep: [0.012, 0.050, 0.066], shal: [0.070, 0.215, 0.250], fog: 1 / 1600, light: 1.15,
+    mix: { shark: 2, moray: 4, lionfish: 5, clownfish: 7, pufferfish: 3, shrimp: 13, copepod: 26, crab: 6, hermit: 4, octopus: 2, cuttlefish: 3, seahorse: 4, stingray: 2, squid: 3, manta: 1, seaturtle: 2, jellyfish: 5 } },
+  { name: 'Dusk', note: 'morays roam', deep: [0.006, 0.016, 0.040], shal: [0.040, 0.075, 0.140], fog: 1 / 850, light: 0.55, leash: 380,
+    mix: { shark: 3, moray: 5, lionfish: 6, clownfish: 8, pufferfish: 4, shrimp: 14, copepod: 28, crab: 7, hermit: 4, octopus: 3, cuttlefish: 2, seahorse: 4, stingray: 2, squid: 4, anglerfish: 1, manta: 1, jellyfish: 6 } },
+  { name: 'Midnight', note: 'lures in the dark', deep: [0.003, 0.008, 0.022], shal: [0.020, 0.042, 0.095], fog: 1 / 620, light: 0.32, leash: 420,
+    mix: { shark: 1, moray: 4, lionfish: 3, clownfish: 7, pufferfish: 3, shrimp: 14, copepod: 30, crab: 6, hermit: 4, octopus: 2, seahorse: 4, squid: 4, anglerfish: 4, siphonophore: 3, dumbo: 2, jellyfish: 6, seaturtle: 1 } }
+];
+Object.keys(SP).forEach(function (id) {
+  var d = SP[id], m = META[id]; d.id = id;
+  if (m) { d.fn = window[id]; d.name = m.name.toLowerCase(); d.tint = m.tint; d.P = Object.assign({}, m.P, d.P || {}); if (d.P.depth) d.P.depth = Math.round(d.P.depth); }
+  d.per = d.rate ? Math.PI * 2 / d.rate : 1;
+});
+SP.moray.name = 'moray'; SP.shark.name = 'reef shark'; SP.seaturtle.name = 'sea turtle'; SP.hermit.name = 'hermit crab'; SP.dumbo.name = 'dumbo octopus';
+
+function canHide(sp, z) { return z.type === 'anemone' ? sp === 'clownfish' : z.type === 'cave' ? (SP[sp].len <= 120 || sp === 'moray') : SP[sp].len <= 100; }
+function canEnter(sp, z) { return z.type === 'anemone' ? sp === 'clownfish' : z.type === 'cave' ? (sp === 'moray' || SP[sp].len <= 120) : SP[sp].len <= 100; }
+
+/* ================================================================== GL */
+var cv = $('#gl'), ui = $('#ui'), ux = ui.getContext('2d');
+var gl = cv.getContext('webgl2', { antialias: false, alpha: false, depth: false, powerPreference: 'high-performance' });
+if (!gl) { $('#go').textContent = 'This needs WebGL 2'; $('#howto').textContent = 'Open it in a recent Chrome, Safari or Firefox.'; return; }
+var VS = '#version 300 es\n' +
+'precision highp float; precision highp int; precision highp sampler2D;\n' +
+'uniform sampler2D uTex, uTex2; uniform int uN, uK, uStride, uMode;\n' +
+'uniform float uFrame, uScale, uAlpha, uPx, uT, uMinPx, uMaxPx, uGrow, uMorph;\n' +
+'uniform mat4 uVP; uniform mat3 uRot; uniform vec3 uPos, uCam, uNear, uFar, uFog; uniform vec2 uFogP;\n' +
+'out vec4 vCol;\n' +
+'vec4 fe(int f, int i){ int t = f * uN + i; return texelFetch(uTex, ivec2(t % ' + TW + ', t / ' + TW + '), 0); }\n' +
+'vec4 fe2(int f, int i){ int t = f * uN + i; return texelFetch(uTex2, ivec2(t % ' + TW + ', t / ' + TW + '), 0); }\n' +
+'void main(){\n' +
+'  int i = gl_VertexID * uStride;\n' +
+'  int f0 = int(floor(uFrame)) % uK; int f1 = (f0 + 1) % uK; float fa = fract(uFrame);\n' +
+'  vec4 p = mix(fe(f0, i), fe(f1, i), fa);\n' +
+'  if (uMorph > 0.0) p = mix(p, mix(fe2(f0, i), fe2(f1, i), fa), uMorph);\n' +   // e.g. a pufferfish between flat and inflated
+'  vec3 w; float f = 0.5;\n' +
+'  if (uMode == 1) {\n' +
+'    vec3 box = vec3(1600.0, 1000.0, 1600.0);\n' +
+'    vec3 d = p.xyz + vec3(9.0 * sin(uT * 0.13 + p.y * 0.01), -uT * 7.0, 5.0 * cos(uT * 0.11 + p.x * 0.01));\n' +
+'    w = uCam + mod(d - uCam, box) - box * 0.5;\n' +
+'  } else {\n' +
+'    w = uPos + uRot * (p.xyz * uScale);\n' +
+'    vec3 tc = uCam - uPos; float tl = length(tc); tc = tl > 0.0 ? tc / tl : vec3(0.0, 0.0, 1.0);\n' +
+'    f = clamp(0.5 + dot(w - uPos, tc) / (uScale * 440.0), 0.0, 1.0);\n' +
+'  }\n' +
+'  vec4 cp = uVP * vec4(w, 1.0); gl_Position = cp;\n' +
+'  float ppu = uScale * uPx / max(cp.w, 1.0);\n' +
+'  float sz = clamp(ppu * 0.9, uMinPx * uGrow, uMaxPx * uGrow); gl_PointSize = sz;\n' +
+'  float al = uAlpha * p.w * (0.34 + 0.8 * f);\n' +
+'  al *= clamp(pow(ppu * 1.1 / sz, 0.6), 0.3, 1.0) * sqrt(float(uStride));\n' +
+'  float fog = exp(-max(0.0, length(w - uCam) - uFogP.x) * uFogP.y);\n' +
+'  vec3 col = mix(uFar, uNear, f) / 255.0;\n' +
+'  vCol = vec4(mix(uFog, col, fog), min(al, 0.92) * mix(0.12, 1.0, fog));\n' +
+'}';
+var FS = '#version 300 es\nprecision mediump float; in vec4 vCol; out vec4 o;\nvoid main(){ vec2 c = gl_PointCoord - 0.5; if (dot(c, c) > 0.25) discard; o = vCol; }';
+var BVS = '#version 300 es\nout vec2 v; void main(){ vec2 p = vec2(gl_VertexID == 1 ? 3.0 : -1.0, gl_VertexID == 2 ? 3.0 : -1.0); v = p * 0.5 + 0.5; gl_Position = vec4(p, 0.0, 1.0); }';
+var BFS = '#version 300 es\nprecision mediump float; in vec2 v; uniform float uL; uniform vec3 uDeep, uShal; out vec4 o;\n' +
+'void main(){ float t = clamp(v.y * uL + (1.0 - uL) * 0.35, 0.0, 1.0); float r = length(v - vec2(0.5, 0.9)); vec3 c = mix(uDeep, uShal, t * t) + uShal * 0.18 * uL * max(0.0, 0.6 - r); o = vec4(c, 1.0); }';
+function prog(vs, fs) {
+  function sh(t, s) { var o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; }
+  var p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  var u = {}, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+  for (var i = 0; i < n; i++) { var a = gl.getActiveUniform(p, i); u[a.name.replace(/\[0\]$/, '')] = gl.getUniformLocation(p, a.name); }
+  return { p: p, u: u };
+}
+var PP = prog(VS, FS), BG = prog(BVS, BFS);
+gl.bindVertexArray(gl.createVertexArray());
+gl.enable(gl.BLEND); gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+var LV = LEVELS[0], DEEP = LV.deep, SHAL = LV.shal;
+
+/* ================================================================== bake */
+function runFrames(d, P, T) {
+  var a = [], st = { step: d.step || 1, cast: function (x, y, z, b) { a.push(x, y, z, b === undefined ? 1 : b); } };
+  if (d.raw) d.raw(st); else if (d.rawT) d.rawT(st, T); else d.fn(st, P, T);
+  return a;
+}
+function bake(d, P, ref) {
+  var K = d.K, frames = [], N = Infinity, looped = !d.raw && !d.rawT && K > 1;
+  for (var k = 0; k < K; k++) {
+    var T = d.rawT ? k / (K - 1) : K > 1 ? k / K * d.per : 0, a = runFrames(d, P, T);
+    if (looped) {                                    // seamless loop: fade each frame into its twin one period earlier
+      var b = runFrames(d, P, T - d.per), w = k / K;
+      for (var j = 0; j < Math.min(a.length, b.length); j++) a[j] = a[j] * (1 - w) + b[j] * w;
+    }
+    frames.push(a); N = Math.min(N, a.length / 4);
+  }
+  var lo = [1e9, 1e9, 1e9], hi = [-1e9, -1e9, -1e9];
+  frames.forEach(function (a, fi) {
+    for (var j = 0; j < a.length; j += 4) {
+      var x = a[j], y = a[j + 1], z = a[j + 2];
+      if (d.orient === 'x-') { a[j] = -x; a[j + 2] = -z; } else if (d.orient === 'z-') { a[j] = -z; a[j + 2] = x; }
+      else if (d.orient === 'yfwd') { a[j] = y; a[j + 1] = z; a[j + 2] = x; }        // mantle first, like a jet
+      else if (d.orient === 'yback') { a[j] = -y; a[j + 1] = -z; a[j + 2] = x; }     // arms first, flat side down
+      if (!isFinite(a[j] + a[j + 1] + a[j + 2])) { a[j] = a[j + 1] = a[j + 2] = 0; a[j + 3] = 0; }
+      if (fi === 0) for (var c = 0; c < 3; c++) { lo[c] = Math.min(lo[c], a[j + c]); hi[c] = Math.max(hi[c], a[j + c]); }
+    }
+  });
+  var raw = d.raw || d.rawT, ctr = ref ? ref.ctr : raw ? [0, 0, 0] : [(lo[0] + hi[0]) / 2, d.base ? lo[1] : (lo[1] + hi[1]) / 2, (lo[2] + hi[2]) / 2];
+  if (!ref) { d.ctr = ctr; d.scale = raw ? 1 : d.len / Math.max(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]); d.rad = 0.5 * len(sub(hi, lo)) * d.scale; d.N = N; }
+  var rows = Math.ceil(K * N / TW), buf = new Float32Array(TW * rows * 4);
+  for (k = 0; k < K; k++) {
+    var src = frames[k], off = k * N * 4;
+    for (var i = 0; i < N * 4; i += 4) { buf[off + i] = src[i] - ctr[0]; buf[off + i + 1] = src[i + 1] - ctr[1]; buf[off + i + 2] = src[i + 2] - ctr[2]; buf[off + i + 3] = src[i + 3]; }
+  }
+  var tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, TW, rows, 0, gl.RGBA, gl.FLOAT, buf);
+  [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach(function (p) { gl.texParameteri(gl.TEXTURE_2D, p, gl.NEAREST); });
+  [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach(function (p) { gl.texParameteri(gl.TEXTURE_2D, p, gl.CLAMP_TO_EDGE); });
+  if (ref && N !== d.N) return null;
+  return tex;
+}
+
+/* ================================================================== reef layout, shelters and colliders */
+var zones = [], scenery = [], colliders = [], fx = [];
+function place(id, x, z, s, yaw) { var o = { d: SP[id], pos: [x, floorY(x, z) - 3, z], s: s, yaw: yaw, frame: rnd(x + z) * 8, alpha: 1 }; scenery.push(o); return o; }
+function buildReef() {
+  scenery.push({ d: SP.sand, pos: [0, 0, 0], s: 1, yaw: 0, frame: 0, alpha: 1, fixed: true });
+  [[-1080, 20], [-320, -40], [500, 30], [1170, -10]].forEach(function (c, i) {
+    var yaw = (rnd(i) - 0.5) * 0.4, o = place('arch', c[0], c[1], 1, yaw);
+    zones.push({ type: 'cave', c: [c[0], floorY(c[0], c[1]) + 55, c[1]], r: 88 });
+    for (var k = 0; k <= 10; k++) {                  // the rock of the arch, as a chain of spheres
+      var a = k / 10 * Math.PI, lx = ARCH_R * Math.cos(a), ly = ARCH_R * Math.sin(a) * 1.05;
+      colliders.push({ c: [o.pos[0] + lx * Math.cos(yaw), o.pos[1] + ly, o.pos[2] - lx * Math.sin(yaw)], r: 34 });
+    }
+  });
+  [[-760, 40], [-120, 70], [880, -60], [-1320, -300], [-560, 360], [260, -380], [700, 330], [1300, 280], [60, 250]].forEach(function (c, i) {
+    var s = 0.8 + 0.5 * rnd(i + 40), o = place('coral', c[0], c[1], s, rnd(i + 50) * 6.28);
+    zones.push({ type: 'coral', c: [c[0], floorY(c[0], c[1]) + 60 * s, c[1]], r: 75 * s });
+    colliders.push({ c: add(o.pos, [0, 18 * s, 0]), r: 16 * s });
+  });
+  [[-620, -30], [180, 20], [980, 60], [-980, 300], [420, -260], [-240, -330]].forEach(function (c, i) {
+    var o = place('anemone', c[0], c[1], 1, rnd(i + 70) * 6.28);
+    zones.push({ type: 'anemone', c: [c[0], floorY(c[0], c[1]) + 35, c[1]], r: 50 });
+    colliders.push({ c: add(o.pos, [0, 14, 0]), r: 24 });
+  });
+  ['urchin', 'starfish', 'seacucumber', 'featherstar'].forEach(function (id, t) {   // the floor is alive too
+    for (var q = 0; q < [11, 10, 7, 6][t]; q++) {
+      var fx0 = (rnd(q * 7 + t * 97 + 300) - 0.5) * 2 * WX, fz0 = (rnd(q * 11 + t * 53 + 400) - 0.5) * 2 * WZ;
+      place(id, fx0, fz0, 0.8 + 0.5 * rnd(q + t * 31 + 500), rnd(q + t * 17 + 600) * 6.28);
+    }
+  });
+  for (var i = 0; i < 14; i++) {
+    var x = (rnd(i + 90) - 0.5) * 2 * WX, z = (rnd(i + 110) - 0.5) * 2 * WZ, s = 0.6 + 1.1 * rnd(i + 130);
+    var o = place('boulder', x, z, s, rnd(i + 150) * 6.28);
+    colliders.push({ c: o.pos.slice(), r: 52 * s });
+  }
+}
+function collide(a) {                                 // push out of rock, slide along it
+  var ra = a.d.len * 0.22;
+  for (var i = 0; i < colliders.length; i++) {
+    var c = colliders[i], dx = a.pos[0] - c.c[0], dy = a.pos[1] - c.c[1], dz = a.pos[2] - c.c[2], rr = c.r + ra;
+    var d2 = dx * dx + dy * dy + dz * dz;
+    if (d2 < rr * rr && d2 > 1e-6) {
+      var d = Math.sqrt(d2), n = [dx / d, dy / d, dz / d];
+      a.pos = add(a.pos, scl(n, rr - d));
+      var vn = dot(a.vel, n); if (vn < 0) a.vel = sub(a.vel, scl(n, vn));
+    }
+  }
+}
+
+/* ================================================================== agents */
+var agents = [], player = null, swarms = [];
+function randWater(d) { return [(Math.random() - 0.5) * 2 * (WX - 80), d.y ? d.y[0] + Math.random() * (d.y[1] - d.y[0]) : 200, (Math.random() - 0.5) * 2 * (WZ - 60)]; }
+function zonesOf(t) { return zones.filter(function (z) { return z.type === t; }); }
+function spawnPos(a) {
+  var d = a.d, p;
+  if (d.id === 'moray') { a.home = a.home || pick(zonesOf('cave')); p = add(a.home.c, [0, -15, 0]); }
+  else if (d.id === 'clownfish') { a.home = pick(zonesOf('anemone')); p = add(a.home.c, [(Math.random() - 0.5) * 60, 20, (Math.random() - 0.5) * 60]); }
+  else if (d.id === 'shrimp') { a.home = pick(zones.filter(function (z) { return z.type !== 'anemone'; })); p = add(a.home.c, [(Math.random() - 0.5) * 120, -30, (Math.random() - 0.5) * 120]); }
+  else if (d.id === 'lionfish') { a.home = pick(zonesOf('coral')); p = add(a.home.c, [(Math.random() - 0.5) * 200, 40, (Math.random() - 0.5) * 200]); }
+  else if (d.id === 'copepod') { a.swarm = a.swarm || pick(swarms); p = add(a.swarm.c, [(Math.random() - 0.5) * 80, (Math.random() - 0.5) * 60, (Math.random() - 0.5) * 80]); }
+  else if (d.id === 'octopus') { a.home = pick(zonesOf('cave')); p = add(a.home.c, [(Math.random() - 0.5) * 160, 0, (Math.random() - 0.5) * 160]); }
+  else if (d.id === 'seahorse' || d.id === 'cuttlefish') { a.home = pick(zonesOf('coral')); p = add(a.home.c, [(Math.random() - 0.5) * 120, 10, (Math.random() - 0.5) * 120]); }
+  else if (d.id === 'crab' || d.id === 'hermit') { a.home = pick(zones.filter(function (z) { return z.type !== 'anemone'; })); p = add(a.home.c, [(Math.random() - 0.5) * 260, 0, (Math.random() - 0.5) * 260]); }
+  else p = randWater(d);
+  if (d.floor) p[1] = floorY(p[0], p[2]);
+  if (!a.player && player && dist(p, player.pos) < 260 && d.eats.length) p = randWater(d);   // don't respawn a hunter on top of you
+  p[1] = Math.max(p[1], floorY(p[0], p[2]) + d.len * 0.3 + 6);
+  return p;
+}
+function makeAgent(id, isPlayer) {
+  var d = SP[id], a = { d: d, vel: [0, 0, 0], yaw: Math.random() * 6.28, pitch: 0, bank: 0, frame: Math.random() * d.K, wp: null, wt: 0, stam: 1, sated: 0, dead: 0,
+    target: null, retarget: 0, player: !!isPlayer, alpha: 1, s: 1, morph: 0, scared: 0, off: [Math.random(), Math.random(), Math.random()] };
+  if (id === 'copepod') a.swarm = pick(swarms);
+  a.pos = spawnPos(a);
+  return a;
+}
+function populate(mix) { agents.length = 0; Object.keys(mix).forEach(function (id) { for (var i = 0; i < mix[id]; i++) agents.push(makeAgent(id)); }); }
+function immune(t) { return t.player ? (t.flare > 0 || t.morph > 0.6 || t.tuck > 0) : t.morph > 0.6; }
+function inInk(t) { for (var i = 0; i < fx.length; i++) { var f = fx[i]; if (f.d === SP.ink && f.age < f.life * 0.85 && dist(f.pos, t.pos) < 115) return true; } return false; }
+function hiddenFrom(t, p) {
+  if (t.player && inInk(t)) return 'ink';
+  for (var i = 0; i < zones.length; i++) {
+    var z = zones[i];
+    if (dist(t.pos, z.c) < z.r && canHide(t.d.id, z) && !canEnter(p.d.id, z) && dist(t.pos, p.pos) > p.d.len * 0.35 + 18) return z;
+  }
+  return null;
+}
+function hideZone(a) { for (var i = 0; i < zones.length; i++) { var z = zones[i]; if (dist(a.pos, z.c) < z.r && canHide(a.d.id, z)) return z; } return null; }
+function nearestHide(a) { var best = null, bd = 1e9; zones.forEach(function (z) { if (!canHide(a.d.id, z)) return; var dd = dist(a.pos, z.c); if (dd < bd) { bd = dd; best = z; } }); return best; }
+function everyone() { return player && player.dead <= 0 ? agents.concat([player]) : agents; }
+
+function steer(a, des, dt) {
+  var d = a.d, dv = sub(des, a.vel), l = len(dv), mx = (d.acc || 100) * dt * (a.player ? 1.6 : 1);
+  if (l > mx) dv = scl(dv, mx / l);
+  a.vel = add(a.vel, dv); a.pos = add(a.pos, scl(a.vel, dt));
+  collide(a);
+  var fy = floorY(a.pos[0], a.pos[2]) + d.len * 0.22 + 4;
+  if (a.pos[1] < fy) { a.pos[1] = fy; if (a.vel[1] < 0) a.vel[1] *= -0.2; }
+  if (a.pos[1] > SURF) { a.pos[1] = SURF; a.vel[1] = Math.min(a.vel[1], 0); }
+  a.pos[0] = clamp(a.pos[0], -WX - 60, WX + 60); a.pos[2] = clamp(a.pos[2], -WZ - 60, WZ + 60);
+  var sp = len(a.vel), hv = Math.hypot(a.vel[0], a.vel[2]);
+  if (d.floor) { a.pos[1] = floorY(a.pos[0], a.pos[2]) + d.len * (d.hover || 0.25); a.vel[1] = 0; }
+  if (d.vertical) { a.yaw += dt * 0.12; a.pitch = 0; a.bank = 0; }
+  else if (sp > 4 && !(a.player && a.cy !== undefined)) {
+    var ty = Math.atan2(-a.vel[2], a.vel[0]), step = adiff(a.yaw, ty) * Math.min(1, dt * (d.turn + 1.5));
+    a.yaw += step;
+    a.bank += (clamp(-step / Math.max(dt, 1e-3) * 0.28, -0.6, 0.6) - a.bank) * Math.min(1, dt * 3);
+  }
+  if (!d.vertical && !d.upright && !d.floor && sp > 4) a.pitch += (clamp(Math.atan2(a.vel[1], hv), -0.75, 0.75) * 0.8 - a.pitch) * Math.min(1, dt * 3);
+  if (d.upright || d.floor) { a.pitch *= 0.9; a.bank *= 0.9; }
+  a.frame = (a.frame + dt / d.per * d.K * (0.6 + 0.9 * Math.min(1.6, sp / Math.max(8, d.cruise)))) % d.K;
+}
+function soft(des, a) {
+  var d = a.d, p = a.pos, fy = floorY(p[0], p[2]);
+  if (p[1] < fy + d.len * 0.4 + 12) des[1] += 40;
+  if (p[1] > SURF - 40) des[1] -= 40;
+  if (p[0] > WX) des[0] -= 60; if (p[0] < -WX) des[0] += 60;
+  if (p[2] > WZ) des[2] -= 60; if (p[2] < -WZ) des[2] += 60;
+  return des;
+}
+function stingsNear(a) {                             // jellyfish and siphonophore tentacles: a capsule under the bell
+  for (var i = 0; i < agents.length; i++) {
+    var s = agents[i], sd = s.d; if (!sd.sting || s === a || s.dead > 0) continue;
+    var dx = a.pos[0] - s.pos[0], dz = a.pos[2] - s.pos[2], dy = a.pos[1] - s.pos[1], h = Math.hypot(dx, dz), tall = sd.tall || 40;
+    if (h < sd.sting + a.d.len * 0.3 && dy < tall * 0.6 && dy > -tall - 60) return s;
+  }
+  return null;
+}
+function think(a, dt, all) {
+  var d = a.d, huntingBefore = player && a.target === player;
+  if (a.dead > 0) { a.dead -= dt; a.s = Math.max(0, a.dead / 0.35); if (a.dead <= 0) { a.pos = spawnPos(a); a.vel = [0, 0, 0]; a.s = 1; a.target = null; a.morph = 0; } return; }
+  a.sated = Math.max(0, a.sated - dt); a.scared = Math.max(0, a.scared - dt);
+  var des = null, flee = [0, 0, 0], threat = 0;
+  for (var i = 0; i < all.length; i++) {
+    var p = all[i]; if (p === a || p.dead > 0 || p.d.eats.indexOf(d.id) < 0) continue;
+    var dd = dist(a.pos, p.pos), fr = 90 + p.d.len * 0.9;
+    if (dd < fr && !hiddenFrom(a, p)) { flee = add(flee, scl(nrm(sub(a.pos, p.pos)), (fr - dd) / fr)); threat++; }
+  }
+  if (d.id === 'pufferfish') a.morph += ((threat ? 1 : 0) - a.morph) * Math.min(1, dt * (threat ? 4 : 0.8));
+  if (a.scared > 0 && player) { des = scl(nrm(sub(a.pos, player.pos)), d.burst * 0.8); a.target = null; }
+  else if (threat && d.cruise > 10) {
+    var hz = hideZone(a) || nearestHide(a), away = nrm(flee);
+    if (hz && dist(a.pos, hz.c) < 320) away = nrm(add(away, scl(nrm(sub(hz.c, a.pos)), 1.4)));
+    des = scl(away, d.burst * a.stam * (1 - 0.7 * a.morph)); a.stam = Math.max(0.35, a.stam - dt * 0.25);
+  } else if (d.eats.length && a.sated <= 0) {
+    a.retarget -= dt;
+    if (a.retarget <= 0) {
+      a.retarget = 0.4; a.target = null; var best = d.sense;
+      for (i = 0; i < all.length; i++) {
+        var q = all[i]; if (q === a || q.dead > 0 || d.eats.indexOf(q.d.id) < 0 || q.invuln > 0 || immune(q)) continue;
+        var dq = dist(a.pos, q.pos), leash = LV.leash || d.leash;
+        if (dq < best && !hiddenFrom(q, a) && (!d.leash || dist(q.pos, a.home.c) < leash)) { best = dq; a.target = q; }
+      }
+    }
+    var t = a.target;
+    if (t && (t.dead > 0 || hiddenFrom(t, a))) t = a.target = null;
+    if (t && immune(t)) { a.target = null; a.scared = 1.2; t = null; }    // bounced off spines or venom
+    if (t) {
+      des = scl(nrm(sub(t.pos, a.pos)), d.burst * a.stam); a.stam = Math.max(0.3, a.stam - dt * 0.18);
+      if (dist(a.pos, t.pos) < d.len * 0.3 + t.d.len * 0.35) {
+        if (t.player) playerEaten(a); else { t.dead = 0.35; }
+        a.sated = d.id === 'shark' ? 6 : 3.5; a.target = null;
+      }
+    }
+  }
+  if (!des) {
+    a.stam = Math.min(1, a.stam + dt * 0.2);
+    if (d.id === 'copepod') {
+      var o = a.off, sc = a.swarm.c;
+      des = scl(sub(add(sc, [Math.sin(o[0] * 40 + now * 0.7) * 50, Math.sin(o[1] * 40 + now * 0.9) * 35, Math.cos(o[2] * 40 + now * 0.6) * 50]), a.pos), 1.8);
+    } else {
+      a.wt -= dt;
+      if (!a.wp || a.wt <= 0 || dist(a.pos, a.wp) < 25) {
+        a.wt = 3 + Math.random() * 5;
+        if (a.home) { var r = d.id === 'moray' ? 50 : d.id === 'lionfish' ? 220 : d.floor ? 200 : 90; a.wp = add(a.home.c, [(Math.random() - 0.5) * 2 * r, (Math.random() - 0.3) * r * 0.6, (Math.random() - 0.5) * 2 * r]); }
+        else a.wp = randWater(d);
+      }
+      var tw = sub(a.wp, a.pos); des = scl(nrm(tw), Math.min(d.cruise, len(tw)));
+    }
+  }
+  if (d.id === 'moray' && a.home && dist(a.pos, a.home.c) > (LV.leash || d.leash)) des = scl(nrm(sub(a.home.c, a.pos)), d.cruise * 2.5);
+  for (i = 0; i < zones.length; i++) {
+    var z = zones[i]; if (canEnter(d.id, z)) continue;
+    var dz = dist(a.pos, z.c), rr = z.r + d.len * 0.25;
+    if (dz < rr) des = add(des, scl(nrm(sub(a.pos, z.c)), (rr - dz) * 4));
+  }
+  if (d.len < 120 && d.id !== 'seaturtle' && !d.sting) {
+    var sj = stingsNear(a); if (sj) des = add(des, scl(nrm(sub(a.pos, sj.pos)), 60));
+  }
+  if (player && a.target === player) { if (dist(a.pos, player.pos) < (d.len * 0.3 + player.d.len * 0.35) * 1.9) a.close = true; }
+  else if (huntingBefore && a.close) { a.close = false; if (player.dead <= 0 && game.state === 'play') closeCall(a); }
+  steer(a, soft(des, a), dt);
+}
+function closeCall(a) { score(2, 'close call', true); logEv('close'); }
+
+/* ================================================================== player and abilities */
+var cam = 'chase', input = [0, 0], keys = {}, dashing = false, abHeld = false, joy = null, now = 0;
+var game = { state: 'loading', time: 60, score: 0, ate: {}, deaths: [], species: 'lionfish', level: 0 };
+function newPlayer(id) {
+  player = makeAgent(id, true);
+  var hz = nearestHide({ d: SP[id], pos: [-200, 100, 0] });
+  player.pos = hz ? add(hz.c, [0, 30, 0]) : [-200, floorY(-200, 0) + 180, 0]; player.yaw = 0; player.cy = 0; player.invuln = 2; player.stam = 1;
+  player.ab = { cd: 0, t: 0, meter: 1 }; player.flare = 0; player.tuck = 0; player.stun = 0;
+}
+function useAbility(down) {
+  if (!player || player.dead > 0 || game.state !== 'play') return;
+  var ab = player.ab, id = player.d.id;
+  if (id === 'pufferfish') { abHeld = down; return; }
+  if (!down || ab.cd > 0) return;
+  if (id === 'lionfish') {
+    player.flare = 2.5; ab.cd = 9; sfx('flare');
+    agents.forEach(function (a) { if (a.d.eats.indexOf('lionfish') >= 0 && dist(a.pos, player.pos) < 320) { a.scared = 2.5; a.target = null; } });
+  } else if (id === 'octopus') {
+    ab.cd = 8; sfx('ink'); fx.push({ d: SP.ink, pos: player.pos.slice(), s: 1, age: 0, life: 3.2 });
+    agents.forEach(function (a) { if (a.target === player || (a.d.eats.indexOf('octopus') >= 0 && dist(a.pos, player.pos) < 280)) { a.target = null; a.scared = 2.6; } });
+    player.vel = add(player.vel, scl(fwdOf(player.yaw, player.pitch), 180));
+  } else if (id === 'moray') { ab.t = 0.5; ab.cd = 2.4; sfx('lunge'); }
+  else if (id === 'seaturtle') { player.tuck = 2.4; ab.cd = 7; sfx('tuck'); }
+  else if (id === 'clownfish') {
+    var best = null, bd = 1e9; zonesOf('anemone').forEach(function (z) { var dd = dist(z.c, player.pos); if (dd < bd) { bd = dd; best = z; } });
+    ab.t = Math.min(2.4, 0.4 + bd / 240); ab.cd = 6; ab.home = best; sfx('dart');
+  }
+}
+function playerEaten(by) {
+  if (!player || player.dead > 0 || player.invuln > 0 || game.state !== 'play' || immune(player)) return;
+  player.dead = 1.3; game.deaths.push({ by: by.d.name, at: 60 - game.time }); game.combo = 0;
+  eatenAt = now; eatenBy = by.d.name;
+  shake = 1; sfx('eaten'); fx.push({ d: SP.burst, pos: player.pos.slice(), s: 1.8, age: 0, life: 0.55, tint: [[255, 150, 130], [180, 60, 50]] });
+}
+function updatePlayer(dt) {
+  var a = player, d = a.d, ab = a.ab;
+  a.invuln = Math.max(0, (a.invuln || 0) - dt); a.flare = Math.max(0, a.flare - dt); a.tuck = Math.max(0, a.tuck - dt); a.stun = Math.max(0, a.stun - dt);
+  ab.cd = Math.max(0, ab.cd - dt); ab.t = Math.max(0, ab.t - dt);
+  if (a.dead > 0) {
+    a.dead -= dt;
+    if (a.dead <= 0) { var hs = zones.filter(function (z) { return canHide(d.id, z); }); a.pos = hs.length ? add(pick(hs).c, [0, 10, 0]) : randWater({ y: [200, 380] }); a.vel = [0, 0, 0]; a.invuln = 2.5; a.morph = 0; }
+    return;
+  }
+  if (d.id === 'pufferfish') {                        // inflate while held, as long as the breath lasts
+    var inflating = abHeld && ab.meter > 0.02;
+    ab.meter = clamp(ab.meter + (inflating ? -dt / 4 : dt / 7), 0, 1);
+    a.morph += ((inflating ? 1 : 0) - a.morph) * Math.min(1, dt * (inflating ? 5 : 2.5));
+  }
+  var ix = clamp(input[0] + ((keys.ArrowRight || keys.KeyD) ? 1 : 0) - ((keys.ArrowLeft || keys.KeyA) ? 1 : 0), -1, 1);
+  var iy = clamp(input[1] + ((keys.ArrowUp || keys.KeyW) ? 1 : 0) - ((keys.ArrowDown || keys.KeyS) ? 1 : 0), -1, 1);
+  if (a.stun > 0) { ix *= 0.2; iy *= 0.2; }
+  var dash = (dashing || keys.Space || keys.ShiftLeft) && a.stam > 0.05 && a.morph < 0.3 && a.tuck <= 0;
+  a.stam = clamp(a.stam + (dash ? -dt * 0.55 : dt * 0.22), 0, 1);
+  var top = (d.pcruise || d.cruise) * 2.1 * (dash ? 1.9 : 1) * (1 - 0.7 * a.morph) * (a.tuck > 0 ? 0.3 : 1) * (a.stun > 0 ? 0.4 : 1), des;
+  var lunging = d.id === 'moray' && ab.t > 0;
+  if (lunging) {                                      // moray strike: straight down the line of sight, very fast
+    des = scl(fwdOf(a.cy !== undefined ? a.cy : a.yaw, a.pitch), (d.pcruise || d.cruise) * 2.1 * 3.4);
+  } else if (ab.t > 0 && ab.home && dist(a.pos, ab.home.c) > 18) {
+    des = scl(nrm(sub(ab.home.c, a.pos)), d.cruise * 2.1 * 2.3);
+    a.cy = Math.atan2(-des[2], des[0]);
+  } else if (cam === 'side') { a.cy = undefined; des = [ix * top, iy * top, -a.pos[2] * 1.4]; }
+  else if (cam === 'top') { a.cy = undefined; var hold = floorY(a.pos[0], a.pos[2]) + 110; des = [ix * top, (hold - a.pos[1]) * 1.2, -iy * top]; }
+  else {
+    if (a.cy === undefined) a.cy = a.yaw;
+    a.cy -= ix * 2.0 * dt;
+    des = scl(fwdOf(a.cy, iy * 0.8), top * (dash ? 1 : 0.62));
+  }
+  steer(a, soft(des, a), dt);
+  if (a.cy !== undefined) {
+    a.yaw += adiff(a.yaw, a.cy) * Math.min(1, dt * 6);
+    a.bank += (clamp(-ix * 0.5, -0.5, 0.5) - a.bank) * Math.min(1, dt * 4);
+  }
+  if (a.stun <= 0 && d.id !== 'seaturtle' && d.len < 160) {   // jellyfish sting everyone but turtles
+    var sj = stingsNear(a);
+    if (sj) { a.stun = 1.2; game.combo = 0; toast('Stung by a ' + sj.d.name, 'warn'); sfx('sting'); a.vel = scl(nrm(sub(a.pos, sj.pos)), 120); }
+  }
+  if (a.morph > 0.3 || a.tuck > 0) return;            // can't bite while puffed up or tucked in
+  var reach = lunging ? 1.5 : 1, mouth = add(a.pos, scl(fwdOf(a.yaw, a.pitch), d.len * 0.35));   // bites happen at the mouth, not the middle
+  for (var i = 0; i < agents.length; i++) {
+    var q = agents[i];
+    if (q.dead > 0 || d.eats.indexOf(q.d.id) < 0 || immune(q)) continue;
+    if (dist(mouth, q.pos) < (Math.max(16, d.len * 0.22) + q.d.len * 0.45) * reach) {
+      q.dead = 0.35;
+      game.ate[q.d.id] = (game.ate[q.d.id] || 0) + 1;
+      game.combo = now - game.lastEat < 3 ? game.combo + 1 : 1; game.lastEat = now; game.bestCombo = Math.max(game.bestCombo, game.combo);
+      score((POINTS[q.d.id] || 1) * Math.min(game.combo, 3), q.d.name, false);
+      sfx('chomp');
+      fx.push({ d: SP.burst, pos: q.pos.slice(), s: 0.5 + q.d.len / 60, age: 0, life: 0.55 });
+      kick = 1;
+    }
+  }
+}
+function score(pts, what, bonus) {
+  game.score += pts;
+  var c = !bonus && game.combo > 1 ? '  ×' + Math.min(game.combo, 3) : '';
+  toast((bonus ? what.charAt(0).toUpperCase() + what.slice(1) + ' +' + pts : '+' + pts + ' ' + what) + c, bonus ? 'bonus' : '');
+}
+var toasts = [], eatenAt = -9, eatenBy = '', overlayCard = null;
+function toast(t, kind) { toasts.push({ t: t, at: now, kind: kind || '' }); if (toasts.length > 5) toasts.shift(); }
+
+/* ================================================================== camera */
+var eye = [0, 200, 700], ctr = [0, 150, 0], up = [0, 1, 0], fov = 0.9, shake = 0, kick = 0;
+function camera(dt) {
+  var p = player && player.dead <= 0 ? player.pos : player ? player.pos : [Math.sin(now * 0.05) * 700, 230, Math.cos(now * 0.04) * 200];
+  var back = clamp(1.05 / (cv.clientWidth / Math.max(1, cv.clientHeight)), 1, 1.7), de, dc, du, df;
+  var mode = player ? cam : 'orbit';
+  if (mode === 'orbit') { dc = p; de = add(p, [Math.sin(now * 0.06) * 420, 120, Math.cos(now * 0.06) * 420]); du = [0, 1, 0]; df = 0.9; }
+  else if (mode === 'side') { dc = [p[0], clamp(p[1], 110, 460) + 10, p[2] * 0.3]; de = add(dc, [0, 40, 560 * back]); du = [0, 1, 0]; df = 0.82; }
+  else if (mode === 'top') { dc = p.slice(); de = add(dc, [0, 660 * back, 170]); du = [0, 0, -1]; df = 0.82; }
+  else {
+    var f = fwdOf(player.yaw, player.pitch * 0.6), spd = len(player.vel) / (player.d.cruise * 2.1);
+    var bk = (player.d.len * 1.45 + 82) * (1 + 0.12 * spd) * (1 + 0.5 * player.morph);
+    dc = add(p, add(scl(f, 150), [0, 16, 0])); de = add(sub(p, scl(f, bk)), [0, 30 + player.d.len * 0.45, 0]); du = [0, 1, 0];
+    df = 0.95 + 0.14 * clamp(spd - 0.7, 0, 1);         // a touch wider when sprinting
+  }
+  var k = 1 - Math.exp(-dt * (mode === 'chase' ? 6 : 4));
+  eye = mix(eye, de, k); ctr = mix(ctr, dc, k); up = nrm(mix(up, du, k)); fov += (df - fov) * k;
+  for (var i = 0; i < colliders.length; i++) {       // keep the lens out of the rock
+    var c = colliders[i], dd = dist(eye, c.c), rr = c.r + 14;
+    if (dd < rr) eye = add(c.c, scl(nrm(sub(eye, c.c)), rr));
+  }
+  eye[1] = Math.max(eye[1], floorY(eye[0], eye[2]) + 14);
+  shake = Math.max(0, shake - dt * 2.2); kick = Math.max(0, kick - dt * 5);
+}
+
+/* ================================================================== render */
+var dpr = 1, stats = { pts: 0, draws: 0 }, VPm = null, snapNext = false, snap = null;
+function resize() {
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var w = Math.round(cv.clientWidth * dpr), h = Math.round(cv.clientHeight * dpr);
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; ui.width = w; ui.height = h; }
+}
+function render() {
+  resize(); gl.viewport(0, 0, cv.width, cv.height);
+  var e = eye;
+  if (shake > 0 || kick > 0) { var j = shake * 9 + kick * 2.5; e = add(eye, [(hsh(now * 97.1) - 0.5) * j, (hsh(now * 57.3 + 1) - 0.5) * j, (hsh(now * 31.7 + 2) - 0.5) * j]); }   // no Math.random here, so recorded rounds replay exactly
+  var P = persp(fov, cv.width / cv.height, 4, 4200), V = lookAt(e, ctr, up), VP = mul4(P, V); VPm = VP;
+  var fwd = nrm(sub(ctr, e)), light = (1 - clamp(-fwd[1], 0, 1) * 0.75) * LV.light;
+  gl.useProgram(BG.p); gl.uniform1f(BG.u.uL, Math.min(1, light)); gl.uniform3fv(BG.u.uDeep, DEEP); gl.uniform3fv(BG.u.uShal, SHAL); gl.drawArrays(gl.TRIANGLES, 0, 3);
+  var u = PP.u, focal = cv.height / 2 / Math.tan(fov / 2);
+  gl.useProgram(PP.p);
+  gl.uniformMatrix4fv(u.uVP, false, VP); gl.uniform3fv(u.uCam, e); gl.uniform3fv(u.uFog, mix(mix(DEEP, SHAL, 0.3), SHAL, Math.min(1, light) * 0.25));
+  gl.uniform2f(u.uFogP, 180, LV.fog); gl.uniform1f(u.uPx, focal); gl.uniform1f(u.uT, now);
+  gl.uniform1f(u.uMinPx, Math.max(1, dpr * 0.8)); gl.uniform1f(u.uMaxPx, 3.2 * dpr);
+  gl.uniform1i(u.uTex, 0); gl.uniform1i(u.uTex2, 1);
+  var list = scenery.concat(everyone().filter(function (a) { return a.s > 0.02; }), fx);
+  var st = { pts: 0, draws: 0 }, drawn = [];
+  for (var i = 0; i < list.length; i++) {
+    var o = list[i], d = o.d, c = o.pos;
+    if (!o.fixed) {
+      var sc = d.scale * (o.s || 1), cw = VP[3] * c[0] + VP[7] * c[1] + VP[11] * c[2] + VP[15], r = d.rad * (o.s || 1) * (1 + 0.6 * (o.morph || 0));
+      if (cw < -r) continue;
+      var cx = VP[0] * c[0] + VP[4] * c[1] + VP[8] * c[2] + VP[12], cy = VP[1] * c[0] + VP[5] * c[1] + VP[9] * c[2] + VP[13], m = r * focal / (cv.height / 2) * 1.3;
+      if (cx > cw + m || cx < -cw - m || cy > cw + m || cy < -cw - m) continue;
+      o.ppu = sc * focal / Math.max(cw, 1);
+    } else o.ppu = 1;
+    o.cd = o.fixed ? 1e9 : dist(c, e); drawn.push(o);
+  }
+  drawn.sort(function (a, b) { return b.cd - a.cd; });
+  drawn.push({ d: SP.snow, pos: [0, 0, 0], s: 1, frame: 0, alpha: 1, fixed: true, snow: true });
+  var lastTex = null;
+  for (i = 0; i < drawn.length; i++) {
+    o = drawn[i]; d = o.d;
+    var stride = o.fixed || o.player ? 1 : o.ppu < 0.16 ? 4 : o.ppu < 0.34 ? 2 : 1, n = Math.floor(d.N / stride); if (!n) continue;
+    if (d.tex !== lastTex) { gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, d.tex); lastTex = d.tex; }
+    var morph = d.tex2 ? (o.morph || 0) : 0;
+    if (morph > 0) { gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, d.tex2); }
+    gl.uniform1f(u.uMorph, morph);
+    gl.uniform1f(u.uGrow, d.grow || 1); gl.uniform1i(u.uN, d.N); gl.uniform1i(u.uK, d.K); gl.uniform1i(u.uStride, stride); gl.uniform1i(u.uMode, o.snow ? 1 : 0);
+    gl.uniform1f(u.uFrame, o.frame || 0); gl.uniform1f(u.uScale, d.scale * (o.s || 1));
+    var al = o.alpha, tint = o.tint || d.tint, near = tint[0];
+    if (o.player) {
+      al = 1.4 * (o.invuln > 0 ? 0.45 + 0.4 * Math.abs(Math.sin(now * 9)) : 1) * (hideZone(o) ? 0.8 : 1) * (o.flare > 0 ? 1.5 + 0.4 * Math.sin(now * 14) : 1);
+      near = mix(near, o.flare > 0 ? [255, 240, 220] : [255, 205, 140], o.flare > 0 ? 0.6 : 0.35);
+    }
+    if (o.age !== undefined) al = o.d === SP.ink ? 2.4 * (1 - Math.max(0, (o.age / o.life - 0.6) / 0.4)) : 1.4;
+    if (o.player && o.tuck > 0) al *= 0.8;
+    gl.uniform3fv(u.uNear, near); gl.uniform3fv(u.uFar, tint[1]);
+    gl.uniform1f(u.uAlpha, 96 / 255 * al * (o.snow ? 0.7 : 1) * (d.glow || 1));
+    gl.uniformMatrix3fv(u.uRot, false, rot3(o.yaw || 0, o.pitch || 0, o.bank || 0)); gl.uniform3fv(u.uPos, o.pos);
+    gl.drawArrays(gl.POINTS, 0, n);
+    st.pts += n; st.draws++;
+  }
+  stats = st;
+  if (snapNext) {                                       // grab this exact frame for the result card, before it is presented
+    snapNext = false; snap = document.createElement('canvas'); snap.width = cv.width; snap.height = cv.height; snap.getContext('2d').drawImage(cv, 0, 0);
+  }
+}
+
+/* ================================================================== edge markers: who is hunting you, where dinner is */
+function project(p) {
+  var m = VPm, x = m[0] * p[0] + m[4] * p[1] + m[8] * p[2] + m[12], y = m[1] * p[0] + m[5] * p[1] + m[9] * p[2] + m[13], w = m[3] * p[0] + m[7] * p[1] + m[11] * p[2] + m[15];
+  return { x: (x / Math.abs(w) * 0.5 + 0.5) * ui.width, y: (0.5 - y / Math.abs(w) * 0.5) * ui.height, behind: w <= 0, w: w };
+}
+function overlays() {
+  ux.clearRect(0, 0, ui.width, ui.height);
+  var W = ui.width, H = ui.height, serif = '"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif';
+  if (now - eatenAt < 0.7) {                           // red flash at the edges when you get eaten
+    var fa = 0.6 * (1 - (now - eatenAt) / 0.7), g = ux.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.25, W / 2, H / 2, Math.max(W, H) * 0.75);
+    g.addColorStop(0, 'rgba(226,122,98,0)'); g.addColorStop(1, 'rgba(226,122,98,' + fa.toFixed(3) + ')'); ux.fillStyle = g; ux.fillRect(0, 0, W, H);
+  }
+  ux.textAlign = 'center';
+  if (player && player.dead > 0 && game.state === 'play') {
+    ux.globalAlpha = clamp(player.dead / 0.3, 0, 1); ux.fillStyle = '#f7c9bb'; ux.font = 'italic ' + Math.round(34 * dpr) + 'px ' + serif;
+    ux.fillText('Eaten by a ' + eatenBy, W / 2, H * 0.47);
+  }
+  for (var i = toasts.length - 1; i >= 0; i--) {                // score pops, drawn on the game clock so recordings match play
+    var t = toasts[i], age = now - t.at; if (age > 1.3) { toasts.splice(i, 1); continue; }
+    var k = toasts.length - 1 - i;
+    ux.globalAlpha = clamp(1 - Math.max(0, age - 0.5) / 0.8, 0, 1);
+    ux.fillStyle = t.kind === 'warn' ? '#f2b3a3' : t.kind === 'bonus' ? '#f5e2b8' : '#e0a75e';
+    ux.font = 'italic ' + Math.round((t.kind === 'bonus' ? 24 : 21) * dpr) + 'px ' + serif;
+    ux.fillText(t.t, W / 2, H * 0.36 - age * 34 * dpr - k * 26 * dpr);
+  }
+  if (overlayCard) {                                   // title text for the recorded video
+    ux.globalAlpha = overlayCard.a; ux.fillStyle = '#eae6dc';
+    ux.font = '600 ' + Math.round(H * 0.11) + 'px ' + serif; ux.fillText(overlayCard.title, W / 2, H * 0.46);
+    ux.font = 'italic ' + Math.round(H * 0.036) + 'px ' + serif; ux.fillStyle = '#c9d2d2'; ux.fillText(overlayCard.sub, W / 2, H * 0.46 + H * 0.075);
+  }
+  ux.globalAlpha = 1; ux.textAlign = 'left';
+  if (!player || player.dead > 0 || game.state !== 'play' || !VPm) { $('#dread').style.opacity = 0; return; }
+
+  var W = ui.width, H = ui.height, pad = 34 * dpr, hunters = [], prey = [];
+  agents.forEach(function (a) {
+    if (a.dead > 0) return;
+    var d = dist(a.pos, player.pos);
+    if (a.target === player && d < 700) hunters.push({ a: a, d: d });
+    else if (player.d.eats.indexOf(a.d.id) >= 0 && !immune(a) && d < 900) prey.push({ a: a, d: d });
+  });
+  prey.sort(function (a, b) { return a.d - b.d; }); prey = prey.slice(0, 4);
+  function draw(list, col, hunt) {
+    list.forEach(function (h) {
+      var s = project(h.a.pos), cx = W / 2, cy = H / 2, on = !s.behind && s.x > pad && s.x < W - pad && s.y > pad && s.y < H - pad;
+      var close = clamp(1 - h.d / (hunt ? 700 : 900), 0.25, 1);
+      ux.strokeStyle = col; ux.fillStyle = col; ux.globalAlpha = close; ux.lineWidth = 1.5 * dpr;
+      if (on) {
+        var r = Math.max(10 * dpr, h.a.d.len * 0.45 * (cv.height / 2 / Math.tan(fov / 2)) / Math.max(1, s.w));
+        ux.beginPath();
+        if (hunt) ux.arc(s.x, s.y, r, 0, TAU); else ux.arc(s.x, s.y + r + 6 * dpr, 2.5 * dpr, 0, TAU);
+        hunt ? ux.stroke() : ux.fill();
+      } else {
+        var dx = s.x - cx, dy = s.y - cy; if (s.behind) { dx = -dx; dy = -dy; if (Math.abs(dx) + Math.abs(dy) < 1) dy = 1; }
+        var t = Math.min((W / 2 - pad) / Math.abs(dx || 1e-3), (H / 2 - pad) / Math.abs(dy || 1e-3)), ex = cx + dx * t, ey = cy + dy * t, an = Math.atan2(dy, dx);
+        ux.save(); ux.translate(ex, ey); ux.rotate(an); ux.beginPath();
+        var sz = (hunt ? 12 : 7) * dpr * (0.7 + 0.5 * close);
+        ux.moveTo(sz, 0); ux.lineTo(-sz * 0.7, sz * 0.75); ux.lineTo(-sz * 0.3, 0); ux.lineTo(-sz * 0.7, -sz * 0.75); ux.closePath(); ux.fill(); ux.restore();
+      }
+    });
+  }
+  draw(prey, 'rgba(224,167,94,0.9)', false);
+  draw(hunters, 'rgba(236,120,98,0.95)', true);
+  ux.globalAlpha = 1;
+  hunters.sort(function (a, b) { return a.d - b.d; });
+  var danger = hunters.length ? clamp(1 - hunters[0].d / 500, 0, 1) : 0;
+  $('#dread').style.opacity = (danger * 0.9).toFixed(2);
+  heartbeat(danger);
+}
+
+/* ================================================================== sound: all synthesized, no files */
+var AC = null, master = null, muted = true, beatT = 0;
+function audioInit() {
+  if (AC) return;
+  try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+  master = AC.createGain(); master.gain.value = muted ? 0 : 0.8; master.connect(AC.destination);
+  var n = AC.sampleRate * 4, buf = AC.createBuffer(1, n, AC.sampleRate), ch = buf.getChannelData(0), last = 0;
+  for (var i = 0; i < n; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; ch[i] = last * 3.5; }   // brown noise: the sea
+  var src = AC.createBufferSource(); src.buffer = buf; src.loop = true;
+  var lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 380;
+  var g = AC.createGain(); g.gain.value = 0.22; src.connect(lp); lp.connect(g); g.connect(master); src.start();
+  var lfo = AC.createOscillator(), lg = AC.createGain(); lfo.frequency.value = 0.08; lg.gain.value = 160; lfo.connect(lg); lg.connect(lp.frequency); lfo.start();
+}
+function tone(type, f0, f1, dur, vol, delay) {
+  if (!AC || muted) return;
+  var t = AC.currentTime + (delay || 0), o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.05);
+}
+var events = [];
+function logEv(k, v) { events.push({ t: now, k: k, v: v || 1 }); if (events.length > 4000) events.shift(); }
+function sfx(k) {
+  logEv(k);
+  if (k === 'chomp') { tone('sine', 520, 180, 0.12, 0.35); tone('triangle', 900, 300, 0.06, 0.12, 0.02); }
+  else if (k === 'eaten') { tone('sine', 110, 38, 0.6, 0.6); tone('sawtooth', 70, 30, 0.4, 0.08); }
+  else if (k === 'flare') { tone('triangle', 300, 1200, 0.35, 0.18); }
+  else if (k === 'dart') { tone('sine', 400, 900, 0.2, 0.2); }
+  else if (k === 'puff') { tone('sine', 160, 420, 0.3, 0.2); }
+  else if (k === 'ink') { tone('sine', 220, 70, 0.5, 0.3); tone('triangle', 140, 60, 0.4, 0.12, 0.05); }
+  else if (k === 'lunge') { tone('sawtooth', 180, 520, 0.18, 0.12); tone('sine', 300, 700, 0.15, 0.2); }
+  else if (k === 'tuck') { tone('sine', 300, 120, 0.25, 0.25); }
+  else if (k === 'sting') { tone('square', 1200, 900, 0.12, 0.06); tone('square', 1500, 1100, 0.1, 0.05, 0.08); }
+  else if (k === 'close') { tone('triangle', 660, 990, 0.18, 0.18); }
+  else if (k === 'win') { [0, 0.12, 0.24].forEach(function (d, i) { tone('sine', [523, 659, 784][i], [523, 659, 784][i], 0.35, 0.22, d); }); }
+}
+var lastBeatNow = 0;
+function heartbeat(danger) {
+  var dt = now - lastBeatNow; lastBeatNow = now;
+  if (danger <= 0) { beatT = 0; return; }
+  beatT -= dt;
+  if (beatT <= 0) { beatT = 0.95 - 0.5 * danger; logEv('beat', danger); tone('sine', 62, 40, 0.16, 0.25 + 0.4 * danger); tone('sine', 58, 38, 0.14, 0.18 + 0.3 * danger, 0.18); }
+}
+$('#mute').addEventListener('click', function () {
+  audioInit(); muted = !muted; if (master) master.gain.value = muted ? 0 : 0.8;
+  this.textContent = muted ? 'off' : 'on'; this.setAttribute('aria-label', muted ? 'Sound off' : 'Sound on');
+});
+
+/* ================================================================== progress (this browser only) */
+var SAVE = 'benthos-reef-v1', progress = {};
+try { progress = JSON.parse(localStorage.getItem(SAVE) || '{}') || {}; } catch (e) { progress = {}; }
+function starsOf(sp, l) { return (progress[sp] && progress[sp][l]) || 0; }
+function setStars(sp, l, s) { progress[sp] = progress[sp] || [0, 0, 0]; progress[sp][l] = Math.max(progress[sp][l] || 0, s); try { localStorage.setItem(SAVE, JSON.stringify(progress)); } catch (e) {} }
+
+/* ================================================================== loop */
+var last = performance.now(), fps = 60, hudT = 0, showPerf = /perf/.test(location.hash);
+var manual = false, pilot = null;
+function frame(t) {
+  if (manual) return;
+  var dt = Math.min(0.05, (t - last) / 1000); last = t;
+  fps += (1 / Math.max(dt, 1e-3) - fps) * 0.05;
+  tick(dt, true);
+  requestAnimationFrame(frame);
+}
+function tick(dt, draw) {
+  now += dt;
+  scenery.forEach(function (o) { if (o.d.K > 1) o.frame = (o.frame + dt / o.d.per * o.d.K) % o.d.K; });
+  for (var i = fx.length - 1; i >= 0; i--) { var f = fx[i]; f.age += dt; f.frame = Math.min(f.d.K - 1.001, f.age / f.life * (f.d.K - 1)); if (f.age > f.life) fx.splice(i, 1); }
+  swarms.forEach(function (s) { s.t -= dt; if (s.t <= 0 || !s.wp) { s.t = 6 + Math.random() * 6; s.wp = randWater({ y: [140, 420] }); } s.c = add(s.c, scl(nrm(sub(s.wp, s.c)), 14 * dt)); });
+  var all = everyone();
+  for (i = 0; i < agents.length; i++) think(agents[i], dt, all);
+  if (player && game.state === 'play') {
+    var wasPuff = player.morph > 0.5;
+    if (pilot) pilot(dt);
+    updatePlayer(dt);
+    if (!wasPuff && player.morph > 0.5) sfx('puff');
+    game.time -= dt;
+    if (game.time <= 0) endRound();
+  }
+  camera(dt);
+  if (draw) { render(); overlays(); } else heartbeatOnly();
+  hudT -= dt; if (hudT <= 0) { hudT = 0.2; hud(); }
+}
+function heartbeatOnly() {                              // keep danger-driven sound events flowing when not drawing
+  if (!player || player.dead > 0 || game.state !== 'play') return;
+  var best = 1e9; agents.forEach(function (a) { if (a.target === player) best = Math.min(best, dist(a.pos, player.pos)); });
+  heartbeat(best < 1e9 ? clamp(1 - best / 500, 0, 1) : 0);
+}
+function hud() {
+  $('#perf').hidden = !showPerf;
+  if (showPerf) $('#perf').innerHTML = '<b>' + Math.round(fps) + '</b> fps<br><b>' + Math.round(stats.pts / 1000) + 'k</b> points<br><b>' + stats.draws + '</b> draws';
+  if (!player || game.state === 'menu') return;
+  var s = Math.max(0, Math.ceil(game.time)), goal = GOALS[game.species][game.level];
+  $('#clock').textContent = Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2);
+  $('#goaltxt').textContent = game.score + ' of ' + goal + ' points';
+  $('#goalbar').style.width = Math.min(100, game.score / goal * 100) + '%';
+  $('#goal').classList.toggle('done', game.score >= goal);
+  var hunted = null;
+  if (player.dead <= 0) agents.forEach(function (a) { if (a.target === player && dist(a.pos, player.pos) < 420) hunted = a.d.name; });
+  var h = $('#hunted'); h.textContent = hunted ? 'A ' + hunted + ' is after you' : ''; h.classList.toggle('on', !!hunted);
+  var z = player.dead <= 0 ? hideZone(player) : null, hz = $('#hidden');
+  hz.textContent = z ? 'Safe in the ' + (z.type === 'cave' ? 'cave' : z.type) : player.morph > 0.6 ? 'Too spiky to swallow' : player.flare > 0 ? 'Spines out' : player.tuck > 0 ? 'Tucked in' : inInk(player) ? 'Hidden in ink' : '';
+  hz.classList.toggle('on', !!hz.textContent);
+  var ab = player.ab, btn = $('#ability'), p;
+  if (player.d.id === 'pufferfish') { p = ab.meter; btn.classList.toggle('on', player.morph > 0.5); btn.classList.toggle('wait', ab.meter < 0.05); }
+  else { var cdMax = { lionfish: 9, clownfish: 6, octopus: 8, moray: 2.4, seaturtle: 7 }[player.d.id]; p = 1 - ab.cd / cdMax; btn.classList.toggle('on', ab.t > 0 || player.flare > 0 || player.tuck > 0); btn.classList.toggle('wait', ab.cd > 0); }
+  btn.style.setProperty('--p', p.toFixed(3));
+  $('#dash').style.setProperty('--p', player.stam.toFixed(3));
+}
+
+/* ================================================================== rounds */
+function startRound() {
+  audioInit();
+  LV = LEVELS[game.level]; DEEP = LV.deep; SHAL = LV.shal;
+  game.state = 'play'; game.time = 60; game.score = 0; game.ate = {}; game.deaths = []; game.combo = 0; game.bestCombo = 0; game.lastEat = -9; game.t0 = now;
+  toasts.length = 0; fx.length = 0; events.length = 0; logEv('start');
+  swarms.length = 0; for (var i = 0; i < 3; i++) swarms.push({ c: randWater({ y: [160, 380] }), wp: null, t: 0 });
+  newPlayer(game.species); populate(LV.mix);
+  var mv = PLAYABLE.filter(function (o) { return o.id === game.species; })[0];
+  $('#ability').textContent = mv.move.toLowerCase(); $('#ability').setAttribute('aria-label', mv.move);
+  eye = add(player.pos, [0, 80, 300]); ctr = player.pos.slice();
+  $('#menu').hidden = true; $('#over').hidden = true; document.body.classList.add('playing');
+  hud();
+}
+function endRound() {
+  game.state = 'over'; game.time = 0; snapNext = true;
+  var goal = GOALS[game.species][game.level], passed = game.score >= goal;
+  var stars = passed ? 1 + (game.score >= Math.ceil(goal * 1.5) ? 1 : 0) + (game.deaths.length === 0 ? 1 : 0) : 0;
+  game.stars = stars; if (stars) setStars(game.species, game.level, stars);
+  if (passed) sfx('win'); else logEv('end');
+  $('#resTitle').textContent = passed ? LV.name + ' cleared' : 'Not quite';
+  $('#stars').innerHTML = [0, 1, 2].map(function (i) { return i < stars ? '★' : '<s>★</s>'; }).join('');
+  $('#score').textContent = game.score + ' of ' + goal + ' points as a ' + SP[game.species].name + '.';
+  var parts = Object.keys(game.ate).map(function (k) { var nm = SP[k].name; return game.ate[k] + ' ' + nm + (game.ate[k] > 1 && !/fish|shrimp/.test(nm) ? 's' : ''); });
+  var html = '<div>' + (parts.length ? 'Ate ' + parts.join(', ') + '.' : 'Ate nothing this time.') + '</div>';
+  if (game.bestCombo > 1) html += '<div>Best combo ×' + Math.min(3, game.bestCombo) + '.</div>';
+  html += game.deaths.length ? '<div>Eaten ' + (game.deaths.length === 1 ? 'once' : game.deaths.length + ' times') + ', ' + game.deaths.map(function (x) { var s = Math.max(1, Math.round(x.at)); return 'by a ' + x.by + ' ' + s + 's in'; }).join(', ') + '.</div>' : '<div>Nothing caught you.</div>';
+  if (!passed) html += '<div>Stars start at ' + goal + ' points. The third star is for not getting eaten.</div>';
+  $('#sum').innerHTML = html;
+  var hasNext = passed && game.level < LEVELS.length - 1;
+  $('#next').hidden = !hasNext; $('#again').className = hasNext ? 'ghost' : 'go'; $('#again').textContent = passed ? 'Play again' : 'Try again';
+  $('#saved').textContent = '';
+  $('#over').hidden = false; document.body.classList.remove('playing');
+}
+function showMenu() {
+  game.state = 'menu'; player = null; $('#over').hidden = true; $('#menu').hidden = false; document.body.classList.remove('playing');
+  renderMenu();
+}
+
+/* ================================================================== result card: a picture worth posting */
+var downloads = null;
+if (window.claude && window.claude.use) window.claude.use('downloads').then(function (d) { downloads = d; $('#card').hidden = !d; }).catch(function () { $('#card').hidden = true; });
+$('#card').hidden = true;
+function makeCard() {
+  var W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H; var g = c.getContext('2d');
+  g.fillStyle = '#031018'; g.fillRect(0, 0, W, H);
+  if (snap) { var s = Math.max(W / snap.width, H / snap.height); g.drawImage(snap, (W - snap.width * s) / 2, (H - snap.height * s) / 2, snap.width * s, snap.height * s); }
+  var gr = g.createLinearGradient(0, H * 0.45, 0, H); gr.addColorStop(0, 'rgba(3,16,24,0)'); gr.addColorStop(1, 'rgba(3,16,24,0.94)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  var serif = '"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif';
+  g.fillStyle = '#eae6dc'; g.font = 'italic 44px ' + serif; g.fillText('Benthos reef', 72, 110);
+  g.fillStyle = '#e0a75e'; g.font = '120px ' + serif; g.fillText([0, 1, 2].map(function (i) { return i < game.stars ? '★' : '☆'; }).join(' '), 66, H - 390);
+  g.fillStyle = '#eae6dc'; g.font = '600 76px ' + serif; g.fillText(game.score + ' points', 72, H - 270);
+  g.font = 'italic 44px ' + serif; g.fillStyle = '#c9d2d2';
+  g.fillText('as a ' + SP[game.species].name + ', ' + LV.name.toLowerCase() + ' reef', 72, H - 200);
+  g.font = '34px ' + serif; g.fillStyle = '#9eabac';
+  g.fillText(game.deaths.length ? 'Eaten by a ' + game.deaths[game.deaths.length - 1].by + '. Came back anyway.' : 'Nothing caught me.', 72, H - 140);
+  g.fillText('Every animal is a few dozen lines of trigonometry.', 72, H - 86);
+  return new Promise(function (res) { c.toBlob(res, 'image/png'); });
+}
+$('#card').addEventListener('click', function () {
+  if (!downloads) return;
+  var msg = $('#saved'); msg.textContent = 'Preparing…';
+  makeCard().then(function (blob) {
+    return downloads.save({ filename: 'benthos-reef-' + game.species + '-' + LV.name.toLowerCase() + '.png', data: blob });
+  }).then(function () { msg.textContent = 'Card saved.'; }).catch(function (e) {
+    msg.textContent = e && e.code === 'declined' ? '' : 'Saving isn’t available here.';
+  });
+});
+
+/* ================================================================== controls */
+document.querySelectorAll('.cams button').forEach(function (b) { b.addEventListener('click', function () { setCam(b.dataset.cam); }); });
+function setCam(c) { cam = c; document.querySelectorAll('.cams button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.cam === c)); }); }
+window.addEventListener('keydown', function (e) {
+  if (e.repeat && e.code === 'KeyE') return;
+  keys[e.code] = true;
+  if (e.code === 'Digit1') setCam('chase'); if (e.code === 'Digit2') setCam('side'); if (e.code === 'Digit3') setCam('top');
+  if (e.code === 'KeyE') useAbility(true);
+  if (e.code === 'KeyP') showPerf = !showPerf;
+  if (e.code === 'Space' || e.code.indexOf('Arrow') === 0) e.preventDefault();
+});
+window.addEventListener('keyup', function (e) { keys[e.code] = false; if (e.code === 'KeyE') useAbility(false); });
+var jEl = $('#joy');
+cv.addEventListener('pointerdown', function (e) {
+  if (joy) { dashing = true; return; }
+  joy = { id: e.pointerId, x: e.clientX, y: e.clientY };
+  jEl.style.left = e.clientX + 'px'; jEl.style.top = e.clientY + 'px'; jEl.style.display = 'block';
+  cv.setPointerCapture(e.pointerId);
+});
+cv.addEventListener('pointermove', function (e) {
+  if (!joy || e.pointerId !== joy.id) return;
+  var dx = (e.clientX - joy.x) / 56, dy = -(e.clientY - joy.y) / 56, l = Math.hypot(dx, dy);
+  if (l > 1) { dx /= l; dy /= l; }
+  input = [dx, dy]; jEl.firstElementChild.style.transform = 'translate(' + dx * 40 + 'px,' + (-dy * 40) + 'px)';
+});
+function release(e) {
+  if (joy && e.pointerId === joy.id) { joy = null; input = [0, 0]; jEl.style.display = 'none'; jEl.firstElementChild.style.transform = ''; }
+  else dashing = false;
+}
+cv.addEventListener('pointerup', release); cv.addEventListener('pointercancel', release);
+function holdBtn(el, on, off) {
+  el.addEventListener('pointerdown', function (e) { e.preventDefault(); el.setPointerCapture(e.pointerId); on(); });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (t) { el.addEventListener(t, off); });
+}
+holdBtn($('#dash'), function () { dashing = true; $('#dash').classList.add('on'); }, function () { dashing = false; $('#dash').classList.remove('on'); });
+holdBtn($('#ability'), function () { useAbility(true); }, function () { useAbility(false); });
+$('#go').addEventListener('click', startRound);
+$('#again').addEventListener('click', startRound);
+$('#next').addEventListener('click', function () { game.level = Math.min(LEVELS.length - 1, game.level + 1); startRound(); });
+$('#back').addEventListener('click', showMenu);
+if (matchMedia('(pointer:fine)').matches) $('#howto').textContent = 'Arrow keys or WASD to steer, space to sprint, E for your animal’s move. Keys 1, 2 and 3 switch between chase, side and top views.';
+
+function renderMenu() {
+  var ch = $('#choices'); ch.innerHTML = '';
+  PLAYABLE.forEach(function (o) {
+    var b = document.createElement('button'); b.className = 'choice'; b.setAttribute('aria-pressed', String(o.id === game.species));
+    b.innerHTML = '<b>' + META[o.id].name + '</b><span>' + o.move + '</span>';
+    b.addEventListener('click', function () { game.species = o.id; if (game.level > 0 && !starsOf(o.id, game.level - 1)) game.level = 0; renderMenu(); });
+    ch.appendChild(b);
+  });
+  var cur = PLAYABLE.filter(function (o) { return o.id === game.species; })[0];
+  $('#about').textContent = cur.about + ' Its move, ' + cur.move.toLowerCase() + ', ' + cur.hint + '.';
+  var lv = $('#levels'); lv.innerHTML = '';
+  LEVELS.forEach(function (L, i) {
+    var open = i === 0 || starsOf(game.species, i - 1) > 0, s = starsOf(game.species, i);
+    var b = document.createElement('button'); b.className = 'lvl'; b.disabled = !open; b.setAttribute('aria-pressed', String(i === game.level));
+    b.innerHTML = '<b>' + L.name + '</b><small>' + (open ? GOALS[game.species][i] + ' points, ' + L.note : 'clear ' + LEVELS[i - 1].name.toLowerCase() + ' first') + '</small><span class="st">' +
+      [0, 1, 2].map(function (k) { return k < s ? '★' : '☆'; }).join('') + '</span>';
+    b.addEventListener('click', function () { game.level = i; renderMenu(); });
+    lv.appendChild(b);
+  });
+}
+
+/* ================================================================== boot */
+(async function boot() {
+  renderMenu();
+  var ids = Object.keys(SP), t0 = performance.now(), bytes = 0;
+  for (var i = 0; i < ids.length; i++) {
+    var d = SP[ids[i]];
+    d.tex = bake(d, d.P);
+    if (d.alt) d.tex2 = bake(d, Object.assign({}, d.P, d.alt), d);
+    $('#load').style.width = ((i + 1) / ids.length * 100) + '%';
+    $('#go').textContent = 'Preparing ' + (d.name || ids[i]) + '…';
+    await new Promise(function (r) { setTimeout(r, 0); });
+  }
+  window.__bake = { ms: Math.round(performance.now() - t0) };
+  for (i = 0; i < 3; i++) swarms.push({ c: randWater({ y: [160, 380] }), wp: null, t: 0 });
+  buildReef(); populate(LEVELS[0].mix);
+  game.state = 'menu'; $('#go').disabled = false; $('#go').textContent = 'Dive in';
+  if (window.__manualBoot) manual = true;
+  requestAnimationFrame(frame);
+})();
+
+window.__game = { get player() { return player; }, game: game, agents: agents, zones: zones, SP: SP, setCam: setCam, start: startRound, end: endRound, stats: function () { return stats; },
+  fps: function () { return fps; }, input: function (x, y) { input = [x, y]; }, dash: function (b) { dashing = b; }, ability: useAbility, card: makeCard,
+  manual: function () { manual = true; }, step: function (dt, n, draw) { for (var i = 0; i < n; i++) tick(dt, draw && i === n - 1); },
+  setPilot: function (f) { pilot = f; }, overlay: function (o) { overlayCard = o; }, events: events, get now() { return now; },
+  hidden: function () { return player ? hideZone(player) || (inInk(player) ? 'ink' : null) : null; }, immune: function () { return player ? immune(player) : false; },
+  canHide: canHide, dist: dist };
+})();
+
+</script>
+</body>
+</html>

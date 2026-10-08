@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+# local notes, e.g. which claude.ai artifact each slug came from
+*.local.json
+_to_delete/
+HANDOFF.md
+# pieces not ready for the public repo (same layout: drafts/artifacts, drafts/media)
+drafts/
+# local Claude Code settings
+.claude/
+# Phase 1 demo screenshots and clip (not for the repo)
+demo/
