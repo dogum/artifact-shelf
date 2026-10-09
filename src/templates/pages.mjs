@@ -73,7 +73,9 @@ export function projectCards(ctx, L, { id = 'projects' } = {}) {
 export function homePage(ctx, L) {
   const { config, listed, shelves, tags, site } = ctx;
   const featured = listed.filter((i) => i.featured);
-  const showcase = (featured.length ? featured : listed.slice(0, 1)).slice(0, 7);
+  // Every featured piece takes a turn in the display window (one per day). Hidden cases cost
+  // little: their posters are lazy-loaded and only the day's pick ever runs.
+  const showcase = featured.length ? featured : listed.slice(0, 1);
   const latest = listed.reduce((d, i) => ((i.updated || i.made) > d ? i.updated || i.made : d), '');
   const bytes = listed.reduce((s, i) => s + i.tech.bytes, 0);
 

@@ -41,6 +41,7 @@ capture_click: "#start"
 | `made` | yes | `YYYY-MM-DD`, when it was first made. |
 | `updated` | no | Last meaningful change. |
 | `status` | no | `published` (default), `unlisted` (built and reachable by URL, kept out of listings, sitemap and feed), `draft` (not built). |
+| `stage` | no | `tall` gives the artifact a tall stage instead of the default wide one, for long pages that scroll. Shelves can set a default (Explainers uses `tall`). |
 | `featured` | no | `true` puts it in the rotation for the home page display window. |
 | `autorun` | no | Default `true`. Set `false` for anything heavy, anything that plays sound on load, or anything that asks for input first; the item page then shows the poster with a Run button. |
 | `capture_wait` | no | Milliseconds to wait before the poster screenshot. Default 2500. |
