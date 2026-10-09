@@ -1,0 +1,1308 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>A Great Variety of Colours</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..800;1,6..96,400..700&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a photographer's black velvet. The only colour on the page comes from thin films,
+   computed; type is set like an 18th-century natural-philosophy book, in Didone and Caslon. */
+:root {
+  --velvet: #070708;     /* backdrop that makes interference colours readable */
+  --panel: #0f0f11;
+  --rule: #232327;
+  --paper: #efe9df;      /* text, warm like an old page */
+  --mute: #9b958c;
+  --faint: #5f5b56;
+  --iris: linear-gradient(90deg, #dfb34f, #7f0099, #00aaed, #b6eba0, #f7b745, #ca18db, #00aad0, #5ee559);  /* replaced at load by the computed interference scale */
+  --gold: #e3b34d;       /* first-order yellow */
+  --violet: #b25ad6;     /* first-order red, seen on a screen */
+  --display: "Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
+  --serif: "Libre Caslon Text", "Caslon", Georgia, "Times New Roman", serif;
+  --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --gut: 16px;
+  color-scheme: dark;
+}
+@media (min-width: 700px) { :root { --gut: 32px; } }
+html { background: var(--velvet); }
+body { background: var(--velvet); color: var(--paper); font: 400 1.02rem/1.68 var(--serif); -webkit-font-smoothing: antialiased; }
+::selection { background: var(--gold); color: #120d00; }
+a { color: var(--paper); text-decoration-color: color-mix(in srgb, var(--gold) 70%, transparent); text-underline-offset: 3px; }
+a:hover { color: var(--gold); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; line-height: 1.02; text-wrap: balance; font-optical-sizing: auto; }
+h2 { font-size: clamp(2rem, 4.6vw, 3.4rem); font-style: italic; font-weight: 500; letter-spacing: -0.01em; }
+h3 { font-size: 1.45rem; font-weight: 600; letter-spacing: -0.005em; }
+p { margin: 0; }
+.eyebrow { font: 500 0.7rem/1.3 var(--mono); letter-spacing: 0.18em; text-transform: uppercase; color: var(--mute); }
+.eyebrow b { color: var(--gold); font-weight: 500; }
+.prose { max-width: 62ch; display: grid; gap: 1em; }
+.prose p { color: color-mix(in srgb, var(--paper) 92%, var(--velvet)); }
+.dim { color: var(--mute); }
+i.v { font-style: italic; }
+sub, sup { font-size: 0.7em; line-height: 0; }
+.wrap { padding-inline: var(--gut); max-width: 1320px; margin-inline: auto; }
+section { position: relative; }
+.act { padding-block: clamp(4rem, 10vw, 8rem) 0; }
+.act-head { display: grid; gap: 1rem; margin-bottom: 2.2rem; max-width: 62ch; }
+.quote { font-family: var(--display); font-style: italic; font-size: 1.22rem; line-height: 1.45; color: var(--paper); border-left: 1px solid var(--faint); padding-left: 1rem; max-width: 50ch; }
+.quote cite { display: block; margin-top: 0.5rem; font: 500 0.68rem/1.3 var(--mono); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+.btn { font: 500 0.72rem/1 var(--mono); letter-spacing: 0.03em; color: var(--paper); background: var(--panel); border: 1px solid var(--rule); border-radius: 999px; padding: 0.55rem 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.45rem; white-space: nowrap; transition: border-color .2s, background-color .2s; }
+.btn:hover { border-color: var(--mute); }
+.btn[aria-pressed="true"], .btn.on { background: var(--paper); color: var(--velvet); border-color: var(--paper); }
+.btn svg { width: 14px; height: 14px; flex: none; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+select { font: 500 0.72rem/1 var(--mono); color: var(--paper); background: var(--panel); border: 1px solid var(--rule); border-radius: 999px; padding: 0.5rem 0.7rem; }
+.ctrl { display: grid; gap: 0.4rem; max-width: 480px; }
+.ctrl label { display: flex; justify-content: space-between; gap: 1rem; font: 500 0.7rem/1.3 var(--mono); letter-spacing: 0.06em; color: var(--mute); text-transform: uppercase; }
+.ctrl label output { color: var(--paper); font-variant-numeric: tabular-nums; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; margin: 0; }
+input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: var(--iris); }
+input[type=range]::-moz-range-track { height: 4px; border-radius: 4px; background: var(--iris); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--paper); margin-top: -7px; border: 3px solid var(--velvet); box-shadow: 0 0 0 1px var(--mute); }
+input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--paper); border: 3px solid var(--velvet); box-shadow: 0 0 0 1px var(--mute); }
+
+/* ---------- hero ---------- */
+.hero { position: relative; display: grid; }
+.bubble { position: relative; width: 100%; height: clamp(440px, 78vh, 780px); }
+.bubble canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: pan-y; cursor: pointer; }
+.bubble .nogl, .frame .nogl { position: absolute; inset: 12%; display: none; place-items: center; text-align: center; color: var(--mute); font: 0.85rem/1.5 var(--mono); }
+.failed .nogl { display: grid !important; }
+.hero-copy { position: absolute; left: 0; right: 0; top: 0; bottom: 0; display: grid; align-content: center; pointer-events: none; }
+.hero-copy > div { display: grid; gap: 1.3rem; max-width: min(520px, 46%); pointer-events: auto; }
+.hero h1 { font-size: clamp(3rem, 6.4vw, 6rem); font-style: italic; font-weight: 500; line-height: 0.95; letter-spacing: -0.02em; }
+.hero h1 .iris { background: var(--iris); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+.hero h1 .src { display: block; font: 500 0.7rem/1.3 var(--mono); font-style: normal; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); margin-top: 0.9rem; -webkit-text-fill-color: var(--mute); }
+.lede { font-size: 1.12rem; line-height: 1.6; max-width: 44ch; }
+.hint { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; font: 500 0.74rem/1.4 var(--mono); color: var(--mute); }
+.hint kbd { font: inherit; color: var(--paper); border: 1px solid var(--rule); border-radius: 4px; padding: 0.05em 0.45em; background: var(--panel); }
+.toc { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font: 500 0.7rem/1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; padding-block: 0.9rem 0; border-top: 1px solid var(--rule); }
+.toc a { text-decoration: none; color: var(--mute); }
+.toc a:hover { color: var(--paper); }
+.toc a b { color: var(--faint); font-weight: 500; margin-right: 0.4em; }
+@media (max-width: 820px) {
+  .bubble { height: min(70vh, 520px); }
+  .hero-copy { position: static; padding-inline: var(--gut); }
+  .hero-copy > div { max-width: none; }
+}
+
+/* ---------- theatre ---------- */
+.theatre { display: grid; grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr); gap: clamp(1.5rem, 4vw, 3.5rem); margin-top: 1rem; }
+.stage { grid-column: 2; grid-row: 1; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); align-self: start; height: calc(100vh - 24px - env(safe-area-inset-top, 0px)); height: calc(100dvh - 24px - env(safe-area-inset-top, 0px)); display: flex; flex-direction: column; gap: 0.55rem; justify-content: center; z-index: 3; }
+.frame { position: relative; width: 100%; flex: 1 1 auto; min-height: 260px; max-height: 70vh; }
+.frame canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
+.frame canvas.fx { pointer-events: none; }
+.hud { position: absolute; inset: 0; pointer-events: none; font: 500 0.68rem/1.25 var(--mono); color: rgba(240, 236, 228, 0.88); letter-spacing: 0.04em; }
+.hud > * { position: absolute; }
+.hud .tl { left: 2%; top: 2.5%; display: grid; gap: 0.2rem; }
+.hud .tr { right: 2%; top: 2.5%; text-align: right; display: grid; gap: 0.2rem; }
+.hud b { color: #fff; font-weight: 500; font-variant-numeric: tabular-nums; }
+.hud span:not(:empty) { background: rgba(7, 7, 8, 0.66); padding: 1px 5px; border-radius: 3px; justify-self: start; }
+.hud .tr span:not(:empty) { justify-self: end; }
+.probe { display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 0.7rem; align-items: center; border: 1px solid var(--rule); border-radius: 10px; padding: 0.45rem 0.6rem; background: var(--panel); }
+.probe .sw { width: 54px; height: 54px; border-radius: 8px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); background: #000; }
+.probe .rd { display: grid; gap: 0.1rem; min-width: 0; }
+.probe .rd span { font: 500 0.62rem/1.2 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+.probe .rd b { font: 500 0.95rem/1.2 var(--mono); font-variant-numeric: tabular-nums; }
+.probe canvas { width: 100%; height: 48px; display: block; }
+.tools { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; justify-content: center; }
+.tg { display: flex; gap: 0.4rem; flex: none; }
+.cards { grid-column: 1; grid-row: 1; display: grid; }
+.card { min-height: 86vh; display: grid; align-content: center; gap: 1rem; padding-block: 2rem; opacity: 0.4; transition: opacity .5s; }
+.card.active { opacity: 1; }
+.card .k { display: flex; gap: 0.75rem; align-items: baseline; }
+.card h3 { font-size: clamp(1.5rem, 2.6vw, 2.1rem); font-style: italic; font-weight: 500; }
+.card p { max-width: 56ch; }
+.card .meta { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.figure { width: 100%; max-width: 520px; display: block; border-radius: 10px; border: 1px solid var(--rule); background: var(--panel); }
+canvas.figure { aspect-ratio: 1.6 / 1; }
+canvas.figure.short { aspect-ratio: 3.2 / 1; }
+.stat { font: 500 0.74rem/1.3 var(--mono); padding: 0.45rem 0.7rem; border-radius: 8px; border: 1px dashed var(--rule); color: var(--mute); }
+.stat b { color: var(--paper); font-weight: 500; font-variant-numeric: tabular-nums; }
+.act-marker { padding-top: 1.5rem; display: grid; gap: 0.6rem; }
+.newton { font-family: var(--display); font-style: italic; font-size: 1.05rem; line-height: 1.5; color: var(--paper); }
+.newton span { white-space: nowrap; }
+.labgrid { display: grid; gap: 1rem; }
+.labgrid .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem 1.2rem; }
+@media (max-width: 520px) { .labgrid .row { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 900px) {
+  .theatre { grid-template-columns: minmax(0, 1fr); margin-inline: calc(-1 * var(--gut)); }
+  .stage { grid-column: 1; grid-row: 1; top: env(safe-area-inset-top, 0px); height: auto; padding: 0.5rem var(--gut) 0.55rem; background: var(--velvet); gap: 0.4rem; }
+  .stage::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 22px; background: linear-gradient(var(--velvet), transparent); pointer-events: none; }
+  .frame { height: 40vh; height: 40svh; flex: none; min-height: 220px; }
+  .probe { grid-template-columns: 40px minmax(0, 1fr); padding: 0.35rem 0.5rem; }
+  .probe .sw { width: 40px; height: 40px; }
+  .probe canvas { height: 34px; }
+  .tools { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; justify-content: flex-start; }
+  .tools::-webkit-scrollbar { display: none; }
+  .cards { grid-column: 1; grid-row: 2; padding-inline: var(--gut); }
+  .card { min-height: 48vh; min-height: 48svh; align-content: start; padding-block: 1.6rem 2.4rem; }
+  .card h3 { font-size: 1.45rem; }
+}
+
+/* ---------- notes ---------- */
+.history { overflow-x: auto; margin-top: 1.5rem; padding-bottom: 0.4rem; }
+.history svg { display: block; min-width: 820px; width: 100%; height: auto; }
+.history text { font-family: var(--mono); }
+.notes { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: clamp(1.5rem, 4vw, 4rem); }
+@media (max-width: 900px) { .notes { grid-template-columns: minmax(0, 1fr); } }
+.eq { font-family: var(--display); font-style: italic; font-size: 1.15rem; line-height: 1.9; padding: 1rem 1.2rem; border: 1px solid var(--rule); border-radius: 12px; background: var(--panel); overflow-x: auto; }
+.eq div { white-space: nowrap; }
+.eq .lbl { font: 500 0.62rem/1.3 var(--mono); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+table.params { width: 100%; border-collapse: collapse; font: 0.82rem/1.45 var(--mono); font-variant-numeric: tabular-nums; }
+table.params td, table.params th { text-align: left; padding: 0.45rem 0.5rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.params th { font-weight: 500; color: var(--mute); font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.tablewrap { overflow-x: auto; }
+.refs { display: grid; gap: 0.55rem; font-size: 0.9rem; line-height: 1.45; color: var(--mute); padding-left: 1.2rem; margin: 0; }
+.refs li::marker { color: var(--faint); font-family: var(--mono); font-size: 0.8em; }
+footer { padding-block: 4rem 3rem; color: var(--faint); font: 0.7rem/1.5 var(--mono); }
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+</style>
+<!-- ===================== HERO ===================== -->
+<header class="hero" id="top">
+  <div class="bubble" id="bubble" aria-label="A soap bubble whose colours are computed from its film thickness. Tap it to pop it.">
+    <canvas class="gl"></canvas>
+    <div class="nogl">These films need WebGL2 with floating-point render targets, which this browser did not provide.</div>
+  </div>
+  <div class="hero-copy wrap">
+    <div>
+      <p class="eyebrow">Thin-film interference &middot; <b>a live soap film</b></p>
+      <h1><span class="iris">A great variety of colours</span><span class="src">Isaac Newton, Opticks, 1704</span></h1>
+      <p class="lede">A soap film is a sheet of water a few hundred nanometres thick, about a hundredth of the width of a hair. Light reflects from its front and from its back, and the two reflections interfere. Which colours survive depends only on the thickness, so the colours are a live map of the film as it drains, until it turns black and bursts.</p>
+      <div class="hint"><span><kbd>tap</kbd> the bubble to pop it</span></div>
+    </div>
+  </div>
+</header>
+<nav class="wrap toc" aria-label="Contents">
+  <a href="#light"><b>I</b>Two reflections</a>
+  <a href="#drain"><b>II</b>Draining</a>
+  <a href="#black"><b>III</b>Black film</a>
+  <a href="#pop"><b>IV</b>Bursting</a>
+  <a href="#lamps"><b>V</b>Lamps &amp; angles</a>
+  <a href="#lab"><b>VI</b>Lab</a>
+  <a href="#notes"><b>&middot;</b>Notes</a>
+</nav>
+
+<!-- ===================== THEATRE ===================== -->
+<section class="wrap act" id="light" aria-labelledby="h-light">
+  <div class="act-head">
+    <p class="eyebrow"><b>I</b> &middot; Optics</p>
+    <h2 id="h-light">Two reflections</h2>
+    <div class="prose"><p>To the right is a film of soapy water stretched across a wire frame, lit by daylight against black velvet. For now it is held as a perfect wedge, thin at the top and thick at the bottom, so you can read its colours like a ruler. Tap anywhere on it to measure the thickness there.</p></div>
+  </div>
+  <div class="theatre">
+    <div class="stage" id="stage">
+      <div class="frame" id="frame" aria-label="A soap film in a wire frame. Tap to measure its thickness; other tools stir, blow on or pop it.">
+        <canvas class="gl"></canvas><canvas class="fx"></canvas>
+        <div class="hud"><div class="tl"><span data-hud="light">daylight</span><span data-hud="scene" class="dim"></span></div><div class="tr"><span>film age <b data-hud="clock">0:00</b></span><span data-hud="slow" class="dim"></span></div></div>
+        <div class="nogl">These films need WebGL2 with floating-point render targets, which this browser did not provide.</div>
+      </div>
+      <div class="probe" aria-live="off">
+        <div class="sw" id="probeSw"></div>
+        <div class="rd">
+          <div style="display:flex; gap:1.2rem; flex-wrap:wrap"><div><span>Thickness</span> <b id="probeH">tap the film</b></div><div><span>Reflects</span> <b id="probeR">&ndash;</b></div></div>
+          <canvas id="probeSpec" aria-label="Reflectance spectrum at the probe point"></canvas>
+        </div>
+      </div>
+      <div class="tools" role="toolbar" aria-label="Film tools">
+        <div class="tg">
+          <button class="btn on" data-tool="probe" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="4"/><path d="M8 1v3M8 12v3M1 8h3M12 8h3"/></svg>Measure</button>
+          <button class="btn" data-tool="stir" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11c2-6 8-6 10-2M3 11l-1-3M3 11l3-1"/></svg>Stir</button>
+          <button class="btn" data-tool="blow" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 6h8a2 2 0 1 0-2-2M2 10h10a2 2 0 1 1-2 2"/></svg>Blow</button>
+          <button class="btn" data-tool="pop" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="2"/><path d="M8 1v2.5M8 12.5V15M1 8h2.5M12.5 8H15M3 3l1.8 1.8M11.2 11.2 13 13M3 13l1.8-1.8M11.2 4.8 13 3"/></svg>Pop</button>
+        </div>
+        <div class="tg">
+          <select id="viewSel" aria-label="View"><option value="0">True colour</option><option value="1">Thickness map</option></select>
+          <button class="btn" id="refillBtn">New film</button>
+          <button class="btn" id="pauseBtn" aria-pressed="false">Pause</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cards">
+      <article class="card" data-scene="wedge">
+        <div class="k"><span class="eyebrow"><b>I.1</b></span><h3>Front and back</h3></div>
+        <p>Part of the light bounces off the front surface and part goes in, bounces off the back surface and comes out again, having travelled an extra 2<i class="v">nh</i>: twice the thickness <i class="v">h</i>, times the refractive index <i class="v">n</i> of the water. The reflection from the front also flips upside down, because it bounces off a denser medium; the one from the back does not. Where the two meet crest to crest a wavelength is reflected strongly; where crest meets trough it cancels.</p>
+        <canvas class="figure" id="rays" aria-label="Diagram: two reflected waves from the front and back of a film, and how they add for red, green and blue light"></canvas>
+        <div class="ctrl"><label for="hSlide"><span>Film thickness</span> <output id="hOut">320 nm</output></label><input type="range" id="hSlide" min="0" max="1200" step="1" value="320"></div>
+        <canvas class="figure short" id="spec" aria-label="Reflected spectrum for the chosen thickness and the colour the eye sees"></canvas>
+        <p class="dim" style="font-size:0.94rem">Each colour on this page is the full calculation: the reflected spectrum at every wavelength from 380 to 780 nm, weighted by the eye&rsquo;s three colour sensitivities (CIE 1931), under the chosen light.</p>
+      </article>
+      <article class="card" data-scene="wedge">
+        <div class="k"><span class="eyebrow"><b>I.2</b></span><h3>Newton&rsquo;s sequence</h3></div>
+        <p>Thin to thick, the colours repeat in orders, each a little paler than the last as more and more wavelengths are reflected at once, until above a couple of micrometres the film just looks white. In 1704 Newton listed them from the bottom of a bubble upward:</p>
+        <p class="newton"><span>red, blue;</span> <span>red, blue;</span> <span>red, blue;</span> <span>red, green;</span> <span>red, yellow, green, blue, purple;</span> <span>red, yellow, green, blue, violet;</span> <span>red, yellow, white, blue, black.</span></p>
+        <canvas class="figure short" id="scale" aria-label="The computed colour of a film from 0 to 1200 nm with the orders marked"></canvas>
+        <p class="dim" style="font-size:0.94rem">Read his list right to left, from the black, and it matches the computed strip. In 1802 Thomas Young used Newton&rsquo;s own ring measurements to work out the first wavelengths of light: about 650 nm for red and 440 nm for violet.</p>
+      </article>
+
+      <div class="act-marker" id="drain"><p class="eyebrow"><b>II</b> &middot; Gravity</p><h2>Draining</h2></div>
+      <article class="card" data-scene="fresh">
+        <div class="k"><span class="eyebrow"><b>II</b></span><h3>A film runs downhill</h3></div>
+        <p>A fresh film is a few micrometres thick and drains under gravity, so the top thins first and coloured bands march down the film. Along the side wires, something faster happens: thin patches of film are pulled out of the meniscus and, being lighter, rise in swirling plumes while thicker film sinks. This is marginal regeneration, and it does most of the draining.</p>
+        <blockquote class="quote">And sometimes small black Spots generated at the sides would ascend up to the larger black Spot at the top of the Bubble, and unite with it.<cite>Newton, Opticks, Book II, Obs. 17</cite></blockquote>
+        <div class="meta"><span class="stat">average thickness <b data-out="mean">&hellip;</b></span><button class="btn" data-replay>New film</button></div>
+      </article>
+
+      <div class="act-marker" id="black"><p class="eyebrow"><b>III</b> &middot; Nanometres</p><h2>The black film</h2></div>
+      <article class="card" data-scene="black">
+        <div class="k"><span class="eyebrow"><b>III</b></span><h3>Thinner than any colour</h3></div>
+        <p>When the film is much thinner than a quarter of a wavelength, the extra path is almost nothing, but the flip on the front reflection is still there. The two reflections arrive almost exactly out of step and cancel at every wavelength, so the film turns black. It does not fade gradually: around a few tens of nanometres, forces between the two surfaces take over and the film jumps to a stable black film, edged sharply against the colours.</p>
+        <p>Black films come in two kinds: the common black film, from about ten to a few tens of nanometres thick, and the Newton black film, only a few nanometres, little more than two layers of soap molecules. Newton noticed darker spots inside the black, and saw a candle faintly reflected in them.</p>
+        <div class="meta"><span class="stat">black area <b data-out="black">&hellip;</b></span><span class="stat">reflects <b data-out="rblack">&hellip;</b> of the brightest colour</span></div>
+      </article>
+
+      <div class="act-marker" id="pop"><p class="eyebrow"><b>IV</b> &middot; Milliseconds</p><h2>Bursting</h2></div>
+      <article class="card" data-scene="pop">
+        <div class="k"><span class="eyebrow"><b>IV</b></span><h3>The edge of a hole</h3></div>
+        <p>Once a hole opens, surface tension pulls the edge back and gathers the liquid into a rim that races outward at the Taylor&ndash;Culick speed, <i class="v">V</i> = &radic;(2<i class="v">&gamma;</i>/<i class="v">&rho;h</i>). Thinner film is lighter, so the rim moves faster through it: a few metres per second through micrometre film, tens of metres per second through black film. Watch the hole stretch toward the thin top. The whole film is gone in a few milliseconds; this replay runs 500 times slower.</p>
+        <div class="meta"><span class="stat">rim speed in 1 &micro;m film <b data-out="v1">&hellip;</b></span><span class="stat">in black film <b data-out="vb">&hellip;</b></span><button class="btn" data-replay>Replay</button></div>
+      </article>
+
+      <div class="act-marker" id="lamps"><p class="eyebrow"><b>V</b> &middot; Measurement</p><h2>Lamps and angles</h2></div>
+      <article class="card" data-scene="lamps">
+        <div class="k"><span class="eyebrow"><b>V.1</b></span><h3>One colour of light</h3></div>
+        <p>Under a sodium lamp, which emits almost only 589 nm light, the film shows nothing but bright and dark bands. Each dark band marks a thickness where 2<i class="v">nh</i> is a whole number of wavelengths, so the bands are contour lines about 221 nm apart in thickness. Monochromatic light like this is the standard way to measure a film&rsquo;s thickness. Under a tungsten bulb the same film shifts warmer; under RGB LEDs some colours pull apart.</p>
+        <div class="btnrow" role="group" aria-label="Light source">
+          <button class="btn on" data-light="daylight" aria-pressed="true">Daylight</button>
+          <button class="btn" data-light="sodium" aria-pressed="false">Sodium lamp</button>
+          <button class="btn" data-light="tungsten" aria-pressed="false">Tungsten</button>
+          <button class="btn" data-light="led" aria-pressed="false">RGB LED</button>
+        </div>
+      </article>
+      <article class="card" data-scene="tilt">
+        <div class="k"><span class="eyebrow"><b>V.2</b></span><h3>Tilt the film</h3></div>
+        <p>Look at a film at an angle and the light crosses it on a slant, but the extra path shrinks, as 2<i class="v">nh</i>&thinsp;cos&thinsp;<i class="v">&theta;</i><sub>t</sub>, where &theta;<sub>t</sub> is the angle inside the water. Every colour slides toward the colour of a thinner film. That is why the colours shift across a bubble from its centre toward its rim.</p>
+        <div class="ctrl"><label for="tilt"><span>Viewing angle</span> <output id="tiltOut">0&deg;</output></label><input type="range" id="tilt" min="0" max="80" step="1" value="0"></div>
+      </article>
+
+      <div class="act-marker" id="lab"><p class="eyebrow"><b>VI</b> &middot; Free play</p><h2>Your film</h2></div>
+      <article class="card" data-scene="lab">
+        <div class="k"><span class="eyebrow"><b>VI</b></span><h3>Everything is yours</h3></div>
+        <p>Stir it, blow on it, pop it, pull a new one. The recipe controls change how the film drains.</p>
+        <div class="labgrid">
+          <div class="row">
+            <div class="ctrl"><label for="labSpeed"><span>Time-lapse</span> <output id="labSpeedOut">2&times;</output></label><input type="range" id="labSpeed" min="0.5" max="8" step="0.5" value="2"></div>
+            <div class="ctrl"><label for="labGly"><span>Glycerol (slower draining)</span> <output id="labGlyOut">none</output></label><input type="range" id="labGly" min="0" max="3" step="1" value="0"></div>
+            <div class="ctrl"><label for="labHum"><span>Air humidity</span> <output id="labHumOut">50%</output></label><input type="range" id="labHum" min="10" max="95" step="5" value="50"></div>
+            <div class="ctrl"><label for="labTilt"><span>Viewing angle</span> <output id="labTiltOut">0&deg;</output></label><input type="range" id="labTilt" min="0" max="80" step="1" value="0"></div>
+          </div>
+          <div class="ctrl"><label>Film</label>
+            <div class="btnrow">
+              <button class="btn on" data-orient="vertical" aria-pressed="true">Vertical (drains)</button>
+              <button class="btn" data-orient="flat" aria-pressed="false">Horizontal (no draining)</button>
+              <button class="btn" data-black="cbf" aria-pressed="true">Common black film</button>
+              <button class="btn" data-black="nbf" aria-pressed="false">Newton black film</button>
+            </div>
+          </div>
+          <div class="ctrl"><label>Light</label>
+            <div class="btnrow" role="group" aria-label="Light source">
+              <button class="btn on" data-light="daylight" aria-pressed="true">Daylight</button>
+              <button class="btn" data-light="sodium" aria-pressed="false">Sodium</button>
+              <button class="btn" data-light="tungsten" aria-pressed="false">Tungsten</button>
+              <button class="btn" data-light="led" aria-pressed="false">RGB LED</button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== NOTES ===================== -->
+<section class="wrap act" id="notes" aria-labelledby="h-notes">
+  <div class="act-head" style="margin-bottom:0.5rem">
+    <p class="eyebrow">Three centuries of bubbles</p>
+    <h2 id="h-notes">Who looked closely</h2>
+  </div>
+  <div class="history" role="img" aria-label="Timeline of soap film research from 1665 to 1995"><svg id="history" viewBox="0 0 1000 240"></svg></div>
+
+  <div class="notes" style="margin-top: clamp(3rem, 8vw, 6rem)">
+    <div style="display:grid; gap:1.2rem; align-content:start">
+      <p class="eyebrow">Model notes</p>
+      <h2>What is being computed</h2>
+      <div class="eq" aria-label="Thin-film reflectance">
+        <div class="lbl">Reflectance of a free film (Airy), each polarisation</div>
+        <div>R = 2r&sup2;(1 &minus; cos&thinsp;&delta;) / (1 + r&#8308; &minus; 2r&sup2; cos&thinsp;&delta;),&nbsp;&nbsp; &delta; = 4&pi;&thinsp;n&thinsp;h&thinsp;cos&thinsp;&theta;<sub>t</sub> / &lambda;</div>
+        <div class="lbl" style="margin-top:0.6rem">Colour</div>
+        <div>XYZ = &Sigma;<sub>&lambda;</sub> S(&lambda;) R(&lambda;) [x&#772;, y&#772;, z&#772;](&lambda;),&nbsp; 380&ndash;780 nm in 5 nm steps &rarr; linear sRGB</div>
+        <div class="lbl" style="margin-top:0.6rem">Bursting rim</div>
+        <div>V = &radic;(2&gamma; / &rho;h),&nbsp;&nbsp; &gamma; = 30 mN/m</div>
+      </div>
+      <div class="prose" style="font-size:0.96rem">
+        <p>The colour of every pixel is computed, not painted. A table of film colours is built when the page loads: for each thickness from 0 to 3,200 nm and each viewing angle up to 80&deg;, the film&rsquo;s reflectance is worked out at 81 wavelengths with the full multiple-reflection formula for both polarisations, using water&rsquo;s refractive index at each wavelength (1.343 at 400 nm, 1.333 at 589 nm, 1.330 at 700 nm). That spectrum is multiplied by the light source and the CIE 1931 colour-matching functions and converted to screen colour. The brightest possible reflection, about 8% of the light at a quarter-wave thickness, is shown as white.</p>
+        <p>The film itself is a reduced flow model. It is treated as a two-dimensional sheet of incompressible fluid, solved on the GPU, driven by its own buoyancy: thinner film weighs less per square centimetre and rises. Its thickness is carried by the flow and changes by gravity drainage with a flux that grows as the cube of the thickness, slow evaporation set by the humidity, marginal regeneration along the wires, and a jump to black film below 45 nm. These rules reproduce what real films do, with sliders standing in for real recipes; the colours from any thickness are exact.</p>
+      </div>
+    </div>
+    <div style="display:grid; gap:1.2rem; align-content:start">
+      <div class="tablewrap"><table class="params" id="valTable">
+        <tr><th>Check</th><th>Computed here</th><th>Known</th></tr>
+        <tr><td>First-order red (Michel-L&eacute;vy &ldquo;sensitive tint&rdquo;, 550 nm retardation)</td><td data-val="tint">&hellip;</td><td>206 nm film</td></tr>
+        <tr><td>Sodium-light fringe spacing &lambda;/2n</td><td data-val="fringe">&hellip;</td><td>221 nm</td></tr>
+        <tr><td>Reflectance at a quarter wave, normal incidence</td><td data-val="rmax">&hellip;</td><td>7.8%</td></tr>
+        <tr><td>Reflectance of 10 nm black film at 550 nm</td><td data-val="rblack">&hellip;</td><td>&asymp; 0.20% (thin-film limit)</td></tr>
+        <tr><td>Rim speed at 1 &micro;m, &gamma; = 30 mN/m</td><td data-val="v1">&hellip;</td><td>7.7 m/s</td></tr>
+      </table></div>
+      <p class="dim" style="font-size:0.88rem">At normal incidence a soap film in white light shows exactly the colours of the Michel-L&eacute;vy birefringence chart at a retardation of 2<i class="v">nh</i>; I used that as an independent check of the colour engine.</p>
+      <p class="eyebrow" style="margin-top:0.6rem">Sources</p>
+      <ol class="refs">
+        <li>R. Hooke (1665). <i>Micrographia</i>, Observation IX: colours in thin plates of Muscovy glass.</li>
+        <li>I. Newton (1704). <a href="https://www.gutenberg.org/ebooks/33504" target="_blank" rel="noopener"><i>Opticks</i></a>, Book II, Part I, Observations 17&ndash;18 (soap bubbles).</li>
+        <li>T. Young (1802). <a href="https://www.gutenberg.org/ebooks/79490" target="_blank" rel="noopener">On the theory of light and colours</a>. <i>Phil. Trans. R. Soc.</i> 92, 12.</li>
+        <li>J. Plateau (1873). <i>Statique exp&eacute;rimentale et th&eacute;orique des liquides soumis aux seules forces mol&eacute;culaires.</i></li>
+        <li>C. V. Boys (1890). <i>Soap-Bubbles and the Forces Which Mould Them.</i></li>
+        <li>J. Perrin (1918). La stratification des lames liquides. <i>Annales de Physique</i> 10, 160.</li>
+        <li>K. J. Mysels, K. Shinoda &amp; S. Frankel (1959). <i>Soap Films: Studies of Their Thinning and a Bibliography.</i> Pergamon.</li>
+        <li>G. I. Taylor (1959); F. E. C. Culick (1960). The speed of a retracting liquid sheet.</li>
+        <li>H. Kellay, X.-L. Wu &amp; W. I. Goldburg (1995). Experiments with turbulent soap films. <i>Phys. Rev. Lett.</i> 74, 3975.</li>
+        <li>IUPAC Gold Book. <a href="https://goldbook.iupac.org/terms/view/N04136" target="_blank" rel="noopener">Newton black film</a> and common black film.</li>
+        <li>CIE (1931) colour-matching functions and illuminants D65 and A, via the <i>colour-science</i> Python package.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+<footer class="wrap">A Great Variety of Colours &middot; a live thin-film interference simulation &middot; WebGL2, no libraries.</footer>
+<script>
+/* CIE 1931 2-degree colour-matching functions and CIE illuminants D65 and A, 380-780 nm at 5 nm (from colour-science 0.4.7) */
+const SPEC = {"x":[0.001368,0.002236,0.004243,0.00765,0.01431,0.02319,0.04351,0.07763,0.13438,0.21477,0.2839,0.3285,0.34828,0.34806,0.3362,0.3187,0.2908,0.2511,0.19536,0.1421,0.09564,0.05795,0.03201,0.0147,0.0049,0.0024,0.0093,0.0291,0.06327,0.1096,0.1655,0.22575,0.2904,0.3597,0.43345,0.51205,0.5945,0.6784,0.7621,0.8425,0.9163,0.9786,1.0263,1.0567,1.0622,1.0456,1.0026,0.9384,0.85445,0.7514,0.6424,0.5419,0.4479,0.3608,0.2835,0.2187,0.1649,0.1212,0.0874,0.0636,0.04677,0.0329,0.0227,0.01584,0.011359,0.0081109,0.0057903,0.0041095,0.0028993,0.0020492,0.00144,0.00099995,0.00069008,0.00047602,0.0003323,0.00023483,0.00016615,0.00011741,8.3075e-05,5.8707e-05,4.151e-05],"y":[3.9e-05,6.4e-05,0.00012,0.000217,0.000396,0.00064,0.00121,0.00218,0.004,0.0073,0.0116,0.01684,0.023,0.0298,0.038,0.048,0.06,0.0739,0.09098,0.1126,0.13902,0.1693,0.20802,0.2586,0.323,0.4073,0.503,0.6082,0.71,0.7932,0.862,0.91485,0.954,0.9803,0.99495,1.0,0.995,0.9786,0.952,0.9154,0.87,0.8163,0.757,0.6949,0.631,0.5668,0.503,0.4412,0.381,0.321,0.265,0.217,0.175,0.1382,0.107,0.0816,0.061,0.04458,0.032,0.0232,0.017,0.01192,0.00821,0.005723,0.004102,0.002929,0.002091,0.001484,0.001047,0.00074,0.00052,0.0003611,0.0002492,0.0001719,0.00012,8.48e-05,6e-05,4.24e-05,3e-05,2.12e-05,1.499e-05],"z":[0.00645,0.01055,0.02005,0.03621,0.06785,0.1102,0.2074,0.3713,0.6456,1.0391,1.3856,1.623,1.7471,1.7826,1.7721,1.7441,1.6692,1.5281,1.2876,1.0419,0.81295,0.6162,0.46518,0.3533,0.272,0.2123,0.1582,0.1117,0.07825,0.05725,0.04216,0.02984,0.0203,0.0134,0.00875,0.00575,0.0039,0.00275,0.0021,0.0018,0.00165,0.0014,0.0011,0.001,0.0008,0.0006,0.00034,0.00024,0.00019,0.0001,5e-05,3e-05,2e-05,1e-05,2.1176e-22,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"d65":[49.98,52.31,54.65,68.7,82.75,87.12,91.49,92.46,93.43,90.06,86.68,95.77,104.9,110.9,117.0,117.4,117.8,116.3,114.9,115.4,115.9,112.4,108.8,109.1,109.4,108.6,107.8,106.3,104.8,106.2,107.7,106.0,104.4,104.2,104.0,102.0,100.0,98.17,96.33,96.06,95.79,92.24,88.69,89.35,90.01,89.8,89.6,88.65,87.7,85.49,83.29,83.49,83.7,81.86,80.03,80.12,80.21,81.25,82.28,80.28,78.28,74.0,69.72,70.67,71.61,72.98,74.35,67.98,61.6,65.74,69.89,72.49,75.09,69.34,63.59,55.01,46.42,56.61,66.81,65.09,63.38],"a":[9.795,10.9,12.09,13.35,14.71,16.15,17.68,19.29,21.0,22.79,24.67,26.64,28.7,30.85,33.09,35.41,37.81,40.3,42.87,45.52,48.24,51.04,53.91,56.85,59.86,62.93,66.06,69.25,72.5,75.79,79.13,82.52,85.95,89.41,92.91,96.44,100.0,103.6,107.2,110.8,114.4,118.1,121.7,125.4,129.0,132.7,136.3,140.0,143.6,147.2,150.8,154.4,158.0,161.5,165.0,168.5,172.0,175.4,178.8,182.1,185.4,188.7,191.9,195.1,198.3,201.4,204.4,207.4,210.4,213.3,216.1,218.9,221.7,224.4,227.0,229.6,232.1,234.6,237.0,239.4,241.7]};
+
+/* ============================================================
+   Thin-film optics: a free-standing water film in air.
+   Airy reflectance with both polarisations,
+     R = 2r²(1−cos δ) / (1 + r⁴ − 2r² cos δ),  δ = 4π n h cos θt / λ,
+   integrated against CIE 1931 colour-matching functions under a
+   chosen light source, then converted to linear sRGB.
+   n(λ) = 1.324 + 3046/λ² (λ in nm): 1.343 at 400 nm, 1.333 at 589 nm.
+   ============================================================ */
+const OPT = (() => {
+  const L0 = 380, NL = 81, lam = Array.from({ length: NL }, (_, i) => L0 + 5 * i);
+  const nW = l => 1.324 + 3046 / (l * l);
+  const M = [3.2404542, -1.5371385, -0.4985314, -0.9692660, 1.8760108, 0.0415560, 0.0556434, -0.2040259, 1.0572252];
+  const gauss = (c, fwhm) => lam.map(l => Math.exp(-0.5 * ((l - c) / (fwhm / 2.355)) ** 2));
+  const led = (() => { const r = gauss(625, 18), g = gauss(530, 32), b = gauss(458, 22); return lam.map((_, i) => 0.9 * r[i] + 0.8 * g[i] + 1.0 * b[i]); })();
+  const LIGHTS = {
+    daylight: { name: 'Daylight (D65)', spd: SPEC.d65 },
+    tungsten: { name: 'Tungsten (CIE A)', spd: SPEC.a },
+    led: { name: 'RGB LED', spd: led },
+    sodium: { name: 'Sodium lamp, 589 nm', mono: 589.3 }
+  };
+  /* reflectance of the film at one wavelength, unpolarised */
+  function R(h, lnm, th = 0) {
+    const n = nW(lnm), s0 = Math.sin(th), c0 = Math.cos(th), s1 = s0 / n, c1 = Math.sqrt(1 - s1 * s1);
+    const rs = (c0 - n * c1) / (c0 + n * c1), rp = (n * c0 - c1) / (n * c0 + c1);
+    const cd = Math.cos(4 * Math.PI * n * h * c1 / lnm);
+    const f = r => { const r2 = r * r; return 2 * r2 * (1 - cd) / (1 + r2 * r2 - 2 * r2 * cd); };
+    return 0.5 * (f(rs) + f(rp));
+  }
+  function Rmax(th = 0) { // peak (quarter-wave) reflectance at 550 nm
+    const n = nW(550), s1 = Math.sin(th) / n, c1 = Math.sqrt(1 - s1 * s1), c0 = Math.cos(th);
+    const rs = (c0 - n * c1) / (c0 + n * c1), rp = (n * c0 - c1) / (n * c0 + c1);
+    const g = r => { const r2 = r * r; return 4 * r2 / ((1 + r2) ** 2); };
+    return 0.5 * (g(rs) + g(rp));
+  }
+  function xyz2rgb(X, Y, Z) { return [M[0] * X + M[1] * Y + M[2] * Z, M[3] * X + M[4] * Y + M[5] * Z, M[6] * X + M[7] * Y + M[8] * Z]; }
+  const monoRGB = (() => { // colour of a monochromatic line, normalised to Y = 1
+    const memo = {}; return l => { if (memo[l]) return memo[l]; const i = (l - L0) / 5; let i0 = Math.floor(i); const t = i - Math.min(i0, 79);
+      i0 = Math.min(i0, 79); const X = SPEC.x[i0] * (1 - t) + SPEC.x[i0 + 1] * t, Y = SPEC.y[i0] * (1 - t) + SPEC.y[i0 + 1] * t, Z = SPEC.z[i0] * (1 - t) + SPEC.z[i0 + 1] * t;
+      return (memo[l] = xyz2rgb(X / Y, 1, Z / Y)); };
+  })();
+  /* linear-sRGB colour of a film of thickness h (nm) at incidence th, normalised so the brightest
+     possible reflection of this light has luminance 1 */
+  function color(h, th, light) {
+    const Lt = LIGHTS[light] || LIGHTS.daylight, nrm = Rmax(th);
+    const bright = Math.pow(nrm / Rmax(0), 0.35);
+    if (Lt.mono) { const c = monoRGB(Lt.mono), m = Math.max(c[0], c[1], c[2]), k = R(h, Lt.mono, th) / nrm * bright / m; return [Math.max(0, c[0] * k), Math.max(0, c[1] * k), Math.max(0, c[2] * k)]; }
+    let X = 0, Y = 0, Z = 0, Yw = 0;
+    for (let i = 0; i < NL; i++) { const s = Lt.spd[i], r = R(h, lam[i], th); X += SPEC.x[i] * s * r; Y += SPEC.y[i] * s * r; Z += SPEC.z[i] * s * r; Yw += SPEC.y[i] * s; }
+    const k = bright / (Yw * nrm);
+    return xyz2rgb(X * k, Y * k, Z * k);
+  }
+  /* 2D look-up table: thickness 0..HMAX nm (x) by incidence 0..80 degrees (y), linear RGB */
+  const HMAX = 3200, NH = 2048, NA = 12, AMAX = 80 * Math.PI / 180;
+  function lut(light) {
+    const out = new Float32Array(NH * NA * 4);
+    for (let a = 0; a < NA; a++) {
+      const th = AMAX * a / (NA - 1);
+      for (let i = 0; i < NH; i++) { const c = color(HMAX * i / (NH - 1), th, light), k = (a * NH + i) * 4; out[k] = c[0]; out[k + 1] = c[1]; out[k + 2] = c[2]; out[k + 3] = 1; }
+    }
+    return out;
+  }
+  const toSRGB = v => { v = Math.max(0, v); v = v / (1 + 0.12 * v); v = Math.min(1, v); return v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1 / 2.4) - 0.055; };
+  const css = (c, ex = 0.92) => `rgb(${c.map(v => Math.round(255 * toSRGB(v * ex))).join(',')})`;
+  /* colour of a single wavelength for plotting (normalised, gamut-clipped) */
+  function wlColor(l) { const c = monoRGB(Math.round(l)); const m = Math.max(c[0], c[1], c[2], 1e-6); return c.map(v => Math.max(0, v / m)); }
+  return { lam, nW, R, Rmax, color, lut, HMAX, NH, NA, AMAX, LIGHTS, toSRGB, css, wlColor };
+})();
+
+/* ============================================================
+   Film — GPU model of a draining soap film.
+   The film is treated as a 2D fluid sheet (as in soap-film
+   tunnels). Its velocity obeys incompressible 2D flow (stable-
+   fluids scheme) driven by film "buoyancy": a patch thinner than
+   its surroundings weighs less per unit area and rises, a thicker
+   patch sinks. Thickness h (nm) is carried by the flow and changes
+   by gravity drainage (flux ∝ h³), evaporation, marginal
+   regeneration at the borders, and the jump to black film once it
+   is thin enough. Rupture spreads at the Taylor–Culick speed
+   V = √(2γ/ρh) through the local thickness.
+   ============================================================ */
+const F_VS = `#version 300 es
+in vec2 p; out vec2 uv;
+void main(){ uv = p*0.5+0.5; gl_Position = vec4(p,0.,1.); }`;
+const F_HEAD = `#version 300 es
+precision highp float; precision highp sampler2D;
+in vec2 uv; out vec4 o;
+uniform vec2 texel; uniform int periodic;
+`;
+const F_ADV = F_HEAD + `
+uniform sampler2D V, Q; uniform float dt, keep;
+void main(){ vec2 v = texture(V, uv).xy; o = texture(Q, uv - dt*v*texel)*keep; }`;
+/* MacCormack correction for thickness, with a min/max limiter; hole channels are not advected */
+const F_MAC = F_HEAD + `
+uniform sampler2D V, Q, QF, QB; uniform float dt; uniform vec2 N;
+void main(){
+  vec4 q = texture(Q, uv); vec2 v = texture(V, uv).xy;
+  vec2 p = uv - dt*v*texel;
+  float hf = texture(QF, uv).r, hb = texture(QB, uv).r;
+  float h = hf + 0.5*(q.r - hb);
+  vec2 g = p*N - 0.5; vec2 f = floor(g);
+  vec2 a = (f + 0.5)/N, b = (f + vec2(1.5,0.5))/N, c = (f + vec2(0.5,1.5))/N, d = (f + 1.5)/N;
+  float s0 = texture(Q,a).r, s1 = texture(Q,b).r, s2 = texture(Q,c).r, s3 = texture(Q,d).r;
+  h = clamp(h, min(min(s0,s1),min(s2,s3)), max(max(s0,s1),max(s2,s3)));
+  o = vec4(h, q.gba);
+}`;
+const F_FORCE = F_HEAD + `
+uniform sampler2D V, H; uniform float dt, beta, drag, lod, time, stir;
+uniform vec4 splat; uniform vec2 splatV; uniform float sphere;
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
+float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
+  return mix(mix(hash(i),hash(i+vec2(1,0)),f.x), mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x), f.y); }
+void main(){
+  vec2 v = texture(V, uv).xy;
+  vec4 c = texture(H, uv);
+  if(c.g > 0.5){ o = vec4(0); return; }
+  float hm = textureLod(H, uv, lod).r;
+  float d = clamp((c.r - hm)/max(hm, 120.0), -1.0, 1.0);
+  v.y -= beta*dt*d;
+  /* faint air currents keep a bubble's surface stirring */
+  if(stir > 0.){ vec2 q = uv*vec2(5.,3.) + time*0.05; float a = 6.2831*noise(q) + time*0.2; v += stir*dt*vec2(cos(a), sin(a)); }
+  if(splat.w > 0.){ vec2 dd = (uv - splat.xy); dd.x -= periodic==1 ? round(dd.x) : 0.; dd /= texel; float w = exp(-dot(dd,dd)/(splat.z*splat.z)); v += splatV*w; }
+  v *= exp(-drag*dt);
+  if(periodic == 0){ vec2 e = min(uv, 1.0 - uv)/texel; if(min(e.x,e.y) < 1.5) v = vec2(0); }
+  else { float e = min(uv.y, 1.0-uv.y)/texel.y; if(e < 1.5) v = vec2(0); }
+  float sp = length(v); if(sp > 6.0) v *= 6.0/sp;
+  o = vec4(v, 0, 0);
+}`;
+const F_DIV = F_HEAD + `
+uniform sampler2D V;
+void main(){
+  float l = texture(V, uv - vec2(texel.x,0)).x, r = texture(V, uv + vec2(texel.x,0)).x;
+  float b = texture(V, uv - vec2(0,texel.y)).y, t = texture(V, uv + vec2(0,texel.y)).y;
+  o = vec4(0.5*(r - l + t - b), 0, 0, 0);
+}`;
+const F_JAC = F_HEAD + `
+uniform sampler2D P, D;
+void main(){
+  float l = texture(P, uv - vec2(texel.x,0)).x, r = texture(P, uv + vec2(texel.x,0)).x;
+  float b = texture(P, uv - vec2(0,texel.y)).x, t = texture(P, uv + vec2(0,texel.y)).x;
+  o = vec4((l + r + b + t - texture(D, uv).x)*0.25, 0, 0, 0);
+}`;
+const F_GRAD = F_HEAD + `
+uniform sampler2D P, V, H;
+void main(){
+  float l = texture(P, uv - vec2(texel.x,0)).x, r = texture(P, uv + vec2(texel.x,0)).x;
+  float b = texture(P, uv - vec2(0,texel.y)).x, t = texture(P, uv + vec2(0,texel.y)).x;
+  vec2 v = texture(V, uv).xy - 0.5*vec2(r - l, t - b);
+  if(texture(H, uv).g > 0.5) v = vec2(0);
+  if(periodic == 0){ vec2 e = min(uv, 1.0 - uv)/texel; if(min(e.x,e.y) < 1.5) v = vec2(0); }
+  o = vec4(v, 0, 0);
+}`;
+/* thickness physics: drainage, evaporation, black film, marginal regeneration */
+const F_PHYS = F_HEAD + `
+uniform sampler2D H; uniform float dt, K, E, hc, hs, hb, time, mr, hbot, sphere, nuc;
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
+float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
+  return mix(mix(hash(i),hash(i+vec2(1,0)),f.x), mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x), f.y); }
+float q(float h){ float m = h*0.001; return K*m*m*m/(1.0 + m*m)*1000.0; }   /* downward flux, nm·cell/s: ∝ h³ for thin film, capped for thick */
+void main(){
+  vec4 c = texture(H, uv);
+  if(c.g > 0.5){ o = c; return; }
+  float h = c.r;
+  bool top = uv.y > 1.0 - texel.y;
+  float hu = top ? 0.0 : texture(H, uv + vec2(0, texel.y)).r;
+  float above = top ? 0.0 : (texture(H, uv + vec2(0, texel.y)).g > 0.5 ? 0.0 : q(hu));
+  h += (above - q(h))*dt;
+  if(h > hc) h -= E*dt;
+  /* black film: once thin enough the film collapses to an equilibrium black film */
+  float hn = min(min(texture(H, uv + vec2(texel.x,0)).r, texture(H, uv - vec2(texel.x,0)).r),
+                 min(texture(H, uv + vec2(0,texel.y)).r, texture(H, uv - vec2(0,texel.y)).r));
+  bool nearBlack = hn < hb*1.6;
+  if(h < hc || (h < hs && nearBlack) || (h < hs && hash(uv*913.1 + time) < nuc*dt)) h = mix(h, hb, 1.0 - exp(-dt*6.0));
+  /* marginal regeneration: thin film elements are pulled from the borders and rise */
+  if(sphere < 0.5){
+    float ex = min(uv.x, 1.0 - uv.x)/texel.x, eb = uv.y/texel.y;
+    float e = min(ex, eb);
+    if(e < 3.5){
+      float n = noise(vec2(uv.y*28.0 + uv.x*9.0, time*0.9 + uv.x*40.0));
+      float target = eb < 3.5 && ex > 3.5 ? hbot : h*mix(0.25, 1.0, smoothstep(0.35, 0.75, n));
+      h = mix(h, target, 1.0 - exp(-dt*mr));
+    }
+  } else {
+    /* the bottom of a bubble collects liquid */
+    if(uv.y < 3.5*texel.y) h = mix(h, hbot, 1.0 - exp(-dt*mr));
+  }
+  o = vec4(max(h, 0.0), c.g, c.b, c.a);
+}`;
+/* rupture front: each film cell burns through when a neighbour is open, at V = √(2γ/ρh) */
+const F_HOLE = F_HEAD + `
+uniform sampler2D H; uniform float dt, dxv, dxh, sphere;
+void main(){
+  vec4 c = texture(H, uv);
+  if(c.g > 0.5){ o = c; return; }
+  float lat = (uv.y - 0.5)*3.14159265;
+  float dxH = sphere > 0.5 ? max(dxh*cos(lat), dxv*0.15) : dxh;
+  float rate = 0.0;
+  if(texture(H, uv + vec2(texel.x,0)).g > 0.5 || texture(H, uv - vec2(texel.x,0)).g > 0.5) rate = max(rate, 1.0/dxH);
+  if(texture(H, uv + vec2(0,texel.y)).g > 0.5 || texture(H, uv - vec2(0,texel.y)).g > 0.5) rate = max(rate, 1.0/dxv);
+  if(rate > 0.0){
+    float hm = max(c.r, 3.0)*1e-9;
+    float V = sqrt(2.0*0.030/(1000.0*hm));
+    c.b += V*rate*dt;
+    if(c.b >= 1.0){ c.g = 1.0; c.a = 1.0; }
+  }
+  if(sphere > 0.5 && (uv.y < texel.y*1.5 || uv.y > 1.0 - texel.y*1.5)){
+    /* poles open as soon as any cell in their ring is open (cheap ring check via neighbours) */
+  }
+  o = c;
+}`;
+const F_STAMP = F_HEAD + `
+uniform sampler2D H; uniform vec4 S; uniform int mode; uniform float val;
+void main(){
+  vec4 c = texture(H, uv);
+  vec2 d = uv - S.xy; if(periodic == 1) d.x -= round(d.x); d /= texel;
+  float w = exp(-dot(d,d)/(S.z*S.z));
+  if(mode == 0){ if(w > 0.5) { c.g = 1.0; c.a = 1.0; } }     /* puncture */
+  else if(mode == 1) c.r = mix(c.r, val, w*S.w);             /* set thickness */
+  o = c;
+}`;
+const F_SET = F_HEAD + `
+uniform sampler2D H; uniform float time, sphere; uniform vec3 prof; uniform float seed;
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
+float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
+  return mix(mix(hash(i),hash(i+vec2(1,0)),f.x), mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x), f.y); }
+void main(){
+  float y = uv.y;
+  /* fresh film: thick at the bottom, thinner at the top (prof = top, bottom, power) */
+  float h = prof.x + (prof.y - prof.x)*pow(1.0 - y, prof.z);
+  vec2 q = uv*vec2(periodic==1 ? 12.0 : 7.0, 9.0) + seed;
+  if(periodic == 1){ float a = uv.x*6.2831853; q = vec2(cos(a), sin(a))*2.0 + vec2(uv.y*9.0, seed); }
+  float n = noise(q)*0.6 + noise(q*2.1+3.7)*0.3 + noise(q*4.3+9.1)*0.1;
+  h *= 0.82 + 0.36*n;
+  o = vec4(h, 0, 0, 0);
+}`;
+const F_WEDGE = F_HEAD + `
+uniform float hTop, hBot;
+void main(){ o = vec4(mix(hBot, hTop, uv.y), 0, 0, 0); }`;
+
+class Film {
+  constructor(gl, o) {
+    this.gl = gl; this.NX = o.NX; this.NY = o.NY; this.periodic = !!o.periodic; this.sphere = !!o.sphere;
+    this.p = Object.assign({
+      beta: 55, drag: 0.6, lod: 4, stir: 0, K: 2, E: 2.5, hc: 45, hs: 85, hb: 12, mr: 3.0, hbot: 3000, nuc: 0.0,
+      dxPhys: 0.0004, gamma: 0.03, jac: 24
+    }, o.params || {});
+    this.time = 0; this.popping = false; this.popT = 0; this.flowOn = true; this.frozen = false;
+    const P = s => this.prog(s);
+    this.P = { adv: P(F_ADV), mac: P(F_MAC), force: P(F_FORCE), div: P(F_DIV), jac: P(F_JAC), grad: P(F_GRAD), phys: P(F_PHYS), hole: P(F_HOLE), stamp: P(F_STAMP), set: P(F_SET), wedge: P(F_WEDGE) };
+    this.ok = Object.values(this.P).every(Boolean);
+    if (!this.ok) return;
+    const wrapS = this.periodic ? gl.REPEAT : gl.CLAMP_TO_EDGE;
+    const T = (mip) => this.tex(wrapS, mip);
+    this.V = [T(), T()]; this.H = [T(true), T(true)]; this.HF = T(); this.HB = T(); this.Pr = [T(), T()]; this.D = T();
+    this.fb = new Map();
+    this.reset();
+  }
+  prog(fs) {
+    const gl = this.gl, sh = (t, s) => { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(x)); return null; } return x; };
+    const v = sh(gl.VERTEX_SHADER, F_VS), f = sh(gl.FRAGMENT_SHADER, fs); if (!v || !f) return null;
+    const p = gl.createProgram(); gl.attachShader(p, v); gl.attachShader(p, f); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { console.error(gl.getProgramInfoLog(p)); return null; }
+    p.u = {}; const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+    for (let i = 0; i < n; i++) { const a = gl.getActiveUniform(p, i); p.u[a.name] = gl.getUniformLocation(p, a.name); }
+    return p;
+  }
+  tex(wrapS, mip) {
+    const gl = this.gl, t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, this.NX, this.NY, 0, gl.RGBA, gl.HALF_FLOAT, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mip ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    if (mip) gl.generateMipmap(gl.TEXTURE_2D);
+    t.mip = !!mip; return t;
+  }
+  fbo(t) {
+    if (this.fb.has(t)) return this.fb.get(t);
+    const gl = this.gl, f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0); this.fb.set(t, f); return f;
+  }
+  run(p, out, tex, uni = {}) {
+    const gl = this.gl; gl.useProgram(p); gl.bindVertexArray(Film.vao(gl));
+    let u = 0; for (const k in tex) { gl.activeTexture(gl.TEXTURE0 + u); gl.bindTexture(gl.TEXTURE_2D, tex[k]); gl.uniform1i(p.u[k], u); u++; }
+    gl.uniform2f(p.u.texel, 1 / this.NX, 1 / this.NY); if (p.u.periodic) gl.uniform1i(p.u.periodic, this.periodic ? 1 : 0);
+    for (const k in uni) { const v = uni[k], loc = p.u[k]; if (!loc) continue; if (Array.isArray(v)) (v.length === 2 ? gl.uniform2fv : v.length === 3 ? gl.uniform3fv : gl.uniform4fv).call(gl, loc, v); else if (k === 'mode') gl.uniform1i(loc, v); else gl.uniform1f(loc, v); }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo(out)); gl.viewport(0, 0, this.NX, this.NY); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    if (out.mip) { gl.bindTexture(gl.TEXTURE_2D, out); gl.generateMipmap(gl.TEXTURE_2D); }
+  }
+  static vao(gl) {
+    if (gl.__fvao) return gl.__fvao;
+    const vb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const va = gl.createVertexArray(); gl.bindVertexArray(va); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    return (gl.__fvao = va);
+  }
+  swap(a) { const t = a[0]; a[0] = a[1]; a[1] = t; }
+  clearTex(t) { const gl = this.gl; gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo(t)); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); }
+  /* fresh film: thickness profile top→bottom (nm) and steepness */
+  reset(top = 900, bot = 2600, pw = 1.3) {
+    this.V.forEach(t => this.clearTex(t)); this.Pr.forEach(t => this.clearTex(t));
+    this.run(this.P.set, this.H[1], {}, { prof: [top, bot, pw], seed: Math.random() * 100 }); this.swap(this.H);
+    this.popping = false; this.popped = false; this.time = 0; this.popT = 0;
+  }
+  wedge(top, bot) { this.V.forEach(t => this.clearTex(t)); this.run(this.P.wedge, this.H[1], {}, { hTop: top, hBot: bot }); this.swap(this.H); this.popping = false; this.popped = false; }
+  step(dt) {
+    if (this.frozen) return;
+    const p = this.p;
+    if (this.popping) { this.popStep(dt); return; }
+    this.time += dt;
+    if (this.flowOn) {
+      this.run(this.P.adv, this.V[1], { V: this.V[0], Q: this.V[0] }, { dt, keep: 1 }); this.swap(this.V);
+      const sp = this.splat || [0, 0, 0, 0], sv = this.splatV || [0, 0];
+      this.run(this.P.force, this.V[1], { V: this.V[0], H: this.H[0] }, { dt, beta: p.beta * this.NY / 220, drag: p.drag, lod: p.lod, time: this.time, stir: p.stir, splat: sp, splatV: sv, sphere: this.sphere ? 1 : 0 }); this.swap(this.V);
+      this.splat = null;
+      this.run(this.P.div, this.D, { V: this.V[0] });
+      for (let i = 0; i < p.jac; i++) { this.run(this.P.jac, this.Pr[1], { P: this.Pr[0], D: this.D }); this.swap(this.Pr); }
+      this.run(this.P.grad, this.V[1], { P: this.Pr[0], V: this.V[0], H: this.H[0] }); this.swap(this.V);
+      // thickness: MacCormack advection
+      this.run(this.P.adv, this.HF, { V: this.V[0], Q: this.H[0] }, { dt, keep: 1 });
+      this.run(this.P.adv, this.HB, { V: this.V[0], Q: this.HF }, { dt: -dt, keep: 1 });
+      this.run(this.P.mac, this.H[1], { V: this.V[0], Q: this.H[0], QF: this.HF, QB: this.HB }, { dt, N: [this.NX, this.NY] }); this.swap(this.H);
+    }
+    const g = this.NY / 220;   /* parameters are set for a 220-cell-tall film; rescale for other grids */
+    this.run(this.P.phys, this.H[1], { H: this.H[0] }, { dt, K: p.K * g, E: p.E, hc: p.hc, hs: p.hs, hb: p.hb, time: this.time, mr: p.mr, hbot: p.hbot, sphere: this.sphere ? 1 : 0, nuc: p.nuc }); this.swap(this.H);
+  }
+  /* rupture: dtReal is real time; the hole front runs at Taylor–Culick speed in physical units */
+  popStep(dtScreen) {
+    const p = this.p, slow = this.slowmo || 2000, dtPhys = dtScreen / slow;
+    const dxv = p.dxPhys, dxh = this.sphere ? p.dxPhys * 2 * this.NY / this.NX : p.dxPhys;
+    const sub = Math.max(1, Math.ceil(dtPhys * Math.sqrt(2 * p.gamma / (1000 * 8e-9)) / Math.min(dxv, dxh) * 1.2));
+    for (let i = 0; i < Math.min(sub, 40); i++) { this.run(this.P.hole, this.H[1], { H: this.H[0] }, { dt: dtPhys / Math.min(sub, 40), dxv, dxh, sphere: this.sphere ? 1 : 0 }); this.swap(this.H); }
+    this.popT += dtPhys;
+  }
+  puncture(x, y, r = 1.5) { this.run(this.P.stamp, this.H[1], { H: this.H[0] }, { S: [x, y, r, 1], mode: 0 }); this.swap(this.H); this.popping = true; this.popT = 0; }
+  setThick(x, y, r, val, w = 1) { this.run(this.P.stamp, this.H[1], { H: this.H[0] }, { S: [x, y, r, w], mode: 1, val }); this.swap(this.H); }
+  push(x, y, r, vx, vy) { this.splat = [x, y, r, 1]; this.splatV = [vx, vy]; }
+  /* read a block of the thickness field (for probes and statistics) */
+  read(x0, y0, w, h) {
+    const gl = this.gl, buf = new Float32Array(w * h * 4);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo(this.H[0]));
+    gl.readPixels(x0, y0, w, h, gl.RGBA, gl.FLOAT, buf);
+    return buf;
+  }
+  probe(u, v) {
+    const x = Math.max(0, Math.min(this.NX - 1, Math.floor(u * this.NX))), y = Math.max(0, Math.min(this.NY - 1, Math.floor(v * this.NY)));
+    const b = this.read(x, y, 1, 1); return { h: b[0], hole: b[1] > 0.5 };
+  }
+  stats() {   // coarse statistics: fraction black, fraction open, mean thickness
+    const b = this.read(0, 0, this.NX, this.NY); let blk = 0, open = 0, n = 0, sum = 0;
+    for (let i = 0; i < b.length; i += 4 * 5) { n++; if (b[i + 1] > 0.5) open++; else { if (b[i] < this.p.hb * 1.8) blk++; sum += b[i]; } }
+    return { black: blk / n, open: open / n, mean: sum / Math.max(1, n - open) };
+  }
+}
+
+/* ============================================================
+   Views: a framed vertical film (the stage) and a floating
+   bubble (the hero). Both colour every pixel by looking up the
+   film's local thickness in the spectral interference table.
+   ============================================================ */
+const IS_SMALL = Math.min(screen.width || 9999, screen.height || 9999) < 760 || matchMedia('(max-width: 760px)').matches;
+let LITE = false; try { LITE = /[?&]lite\b/.test(location.search); } catch (e) { }
+
+const V_VS = `#version 300 es
+in vec2 p; out vec2 uv;
+void main(){ uv = p*0.5+0.5; gl_Position = vec4(p,0.,1.); }`;
+const V_COMMON = `#version 300 es
+precision highp float; precision highp sampler2D;
+in vec2 uv; out vec4 o;
+uniform sampler2D H, LUT; uniform float hmax, expo, time; uniform vec2 res; uniform vec3 bg;
+float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }
+vec3 tone(vec3 c){ c = max(c, 0.0); c = c/(1.0 + 0.12*c); c = min(c, 1.0); return mix(12.92*c, 1.055*pow(c, vec3(1.0/2.4)) - 0.055, step(0.0031308, c)); }
+vec3 film(float h, float a){ return texture(LUT, vec2(clamp(h/hmax, 0.0, 1.0), a)).rgb; }
+vec3 turbo(float t){ t = clamp(t,0.,1.);
+  const vec4 kr = vec4(0.13572138, 4.61539260, -42.66032258, 132.13108234); const vec2 kr2 = vec2(-152.94239396, 59.28637943);
+  const vec4 kg = vec4(0.09140261, 2.19418839, 4.84296658, -14.18503333); const vec2 kg2 = vec2(4.27729857, 2.82956604);
+  const vec4 kb = vec4(0.10667330, 12.64194608, -60.58204836, 110.36276771); const vec2 kb2 = vec2(-89.90310912, 27.34824973);
+  vec4 v4 = vec4(1.0, t, t*t, t*t*t); vec2 v2 = v4.zw*v4.z;
+  return vec3(dot(v4,kr)+dot(v2,kr2), dot(v4,kg)+dot(v2,kg2), dot(v4,kb)+dot(v2,kb2)); }
+`;
+/* ---------- framed film ---------- */
+const V_FRAME = V_COMMON + `
+uniform vec4 rect; uniform float tilt, mode, pull, wire; uniform vec2 NH;
+void main(){
+  vec2 px = uv*res;
+  vec2 c = uv - 0.5; c.x *= res.x/res.y;
+  vec3 col = bg*(1.0 - 0.35*dot(c,c));
+  vec2 f = (uv - rect.xy)/(rect.zw - rect.xy);
+  vec2 fpx = (rect.zw - rect.xy)*res;            /* film size in pixels */
+  bool inside = all(greaterThanEqual(f, vec2(0))) && all(lessThanEqual(f, vec2(1)));
+  if(inside && f.y <= pull){
+    vec4 s = textureLod(H, f, 0.0);
+    float open = smoothstep(0.35, 0.65, s.g);
+    float light = 0.92 + 0.10*(1.0 - length(f - vec2(0.25, 0.85)));
+    vec3 fc;
+    if(mode < 0.5) fc = film(s.r, tilt)*expo*light;
+    else {
+      float t = clamp((log(max(s.r, 2.0)) - log(4.0))/(log(3200.0) - log(4.0)), 0.0, 1.0);
+      fc = pow(turbo(t), vec3(2.2))*0.9;
+      float k = s.r/100.0, ln = abs(fract(k) - 0.5);
+      float w = fwidth(k)*1.2; fc *= mix(0.45, 1.0, smoothstep(0.0, w, 0.5 - ln));
+    }
+    /* meniscus along the wire: a thick, glossy strip of liquid */
+    vec2 e = min(f, 1.0 - f)*fpx;
+    float men = exp(-min(e.x, e.y)/(2.5*wire));
+    vec3 menc = film(3100.0, tilt)*expo*1.15 + vec3(0.25)*pow(men, 3.0);
+    fc = mix(fc, menc, men*0.85);
+    /* liquid rim of an opening hole */
+    float rim = smoothstep(0.08, 0.5, s.g)*(1.0 - smoothstep(0.5, 0.92, s.g));
+    vec3 behind = col;
+    col = mix(tone(fc), behind, open);
+    col += vec3(0.85, 0.9, 1.0)*rim*0.9;
+    /* pull front when a fresh film is drawn up */
+    float pf = exp(-abs(f.y - pull)*fpx.y/3.0)*step(pull, 0.999);
+    col += vec3(0.8)*pf;
+  }
+  /* the wire frame */
+  vec2 r0 = rect.xy*res, r1 = rect.zw*res;
+  vec2 dEdge = max(r0 - px, px - r1);
+  float od = max(dEdge.x, dEdge.y);
+  float ww = 1.0 - smoothstep(wire*0.5, wire*0.5 + 1.0, abs(od - wire*0.4));
+  if(ww > 0.0){
+    float shade = 0.55 + 0.45*cos((od - wire*0.4)/wire*3.0);
+    vec3 metal = vec3(0.62, 0.64, 0.66)*shade + vec3(0.25)*pow(max(0.0, shade), 8.0);
+    col = mix(col, metal, ww);
+  }
+  /* the handle */
+  float hx = abs(px.x - (r0.x + r1.x)*0.5), hy = r0.y - px.y;
+  if(hy > 0.0 && hx < wire*0.55 && hy < res.y*0.05){ float sh = 0.55 + 0.45*cos(hx/wire*3.0); col = mix(col, vec3(0.6,0.62,0.64)*sh, 1.0); }
+  col += (hash(uv*res + time) - 0.5)*0.012;
+  o = vec4(col, 1.0);
+}`;
+/* ---------- floating bubble ---------- */
+const V_BUBBLE = V_COMMON + `
+uniform vec3 ball; uniform float rot, alive, wob;
+vec3 env(vec3 r){
+  /* studio: a big soft light up-left, a window strip right, fill from behind the camera */
+  float a = smoothstep(0.62, 0.86, dot(r, normalize(vec3(-0.5, 0.5, 0.7))));
+  float w = smoothstep(0.035, 0.0, abs(r.x - 0.78))*smoothstep(-0.25, 0.1, r.y)*smoothstep(0.55, 0.3, r.y)*step(0.0, r.z);
+  float fill = 0.10*smoothstep(-0.2, 0.9, r.z) + 0.06*smoothstep(-0.6, 0.6, r.y);
+  float floorL = 0.06*smoothstep(0.0, -0.8, r.y);
+  return vec3(1.0, 0.98, 0.95)*(1.7*a + 0.9*w + fill + floorL);
+}
+vec2 sph(vec3 n){ return vec2(fract(atan(n.x, n.z)/6.2831853 + 0.5 + rot), asin(clamp(n.y,-1.,1.))/3.14159265 + 0.5); }
+void main(){
+  vec2 p = uv*res;
+  vec3 col = bg;
+  /* backdrop: dark with a few soft out-of-focus lights */
+  vec2 q = uv - vec2(0.5); q.x *= res.x/res.y;
+  col *= 1.0 - 0.45*dot(q,q);
+  for(int i=0;i<6;i++){
+    float fi = float(i);
+    vec2 b = vec2(hash(vec2(fi,1.3))*1.6 - 0.8, hash(vec2(fi,7.1))*0.9 - 0.45);
+    float rr = 0.05 + 0.08*hash(vec2(fi,3.3));
+    float k = smoothstep(rr, rr*0.82, length(q - b));
+    col += k*0.035*mix(vec3(0.35,0.5,0.8), vec3(0.8,0.6,0.4), hash(vec2(fi,5.5)));
+  }
+  vec2 d = (p - ball.xy)/ball.z;
+  d.x *= 1.0 + wob; d.y *= 1.0 - wob;
+  float r2 = dot(d,d);
+  if(r2 < 1.0 && alive > 0.0){
+    float z = sqrt(1.0 - r2);
+    vec3 nf = vec3(d, z), nb = vec3(d, -z), v = vec3(0,0,1);
+    float th = acos(clamp(z, 0.0, 1.0));
+    float a = clamp(th/1.3962634, 0.0, 1.0);          /* LUT spans 0–80° */
+    vec4 sf = textureLod(H, sph(nf), 0.0), sb = textureLod(H, sph(nb), 0.0);
+    vec3 rf = reflect(-v, nf), rb = reflect(-v, -nb);
+    vec3 cf = film(sf.r, a)*env(rf)*expo*(1.0 - smoothstep(0.3, 0.7, sf.g));
+    vec3 cb = film(sb.r, a)*env(rb)*expo*0.4*(1.0 - smoothstep(0.3, 0.7, sb.g));
+    float rimf = smoothstep(0.1, 0.5, sf.g)*(1.0 - smoothstep(0.5, 0.9, sf.g));
+    vec3 lin = cf + cb + vec3(0.9,0.95,1.0)*rimf*1.2;
+    col = tone(lin) + col*(1.0 - 0.10*(1.0 - smoothstep(0.3,0.7,sf.g)));
+    /* a thin bright edge where the film is seen almost edge-on */
+    col += vec3(0.7,0.8,0.9)*smoothstep(0.93, 1.0, sqrt(r2))*0.25*alive*(1.0 - smoothstep(0.3,0.7,sf.g));
+  }
+  col += (hash(uv*res + time) - 0.5)*0.012;
+  o = vec4(col, 1.0);
+}`;
+
+function makeGL(canvas) {
+  const gl = canvas.getContext('webgl2', { antialias: false, alpha: false, preserveDrawingBuffer: false, powerPreference: 'high-performance' });
+  if (!gl) return null;
+  if (!gl.getExtension('EXT_color_buffer_float')) return null;
+  gl.getExtension('OES_texture_float_linear');
+  return gl;
+}
+function glProg(gl, fs) {
+  const sh = (t, s) => { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(x)); return null; } return x; };
+  const v = sh(gl.VERTEX_SHADER, V_VS), f = sh(gl.FRAGMENT_SHADER, fs); if (!v || !f) return null;
+  const p = gl.createProgram(); gl.attachShader(p, v); gl.attachShader(p, f); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { console.error(gl.getProgramInfoLog(p)); return null; }
+  p.u = {}; const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+  for (let i = 0; i < n; i++) { const a = gl.getActiveUniform(p, i); p.u[a.name] = gl.getUniformLocation(p, a.name); }
+  return p;
+}
+const LUT_CACHE = {};
+function lutData(light) { return LUT_CACHE[light] || (LUT_CACHE[light] = OPT.lut(light)); }
+class LutTex {
+  constructor(gl) { this.gl = gl; this.t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, this.t);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); }
+  set(light) { const gl = this.gl; this.light = light; gl.bindTexture(gl.TEXTURE_2D, this.t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, OPT.NH, OPT.NA, 0, gl.RGBA, gl.FLOAT, lutData(light)); }
+}
+/* common frame loop with visibility gating */
+class Loop {
+  constructor(el, fn) { this.fn = fn; this.vis = false; new IntersectionObserver(es => { this.vis = es[0].isIntersecting; this.kick(); }, { rootMargin: '60px' }).observe(el); document.addEventListener('visibilitychange', () => this.kick()); }
+  /* Reset the clock only when the loop starts from idle; resetting it every frame dropped each frame's own work from dt. */
+  kick() { if (this.raf) return; if (this.vis && !document.hidden) { if (!this.looping) this.last = performance.now(); this.looping = true; this.raf = requestAnimationFrame(t => this.tick(t)); } else this.looping = false; }
+  tick(t) { this.raf = 0; if (!this.vis || document.hidden) return; const dt = Math.min(0.05, (t - this.last) / 1000); this.last = t; this.fn(dt, t); this.kick(); }
+}
+function fitCanvas(cv) { const r = cv.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2); const w = Math.max(2, Math.round(r.width * d)), h = Math.max(2, Math.round(r.height * d)); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; } return [w, h, d]; }
+
+/* ================= the framed film ================= */
+class FrameView {
+  constructor(root) {
+    this.root = root; this.cv = root.querySelector('canvas.gl'); this.fxc = root.querySelector('canvas.fx');
+    this.hud = {}; root.querySelectorAll('[data-hud]').forEach(e => this.hud[e.dataset.hud] = e);
+    const gl = this.gl = makeGL(this.cv);
+    if (!gl) { root.classList.add('failed'); this.ok = false; return; }
+    const g = LITE ? [60, 78] : IS_SMALL ? [120, 156] : [168, 220];
+    this.film = new Film(gl, { NX: g[0], NY: g[1], params: { dxPhys: 0.06 / g[0] } });
+    this.film.slowmo = 500;
+    this.prog = glProg(gl, V_FRAME); this.lut = new LutTex(gl);
+    this.ok = this.film.ok && !!this.prog;
+    if (!this.ok) { root.classList.add('failed'); return; }
+    this.light = 'daylight'; this.lut.set('daylight');
+    this.tilt = 0; this.mode = 0; this.expo = 0.92; this.speed = 1; this.paused = false;
+    this.pull = 1; this.pulling = false; this.tool = 'probe'; this.probeAt = null; this.probeVal = null;
+    this.listeners = {}; this.lastStats = 0; this.stats = { black: 0, open: 0, mean: 0 };
+    this.fx = this.fxc.getContext('2d');
+    this.bindPointer();
+    this.loop = new Loop(root, (dt) => this.frame(dt));
+  }
+  on(e, f) { (this.listeners[e] = this.listeners[e] || []).push(f); }
+  emit(e, x) { (this.listeners[e] || []).forEach(f => f(x)); }
+  setLight(l) { this.light = l; this.lut.set(l); this.emit('light', l); }
+  rect() {   // film rectangle in canvas uv, keeping the film's aspect
+    const [w, h] = [this.cv.width, this.cv.height], ar = this.film.NX / this.film.NY;
+    const mh = 0.86, mw = 0.92; let fh = mh * h, fw = fh * ar; if (fw > mw * w) { fw = mw * w; fh = fw / ar; }
+    const x0 = (w - fw) / 2, y0 = (h - fh) / 2 + 0.03 * h;
+    return [x0 / w, y0 / h, (x0 + fw) / w, (y0 + fh) / h];
+  }
+  refill(top, bot, pw) { this.film.reset(top, bot, pw); this.pull = 0; this.pulling = true; this.probeVal = null; this.emit('refill'); }
+  frame(dt) {
+    const [w, h, dpr] = fitCanvas(this.cv); if (this.fxc.width !== w || this.fxc.height !== h) { this.fxc.width = w; this.fxc.height = h; }
+    this.dpr = dpr;
+    if (this.pulling) { this.pull = Math.min(1, this.pull + dt / 0.9); if (this.pull >= 1) this.pulling = false; }
+    if (!this.paused) {
+      const f = this.film;
+      if (f.popping) f.step(dt);
+      else { const T = dt * this.speed; const n = Math.max(1, Math.ceil(T / 0.034)); for (let i = 0; i < n; i++) f.step(T / n); }
+      if (f.popping && (f.popT > 0.02 || this.stats.open > 0.985)) { f.popping = false; f.popped = true; this.emit('popped'); }
+    }
+    const gl = this.gl, P = this.prog; gl.useProgram(P); gl.bindVertexArray(Film.vao(gl));
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, this.film.H[0]); gl.uniform1i(P.u.H, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, this.lut.t); gl.uniform1i(P.u.LUT, 1);
+    gl.uniform1f(P.u.hmax, OPT.HMAX); gl.uniform1f(P.u.expo, this.expo); gl.uniform1f(P.u.time, performance.now() % 1000);
+    gl.uniform2f(P.u.res, w, h); gl.uniform3f(P.u.bg, 0.022, 0.022, 0.026);
+    gl.uniform4fv(P.u.rect, this.rect()); gl.uniform1f(P.u.tilt, this.tilt / 80); gl.uniform1f(P.u.mode, this.mode); gl.uniform1f(P.u.pull, this.pull);
+    gl.uniform1f(P.u.wire, Math.max(2.5, 3.2 * dpr));
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, w, h); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    const now = performance.now();
+    if (this.probeAt && now - (this.lastProbe || 0) > 120) { this.lastProbe = now; const r = this.film.probe(this.probeAt[0], this.probeAt[1]); this.probeVal = r; this.emit('probe', r); }
+    if (now - this.lastStats > 500) { this.lastStats = now; this.stats = this.film.stats(); this.emit('stats', this.stats); if (this.hud.clock) this.hud.clock.textContent = fmtT(this.film.time); }
+    this.drawFx();
+    this.emit('frame', dt);
+  }
+  drawFx() {
+    const c = this.fx, w = this.fxc.width, h = this.fxc.height, d = this.dpr || 1; c.clearRect(0, 0, w, h);
+    if (!this.probeAt) return;
+    const r = this.rect(), x = (r[0] + (r[2] - r[0]) * this.probeAt[0]) * w, y = (1 - (r[1] + (r[3] - r[1]) * this.probeAt[1])) * h;
+    c.strokeStyle = 'rgba(255,255,255,0.95)'; c.lineWidth = 1.4 * d;
+    c.beginPath(); c.arc(x, y, 7 * d, 0, 7); c.stroke();
+    c.beginPath(); c.moveTo(x - 13 * d, y); c.lineTo(x - 4 * d, y); c.moveTo(x + 4 * d, y); c.lineTo(x + 13 * d, y); c.moveTo(x, y - 13 * d); c.lineTo(x, y - 4 * d); c.moveTo(x, y + 4 * d); c.lineTo(x, y + 13 * d); c.stroke();
+    if (this.probeVal && !this.probeVal.hole) {
+      const t = `${Math.round(this.probeVal.h)} nm`; c.font = `500 ${12 * d}px "DM Mono", monospace`;
+      const tw = c.measureText(t).width, left = x + 16 * d + tw + 10 * d > w;
+      const bx = left ? x - 16 * d - tw - 10 * d : x + 16 * d;
+      c.fillStyle = 'rgba(8,8,10,0.78)'; c.fillRect(bx, y - 11 * d, tw + 10 * d, 22 * d);
+      c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.fillText(t, bx + 5 * d, y);
+    }
+  }
+  filmUV(e) { const b = this.cv.getBoundingClientRect(), r = this.rect(); const u = (e.clientX - b.left) / b.width, v = 1 - (e.clientY - b.top) / b.height; return [(u - r[0]) / (r[2] - r[0]), (v - r[1]) / (r[3] - r[1])]; }
+  bindPointer() {
+    const el = this.cv;
+    el.addEventListener('pointerdown', e => {
+      if (e.button > 0) return; const f = this.filmUV(e); if (f[0] < 0 || f[0] > 1 || f[1] < 0 || f[1] > 1) return;
+      el.setPointerCapture && el.setPointerCapture(e.pointerId);
+      this.ptr = { id: e.pointerId, f, t: performance.now() }; this.emit('interact', this.tool);
+      if (this.tool === 'probe') this.probeAt = f;
+      if (this.tool === 'pop') { if (!this.film.popping && !this.film.popped) this.film.puncture(f[0], f[1], 1.2); }
+    });
+    el.addEventListener('pointermove', e => {
+      const P = this.ptr; if (!P || P.id !== e.pointerId) return; const f = this.filmUV(e);
+      const dt = Math.max(8, performance.now() - P.t) / 1000;
+      if (this.tool === 'stir') this.film.push(f[0], f[1], 5, (f[0] - P.f[0]) * this.film.NX / dt * 0.25, (f[1] - P.f[1]) * this.film.NY / dt * 0.25);
+      if (this.tool === 'blow') this.film.push(f[0], f[1], 14, 0, 6);
+      if (this.tool === 'probe') this.probeAt = [Math.min(1, Math.max(0, f[0])), Math.min(1, Math.max(0, f[1]))];
+      P.f = f; P.t = performance.now();
+    });
+    const end = e => { if (this.ptr && this.ptr.id === e.pointerId) this.ptr = null; };
+    el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  }
+}
+
+/* ================= the floating bubble ================= */
+class BubbleView {
+  constructor(root) {
+    this.root = root; this.cv = root.querySelector('canvas.gl');
+    const gl = this.gl = makeGL(this.cv);
+    if (!gl) { root.classList.add('failed'); this.ok = false; return; }
+    const g = LITE ? [96, 48] : IS_SMALL ? [192, 96] : [256, 128];
+    this.film = new Film(gl, { NX: g[0], NY: g[1], periodic: true, sphere: true, params: { beta: 40, drag: 0.5, stir: 6, K: 3, E: 6, hbot: 2200, mr: 2, lod: 3, dxPhys: Math.PI * 0.035 / g[1] } });
+    this.film.slowmo = 150;
+    this.prog = glProg(gl, V_BUBBLE); this.lut = new LutTex(gl);
+    this.ok = this.film.ok && !!this.prog;
+    if (!this.ok) { root.classList.add('failed'); return; }
+    this.lut.set('daylight');
+    this.state = 'grow'; this.age = 0; this.rot = 0; this.t = 0; this.pops = 0; this.rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.film.reset(380, 1100, 1.2);
+    for (let i = 0; i < 40; i++) this.film.step(0.05);        /* start already swirling */
+    this.age = 2; this.state = 'live'; this.grow = 1;
+    // pop on a tap (little movement between down and up), so a swipe past the bubble scrolls instead
+    this.cv.addEventListener('pointerdown', e => { this.down = { id: e.pointerId, x: e.clientX, y: e.clientY }; });
+    this.cv.addEventListener('pointercancel', () => { this.down = null; });
+    this.cv.addEventListener('pointerup', e => {
+      const q = this.down; this.down = null;
+      if (!q || q.id !== e.pointerId || Math.hypot(e.clientX - q.x, e.clientY - q.y) > 8) return;
+      const b = this.cv.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2); const p = [(q.x - b.left) * d, (b.bottom - q.y) * d]; const B = this.ball(); if (Math.hypot(p[0] - B[0], p[1] - B[1]) < B[2] && this.state === 'live') this.pop(p);
+    });
+    this.loop = new Loop(root, (dt) => this.frame(dt));
+  }
+  ball() {
+    const [w, h] = [this.cv.width, this.cv.height];
+    const wide = w > h * 1.2;
+    const R = (wide ? 0.36 * h : 0.36 * Math.min(w, h)) * (0.25 + 0.75 * easeOut(this.grow));
+    const cx = wide ? w * 0.68 : w * 0.5, cy = h * 0.52 + Math.sin(this.t * 0.6) * h * 0.012;
+    return [cx + Math.sin(this.t * 0.37) * w * 0.01, cy, R];
+  }
+  pop(p) {
+    const B = this.ball(); let dx = (p ? p[0] - B[0] : -0.2 * B[2]) / B[2], dy = (p ? p[1] - B[1] : 0.6 * B[2]) / B[2];
+    if (!p) { /* natural pop: start in the black film near the top */ dx = 0.15; dy = 0.93; }
+    const z = Math.sqrt(Math.max(0, 1 - dx * dx - dy * dy));
+    const u = ((Math.atan2(dx, z) / (2 * Math.PI) + 0.5 + this.rot) % 1 + 1) % 1, v = Math.asin(Math.max(-1, Math.min(1, dy))) / Math.PI + 0.5;
+    this.film.puncture(u, v, 1.4); this.state = 'pop'; this.popClock = 0;
+  }
+  frame(dt) {
+    const [w, h] = fitCanvas(this.cv);
+    this.t += dt; this.rot += dt * 0.004;
+    const f = this.film;
+    if (this.state === 'live') {
+      if (!this.rm) { const n = 2; for (let i = 0; i < n; i++) f.step(dt * 0.9 / n); }
+      this.age += dt;
+      if (!this.statT || this.t - this.statT > 1) { this.statT = this.t; this.black = f.stats().black; }
+      if ((this.black > 0.12 || this.age > 70) && !this.rm) this.pop(null);
+    } else if (this.state === 'pop') {
+      f.step(dt); this.popClock += dt;
+      if (this.popClock > 2.4) { this.state = 'gone'; this.goneT = 0; }
+    } else if (this.state === 'gone') {
+      this.goneT += dt;
+      if (this.goneT > 0.9) { f.reset(380 + Math.random() * 160, 1000 + Math.random() * 300, 1.2); for (let i = 0; i < 20; i++) f.step(0.05); this.state = 'grow'; this.grow = 0; this.age = 0; this.black = 0; }
+    } else if (this.state === 'grow') {
+      this.grow = Math.min(1, this.grow + dt / 1.1); f.step(dt * 0.5);
+      if (this.grow >= 1) this.state = 'live';
+    }
+    const gl = this.gl, P = this.prog; gl.useProgram(P); gl.bindVertexArray(Film.vao(gl));
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, f.H[0]); gl.uniform1i(P.u.H, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, this.lut.t); gl.uniform1i(P.u.LUT, 1);
+    gl.uniform1f(P.u.hmax, OPT.HMAX); gl.uniform1f(P.u.expo, 0.95); gl.uniform1f(P.u.time, performance.now() % 1000);
+    gl.uniform2f(P.u.res, w, h); gl.uniform3f(P.u.bg, 0.026, 0.026, 0.032);
+    gl.uniform3fv(P.u.ball, this.ball()); gl.uniform1f(P.u.rot, this.rot);
+    gl.uniform1f(P.u.alive, this.state === 'gone' ? 0 : 1); gl.uniform1f(P.u.wob, 0.012 * Math.sin(this.t * 3.1) * (this.state === 'grow' ? 3 : 1));
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, w, h); gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+}
+function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+function fmtT(s) { s = Math.max(0, s); const m = Math.floor(s / 60), r = Math.floor(s % 60); return m + ':' + String(r).padStart(2, '0'); }
+
+/* ============================================================
+   Story: hero bubble, scroll scenes, figures, probe, lab
+   ============================================================ */
+(function () {
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const pct = x => (x * 100 < 1 ? (x * 100).toFixed(2) : (x * 100).toFixed(1)) + '%';
+  const tc = h => Math.sqrt(2 * 0.030 / (1000 * h * 1e-9));          // Taylor–Culick speed, m/s
+  const lum = c => 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+
+  /* iridescent title gradient from the computed interference colours */
+  try {
+    const stops = []; for (let i = 0; i <= 14; i++) { const h = 120 + i * 40; stops.push(OPT.css(OPT.color(h, 0, 'daylight'), 0.95)); }
+    document.documentElement.style.setProperty('--iris', `linear-gradient(90deg, ${stops.join(', ')})`);
+  } catch (e) { }
+
+  /* ---------------- hero ---------------- */
+  const B = new BubbleView($('#bubble'));
+
+  /* ---------------- stage ---------------- */
+  const V = new FrameView($('#frame'));
+  const F = V.ok ? V.film : null;
+  const BASE = { beta: 55, drag: 0.6, K: 2, E: 2.5, hb: 12 };
+  const lab = { gly: 0, hum: 50, flat: false, nbf: false };
+  function applyRecipe() {
+    if (!F) return;
+    const kg = [1, 0.5, 0.25, 0.12][lab.gly];
+    F.p.K = lab.flat ? 0 : BASE.K * kg;
+    F.p.beta = lab.flat ? 0 : BASE.beta;
+    F.p.drag = BASE.drag * (1 + lab.gly * 0.6);
+    F.p.E = BASE.E * (1 - lab.hum / 100) / 0.5;
+    F.p.hb = lab.nbf ? 4 : 12;
+  }
+  let current = null, boostUntilBlack = 0, popAfter = null;
+  const out = {};
+  function setTilt(t) { if (!V.ok) return; V.tilt = t; $('#tilt').value = t; $('#labTilt').value = t; $('#tiltOut').textContent = t + '°'; $('#labTiltOut').textContent = t + '°'; }
+  function setLight(l) {
+    if (!V.ok) return; V.setLight(l);
+    $$('[data-light]').forEach(b => { const on = b.dataset.light === l; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+    if (V.hud.light) V.hud.light.textContent = OPT.LIGHTS[l].name.toLowerCase();
+    drawProbe();
+  }
+  const SC = {
+    wedge() { F.wedge(0, 1200); F.frozen = true; V.pull = 1; V.speed = 1; V.probeAt = V.probeAt || [0.5, 0.62]; setTilt(0); setLight('daylight'); },
+    fresh() { F.frozen = false; applyRecipe(); V.refill(600, 2400, 1.0); V.speed = 2; setTilt(0); setLight('daylight'); V.probeAt = [0.5, 0.8]; },
+    black() { F.frozen = false; applyRecipe(); if (F.popped || F.popping || V.stats.open > 0.05 || F.time < 5 || current === 'wedge') V.refill(600, 2400, 1.0); V.speed = 2; boostUntilBlack = 0.05; setTilt(0); setLight('daylight'); V.probeAt = [0.5, 0.96]; },
+    pop() { F.frozen = false; applyRecipe(); V.refill(600, 2400, 1.0); V.speed = 2; boostUntilBlack = 0.05; popAfter = 0.8; setTilt(0); setLight('daylight'); V.probeAt = null; },
+    lamps() { F.frozen = false; applyRecipe(); if (F.popped || F.popping || V.stats.open > 0.05 || current === 'wedge' || F.time < 3) V.refill(600, 2400, 1.0); V.speed = 1.5; setTilt(0); V.probeAt = V.probeAt || [0.5, 0.7]; },
+    tilt() { F.frozen = false; applyRecipe(); if (F.popped || F.popping || V.stats.open > 0.05 || F.time < 3) V.refill(600, 2400, 1.0); V.speed = 1.5; setLight('daylight'); },
+    lab() { F.frozen = false; applyRecipe(); if (F.popped || F.popping || V.stats.open > 0.05) V.refill(600, 2400, 1.0); V.speed = +$('#labSpeed').value; }
+  };
+  /* ---------------- card activation ---------------- */
+  const cards = $$('.card'), theatre = $('.theatre'), stageBox = $('#stage');
+  let active = -1;
+  function runScene(name) {
+    if (!V.ok) return;
+    boostUntilBlack = 0; popAfter = null; V.paused = false; syncPause();
+    if (name !== 'lamps' && name !== 'lab' && V.light !== 'daylight') setLight('daylight');
+    SC[name] && SC[name](); current = name; V.loop.kick();
+  }
+  function pickCard() {
+    const tr = theatre.getBoundingClientRect(); if (tr.bottom < 0 || tr.top > innerHeight) return;
+    const mobile = matchMedia('(max-width: 900px)').matches;
+    let line = innerHeight * 0.5;
+    if (mobile) { const sb = stageBox.getBoundingClientRect().bottom; line = sb + (innerHeight - sb) * 0.35; }
+    let idx = 0; cards.forEach((c, i) => { if (c.getBoundingClientRect().top < line) idx = i; });
+    if (idx !== active) {
+      const prev = active >= 0 ? cards[active].dataset.scene : null; active = idx;
+      cards.forEach((c, i) => c.classList.toggle('active', i === idx));
+      if (cards[idx].dataset.scene !== prev) runScene(cards[idx].dataset.scene);
+    }
+  }
+  let sTimer = 0;
+  addEventListener('scroll', () => { if (!sTimer) sTimer = setTimeout(() => { sTimer = 0; pickCard(); }, 60); }, { passive: true });
+  addEventListener('resize', pickCard);
+  cards.forEach(c => c.querySelectorAll('[data-replay]').forEach(b => b.addEventListener('click', () => runScene(c.dataset.scene))));
+
+  /* ---------------- frame events ---------------- */
+  if (V.ok) {
+    V.on('stats', s => {
+      if (boostUntilBlack) { V.speed = s.black > boostUntilBlack ? 1.5 : 10; if (s.black > boostUntilBlack) boostUntilBlack = 0; }
+      out.mean = s.mean; out.black = s.black;
+      const set = (k, v) => $$(`[data-out="${k}"]`).forEach(e => { if (e.textContent !== v) e.textContent = v; });
+      set('mean', isFinite(s.mean) ? (s.mean >= 1000 ? (s.mean / 1000).toFixed(2) + ' µm' : Math.round(s.mean) + ' nm') : '…');
+      set('black', pct(s.black));
+      const hb = F.p.hb, rb = lum(OPT.color(hb, 0, 'daylight'));
+      set('rblack', pct(rb));
+      set('v1', tc(1000).toFixed(1) + ' m/s'); set('vb', Math.round(tc(hb)) + ' m/s (' + hb + ' nm)');
+      if (V.hud.scene) V.hud.scene.textContent = V.speed > 3 && !F.frozen ? `time-lapse ×${V.speed}` : '';
+    });
+    V.on('frame', dt => {
+      if (popAfter != null && !boostUntilBlack) { popAfter -= dt; if (popAfter <= 0) { popAfter = null; F.puncture(0.5, 0.95, 1.4); } }
+      if (V.hud.slow) V.hud.slow.textContent = F.popping ? 'slow motion \u00f7500' : '';
+    });
+    V.on('probe', () => drawProbe());
+    V.on('popped', () => { if (current === 'lab' || current === 'lamps' || current === 'tilt') setTimeout(() => { if (F.popped) V.refill(600, 2400, 1.0); }, 1600); });
+  }
+
+  /* ---------------- probe panel ---------------- */
+  const pc = $('#probeSpec'), pctx = pc.getContext('2d');
+  function sizeCv(cv) { const d = Math.min(devicePixelRatio || 1, 2), W = Math.round(cv.clientWidth * d), H = Math.round(cv.clientHeight * d); if (!W) return null; if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; } return [W, H, d]; }
+  function spectrumPlot(cv, ctx, h, th, light, opts = {}) {
+    const s = sizeCv(cv); if (!s) return; const [W, H, d] = s, c = ctx; c.clearRect(0, 0, W, H);
+    const L = (opts.L || 4) * d, R = 4 * d, T = (opts.T || 4) * d, Bm = (opts.B || 4) * d;
+    const x = l => L + (l - 380) / 400 * (W - L - R), rm = OPT.Rmax(th) * 1.05;
+    const y = r => H - Bm - Math.min(1, r / rm) * (H - Bm - T);
+    const mono = OPT.LIGHTS[light].mono;
+    // rainbow fill under the curve
+    for (let l = 380; l < 780; l += 2) {
+      const r = OPT.R(h, l + 1, th), col = OPT.wlColor(l + 1), a = mono ? (Math.abs(l + 1 - mono) < 2 ? 1 : 0.08) : 1;
+      c.fillStyle = `rgba(${col.map(v => Math.round(255 * Math.pow(v, 0.8))).join(',')},${(0.85 * a).toFixed(2)})`;
+      c.fillRect(x(l), y(r), Math.ceil(x(l + 2) - x(l)) + 0.5, H - Bm - y(r));
+    }
+    c.strokeStyle = 'rgba(255,255,255,0.9)'; c.lineWidth = 1.3 * d; c.beginPath();
+    for (let l = 380; l <= 780; l += 2) { const p = [x(l), y(OPT.R(h, l, th))]; l === 380 ? c.moveTo(...p) : c.lineTo(...p); } c.stroke();
+    if (opts.axes) {
+      c.fillStyle = '#9b958c'; c.font = `500 ${10 * d}px "DM Mono", monospace`; c.textAlign = 'center'; c.textBaseline = 'top';
+      for (let l = 400; l <= 750; l += 50) c.fillText(String(l), x(l), H - Bm + 4 * d);
+      c.textAlign = 'right'; c.fillText('wavelength, nm', W - R, H - Bm + 4 * d + 13 * d);
+      c.textAlign = 'left'; c.textBaseline = 'top'; c.fillText('reflectance', L, 2 * d);
+    }
+  }
+  function drawProbe() {
+    if (!V.ok) return;
+    const pv = V.probeVal, sw = $('#probeSw');
+    if (!pv) { $('#probeH').textContent = 'tap the film'; $('#probeR').textContent = '–'; sw.style.background = '#000'; pctx.clearRect(0, 0, pc.width, pc.height); return; }
+    if (pv.hole) { $('#probeH').textContent = 'no film'; $('#probeR').textContent = '–'; sw.style.background = '#000'; pctx.clearRect(0, 0, pc.width, pc.height); return; }
+    const th = V.tilt * Math.PI / 180, c = OPT.color(pv.h, th, V.light);
+    sw.style.background = OPT.css(c, V.expo);
+    $('#probeH').textContent = pv.h >= 1000 ? (pv.h / 1000).toFixed(2) + ' µm' : Math.round(pv.h) + ' nm';
+    $('#probeR').textContent = pct(lum(c) * OPT.Rmax(0)) + ' of the light';
+    spectrumPlot(pc, pctx, pv.h, th, V.light);
+  }
+
+  /* ---------------- figure: two reflections ---------------- */
+  const rays = $('#rays'), rctx = rays.getContext('2d'), spec = $('#spec'), sctx = spec.getContext('2d'), scale = $('#scale'), kctx = scale.getContext('2d');
+  let hFig = 320, phase = 0;
+  function drawRays() {
+    const s = sizeCv(rays); if (!s) return; const [W, H, d] = s, c = rctx; c.clearRect(0, 0, W, H);
+    const n = 1.333, half = W * 0.42;
+    // film cross-section (thickness drawn to scale within the panel)
+    const fy = H * 0.52, tpx = 6 * d + hFig / 1200 * H * 0.3;
+    const grd = c.createLinearGradient(0, fy, 0, fy + tpx); const fc = OPT.css(OPT.color(hFig, 0, 'daylight'), 0.92);
+    c.fillStyle = 'rgba(120,160,200,0.10)'; c.fillRect(10 * d, fy, half - 20 * d, tpx);
+    c.strokeStyle = 'rgba(239,233,223,0.55)'; c.lineWidth = 1 * d; c.beginPath(); c.moveTo(10 * d, fy); c.lineTo(half - 10 * d, fy); c.moveTo(10 * d, fy + tpx); c.lineTo(half - 10 * d, fy + tpx); c.stroke();
+    c.fillStyle = '#9b958c'; c.font = `500 ${10 * d}px "DM Mono", monospace`; c.textAlign = 'left'; c.textBaseline = 'middle';
+    c.fillText('air', 14 * d, fy - 14 * d); c.fillText('water  h = ' + hFig + ' nm', 14 * d, fy + tpx / 2); c.fillText('air', 14 * d, fy + tpx + 14 * d);
+    // rays: in at A, out at A (1) and at B (2)
+    const ax = half * 0.42, bx = ax + tpx * 0.9, ang = 0.75;
+    c.lineWidth = 1.6 * d; c.strokeStyle = 'rgba(255,248,235,0.9)';
+    const arrow = (x0, y0, x1, y1, col) => { c.strokeStyle = col; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke(); const a = Math.atan2(y1 - y0, x1 - x0); c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - 7 * d * Math.cos(a - 0.4), y1 - 7 * d * Math.sin(a - 0.4)); c.moveTo(x1, y1); c.lineTo(x1 - 7 * d * Math.cos(a + 0.4), y1 - 7 * d * Math.sin(a + 0.4)); c.stroke(); };
+    const L = H * 0.36;
+    arrow(ax - L * Math.sin(ang), fy - L * Math.cos(ang), ax, fy, 'rgba(255,248,235,0.95)');
+    arrow(ax, fy, ax + L * Math.sin(ang), fy - L * Math.cos(ang), '#e3b34d');
+    c.strokeStyle = 'rgba(126,200,255,0.9)'; c.beginPath(); c.moveTo(ax, fy); c.lineTo((ax + bx) / 2, fy + tpx); c.lineTo(bx, fy); c.stroke();
+    arrow(bx, fy, bx + L * Math.sin(ang), fy - L * Math.cos(ang), '#7ec8ff');
+    c.textAlign = 'left'; c.fillStyle = '#e3b34d'; c.fillText('1  front, flipped', ax + L * Math.sin(ang) - 30 * d, fy - L * Math.cos(ang) - 10 * d);
+    c.fillStyle = '#7ec8ff'; c.fillText('2  back', bx + L * Math.sin(ang) + 6 * d, fy - L * Math.cos(ang) + 8 * d);
+    // waves for three wavelengths
+    const rows = [[650, 'red'], [550, 'green'], [450, 'blue']], x0 = half + 6 * d, x1 = W - 70 * d, rh = H / 3;
+    rows.forEach(([l, nm], i) => {
+      const yc = rh * (i + 0.5), A = rh * 0.16, col = OPT.wlColor(l).map(v => Math.round(255 * Math.pow(v, 0.8))).join(',');
+      const delta = 4 * Math.PI * OPT.nW(l) * hFig / l;
+      const wave = (ph, yo, a, colr, lw) => { c.strokeStyle = colr; c.lineWidth = lw; c.beginPath(); for (let x = x0; x <= x1; x += 2 * d) { const t = (x - x0) / (x1 - x0) * 3 * 2 * Math.PI; const y = yo - a * Math.sin(t - phase + ph); x === x0 ? c.moveTo(x, y) : c.lineTo(x, y); } c.stroke(); };
+      wave(Math.PI, yc - A * 0.9, A * 0.5, 'rgba(227,179,77,0.65)', 1 * d);
+      wave(delta, yc - A * 0.9, A * 0.5, 'rgba(126,200,255,0.65)', 1 * d);
+      const sa = 2 * Math.sin(delta / 2), amp = Math.abs(sa);   // e^{iπ} + e^{iδ} = 2 sin(δ/2) e^{i(δ/2 + π/2)}
+      wave(delta / 2 + Math.PI / 2, yc + A * 0.6, A * 0.5 * sa, `rgb(${col})`, 2 * d);
+      c.fillStyle = `rgb(${col})`; c.textAlign = 'left'; c.fillText(l + ' nm', x1 + 8 * d, yc - A * 0.9);
+      c.fillStyle = '#efe9df'; c.fillText(Math.round(amp * amp / 4 * 100) + '%', x1 + 8 * d, yc + A * 0.6);
+    });
+    c.fillStyle = '#9b958c'; c.textAlign = 'left'; c.fillText('1 + 2 =', x0, H - 8 * d);
+  }
+  function drawSpec() {
+    spectrumPlot(spec, sctx, hFig, 0, 'daylight', { L: 10, B: 30, T: 18, axes: true });
+    const s = sizeCv(spec); if (!s) return; const [W, H, d] = s;
+    const col = OPT.css(OPT.color(hFig, 0, 'daylight'), 0.92);
+    sctx.fillStyle = col; sctx.fillRect(W - 58 * d, 18 * d, 46 * d, 46 * d);
+    sctx.strokeStyle = 'rgba(255,255,255,0.25)'; sctx.strokeRect(W - 58 * d + 0.5, 18 * d + 0.5, 46 * d, 46 * d);
+    sctx.fillStyle = '#9b958c'; sctx.font = `500 ${10 * d}px "DM Mono", monospace`; sctx.textAlign = 'right'; sctx.textBaseline = 'top'; sctx.fillText('seen as', W - 64 * d, 20 * d);
+  }
+  function drawScale() {
+    const s = sizeCv(scale); if (!s) return; const [W, H, d] = s, c = kctx; c.clearRect(0, 0, W, H);
+    const L = 10 * d, R = 10 * d, top = 16 * d, sh = H - 44 * d, hmax = 1200;
+    const x = h => L + h / hmax * (W - L - R);
+    for (let i = 0; i < W - L - R; i++) { const h = i / (W - L - R) * hmax; c.fillStyle = OPT.css(OPT.color(h, 0, 'daylight'), 0.92); c.fillRect(L + i, top, 1.5, sh); }
+    c.fillStyle = '#9b958c'; c.font = `500 ${10 * d}px "DM Mono", monospace`; c.textBaseline = 'top'; c.textAlign = 'center';
+    for (let h = 0; h <= hmax; h += 200) { c.fillRect(x(h), top + sh, 1, 4 * d); c.textAlign = h === 0 ? 'left' : h === hmax ? 'right' : 'center'; c.fillText(h === 0 ? '0 nm' : String(h), x(h), top + sh + 6 * d); }
+    c.textAlign = 'center';
+    const ord = 550 / (2 * 1.333);
+    c.strokeStyle = 'rgba(239,233,223,0.7)'; c.lineWidth = 1; c.setLineDash([2 * d, 3 * d]);
+    for (let k = 1; k * ord < hmax; k++) { c.beginPath(); c.moveTo(x(k * ord), top - 3 * d); c.lineTo(x(k * ord), top + sh); c.stroke(); }
+    c.setLineDash([]); c.fillStyle = '#efe9df'; c.textBaseline = 'bottom';
+    ['1st order', '2nd', '3rd', '4th', '5th'].forEach((t, k) => { const a = k * ord, b = Math.min(hmax, (k + 1) * ord); if (a < hmax) c.fillText(t, x((a + b) / 2), top - 3 * d); });
+    // marker for the slider thickness
+    const mx = x(Math.min(hmax, hFig)); c.fillStyle = '#fff'; c.beginPath(); c.moveTo(mx, top + sh + 1); c.lineTo(mx - 4 * d, top + sh + 7 * d); c.lineTo(mx + 4 * d, top + sh + 7 * d); c.fill();
+  }
+  $('#hSlide').addEventListener('input', e => { hFig = +e.target.value; $('#hOut').textContent = hFig + ' nm'; drawSpec(); drawScale(); if (!figLoop.vis) drawRays(); });
+  const figLoop = new Loop(rays, dt => { phase += dt * 3; drawRays(); });
+  drawSpec(); drawScale(); drawRays();
+  addEventListener('resize', () => { drawSpec(); drawScale(); drawRays(); drawProbe(); });
+
+  /* ---------------- controls ---------------- */
+  const toolBtns = $$('[data-tool]');
+  function syncTools() { toolBtns.forEach(b => { const on = b.dataset.tool === V.tool; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); }); }
+  function syncPause() { const b = $('#pauseBtn'); b.textContent = V.paused ? 'Play' : 'Pause'; b.setAttribute('aria-pressed', String(!!V.paused)); }
+  toolBtns.forEach(b => b.addEventListener('click', () => { V.tool = b.dataset.tool; syncTools(); }));
+  $('#viewSel').addEventListener('change', e => { V.mode = +e.target.value; });
+  $('#refillBtn').addEventListener('click', () => { if (!V.ok) return; F.frozen = false; applyRecipe(); V.refill(600, 2400, 1.0); });
+  $('#pauseBtn').addEventListener('click', () => { V.paused = !V.paused; syncPause(); });
+  $$('[data-light]').forEach(b => b.addEventListener('click', () => setLight(b.dataset.light)));
+  $('#tilt').addEventListener('input', e => setTilt(+e.target.value));
+  $('#labTilt').addEventListener('input', e => setTilt(+e.target.value));
+  $('#labSpeed').addEventListener('input', e => { V.speed = +e.target.value; $('#labSpeedOut').textContent = e.target.value + '×'; });
+  $('#labGly').addEventListener('input', e => { lab.gly = +e.target.value; $('#labGlyOut').textContent = ['none', 'a little', 'more', 'a lot'][lab.gly]; applyRecipe(); });
+  $('#labHum').addEventListener('input', e => { lab.hum = +e.target.value; $('#labHumOut').textContent = lab.hum + '%'; applyRecipe(); });
+  $$('[data-orient]').forEach(b => b.addEventListener('click', () => { lab.flat = b.dataset.orient === 'flat'; $$('[data-orient]').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); }); applyRecipe(); }));
+  $$('[data-black]').forEach(b => b.addEventListener('click', () => { lab.nbf = b.dataset.black === 'nbf'; $$('[data-black]').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); }); applyRecipe(); }));
+  $('#frame').addEventListener('pointerdown', () => { if (V.ok && F.frozen && V.tool !== 'probe') { F.frozen = false; applyRecipe(); } }, true);
+
+  /* ---------------- validation table (computed live) ---------------- */
+  (function validate() {
+    let best = 1e9, hb = 0; for (let h = 150; h <= 260; h += 0.5) { const y = lum(OPT.color(h, 0, 'daylight')); if (y < best) { best = y; hb = h; } }
+    const set = (k, v) => { const e = document.querySelector(`[data-val="${k}"]`); if (e) e.textContent = v; };
+    set('tint', hb.toFixed(0) + ' nm (darkest point of the first order)');
+    set('fringe', (589.3 / (2 * OPT.nW(589.3))).toFixed(1) + ' nm');
+    set('rmax', (OPT.Rmax(0) * 100).toFixed(2) + '%');
+    set('rblack', (OPT.R(10, 550, 0) * 100).toFixed(3) + '%');
+    set('v1', tc(1000).toFixed(2) + ' m/s');
+  })();
+
+  /* ---------------- history timeline ---------------- */
+  (function () {
+    const svg = $('#history'), NS = 'http://www.w3.org/2000/svg';
+    const el = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); svg.appendChild(e); return e; };
+    const y0 = 1650, y1 = 2000, Lx = 30, Rx = 970, X = y => Lx + (y - y0) / (y1 - y0) * (Rx - Lx), base = 122;
+    el('line', { x1: Lx, y1: base, x2: Rx, y2: base, stroke: '#232327', 'stroke-width': 2 });
+    for (let y = y0; y <= y1; y += 50) { el('line', { x1: X(y), y1: base - 5, x2: X(y), y2: base + 5, stroke: '#5f5b56' }); el('text', { x: X(y), y: base + 22, fill: '#5f5b56', 'font-size': 11, 'text-anchor': 'middle' }).textContent = y; }
+    const ev = [
+      [1665, -1, 'Hooke: colours', 'of thin plates'],
+      [1704, 1, 'Newton: bubbles', 'and the black spot'],
+      [1802, -1, 'Young: interference;', 'first wavelengths'],
+      [1873, 1, 'Plateau: the laws', 'of soap-film shapes'],
+      [1890, -2, 'Boys: Soap-Bubbles', 'lectures'],
+      [1918, 2, 'Perrin: black films', 'thin in steps'],
+      [1959, -1, 'Mysels: marginal', 'regeneration'],
+      [1960, 1, 'Culick: speed of', 'a bursting film'],
+      [1995, -2, 'Kellay, Wu &', 'Goldburg: 2D turbulence']
+    ];
+    const cols = OPT ? [0, 1, 2, 3, 4, 5, 6, 7, 8].map(i => OPT.css(OPT.color(160 + i * 55, 0, 'daylight'), 1.0)) : [];
+    ev.forEach(([yr, lv, a, b], i) => {
+      const x = X(yr), up = lv < 0, ly = up ? base - 26 - (Math.abs(lv) - 1) * 42 : base + 52 + (lv - 1) * 36;
+      el('line', { x1: x, y1: base, x2: x, y2: up ? ly + 6 : ly - 14, stroke: '#232327' });
+      el('circle', { cx: x, cy: base, r: 5, fill: '#070708', stroke: cols[i] || '#efe9df', 'stroke-width': 2 });
+      const anc = yr > 1985 ? 'end' : 'start', tx = anc === 'end' ? x - 6 : x + 6;
+      el('text', { x: tx, y: up ? ly - 10 : ly, fill: '#efe9df', 'font-size': 11.5, 'text-anchor': anc }).textContent = a;
+      el('text', { x: tx, y: (up ? ly - 10 : ly) + 14, fill: '#9b958c', 'font-size': 10.5, 'text-anchor': anc }).textContent = b;
+    });
+  })();
+
+  if (V.ok) { syncTools(); pickCard(); }
+  window.__sf = { B, V, F, SC, out, lab };
+})();
+</script>
+
+</body></html>
