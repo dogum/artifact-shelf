@@ -1,0 +1,40 @@
+---
+title: "Belousov's Clock"
+summary: "The Belousov–Zhabotinsky reaction, run live from the Oregonator equations: a chemical clock, waves you tap and cut into spirals, and spirals in the heart."
+shelf: simulations
+stage: tall
+tags: [belousov-zhabotinsky, reaction-diffusion, oregonator, spiral-waves, excitable-media, webgl]
+made: 2026-10-09
+status: published
+featured: true
+autorun: true
+capture_wait: 45000
+---
+
+A long-form explainer on the Belousov–Zhabotinsky reaction, the mixture of bromate, malonic acid, sulfuric acid and an iron indicator that turns from red to blue and back on a steady beat. It runs from Belousov's 1951 result, which editors turned down for six years, through the three-reaction clock, travelling waves and spiral waves, to the heart, where the same spirals drive some arrhythmias. The dishes, the flask and the charts are all computed in the browser from the Oregonator equations, and a tap on any dish starts a wave.
+
+## How to use it
+
+- The contents bar under the title jumps to **I The rejection**, **II The clock**, **III–V Waves, spirals, hearts**, **VI Lab** and **VII Fine print**.
+- **The title dish** starts on its own: it fires a ring, cuts it, and the loose ends wind up into a spiral pair. **Tap** to start a wave and **drag** across a wave to break it. Left alone, it fires a new wave at a random spot now and then.
+- **II The clock** is the stirred version. **Pause**, **Faster** and **Slower** control the flask's time-lapse, the **A Brake**, **B Runaway** and **C Reset** cards light up in turn, and the reaction network, the concentration traces and the phase plane all follow the same solution. Drag **Stoichiometric factor f** between 0.2 and 3.0 and the status line says whether the flask has to oscillate or gets stuck red or blue.
+- **III to V** pin a dish beside the text (above it on a phone) and play one scene per card as you scroll: a single ring with its measured front speed, colliding waves, two competing pacemakers, a broken wave, the phase view, a meandering tip, then the heart with its sinus node, reentry, fibrillation and a defibrillating flash. **Replay** restarts a scene and **Flash again** repeats the shock.
+- The toolbar under that dish has **Wave / cut** (tap or drag), **Light** (hold to add bromide and block waves; it reads **Bromide** unless the view is Ruthenium), **Pacemaker** (tap to add or remove one) and **Probe** (tap to place an electrode that draws a trace and reads the period, or beats per minute in heart units). The menu switches the view between **Ferroin**, **Cerium**, **Ruthenium**, **Phase** and **HBrO₂**. **Tips** marks each spiral tip with its +1 or −1 charge and a trail, and **Pause** and **Clear** stop and wipe the dish.
+- **VI Lab** unlocks everything: **Bromide per reset, f** (1.0 to 2.2), **Time-scale ratio, ε** (0.02 to 0.09), **Light / bromide, φ** (0 to 0.05), **Playback speed**, **New pacemaker period**, **Units** (**BZ dish** or **Heart tissue**) and seven presets from **Spiral pair** to **Oscillatory dish**.
+
+## How it works
+
+The chemistry follows the Field–Kőrös–Noyes (FKN) mechanism, reduced to the three processes the page calls Brake, Runaway and Reset: bromide removes bromous acid, HBrO₂ (A); once bromide falls below a critical level, HBrO₂ makes more of itself and oxidises the catalyst (B); the oxidised catalyst reacts with malonic acid and bromomalonic acid and releases fresh bromide (C). The flask integrates the Oregonator, Field and Noyes's model of that mechanism, in its two-variable form: ε dx/dτ = x(1 − x) − f z (x − q)/(x + q) and dz/dτ = x − z, where x is scaled HBrO₂, z is the oxidised catalyst, and bromide is fast enough to sit at its steady state y = f z/(q + x). The rate constants are the textbook values measured for the cerium reaction, with 0.06 M bromate and 0.02 M malonic acid, which give ε ≈ 0.0099, q ≈ 7.6×10⁻⁵ and a time unit of 50 s. Each step of 5×10⁻⁴ time units solves the stiff x equation by backward Euler with Newton iterations and relaxes z exactly. The network diagram weights each of the model's five reactions by its live rate, and the f slider's verdict comes from the trace and determinant of the Jacobian at the fixed point.
+
+An unstirred layer is an excitable medium. At rest it is stable, but a large enough push of HBrO₂ fires a pulse, and the spot stays refractory until the catalyst is reduced again; diffusion between neighbours turns that into travelling waves. The dishes solve the reaction–diffusion form of the Oregonator in Tyson–Fife scaling, with the light-driven bromide term of Krug, Pohlmann and Kuhnert: ε ∂u/∂t = u − u² − (f v + φ)(u − q)/(u + q) + ∇²u and ∂v/∂t = u − v, with f = 1.4, q = 0.002, ε = 0.02 and φ = 0.01 by default. The grid is 512 × 512 (Δx = 0.4) inside a circular no-flux wall, stepped in WebGL2 fragment shaders that ping-pong between two 32-bit float textures (16-bit where that is all the GPU offers). Each step takes three Newton iterations of backward Euler on the stiff u reaction, adds diffusion through an isotropic nine-point Laplacian, and relaxes v exactly; the catalyst itself does not diffuse. Steps are at most ε/4, which is 0.005 at the defaults. A third channel holds local bromide from the light tool and the flash, which spreads and decays. One time unit is about 50 s and one length unit about 0.32 mm, so the dish is about 6.2 cm across and 1× playback is a 60× time-lapse. **Heart tissue** rescales the same pattern to a conduction speed of 0.5 m/s and a 0.18 s spiral period.
+
+Gestures write straight into the grid. A tap sets u to 0.9 in a small disc, well above threshold. A drag paints a stripe where u drops below its resting value and v rises to 0.34, an artificial refractory band, so a front crossing it is cut and its two free ends curl into spirals turning in opposite directions. A pacemaker repeats a tap at a fixed period. Spiral tips are found on the GPU: each point's phase is the angle of (log u, v) around a reference point, the winding of that phase around every grid square flags a singularity, and a Newton solve on the bilinear interpolant places the tip inside its square. The tips are read back, matched from frame to frame into trails and counted by sign. The probe and the card readouts sample single points of the grid: front speed comes from the arrival times at two points 30 length units apart, periods from successive upswings of the oxidised catalyst.
+
+The picture is transmitted light. The reduced and oxidised forms of each catalyst get their own absorbance, so ferroin goes from red to blue, cerium from clear to yellow and the ruthenium catalyst from orange to green, with a meniscus at the glass, a light box that dims toward the rim and a little film grain. The phase view colours each point by its place in the cycle, and the HBrO₂ view maps log u onto an inferno ramp. Each dish pauses when it scrolls out of view or the tab is hidden, and with reduced motion set the title dish runs at half speed and adds no waves of its own.
+
+## Notes
+
+- The history and the examples in **The same spirals, elsewhere** come with an eleven-item source list at the foot of the page, from Belousov's 1959 abstract and the 1972 FKN paper to Winfree's *When Time Breaks Down*. The four thumbnails in that section are illustrations, drawn once as rigid spirals and rotated.
+- Simplifications the page states: the dish uses q = 0.002, larger than the textbook value, and leaves out convection, CO₂ bubbles and oxygen effects. The flask uses the cerium rate constants and is drawn in ferroin colours, which the page notes behave similarly.
+- The dishes need WebGL2 with floating-point render targets. Without them a notice takes the place of each dish.
+- This copy fixes two things in the original. The dishes timed each step from the end of the previous frame, so on a slow GPU the model crawled (in software rendering the scroll-section dish now covers about 30 times more model time per second); and without WebGL2 the page stopped before drawing the flask, timeline, charts and thumbnails, which now draw on their own.

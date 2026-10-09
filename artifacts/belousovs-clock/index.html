@@ -1,0 +1,2077 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Belousov's Clock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,300..900&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a darkroom with one light box. Each act puts a single lit instrument (dish, flask, network)
+   beside a ~62ch column of narrative; the dish act pins the instrument while the story scrolls. */
+:root {
+  --night: #0d0b0d;       /* bench in a dark room */
+  --vellum: #161214;      /* raised panels */
+  --rule: #2b2427;        /* hairlines */
+  --paper: #efe6dd;       /* body text, warm like lab paper under a lamp */
+  --mute: #a99d95;
+  --faint: #6e635e;
+  --ferroin: #e5582f;     /* reduced Fe(phen)3 2+, red-orange */
+  --ferriin: #63a8ff;     /* oxidised Fe(phen)3 3+, blue */
+  --amber: #f2b441;       /* HBrO2, the runaway */
+  --rose: #ff7d8c;        /* Br-, the brake */
+  --teal: #5fd3c1;        /* reset chemistry */
+  --display: "Anybody", "Arial Narrow", "Helvetica Neue", system-ui, sans-serif;
+  --serif: "Newsreader", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --s-1: 0.8125rem; --s0: 1.0625rem; --s1: 1.3rem; --s2: 1.75rem; --s3: clamp(2rem, 4.2vw, 3.1rem); --s4: clamp(2.7rem, 8.4vw, 6.6rem);
+  --gut: 16px;
+  color-scheme: dark;
+}
+@media (min-width: 700px) { :root { --gut: 32px; } }
+html { background: var(--night); }
+body { background: var(--night); color: var(--paper); font: 400 var(--s0)/1.62 var(--serif); font-optical-sizing: auto; -webkit-font-smoothing: antialiased; }
+::selection { background: var(--ferriin); color: #08111f; }
+a { color: var(--paper); text-decoration-color: color-mix(in srgb, var(--ferriin) 70%, transparent); text-underline-offset: 3px; }
+a:hover { color: var(--ferriin); }
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: -0.005em; text-wrap: balance; margin: 0; line-height: 0.98; }
+h2 { font-size: var(--s3); font-variation-settings: "wdth" 118; text-transform: uppercase; }
+h3 { font-size: var(--s1); font-variation-settings: "wdth" 108; font-weight: 700; line-height: 1.1; text-transform: uppercase; letter-spacing: 0.01em; }
+p { margin: 0; }
+.eyebrow { font: 500 0.72rem/1.3 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); }
+.eyebrow b { color: var(--amber); font-weight: 500; }
+.mono { font-family: var(--mono); font-size: 0.82em; }
+.prose { max-width: 62ch; display: grid; gap: 1em; }
+.prose p { color: color-mix(in srgb, var(--paper) 92%, var(--night)); }
+.dim { color: var(--mute); }
+sub, sup { font-size: 0.7em; line-height: 0; }
+.wrap { padding-inline: var(--gut); max-width: 1320px; margin-inline: auto; }
+section { position: relative; }
+.act { padding-block: clamp(4rem, 10vw, 8rem) 0; }
+.act-head { display: grid; gap: 1rem; margin-bottom: 2.4rem; max-width: 62ch; }
+
+/* ---------- dish (shared by hero and stage) ---------- */
+.dish { position: relative; aspect-ratio: 1 / 1; width: 100%; max-width: 100%; user-select: none; -webkit-user-select: none; }
+.dish canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.dish canvas.fx { pointer-events: none; }
+.dish .gl { touch-action: none; cursor: crosshair; }
+.hero .dish .gl { touch-action: pan-y; }
+.dish .nogl { position: absolute; inset: 12%; display: none; place-items: center; text-align: center; color: var(--mute); font: 0.9rem/1.5 var(--mono); }
+.dish.failed .nogl { display: grid; }
+.hud { position: absolute; inset: 0; pointer-events: none; font: 500 0.7rem/1.2 var(--mono); color: rgba(255, 245, 238, 0.86); text-shadow: 0 1px 2px rgba(0,0,0,0.85); letter-spacing: 0.04em; }
+.hud > * { position: absolute; }
+.hud .tl { left: 4%; top: 3.5%; display: grid; gap: 0.25rem; }
+.hud .tr { right: 4%; top: 3.5%; text-align: right; display: grid; gap: 0.25rem; }
+.hud .bl { left: 4%; bottom: 3.5%; }
+.hud .br { right: 4%; bottom: 3.5%; text-align: right; display: grid; gap: 0.2rem; }
+.scalebar { display: grid; gap: 0.3rem; }
+.scalebar i { display: block; height: 6px; border: 1.5px solid rgba(255,245,238,0.85); border-top: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.6); }
+.chip { display: inline-flex; align-items: center; gap: 0.4em; }
+.chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--c, var(--ferroin)); box-shadow: 0 0 8px var(--c, var(--ferroin)); }
+
+/* ---------- hero ---------- */
+.hero { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: center; gap: clamp(1.5rem, 4vw, 4rem); padding-block: clamp(1.5rem, 5vw, 3.5rem) 1rem; }
+.hero .dish { max-width: min(80vh, 760px); justify-self: end; }
+.hero-copy { display: grid; gap: 1.4rem; align-content: center; }
+.hero h1 { font-size: clamp(2.5rem, 5.4vw, 4.7rem); font-variation-settings: "wdth" 128; text-transform: uppercase; line-height: 0.9; letter-spacing: -0.01em; }
+.hero h1 .blue { color: var(--ferriin); }
+.hero h1 .red { color: var(--ferroin); }
+.lede { font-size: 1.22rem; line-height: 1.55; max-width: 36ch; color: var(--paper); }
+.hint { display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem; font: 500 0.78rem/1.4 var(--mono); color: var(--mute); }
+.hint span { display: inline-flex; gap: 0.5em; align-items: center; }
+.hint kbd { font: inherit; color: var(--paper); border: 1px solid var(--rule); border-radius: 4px; padding: 0.05em 0.45em; background: var(--vellum); }
+.toc { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font: 500 0.74rem/1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; padding-top: 0.6rem; border-top: 1px solid var(--rule); }
+.toc a { text-decoration: none; color: var(--mute); }
+.toc a:hover { color: var(--paper); }
+.toc a b { color: var(--faint); font-weight: 500; margin-right: 0.4em; }
+@media (max-width: 820px) {
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .hero .dish { order: -1; justify-self: center; max-width: min(100%, 62vh); }
+  .lede { font-size: 1.1rem; }
+}
+
+/* ---------- act I: timeline ---------- */
+.history { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); align-items: start; }
+@media (max-width: 900px) { .history { grid-template-columns: minmax(0, 1fr); } }
+.quote { border-left: 2px solid var(--ferroin); padding: 0.2rem 0 0.2rem 1.1rem; font-style: italic; font-size: 1.25rem; line-height: 1.45; color: var(--paper); max-width: 40ch; }
+.quote cite { display: block; font: 500 0.72rem/1.4 var(--mono); font-style: normal; color: var(--mute); margin-top: 0.6rem; letter-spacing: 0.06em; }
+.timeline { overflow-x: auto; margin-top: 3rem; padding-bottom: 0.5rem; scrollbar-width: thin; }
+.timeline svg { display: block; min-width: 760px; width: 100%; height: auto; }
+.timeline text { font-family: var(--mono); }
+
+/* ---------- act II: the clock ---------- */
+.clockgrid { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: clamp(1.25rem, 3vw, 2.5rem); align-items: start; }
+@media (max-width: 860px) { .clockgrid { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--vellum); border: 1px solid var(--rule); border-radius: 14px; padding: 1rem; display: grid; gap: 0.8rem; min-width: 0; }
+.panel-h { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+.panel-h .eyebrow { color: var(--paper); }
+.flaskbox { display: grid; gap: 0.75rem; justify-items: center; }
+#flask { width: 100%; max-width: 300px; aspect-ratio: 300 / 380; display: block; }
+.readouts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; width: 100%; }
+.readouts div { display: grid; gap: 0.15rem; padding: 0.5rem 0.6rem; border: 1px solid var(--rule); border-radius: 8px; }
+.readouts span { font: 500 0.62rem/1.2 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+.readouts b { font: 500 0.9rem/1.2 var(--mono); font-variant-numeric: tabular-nums; color: var(--paper); white-space: nowrap; }
+.procs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; }
+@media (max-width: 600px) { .procs { grid-template-columns: minmax(0, 1fr); } }
+.proc { --c: var(--rose); border: 1px solid var(--rule); border-radius: 10px; padding: 0.75rem 0.85rem; display: grid; gap: 0.35rem; transition: border-color .35s, background-color .35s, box-shadow .35s; min-width: 0; }
+.proc h3 { font-size: 0.95rem; display: flex; gap: 0.5rem; align-items: center; color: var(--c); }
+.proc h3 i { font-style: normal; display: inline-grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; border: 1.5px solid var(--c); font-size: 0.78rem; }
+.proc p { font-size: 0.93rem; line-height: 1.5; color: var(--mute); }
+.proc.on { border-color: var(--c); background: color-mix(in srgb, var(--c) 9%, var(--vellum)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 40%, transparent), 0 10px 30px -18px var(--c); }
+.proc.on p { color: var(--paper); }
+.proc[data-p="B"] { --c: var(--amber); }
+.proc[data-p="C"] { --c: var(--teal); }
+#net { width: 100%; height: auto; display: block; }
+#net text { font-family: var(--mono); }
+#traces { width: 100%; height: 230px; display: block; }
+.planegrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.25rem, 3vw, 2.5rem); align-items: center; margin-top: 1.5rem; }
+@media (max-width: 860px) { .planegrid { grid-template-columns: minmax(0, 1fr); } }
+#plane { width: 100%; aspect-ratio: 1.15 / 1; display: block; }
+.ctrl { display: grid; gap: 0.45rem; }
+.ctrl label { display: flex; justify-content: space-between; gap: 1rem; font: 500 0.74rem/1.3 var(--mono); letter-spacing: 0.06em; color: var(--mute); text-transform: uppercase; }
+.ctrl label output { color: var(--paper); font-variant-numeric: tabular-nums; }
+.nt { text-transform: none; font-family: var(--serif); font-size: 1.15em; letter-spacing: 0; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; margin: 0; }
+input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: linear-gradient(90deg, var(--ferroin), var(--ferriin)); }
+input[type=range]::-moz-range-track { height: 4px; border-radius: 4px; background: linear-gradient(90deg, var(--ferroin), var(--ferriin)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--paper); margin-top: -7px; border: 3px solid var(--night); box-shadow: 0 0 0 1px var(--mute); }
+input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--paper); border: 3px solid var(--night); box-shadow: 0 0 0 1px var(--mute); }
+.band { position: relative; height: 22px; border-radius: 4px; background: repeating-linear-gradient(90deg, transparent 0 9px, rgba(255,255,255,0.04) 9px 10px); border: 1px solid var(--rule); overflow: hidden; }
+.band .osc { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--amber) 22%, transparent); border-inline: 1px solid var(--amber); }
+.band .mark { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--paper); box-shadow: 0 0 8px var(--paper); }
+.band span { position: absolute; top: 50%; transform: translateY(-50%); font: 500 0.62rem/1 var(--mono); letter-spacing: 0.06em; color: var(--mute); }
+.status { font: 500 0.8rem/1.4 var(--mono); color: var(--paper); display: flex; gap: 0.5rem; align-items: center; }
+.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--sc, var(--amber)); box-shadow: 0 0 10px var(--sc, var(--amber)); }
+.btnrow { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.btn { font: 500 0.74rem/1 var(--mono); letter-spacing: 0.04em; color: var(--paper); background: var(--vellum); border: 1px solid var(--rule); border-radius: 999px; padding: 0.55rem 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.45rem; white-space: nowrap; transition: border-color .2s, background-color .2s; }
+.btn:hover { border-color: var(--mute); }
+.btn[aria-pressed="true"], .btn.on { background: var(--paper); color: var(--night); border-color: var(--paper); }
+.btn svg { width: 14px; height: 14px; flex: none; }
+
+/* ---------- acts III–VI: the theatre ---------- */
+.theatre { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: clamp(1.5rem, 4vw, 3.5rem); margin-top: 1rem; }
+.stage { grid-column: 2; grid-row: 1; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); align-self: start; height: calc(100vh - 24px - env(safe-area-inset-top, 0px)); height: calc(100dvh - 24px - env(safe-area-inset-top, 0px)); display: flex; flex-direction: column; gap: 0.6rem; justify-content: center; z-index: 3; }
+.stage .dishwrap { flex: 0 1 auto; min-height: 0; display: grid; place-items: center; }
+.stage .dish { width: min(100%, calc(100vh - 250px)); width: min(100%, calc(100dvh - 250px)); }
+.tools { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; padding-block: 2px; justify-content: center; }
+.tg { display: flex; gap: 0.4rem; flex: none; }
+.tools::-webkit-scrollbar { display: none; }
+.tools .sep { width: 1px; background: var(--rule); flex: none; margin-inline: 0.15rem; }
+.tools select { font: 500 0.74rem/1 var(--mono); color: var(--paper); background: var(--vellum); border: 1px solid var(--rule); border-radius: 999px; padding: 0.5rem 0.7rem; }
+.strip { height: 64px; width: 100%; display: block; border-radius: 8px; border: 1px solid var(--rule); background: var(--vellum); }
+.stripbox { display: grid; gap: 0.3rem; }
+.stripbox[hidden] { display: none !important; }
+.stripmeta { display: flex; justify-content: space-between; font: 500 0.66rem/1.2 var(--mono); color: var(--mute); letter-spacing: 0.06em; text-transform: uppercase; }
+.stripmeta b { color: var(--paper); font-weight: 500; font-variant-numeric: tabular-nums; }
+.cards { grid-column: 1; grid-row: 1; display: grid; }
+.card { min-height: 82vh; display: grid; align-content: center; gap: 1rem; padding-block: 2rem; opacity: 0.42; transition: opacity .5s; }
+.card.active { opacity: 1; }
+.card .k { display: flex; gap: 0.75rem; align-items: baseline; }
+.card h3 { font-size: clamp(1.35rem, 2.4vw, 1.9rem); }
+.card p { max-width: 54ch; }
+.card .meta { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.stat { font: 500 0.78rem/1.3 var(--mono); padding: 0.45rem 0.7rem; border-radius: 8px; border: 1px dashed var(--rule); color: var(--mute); }
+.stat b { color: var(--paper); font-weight: 500; font-variant-numeric: tabular-nums; }
+.act-marker { padding-top: 1.5rem; }
+.act-marker h2 { font-size: clamp(1.8rem, 3.6vw, 2.7rem); }
+.labgrid { display: grid; gap: 1rem; }
+.labgrid .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem 1.2rem; }
+@media (max-width: 520px) { .labgrid .row { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 860px) {
+  .theatre { grid-template-columns: minmax(0, 1fr); margin-inline: calc(-1 * var(--gut)); }
+  .stage { grid-column: 1; grid-row: 1; top: env(safe-area-inset-top, 0px); height: auto; padding: 0.5rem var(--gut) 0.6rem; background: var(--night); gap: 0.45rem; }
+  .stage::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 22px; background: linear-gradient(var(--night), transparent); pointer-events: none; }
+  .stage .dish { width: min(100%, 46vh); width: min(100%, 46svh); }
+  .strip { height: 46px; }
+  .tools { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; justify-content: flex-start; }
+  .cards { grid-column: 1; grid-row: 2; padding-inline: var(--gut); }
+  .card { min-height: 46vh; min-height: 46svh; align-content: start; padding-block: 1.6rem 2.4rem; font-size: 1rem; }
+  .card h3 { font-size: 1.3rem; }
+}
+
+/* ---------- coda ---------- */
+.coda { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); align-items: center; }
+@media (max-width: 900px) { .coda { grid-template-columns: minmax(0, 1fr); } }
+#thermo { width: 100%; height: auto; display: block; }
+#thermo text { font-family: var(--mono); }
+.worlds { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-top: 2rem; }
+@media (max-width: 1000px) { .worlds { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .worlds { grid-template-columns: minmax(0, 1fr); } }
+.world { display: grid; gap: 0.7rem; align-content: start; min-width: 0; }
+.world canvas { width: 100%; aspect-ratio: 1 / 1; display: block; border-radius: 12px; background: #000; }
+.world h3 { font-size: 1rem; }
+.world p { font-size: 0.95rem; line-height: 1.5; color: var(--mute); }
+.world .eyebrow { font-size: 0.62rem; }
+.notes { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: clamp(1.5rem, 4vw, 4rem); }
+@media (max-width: 900px) { .notes { grid-template-columns: minmax(0, 1fr); } }
+.eq { font-family: var(--serif); font-style: italic; font-size: 1.15rem; line-height: 1.9; padding: 1rem 1.2rem; border: 1px solid var(--rule); border-radius: 12px; background: var(--vellum); overflow-x: auto; }
+.eq div { white-space: nowrap; }
+.eq .lbl { font: 500 0.66rem/1.3 var(--mono); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+table.params { width: 100%; border-collapse: collapse; font: 0.86rem/1.45 var(--mono); font-variant-numeric: tabular-nums; }
+table.params td, table.params th { text-align: left; padding: 0.45rem 0.5rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.params th { font-weight: 500; color: var(--mute); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.tablewrap { overflow-x: auto; }
+.refs { display: grid; gap: 0.55rem; font-size: 0.92rem; line-height: 1.45; color: var(--mute); padding-left: 1.2rem; margin: 0; }
+.refs li::marker { color: var(--faint); font-family: var(--mono); font-size: 0.8em; }
+.refs a { color: var(--paper); }
+footer { padding-block: 4rem 3rem; color: var(--faint); font: 0.74rem/1.5 var(--mono); }
+@media (prefers-reduced-motion: reduce) { .card, .proc { transition: none; } }
+</style>
+<!-- ===================== HERO ===================== -->
+<header class="wrap hero" id="top">
+  <div class="hero-copy">
+    <p class="eyebrow">The Belousov&ndash;Zhabotinsky reaction &middot; <b>live simulation</b></p>
+    <h1>A liquid <span class="red">that</span> keeps <span class="blue">time</span></h1>
+    <p class="lede">Mix bromate, malonic acid, sulfuric acid and an iron indicator, and the solution flips from red to blue and back on a steady beat. Pour it into a thin layer and leave it alone, and the beat starts to travel. Waves cross the dish, wipe each other out, and wind themselves into spirals.</p>
+    <p class="dim">The dishes, the flask and the charts on this page are computed live in your browser from the equations chemists use to describe this reaction.</p>
+    <div class="hint">
+      <span><kbd>tap</kbd> start a wave</span>
+      <span><kbd>drag</kbd> across a wave to break it</span>
+    </div>
+    <nav class="toc" aria-label="Contents">
+      <a href="#history"><b>I</b>The rejection</a>
+      <a href="#clock"><b>II</b>The clock</a>
+      <a href="#waves"><b>III&ndash;V</b>Waves, spirals, hearts</a>
+      <a href="#lab"><b>VI</b>Lab</a>
+      <a href="#coda"><b>VII</b>Fine print</a>
+    </nav>
+  </div>
+  <div class="dish" id="heroDish" aria-label="Live simulation of a BZ reaction dish. Tap to start a wave, drag to break one.">
+    <canvas class="gl"></canvas><canvas class="fx"></canvas>
+    <div class="hud">
+      <div class="tl"><span class="chip" data-hud="cat">ferroin</span></div>
+      <div class="bl scalebar"><span data-hud="sbl">10 mm</span><i data-hud="sb" style="width:60px"></i></div>
+      <div class="br"><span data-hud="clock">0:00</span><span data-hud="lapse" class="dim">time-lapse</span></div>
+    </div>
+    <div class="nogl">This simulation needs WebGL2 with floating-point render targets, which this browser did not provide.</div>
+  </div>
+</header>
+
+<!-- ===================== I. HISTORY ===================== -->
+<section class="wrap act" id="history" aria-labelledby="h-history">
+  <div class="history">
+    <div class="act-head">
+      <p class="eyebrow"><b>I</b> &middot; Moscow, 1951</p>
+      <h2 id="h-history">An impossible result</h2>
+      <div class="prose">
+        <p>Boris Belousov, a biochemist, wanted a test-tube model of the citric-acid cycle, the loop of reactions cells use to burn sugar. He dissolved citric acid, potassium bromate and a cerium salt in dilute sulfuric acid. The solution turned yellow, faded to clear, and turned yellow again. It kept doing this, on schedule, cycle after cycle.</p>
+        <p>Chemistry at the time said that a reaction runs downhill toward equilibrium and stops. A mixture that swings back and forth sounded like a perpetual motion machine. Belousov spent six years trying to publish and was turned down by editors who judged the result impossible. In 1959 a short abstract finally appeared, in a little-read collection of abstracts on radiation medicine.</p>
+        <p>In 1961 the graduate student Anatol Zhabotinsky took up the reaction. He replaced citric acid with malonic acid, and the reaction was soon run with ferroin, an iron complex that switches between red and blue, which made the beat easy to see. Western chemists heard about the work at a conference in Prague in 1968. Belousov died in 1970. In 1980 he was awarded the Lenin Prize, posthumously, along with Zhabotinsky and colleagues.</p>
+      </div>
+    </div>
+    <div style="display:grid; gap:2rem; padding-top: 1rem;">
+      <p class="quote">Six years of rejection. One short abstract in print. Seventeen years before most of the world heard about it.</p>
+      <div class="panel" style="gap:0.6rem">
+        <p class="eyebrow" style="color:var(--paper)">The cast</p>
+        <div class="tablewrap"><table class="params" aria-label="Reagents in the ferroin BZ recipe">
+          <tr><th>Role</th><th>Species</th><th>Typical</th></tr>
+          <tr><td>Oxidiser</td><td>bromate, BrO<sub>3</sub><sup>&minus;</sup></td><td>0.06 M</td></tr>
+          <tr><td>Fuel</td><td>malonic acid, CH<sub>2</sub>(COOH)<sub>2</sub></td><td>0.02 M</td></tr>
+          <tr><td>Acid</td><td>sulfuric acid, H<sup>+</sup></td><td>0.8 M</td></tr>
+          <tr><td>Catalyst &amp; indicator</td><td>ferroin, Fe(phen)<sub>3</sub><sup>2+/3+</sup></td><td>~1 mM</td></tr>
+        </table></div>
+        <p class="dim" style="font-size:0.88rem">Bromate, malonic acid and acid are the textbook Field&ndash;Noyes values the simulation uses. The ferroin amount is a typical recipe value.</p>
+      </div>
+    </div>
+  </div>
+  <div class="timeline" role="img" aria-label="Timeline from 1951 to 1980, to scale">
+    <svg id="timeline" viewBox="0 0 1000 250"></svg>
+  </div>
+</section>
+
+<!-- ===================== II. THE CLOCK ===================== -->
+<section class="wrap act" id="clock" aria-labelledby="h-clock">
+  <div class="act-head">
+    <p class="eyebrow"><b>II</b> &middot; Stirred</p>
+    <h2 id="h-clock">Three reactions make a clock</h2>
+    <div class="prose">
+      <p>Stir the mixture and the whole flask acts as one clock. Each tick is a contest between two bromine species. Bromide ion, Br<sup>&minus;</sup>, is the brake. Bromous acid, HBrO<sub>2</sub>, is the accelerator, and it makes more of itself. The flask, the traces and the reaction network below are all driven by the same live solution of the Oregonator model, using the textbook rate constants.</p>
+    </div>
+  </div>
+  <div class="clockgrid">
+    <div class="panel flaskbox">
+      <canvas id="flask" width="300" height="380" aria-label="Stirred flask changing colour with the reaction"></canvas>
+      <div class="readouts">
+        <div><span>Clock</span><b id="r-time">0:00</b></div>
+        <div><span>Period</span><b id="r-period">&ndash;</b></div>
+        <div><span>Speed</span><b id="r-lapse">&times;50</b></div>
+      </div>
+      <div class="btnrow" style="justify-content:center">
+        <button class="btn" id="flaskPlay" aria-pressed="false">Pause</button>
+        <button class="btn" id="flaskFast">Faster</button>
+        <button class="btn" id="flaskSlow">Slower</button>
+      </div>
+    </div>
+    <div style="display:grid; gap:1rem; min-width:0">
+      <div class="procs">
+        <div class="proc" data-p="A"><h3><i>A</i>Brake</h3><p>While bromide is plentiful it destroys HBrO<sub>2</sub> as fast as it forms. The iron stays red. The bromide is slowly used up.</p></div>
+        <div class="proc" data-p="B"><h3><i>B</i>Runaway</h3><p>Once bromide falls below a critical level, about a micromole per litre here, HBrO<sub>2</sub> doubles itself and oxidises the iron. The flask turns blue in seconds.</p></div>
+        <div class="proc" data-p="C"><h3><i>C</i>Reset</h3><p>Oxidised iron reacts with malonic acid and its brominated form. The iron returns to red and fresh bromide is released, so the brake comes back on.</p></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><span class="eyebrow">Reaction network &middot; line weight = live reaction rate</span><span class="eyebrow dim" id="netphase">&nbsp;</span></div>
+        <svg id="net" viewBox="0 0 700 380" role="img" aria-label="Oregonator reaction network with arrows sized by the current rate of each reaction"></svg>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><span class="eyebrow">Concentrations &middot; log scale, model units</span><span class="eyebrow dim">window &asymp; 15 min</span></div>
+        <canvas id="traces" aria-label="Scrolling traces of HBrO2, bromide and oxidised iron"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="planegrid">
+    <div class="panel">
+      <div class="panel-h"><span class="eyebrow">Phase plane &middot; HBrO<sub>2</sub> vs oxidised iron</span></div>
+      <canvas id="plane" aria-label="Phase plane with nullclines and the limit cycle"></canvas>
+    </div>
+    <div style="display:grid; gap:1.2rem">
+      <div class="prose">
+        <p>Each tick is one lap of this loop. The point creeps down the left branch of the folded amber curve while bromide holds HBrO<sub>2</sub> down and the iron slowly returns to red. At the lower knee the brake fails and the point leaps across to the right branch. It climbs while the iron turns blue, then drops back once the reset has made enough bromide.</p>
+        <p>The stoichiometric factor <i>f</i> sets how much bromide each reset releases. Too little and the brake never catches; the flask stays blue. Too much and the brake never lets go; the flask stays red. In between, the steady state is unstable and the system has no choice but to cycle.</p>
+      </div>
+      <div class="ctrl">
+        <label for="fSlider"><span>Stoichiometric factor <i class="nt">f</i></span> <output id="fOut">1.00</output></label>
+        <input type="range" id="fSlider" min="0.2" max="3" step="0.01" value="1">
+        <div class="band" aria-hidden="true"><div class="osc" id="oscBand"></div><div class="mark" id="fMark"></div><span style="left:6px">0.2</span><span style="right:6px">3.0</span></div>
+        <div class="status" id="fStatus">oscillating</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== III–VI. THE THEATRE ===================== -->
+<section class="wrap act" id="waves" aria-labelledby="h-waves">
+  <div class="act-head">
+    <p class="eyebrow"><b>III</b> &middot; Unstirred</p>
+    <h2 id="h-waves">The clock starts to travel</h2>
+  </div>
+  <div class="theatre">
+    <div class="stage" id="stage">
+      <div class="dishwrap">
+        <div class="dish" id="stageDish" aria-label="Interactive BZ dish">
+          <canvas class="gl"></canvas><canvas class="fx"></canvas>
+          <div class="hud">
+            <div class="tl"><span class="chip" data-hud="cat">ferroin</span><span data-hud="scene" class="dim"></span></div>
+            <div class="tr"><span data-hud="tips"></span></div>
+            <div class="bl scalebar"><span data-hud="sbl">10 mm</span><i data-hud="sb" style="width:60px"></i></div>
+            <div class="br"><span data-hud="clock">0:00</span><span data-hud="lapse" class="dim">time-lapse</span></div>
+          </div>
+          <div class="nogl">This simulation needs WebGL2 with floating-point render targets, which this browser did not provide.</div>
+        </div>
+      </div>
+      <div class="tools" role="toolbar" aria-label="Dish tools">
+        <div class="tg">
+        <button class="btn on" data-tool="touch" aria-pressed="true" title="Tap to start a wave, drag to cut"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="2.2" fill="currentColor"/><circle cx="8" cy="8" r="5.8"/></svg>Wave / cut</button>
+        <button class="btn" data-tool="light" aria-pressed="false" title="Hold to shine light (adds bromide, blocks waves)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6 13 13M3 13l1.4-1.4M11.6 4.4 13 3"/></svg><span data-label="light">Light</span></button>
+        <button class="btn" data-tool="pace" aria-pressed="false" title="Tap to add or remove a pacemaker"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="1.6" fill="currentColor"/><path d="M3.5 3.5a6.4 6.4 0 0 0 0 9M12.5 3.5a6.4 6.4 0 0 1 0 9"/></svg>Pacemaker</button>
+        <button class="btn" data-tool="probe" aria-pressed="false" title="Tap to place a probe electrode"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 10h3l2-6 3 10 2-4h4"/></svg>Probe</button>
+        </div>
+        <div class="tg">
+        <select id="viewSel" aria-label="View">
+          <option value="0">Ferroin</option>
+          <option value="1">Cerium</option>
+          <option value="2">Ruthenium</option>
+          <option value="3">Phase</option>
+          <option value="4">HBrO&#8322;</option>
+        </select>
+        <button class="btn" id="tipsBtn" aria-pressed="false">Tips</button>
+        <button class="btn" id="pauseBtn" aria-pressed="false">Pause</button>
+        <button class="btn" id="clearBtn">Clear</button>
+        </div>
+      </div>
+      <div class="stripbox" id="stripbox" hidden>
+        <div class="stripmeta"><span>Probe electrode &middot; oxidised iron</span><span data-strip="rate">&ndash;</span></div>
+        <canvas class="strip" id="strip"></canvas>
+      </div>
+    </div>
+
+    <div class="cards">
+      <article class="card" data-scene="ring">
+        <div class="k"><span class="eyebrow"><b>III.1</b></span><h3>Leave it unstirred</h3></div>
+        <p>Pour the mixture into a shallow dish and stop stirring. Every spot is still a clock, but now neighbours can talk. A blue spot leaks HBrO<sub>2</sub> a fraction of a millimetre into the red around it, pushes that patch past its threshold, and the patch fires too. The relay travels outward at a constant speed and never fades.</p>
+        <p class="dim">In a real dish you start one with a silver wire. Silver ions pull bromide out of solution as silver bromide, which releases the brake on the spot.</p>
+        <div class="meta"><span class="stat">measured front speed <b data-out="speed">&hellip;</b></span><span class="stat">real dishes: a few mm/min</span><button class="btn" data-replay>Replay</button></div>
+      </article>
+      <article class="card" data-scene="collide">
+        <div class="k"><span class="eyebrow"><b>III.2</b></span><h3>Waves that destroy each other</h3></div>
+        <p>Water waves pass through each other. These cannot. Behind every front the medium is refractory: the iron is still oxidised and bromide is high, so nothing there can fire until it recovers. When two fronts meet, each runs into the other&rsquo;s exhausted wake, and both stop dead.</p>
+        <div class="meta"><button class="btn" data-replay>Replay</button></div>
+      </article>
+      <article class="card" data-scene="targets">
+        <div class="k"><span class="eyebrow"><b>III.3</b></span><h3>Pacemakers</h3></div>
+        <p>A speck of dust or a scratch can make one spot fire on its own schedule, sending out rings like a target. Here two pacemakers compete, one firing every <b data-out="p1">&hellip;</b>, the other every <b data-out="p2">&hellip;</b>. Each collision line drifts toward the slower source, because the faster one gets more waves into the gap. Eventually its rings reach the slow pacemaker before it can fire, and the dish beats to one rhythm.</p>
+        <div class="meta"><button class="btn" data-replay>Replay</button></div>
+      </article>
+
+      <div class="act-marker" id="spirals"><p class="eyebrow"><b>IV</b> &middot; Broken waves</p><h2>Spirals</h2></div>
+      <article class="card" data-scene="break">
+        <div class="k"><span class="eyebrow"><b>IV.1</b></span><h3>Break a wave</h3></div>
+        <p>Cut a front and its two loose ends cannot heal. Each end curls around itself and keeps turning, and a pair of spirals is born, one turning each way. Arthur Winfree photographed them in this reaction in 1972. A spiral needs no trigger. It turns faster than an ordinary pacemaker, so its waves take over the dish.</p>
+        <p class="dim">Try it yourself: drag across any wave on the dish.</p>
+        <div class="meta"><span class="stat">rotation period <b data-out="per">&hellip;</b></span><button class="btn" data-replay>Replay</button></div>
+      </article>
+      <article class="card" data-scene="phase">
+        <div class="k"><span class="eyebrow"><b>IV.2</b></span><h3>Where every phase meets</h3></div>
+        <p>Now each point is coloured by where it is in its own cycle. At the tip of every spiral, every colour meets, the way all time zones meet at the North Pole. These points are phase singularities. Each carries a sign, +1 or &minus;1, set by its sense of rotation. They are born in pairs and die in pairs, so the total changes only when a tip runs into the wall.</p>
+        <div class="meta"><span class="stat">tips <b data-out="tips">&hellip;</b></span><span class="stat">net charge <b data-out="charge">&hellip;</b></span><button class="btn" data-replay>Replay</button></div>
+      </article>
+      <article class="card" data-scene="meander">
+        <div class="k"><span class="eyebrow"><b>IV.3</b></span><h3>The wandering tip</h3></div>
+        <p>So far each tip has traced a tight circle. Change the recipe, with more malonic acid relative to bromate so the fast and slow chemistry are less separated (larger &epsilon;) and a little background light, and the tip begins to wander along flower-shaped paths. This is meander, mapped out in the Oregonator by Jahnke and Winfree in 1991. The trails show where the tip has been.</p>
+        <div class="meta"><span class="stat">&epsilon; = <b data-out="eps">&hellip;</b></span><button class="btn" data-replay>Replay</button></div>
+      </article>
+
+      <div class="act-marker" id="heart"><p class="eyebrow"><b>V</b> &middot; Same equations, different tissue</p><h2>The heart</h2></div>
+      <article class="card" data-scene="sinus">
+        <div class="k"><span class="eyebrow"><b>V.1</b></span><h3>A beat is a wave</h3></div>
+        <p>Heart muscle is an excitable medium. Each cell fires once, stays refractory for a while, then recovers, and the electrical wave passes from cell to cell the way HBrO<sub>2</sub> spreads through the dish. The sinus node, the heart&rsquo;s pacemaker, starts each beat. The trace under the dish is a probe electrode.</p>
+        <p class="dim">The units now follow heart tissue: the same pattern, rescaled to a conduction speed of about 0.5 m/s and the 0.18 s spiral rotation measured in slices of dog and sheep ventricle. The dish uses the light-sensitive ruthenium catalyst for this act.</p>
+        <div class="meta"><span class="stat">rate <b data-out="rate">&hellip;</b></span><button class="btn" data-replay>Replay</button></div>
+      </article>
+      <article class="card" data-scene="reentry">
+        <div class="k"><span class="eyebrow"><b>V.2</b></span><h3>Reentry</h3></div>
+        <p>Block part of one beat and its broken ends curl into a pair of spirals, exactly as in the dish. Cardiologists call this figure-of-eight reentry. The spirals turn faster than the sinus node fires, so the pacemaker&rsquo;s waves never get through. Rotating waves like these drive many ventricular tachycardias.</p>
+        <div class="meta"><span class="stat">rate <b data-out="rate">&hellip;</b></span><button class="btn" data-replay>Replay</button></div>
+      </article>
+      <article class="card" data-scene="chaos">
+        <div class="k"><span class="eyebrow"><b>V.3</b></span><h3>Fibrillation</h3></div>
+        <p>Break the waves in many places and many spirals compete. Fronts collide and break again, tips wander and annihilate, and the electrode records rapid, irregular activity. Many interacting spirals are one of the leading explanations for ventricular fibrillation, in which the heart quivers instead of pumping.</p>
+        <div class="meta"><span class="stat">tips <b data-out="tips">&hellip;</b></span><span class="stat">rate <b data-out="rate">&hellip;</b></span><button class="btn" data-replay>Replay</button></div>
+      </article>
+      <article class="card" data-scene="defib">
+        <div class="k"><span class="eyebrow"><b>V.4</b></span><h3>Defibrillation</h3></div>
+        <p>A defibrillator shock excites nearly the whole heart at once. With no resting tissue left to move into, every spiral dies, and the sinus node takes over again. Here a flash of light does the same job from the other direction: light makes the ruthenium catalyst produce bromide, which blocks excitation everywhere for a moment. When it fades, only the pacemaker is left.</p>
+        <div class="meta"><button class="btn" data-replay>Flash again</button></div>
+      </article>
+
+      <div class="act-marker" id="lab"><p class="eyebrow"><b>VI</b> &middot; Free play</p><h2>Lab</h2></div>
+      <article class="card" data-scene="lab">
+        <div class="k"><span class="eyebrow"><b>VI</b></span><h3>Your turn</h3></div>
+        <p>Every tool is unlocked. Change the recipe while the dish runs and watch the waves respond.</p>
+        <div class="labgrid">
+          <div class="row">
+            <div class="ctrl"><label for="lab-f"><span>Bromide per reset, <i class="nt">f</i></span> <output data-o="f">1.40</output></label><input type="range" id="lab-f" data-p="f" min="1.0" max="2.2" step="0.01" value="1.4"></div>
+            <div class="ctrl"><label for="lab-eps"><span>Time-scale ratio, <i class="nt">&epsilon;</i></span> <output data-o="eps">0.020</output></label><input type="range" id="lab-eps" data-p="eps" min="0.02" max="0.09" step="0.001" value="0.02"></div>
+            <div class="ctrl"><label for="lab-phi"><span>Light / bromide, <i class="nt">&phi;</i></span> <output data-o="phi0">0.010</output></label><input type="range" id="lab-phi" data-p="phi0" min="0" max="0.05" step="0.001" value="0.01"></div>
+            <div class="ctrl"><label for="lab-speed">Playback speed <output data-o="speed">1.0&times;</output></label><input type="range" id="lab-speed" data-p="speed" min="0.25" max="4" step="0.05" value="1"></div>
+            <div class="ctrl"><label for="lab-pace">New pacemaker period <output data-o="pace">4.0</output></label><input type="range" id="lab-pace" data-p="pace" min="2.4" max="12" step="0.1" value="4"></div>
+            <div class="ctrl"><label>Units</label><div class="btnrow"><button class="btn on" data-world="bz" aria-pressed="true">BZ dish</button><button class="btn" data-world="heart" aria-pressed="false">Heart tissue</button></div></div>
+          </div>
+          <div class="ctrl"><label>Presets</label>
+            <div class="btnrow">
+              <button class="btn" data-preset="pair">Spiral pair</button>
+              <button class="btn" data-preset="single">Single spiral</button>
+              <button class="btn" data-preset="targets">Target patterns</button>
+              <button class="btn" data-preset="turb">Many spirals</button>
+              <button class="btn" data-preset="meander">Meander</button>
+              <button class="btn" data-preset="flash">Flash of light</button>
+              <button class="btn" data-preset="osc">Oscillatory dish</button>
+            </div>
+          </div>
+          <p class="dim" style="font-size:0.92rem">Below about &phi; = 0.006 the resting dish is itself oscillatory and the whole plate flashes on its own. Above about &phi; = 0.05 waves can no longer propagate.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== VII. CODA ===================== -->
+<section class="wrap act" id="coda" aria-labelledby="h-coda">
+  <div class="coda">
+    <div class="act-head" style="margin-bottom:0">
+      <p class="eyebrow"><b>VII</b> &middot; The fine print</p>
+      <h2 id="h-coda">The second law is safe</h2>
+      <div class="prose">
+        <p>Belousov&rsquo;s editors were right to distrust anything that runs in circles, but this reaction never runs uphill. In a sealed dish the bromate and malonic acid are used up steadily, carbon dioxide bubbles off, and the free energy of the mixture falls the whole time. What oscillates are intermediates present in tiny amounts, riding on that one-way slide.</p>
+        <p>Close to equilibrium, oscillations are impossible. Far from it, a steady flow of free energy can hold up patterns in time and space. Ilya Prigogine called these dissipative structures and won the 1977 Nobel Prize in Chemistry for the theory. A sealed BZ dish ticks for an hour or so, then runs out of fuel and goes quiet.</p>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-h"><span class="eyebrow">Sealed dish, start to finish</span><span class="eyebrow dim">schematic</span></div>
+      <svg id="thermo" viewBox="0 0 560 330" role="img" aria-label="Schematic: free energy falls steadily while the colour oscillates and then stops"></svg>
+    </div>
+  </div>
+
+  <div style="margin-top: clamp(4rem, 9vw, 7rem)">
+    <div class="act-head" style="margin-bottom:0">
+      <p class="eyebrow">Elsewhere</p>
+      <h2>The same spirals, elsewhere</h2>
+      <p class="prose">Any medium that can fire, rest and recover, with a way for neighbours to trigger each other, supports these waves. The pictures below are illustrations drawn in the style each field uses to image them.</p>
+    </div>
+    <div class="worlds">
+      <div class="world"><canvas data-world="heart" width="240" height="240"></canvas><p class="eyebrow">Voltage-sensitive dye</p><h3>Heart muscle</h3><p>Spiral waves of electrical activity drive some arrhythmias. In thin slices of ventricle they rotate about every 0.18 s.</p></div>
+      <div class="world"><canvas data-world="dicty" width="240" height="240"></canvas><p class="eyebrow">Dark-field</p><h3>Social amoebae</h3><p>Starving <i>Dictyostelium</i> cells relay pulses of cyclic AMP. The waves form targets and spirals that lead thousands of cells into one mound.</p></div>
+      <div class="world"><canvas data-world="calcium" width="240" height="240"></canvas><p class="eyebrow">Calcium dye</p><h3>A frog egg</h3><p>Calcium waves inside a single <i>Xenopus</i> egg form spirals that annihilate when they collide, reported by Lechleiter, Clapham and colleagues in 1991.</p></div>
+      <div class="world"><canvas data-world="platinum" width="240" height="240"></canvas><p class="eyebrow">Photoemission microscope</p><h3>A platinum crystal</h3><p>Carbon monoxide burning on platinum forms spirals tens of micrometres across, imaged by Gerhard Ertl&rsquo;s group in 1990. Ertl won the 2007 Nobel Prize in Chemistry.</p></div>
+    </div>
+  </div>
+
+  <div class="notes" style="margin-top: clamp(4rem, 9vw, 7rem)" id="model">
+    <div style="display:grid; gap:1.2rem; align-content:start">
+      <p class="eyebrow">Model notes</p>
+      <h2>What is being computed</h2>
+      <div class="eq" aria-label="Model equations">
+        <div class="lbl">Two-variable Oregonator with a light term (dish)</div>
+        <div>&epsilon; &part;u/&part;t = u &minus; u&sup2; &minus; (f v + &phi;) (u &minus; q)/(u + q) + &nabla;&sup2;u</div>
+        <div>&part;v/&part;t = u &minus; v</div>
+        <div class="lbl" style="margin-top:0.6rem">Stirred flask</div>
+        <div>&epsilon; dx/d&tau; = x(1 &minus; x) &minus; f z (x &minus; q)/(x + q),&nbsp;&nbsp; dz/d&tau; = x &minus; z,&nbsp;&nbsp; y = f z/(q + x)</div>
+      </div>
+      <div class="prose" style="font-size:0.97rem">
+        <p><i>u</i> and <i>x</i> are scaled HBrO<sub>2</sub>, <i>v</i> and <i>z</i> the oxidised catalyst (the colour you see), <i>y</i> bromide, and &phi; bromide produced by light in the ruthenium-catalysed reaction. Bromide is fast enough to sit at its steady state, which reduces the Field&ndash;Noyes model to two variables.</p>
+        <p>The dish is a 512&nbsp;&times;&nbsp;512 grid inside a circular wall with no flux. The stiff HBrO<sub>2</sub> kinetics are stepped with a backward-Euler Newton solve on the GPU, diffusion with an isotropic nine-point stencil, and the catalyst relaxes exactly. Spiral tips are found by measuring how far the (log&nbsp;u,&nbsp;v) phase winds around each grid square, then refined with a bilinear root-find.</p>
+        <p>The flask uses rate constants measured for the cerium-catalysed reaction; ferroin behaves similarly. Simplifications: the dish uses q&nbsp;=&nbsp;0.002, larger than the textbook value, a common choice that keeps the equations tractable; real dishes also have convection, CO<sub>2</sub> bubbles and oxygen effects, which are left out.</p>
+      </div>
+    </div>
+    <div style="display:grid; gap:1.2rem; align-content:start">
+      <div class="tablewrap"><table class="params">
+        <tr><th>Quantity</th><th>Dish</th><th>Flask</th></tr>
+        <tr><td>q</td><td>0.002</td><td>7.6&times;10<sup>&minus;5</sup></td></tr>
+        <tr><td>&epsilon;</td><td>0.02 (lab: 0.02&ndash;0.09)</td><td>9.9&times;10<sup>&minus;3</sup></td></tr>
+        <tr><td>f</td><td>1.4</td><td>1.0 (slider)</td></tr>
+        <tr><td>&phi;</td><td>0.01</td><td>&ndash;</td></tr>
+        <tr><td>&Delta;x, &Delta;t</td><td>0.4, 0.005</td><td>&ndash;, 5&times;10<sup>&minus;4</sup></td></tr>
+        <tr><td>time unit &tau;<sub>0</sub> = 1/(k<sub>c</sub>[MA])</td><td colspan="2">&asymp; 50 s</td></tr>
+        <tr><td>length unit &radic;(D&tau;<sub>0</sub>), D = 2&times;10<sup>&minus;5</sup> cm&sup2;/s</td><td colspan="2">&asymp; 0.32 mm</td></tr>
+        <tr><td>dish diameter</td><td colspan="2">&asymp; 6.2 cm</td></tr>
+      </table></div>
+      <p class="eyebrow" style="margin-top:0.8rem">Sources</p>
+      <ol class="refs">
+        <li>B. P. Belousov (1959). A periodic reaction and its mechanism. <i>Collection of Abstracts on Radiation Medicine</i>, 147, 145.</li>
+        <li>A. N. Zaikin &amp; A. M. Zhabotinsky (1970). Concentration wave propagation in two-dimensional liquid-phase self-oscillating system. <a href="https://www.nature.com/articles/225535b0" target="_blank" rel="noopener"><i>Nature</i> 225, 535</a>.</li>
+        <li>A. T. Winfree (1972). Spiral waves of chemical activity. <i>Science</i> 175, 634.</li>
+        <li>R. J. Field, E. K&#337;r&ouml;s &amp; R. M. Noyes (1972). Oscillations in chemical systems II. <i>J. Am. Chem. Soc.</i> 94, 8649.</li>
+        <li>R. J. Field &amp; R. M. Noyes (1974). Oscillations in chemical systems IV: limit cycle behavior in a model of a real chemical reaction. <i>J. Chem. Phys.</i> 60, 1877.</li>
+        <li>R. J. Field. <a href="http://www.scholarpedia.org/article/Oregonator" target="_blank" rel="noopener">Oregonator</a>. <i>Scholarpedia</i> (rate constants and scalings used here).</li>
+        <li>J. J. Tyson &amp; P. C. Fife (1980). Target patterns in a realistic model of the Belousov&ndash;Zhabotinsky reaction. <i>J. Chem. Phys.</i> 73, 2224.</li>
+        <li>W. Jahnke &amp; A. T. Winfree (1991). A survey of spiral-wave behaviors in the Oregonator model. <i>Int. J. Bifurcation Chaos</i> 1, 445.</li>
+        <li>H.-J. Krug, L. Pohlmann &amp; L. Kuhnert (1990). Analysis of the modified complete Oregonator accounting for oxygen sensitivity and photosensitivity of Belousov&ndash;Zhabotinsky systems. <i>J. Phys. Chem.</i> 94, 4862.</li>
+        <li>A. M. Pertsov, J. M. Davidenko, R. Salomonsz, W. T. Baxter &amp; J. Jalife (1993). Spiral waves of excitation underlie reentrant activity in isolated cardiac muscle. <i>Circ. Res.</i> 72, 631.</li>
+        <li>A. T. Winfree (1987). <i>When Time Breaks Down.</i> Princeton University Press.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+<footer class="wrap">Belousov&rsquo;s Clock &middot; a live Oregonator simulation &middot; WebGL2, no libraries.</footer>
+<script>
+/* ============================================================
+   BZSim — GPU reaction–diffusion solver for the BZ reaction
+   Two-variable Oregonator (Tyson–Fife scaling) with a photo /
+   bromide source term (Krug–Pohlmann–Kuhnert):
+     eps du/dt = u - u^2 - (f v + phi)(u - q)/(u + q) + Du ∇²u
+         dv/dt = u - v                                + Dv ∇²v
+   u ~ HBrO2 (activator), v ~ oxidised catalyst (what you see),
+   phi = phi0 + b(x,t) + flash, b = local light / added bromide.
+   Scheme: backward-Euler Newton on the stiff u-reaction,
+   explicit isotropic 9-point diffusion, exact v relaxation.
+   ============================================================ */
+const BZ_VS = `#version 300 es
+in vec2 p; out vec2 uv;
+void main(){ uv = p*0.5+0.5; gl_Position = vec4(p,0.,1.); }`;
+
+const BZ_COMMON = `#version 300 es
+precision highp float; precision highp int; precision highp sampler2D;
+uniform sampler2D S; uniform int N; uniform float R;  /* dish radius in uv */
+bool inDish(ivec2 p){ vec2 d=(vec2(p)+0.5)/float(N)-0.5; return dot(d,d) < R*R; }
+`;
+
+const BZ_STEP = BZ_COMMON + `
+uniform float dt, invdx2, eps, f, q, phi0, Dv, flash, bdec, Db;
+out vec4 o;
+vec4 at(ivec2 p, vec4 c){ p = clamp(p, ivec2(0), ivec2(N-1)); return inDish(p) ? texelFetch(S,p,0) : c; }
+void main(){
+  ivec2 p = ivec2(gl_FragCoord.xy);
+  vec4 c = texelFetch(S,p,0);
+  if(!inDish(p)){ o = c; return; }
+  vec4 n=at(p+ivec2(0,1),c), s=at(p-ivec2(0,1),c), e=at(p+ivec2(1,0),c), w=at(p-ivec2(1,0),c);
+  vec4 ne=at(p+ivec2(1,1),c), nw=at(p+ivec2(-1,1),c), se=at(p+ivec2(1,-1),c), sw=at(p+ivec2(-1,-1),c);
+  vec4 L = (4.0*(n+s+e+w) + (ne+nw+se+sw) - 20.0*c) * (invdx2/6.0);
+  float v = c.g, b = c.b;
+  float fv = f*v + phi0 + b + flash;
+  float rhs = c.r + dt*L.r;
+  float u = c.r;
+  for(int i=0;i<3;i++){
+    float uq = u + q;
+    float Rr = (u - u*u - fv*(u-q)/uq)/eps;
+    float dR = (1.0 - 2.0*u - fv*2.0*q/(uq*uq))/eps;
+    u -= (u - rhs - dt*Rr)/(1.0 - dt*dR);
+  }
+  u = clamp(u, 0.0, 1.0);
+  float vn = u + (v-u)*exp(-dt) + Dv*dt*L.g;
+  float bn = b*exp(-dt*bdec) + Db*dt*L.b;
+  o = vec4(u, max(vn,0.0), max(bn,0.0), c.a);
+}`;
+
+const BZ_STAMP = BZ_COMMON + `
+uniform vec2 A, B; uniform float rad, strength; uniform int op; uniform vec2 rest;
+out vec4 o;
+float seg(vec2 p, vec2 a, vec2 b){ vec2 pa=p-a, ba=b-a; float h=clamp(dot(pa,ba)/max(dot(ba,ba),1e-12),0.,1.); return length(pa-ba*h); }
+void main(){
+  ivec2 p = ivec2(gl_FragCoord.xy);
+  vec4 c = texelFetch(S,p,0);
+  vec2 x = (vec2(p)+0.5)/float(N);
+  float w = 1.0 - smoothstep(rad*0.55, rad, seg(x,A,B));
+  if(op==0){ c.r = mix(c.r, 0.9, w); }
+  else if(op==1){ c.r = mix(c.r, rest.x*0.5, w); c.g = mix(c.g, max(c.g, strength), w); }
+  else if(op==2){ c.b = max(c.b, w*strength); }
+  else if(op==3){ c = mix(c, vec4(rest.x, rest.y, 0.0, c.a), w); }
+  else if(op==4){ c = vec4(rest.x, rest.y, 0.0, 1.0); }
+  o = c;
+}`;
+
+/* Phase used for spiral-tip (phase singularity) detection and the phase view */
+const BZ_PHASE = `
+uniform float LU, KU, VC, KV;
+float phaseOf(vec4 c){ return atan((c.g-VC)*KV, (log(max(c.r,1e-6))*0.4342945 - LU)*KU); }
+`;
+
+const BZ_TIPS = BZ_COMMON + BZ_PHASE + `
+uniform int C; /* cell size in sim texels (4): 4x4 one-texel plaquettes per cell */
+out vec4 o;
+float wrap(float a){ return a - 6.2831853*floor((a+3.14159265)/6.2831853); }
+vec2 ab(vec4 c){ return vec2((log(max(c.r,1e-6))*0.4342945 - LU)*KU, (c.g-VC)*KV); }
+void main(){
+  ivec2 cell = ivec2(gl_FragCoord.xy);
+  ivec2 base = cell*C;
+  vec2 cc = (vec2(base)+float(C)*0.5)/float(N) - 0.5;
+  o = vec4(0.0);
+  if(length(cc) > R - 0.02) return;
+  vec2 g[25];
+  for(int j=0;j<5;j++) for(int i=0;i<5;i++){
+    ivec2 q = clamp(base + ivec2(i,j), ivec2(0), ivec2(N-1));
+    g[j*5+i] = ab(texelFetch(S,q,0));
+  }
+  for(int j=0;j<4;j++) for(int i=0;i<4;i++){
+    vec2 A=g[j*5+i], B=g[j*5+i+1], Cc=g[(j+1)*5+i+1], D=g[(j+1)*5+i];
+    float a=atan(A.y,A.x), b=atan(B.y,B.x), c=atan(Cc.y,Cc.x), d=atan(D.y,D.x);
+    float w = wrap(b-a)+wrap(c-b)+wrap(d-c)+wrap(a-d);
+    if(abs(w) > 3.14159){
+      /* refine: zero of the bilinear interpolant of (a,b) inside the plaquette */
+      vec2 st = vec2(0.5);
+      for(int k=0;k<6;k++){
+        float s=st.x, t=st.y;
+        vec2 F = A*(1.-s)*(1.-t) + B*s*(1.-t) + D*(1.-s)*t + Cc*s*t;
+        vec2 Fs = (B-A)*(1.-t) + (Cc-D)*t;
+        vec2 Ft = (D-A)*(1.-s) + (Cc-B)*s;
+        float det = Fs.x*Ft.y - Fs.y*Ft.x;
+        if(abs(det) < 1e-9) break;
+        st -= vec2(F.x*Ft.y - F.y*Ft.x, Fs.x*F.y - Fs.y*F.x)/det;
+        st = clamp(st, 0.0, 1.0);
+      }
+      o = vec4(1.0, w>0.0?1.0:0.5, (float(i)+st.x)/4.0, (float(j)+st.y)/4.0);
+      return;
+    }
+  }
+}`;
+
+const BZ_PROBE = BZ_COMMON + `
+uniform vec2 P[4];
+out vec4 o;
+void main(){
+  int k = int(gl_FragCoord.x);
+  ivec2 q = clamp(ivec2(P[k]*float(N)), ivec2(0), ivec2(N-1));
+  vec4 c = texelFetch(S,q,0);
+  float v = clamp(c.g/0.5, 0.0, 1.0)*65535.0;
+  float lu = clamp((log(max(c.r,1e-6))*0.4342945 + 6.0)/6.0, 0.0, 1.0)*65535.0;
+  o = vec4(floor(v/256.0), mod(floor(v),256.0), floor(lu/256.0), mod(floor(lu),256.0))/255.0;
+}`;
+
+const BZ_DISPLAY = BZ_COMMON + BZ_PHASE + `
+in vec2 uv; out vec4 o;
+uniform int mode; uniform float time, aspect, flashGlow, frame;
+uniform vec2 res; uniform vec3 bench; uniform float zoom;
+vec4 tex(vec2 x){
+  vec2 t = x*float(N) - 0.5; ivec2 i = ivec2(floor(t)); vec2 fr = t - floor(t);
+  ivec2 M = ivec2(N-1);
+  vec4 a = texelFetch(S, clamp(i,ivec2(0),M),0), b = texelFetch(S, clamp(i+ivec2(1,0),ivec2(0),M),0);
+  vec4 c = texelFetch(S, clamp(i+ivec2(0,1),ivec2(0),M),0), d = texelFetch(S, clamp(i+ivec2(1,1),ivec2(0),M),0);
+  return mix(mix(a,b,fr.x), mix(c,d,fr.x), fr.y);
+}
+vec3 hsv(float h, float s, float v){ vec3 k = clamp(abs(mod(h*6.0+vec3(0,4,2),6.0)-3.0)-1.0,0.,1.); return v*mix(vec3(1.0),k,s); }
+float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }
+vec3 inferno(float t){
+  t = clamp(t,0.,1.);
+  vec3 c0=vec3(0.0002,0.0016,-0.0194), c1=vec3(0.1065,0.5640,3.9327), c2=vec3(11.6024,-3.9728,-15.9423),
+       c3=vec3(-41.7039,17.4363,44.3541), c4=vec3(77.1629,-33.4023,-81.8073), c5=vec3(-71.3194,32.6260,73.2095), c6=vec3(25.1311,-12.2426,-23.0703);
+  return clamp(c0+t*(c1+t*(c2+t*(c3+t*(c4+t*(c5+t*c6))))),0.,1.);
+}
+/* transmitted light through a thin layer: reduced vs oxidised catalyst absorbance */
+vec3 liquid(vec4 s, float lit){
+  float ox = smoothstep(0.03, 0.2, s.g);
+  vec3 kr, ko, lamp;
+  if(mode==0){ kr=vec3(0.16,1.75,2.55); ko=vec3(1.35,0.62,0.10); lamp=vec3(1.0,0.97,0.92); }      /* ferroin: red -> blue */
+  else if(mode==1){ kr=vec3(0.05,0.06,0.10); ko=vec3(0.02,0.28,1.85); lamp=vec3(0.96,0.95,0.92); } /* cerium: clear -> yellow */
+  else { kr=vec3(0.05,0.75,1.9); ko=vec3(0.95,0.18,0.85); lamp=vec3(1.0,0.98,0.95); }               /* Ru(bpy)3: orange -> green */
+  vec3 T = exp(-(kr*(1.0-ox) + ko*ox));
+  vec3 col = lamp*T*lit;
+  /* light-sensitive / bromide-dosed regions read slightly paler */
+  col = mix(col, lamp*lit*0.9, clamp(s.b*6.0,0.0,0.35));
+  return col;
+}
+void main(){
+  vec2 x = 0.5 + (uv - 0.5)*zoom;  /* canvas is square; the dish sits inside a small margin */
+  vec2 d = x - 0.5; float r = length(d);
+  vec3 col;
+  float Rw = R + 0.014;            /* outer glass wall */
+  if(r < R){
+    /* meniscus: refract toward the centre near the wall */
+    float m = smoothstep(R-0.03, R, r);
+    vec2 xs = 0.5 + d*(1.0 - 0.035*m*m);
+    vec4 s = tex(xs);
+    float lit = 1.05 - 0.55*pow(r/R, 2.2);   /* light box falls off toward the rim */
+    if(mode<=2){
+      col = liquid(s, lit);
+    } else if(mode==3){
+      float th = phaseOf(s)/6.2831853;
+      vec3 cyc = 0.5 + 0.5*cos(6.2831853*(th + vec3(0.02, 0.36, 0.64)));
+      cyc = mix(vec3(dot(cyc,vec3(0.3,0.5,0.2))), cyc, 0.85);
+      float act = smoothstep(0.012, 0.11, s.g) + smoothstep(0.02, 0.3, s.r);
+      col = (0.10 + 0.90*cyc) * (0.7+0.35*lit) * (0.28 + 0.72*clamp(act,0.0,1.0));
+    } else {
+      float lu = (log(max(s.r,1e-6))*0.4342945 + 3.2)/3.2;
+      col = inferno(lu)*0.95 + vec3(0.25,0.55,1.0)*smoothstep(0.08,0.2,s.g)*0.12;
+    }
+    col *= 1.0 - 0.45*m;                 /* meniscus darkening */
+    /* soft-box reflection on the liquid surface */
+    vec2 h = (x - vec2(0.33, 0.70)); h.x *= 0.85;
+    float spec = exp(-dot(h,h)/0.0045)*0.10 + exp(-pow(length(x-vec2(0.36,0.66)) - 0.22, 2.0)/0.0012)*0.025*(1.0 - smoothstep(0.0,0.4,x.x));
+    col += vec3(spec);
+    col += flashGlow*vec3(0.85,0.9,1.0)*0.6;
+  } else if(r < Rw){
+    float t = (r - R)/(Rw - R);
+    float edge = exp(-pow((t-0.08)/0.09,2.0))*0.55 + exp(-pow((t-0.92)/0.08,2.0))*0.35;
+    float ang = atan(d.y,d.x);
+    float glint = pow(max(0.0, cos(ang - 2.25)), 18.0)*0.9 + pow(max(0.0, cos(ang + 0.9)), 30.0)*0.35;
+    vec4 s = tex(0.5 + d*(R-0.004)/r);
+    vec3 inner = (mode<=2 ? liquid(s, 0.5) : vec3(0.2));
+    col = inner*0.35 + vec3(0.9,0.92,0.95)*(edge + glint*edge*1.6) + vec3(0.06);
+  } else {
+    /* bench: dark, with light leaking from the light box under the dish */
+    float g = exp(-(r - Rw)*38.0) * (1.0 - smoothstep(0.5*zoom - 0.05, 0.5*zoom, r));
+    vec3 tint = (mode==0 ? vec3(0.55,0.22,0.12) : mode==1 ? vec3(0.45,0.42,0.30) : mode==2 ? vec3(0.5,0.3,0.15) : vec3(0.25,0.25,0.3));
+    col = bench + tint*g*0.22;
+    float shadow = smoothstep(Rw, Rw+0.03, length(d - vec2(0.006,-0.01)));
+    col *= mix(0.55, 1.0, shadow);
+  }
+  /* vignette + film grain */
+  if(r < Rw) col = pow(max(col,0.0), vec3(1.0/1.08));
+  col += (hash(uv*res + frame) - 0.5)*(r < Rw ? 0.02 : 0.008);
+  o = vec4(col, 1.0);
+}`;
+
+class BZSim {
+  constructor(canvas, opt = {}) {
+    this.canvas = canvas;
+    this.N = opt.N || 512;
+    this.dx = opt.dx || 0.4;
+    this.R = 0.48;
+    this.p = { f: 1.4, q: 0.002, eps: 0.02, phi0: 0.01, Dv: 0.0, bdec: 1.6, Db: 0.6 };
+    this.mode = 0;
+    this.time = 0;          // sim time since last reset (dimensionless)
+    this.flash = 0;         // global light pulse amplitude
+    this.flashGlow = 0;
+    this.frameNo = 0;
+    this.ok = false;
+    const gl = canvas.getContext('webgl2', { antialias: false, alpha: false, premultipliedAlpha: false, preserveDrawingBuffer: false, powerPreference: 'high-performance' });
+    if (!gl) { this.err = 'WebGL2 unavailable'; return; }
+    this.gl = gl;
+    const f32 = gl.getExtension('EXT_color_buffer_float');
+    const f16 = gl.getExtension('EXT_color_buffer_half_float');
+    this.fmt = null;
+    const tryFmt = (ifmt, type) => {
+      const t = this._tex(ifmt, type, null); const fb = gl.createFramebuffer();
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+      const okk = gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE;
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.deleteFramebuffer(fb); gl.deleteTexture(t); return okk;
+    };
+    if (f32 && tryFmt(gl.RGBA32F, gl.FLOAT)) this.fmt = [gl.RGBA32F, gl.FLOAT];
+    else if ((f16 || f32) && tryFmt(gl.RGBA16F, gl.HALF_FLOAT)) this.fmt = [gl.RGBA16F, gl.HALF_FLOAT];
+    if (!this.fmt) { this.err = 'Float render targets unavailable'; return; }
+    this.half = this.fmt[0] === gl.RGBA16F;
+
+    const vb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vb);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    this.vao = gl.createVertexArray(); gl.bindVertexArray(this.vao);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+    this.prog = {
+      step: this._prog(BZ_STEP), stamp: this._prog(BZ_STAMP), disp: this._prog(BZ_DISPLAY),
+      tips: this._prog(BZ_TIPS), probe: this._prog(BZ_PROBE)
+    };
+    if (Object.values(this.prog).some(p => !p)) { this.err = 'Shader compile failed'; return; }
+    const N = this.N;
+    this.tex = [this._tex(this.fmt[0], this.fmt[1], null, N, N), this._tex(this.fmt[0], this.fmt[1], null, N, N)];
+    this.fb = this.tex.map(t => this._fb(t));
+    this.cur = 0;
+    this.TC = 4; this.TN = N / this.TC;
+    this.tipTex = this._tex8(this.TN, this.TN); this.tipFb = this._fb(this.tipTex);
+    this.tipBuf = new Uint8Array(this.TN * this.TN * 4);
+    this.probeTex = this._tex8(4, 1); this.probeFb = this._fb(this.probeTex);
+    this.probeBuf = new Uint8Array(16);
+    this.probes = [];
+    this.phaseRef = { LU: -1.25, KU: 1.0, VC: 0.10, KV: 12.0 };
+    this.ok = true;
+    this.reset();
+  }
+  _sh(type, src) {
+    const gl = this.gl, s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(s)); return null; }
+    return s;
+  }
+  _prog(fs) {
+    const gl = this.gl, p = gl.createProgram();
+    const v = this._sh(gl.VERTEX_SHADER, BZ_VS), f = this._sh(gl.FRAGMENT_SHADER, fs);
+    if (!v || !f) return null;
+    gl.attachShader(p, v); gl.attachShader(p, f); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { console.error(gl.getProgramInfoLog(p)); return null; }
+    p.u = {}; const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+    for (let i = 0; i < n; i++) { const info = gl.getActiveUniform(p, i); const nm = info.name.replace(/\[0\]$/, ''); p.u[nm] = gl.getUniformLocation(p, info.name); }
+    return p;
+  }
+  _tex(ifmt, type, data, w = 4, h = 4) {
+    const gl = this.gl, t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, ifmt, w, h, 0, gl.RGBA, type, data);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return t;
+  }
+  _tex8(w, h) { const gl = this.gl; return this._tex(gl.RGBA8, gl.UNSIGNED_BYTE, null, w, h); }
+  _fb(t) {
+    const gl = this.gl, fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); return fb;
+  }
+  /* homogeneous rest state of the excitable medium (smallest root above q) */
+  rest() {
+    const { f, q, phi0 } = this.p;
+    // -u^3 + (1-q-f)u^2 + (q+fq-phi)u + phi q = 0 ; v = u
+    let lo = q * 1.0001, hi = 1, g = u => u * (1 - u) * (u + q) - (f * u + phi0) * (u - q);
+    // scan for first sign change from lo
+    let prev = lo, gp = g(lo);
+    for (let i = 1; i <= 4000; i++) {
+      const u = q + (1 - q) * Math.pow(i / 4000, 3);
+      const gu = g(u);
+      if (gp > 0 && gu <= 0 || gp < 0 && gu >= 0) { lo = prev; hi = u; break; }
+      prev = u; gp = gu;
+    }
+    for (let k = 0; k < 60; k++) { const m = 0.5 * (lo + hi); (g(lo) * g(m) <= 0) ? hi = m : lo = m; }
+    const u = 0.5 * (lo + hi); return [u, u];
+  }
+  _use(p) { const gl = this.gl; gl.useProgram(p); gl.bindVertexArray(this.vao); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, this.tex[this.cur]); gl.uniform1i(p.u.S, 0); gl.uniform1i(p.u.N, this.N); gl.uniform1f(p.u.R, this.R); }
+  _draw(fb, w, h) { const gl = this.gl; gl.bindFramebuffer(gl.FRAMEBUFFER, fb); gl.viewport(0, 0, w, h); gl.drawArrays(gl.TRIANGLES, 0, 3); }
+  _swapDraw() { this._draw(this.fb[1 - this.cur], this.N, this.N); this.cur = 1 - this.cur; }
+  reset() {
+    if (!this.ok) return;
+    this.stamp(4, [0, 0], [0, 0], 1);
+    this.stamp(4, [0, 0], [0, 0], 1);
+    this.time = 0;
+  }
+  stamp(op, a, b, rad, strength = 0.3) {
+    if (!this.ok) return;
+    const gl = this.gl, P = this.prog.stamp; this._use(P);
+    const rs = this.rest();
+    gl.uniform2f(P.u.A, a[0], a[1]); gl.uniform2f(P.u.B, b[0], b[1]); gl.uniform1f(P.u.rad, rad);
+    gl.uniform1f(P.u.strength, strength); gl.uniform1i(P.u.op, op); gl.uniform2f(P.u.rest, rs[0], rs[1]);
+    this._swapDraw();
+  }
+  /* convenience ops; radii in sim length units */
+  L2uv(l) { return l / (this.N * this.dx); }
+  trigger(x, y, r = 2.6) { this.stamp(0, [x, y], [x, y], this.L2uv(r)); }
+  triggerLine(a, b, r = 2.2) { this.stamp(0, a, b, this.L2uv(r)); }
+  cut(a, b, r = 3.0) { this.stamp(1, a, b, this.L2uv(r), 0.34); }
+  inhibit(a, b, r = 5, s = 0.08) { this.stamp(2, a, b, this.L2uv(r), s); }
+  erase(a, b, r) { this.stamp(3, a, b, this.L2uv(r)); }
+  stepN(n, dt) {
+    if (!this.ok || n <= 0) return;
+    const gl = this.gl, P = this.prog.step; const p = this.p;
+    gl.useProgram(P); gl.bindVertexArray(this.vao);
+    gl.uniform1i(P.u.N, this.N); gl.uniform1f(P.u.R, this.R); gl.uniform1i(P.u.S, 0);
+    gl.uniform1f(P.u.dt, dt); gl.uniform1f(P.u.invdx2, 1 / (this.dx * this.dx));
+    gl.uniform1f(P.u.eps, p.eps); gl.uniform1f(P.u.f, p.f); gl.uniform1f(P.u.q, p.q); gl.uniform1f(P.u.phi0, p.phi0);
+    gl.uniform1f(P.u.Dv, p.Dv); gl.uniform1f(P.u.bdec, p.bdec); gl.uniform1f(P.u.Db, p.Db); gl.uniform1f(P.u.flash, this.flash);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, this.N, this.N);
+    for (let i = 0; i < n; i++) {
+      gl.bindTexture(gl.TEXTURE_2D, this.tex[this.cur]);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, this.fb[1 - this.cur]);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      this.cur = 1 - this.cur;
+    }
+    this.time += n * dt;
+  }
+  /* advance by sim-time T using the largest stable/accurate dt */
+  advance(T) {
+    if (T <= 0) return;
+    const dtMax = Math.min(0.012, Math.max(0.0025, 0.25 * this.p.eps));
+    const n = Math.max(1, Math.ceil(T / dtMax - 1e-9));
+    this.stepN(n, T / n);
+  }
+  render(w, h) {
+    if (!this.ok) return;
+    const gl = this.gl, P = this.prog.disp; this._use(P);
+    gl.uniform1i(P.u.mode, this.mode); gl.uniform1f(P.u.time, this.time); gl.uniform1f(P.u.flashGlow, this.flashGlow);
+    gl.uniform1f(P.u.frame, (this.frameNo++ % 64) * 1.37); gl.uniform2f(P.u.res, w, h);
+    const b = this.bench || [0.05, 0.043, 0.047]; gl.uniform3f(P.u.bench, b[0], b[1], b[2]);
+    gl.uniform1f(P.u.zoom, this.zoom || 1.0);
+    this._phaseU(P);
+    this._draw(null, w, h);
+  }
+  _phaseU(P) { const r = this.phaseRef, gl = this.gl; gl.uniform1f(P.u.LU, r.LU); gl.uniform1f(P.u.KU, r.KU); gl.uniform1f(P.u.VC, r.VC); gl.uniform1f(P.u.KV, r.KV); }
+  /* spiral tips = phase singularities; returns [{x,y,c}] in uv, c = ±1 */
+  readTips() {
+    if (!this.ok) return [];
+    const gl = this.gl, P = this.prog.tips; this._use(P); this._phaseU(P);
+    gl.uniform1i(P.u.C, this.TC);
+    this._draw(this.tipFb, this.TN, this.TN);
+    gl.readPixels(0, 0, this.TN, this.TN, gl.RGBA, gl.UNSIGNED_BYTE, this.tipBuf);
+    const out = [], B = this.tipBuf, TN = this.TN;
+    for (let j = 0; j < TN; j++) for (let i = 0; i < TN; i++) {
+      const k = (j * TN + i) * 4; if (B[k] < 128) continue;
+      const x = (i + B[k + 2] / 255) / TN + 0.5 / this.N, y = (j + B[k + 3] / 255) / TN + 0.5 / this.N;
+      const c = B[k + 1] > 200 ? 1 : -1;
+      // merge near-duplicates
+      let dup = false; for (const t of out) { if (Math.hypot(t.x - x, t.y - y) < 3 / TN && t.c === c) { dup = true; break; } }
+      if (!dup) out.push({ x, y, c });
+    }
+    return out;
+  }
+  readProbes() {
+    if (!this.ok || !this.probes.length) return [];
+    const gl = this.gl, P = this.prog.probe; this._use(P);
+    const arr = new Float32Array(8); this.probes.slice(0, 4).forEach((p, i) => { arr[2 * i] = p[0]; arr[2 * i + 1] = p[1]; });
+    gl.uniform2fv(P.u.P, arr);
+    this._draw(this.probeFb, 4, 1);
+    gl.readPixels(0, 0, 4, 1, gl.RGBA, gl.UNSIGNED_BYTE, this.probeBuf);
+    const B = this.probeBuf, out = [];
+    for (let i = 0; i < Math.min(4, this.probes.length); i++) {
+      const v = (B[4 * i] * 256 + B[4 * i + 1]) / 65535 * 0.5;
+      const lu = (B[4 * i + 2] * 256 + B[4 * i + 3]) / 65535 * 6 - 6;
+      out.push({ v, u: Math.pow(10, lu) });
+    }
+    return out;
+  }
+}
+
+/* ============================================================
+   DishView — wraps a BZSim with pointer tools, pacemakers,
+   probes, spiral-tip tracking, HUD units and a scene timeline.
+   ============================================================ */
+const UNITS_PER_SEC = 1.2;                 // sim time per wall-clock second at 1x
+const T_SPIRAL = 2.37, C_FRONT = 10.8;     // measured at default parameters (period, front speed)
+const WORLDS = {
+  bz:    { key: 'bz', tau0: 50, ell0: 0.316 },                                      // s, mm per model unit
+  heart: { key: 'heart', tau0: 0.183 / T_SPIRAL, ell0: 500 * (0.183 / T_SPIRAL) / C_FRONT }
+};
+const CATS = ['ferroin', 'cerium', 'ruthenium', 'phase view', 'HBrO₂ (log)'];
+const CAT_COL = ['#63a8ff', '#f2c94c', '#9fe08a', '#d7a7ff', '#f2b441'];
+const DEFAULT_P = { f: 1.4, q: 0.002, eps: 0.02, phi0: 0.01 };
+
+function fmtClock(sec) {
+  if (sec < 60) return sec.toFixed(sec < 10 ? 2 : 1) + ' s';
+  const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+  if (m < 60) return m + ':' + String(s).padStart(2, '0');
+  return Math.floor(m / 60) + ' h ' + String(m % 60).padStart(2, '0') + ' min';
+}
+function fmtLen(mm) {
+  if (mm >= 10) return (mm / 10) + ' cm';
+  return mm + ' mm';
+}
+
+class Strip {
+  constructor(canvas, rateEl) {
+    this.cv = canvas; this.ctx = canvas.getContext('2d'); this.rateEl = rateEl;
+    this.t = []; this.v = []; this.ups = [];
+  }
+  clear() { this.t = []; this.v = []; this.ups = []; if (this.rateEl) this.rateEl.textContent = '–'; }
+  push(t, v) {
+    const n = this.v.length;
+    if (n && this.v[n - 1] < 0.08 && v >= 0.08) this.ups.push(t);
+    this.t.push(t); this.v.push(v);
+    while (this.t.length && this.t[0] < t - 80) { this.t.shift(); this.v.shift(); }
+    while (this.ups.length && this.ups[0] < t - 80) this.ups.shift();
+  }
+  rate(world, now) {
+    const u = this.ups.filter(x => x > now - 30);
+    if (u.length < 2) return null;
+    const k = Math.min(5, u.length - 1);
+    const iv = (u[u.length - 1] - u[u.length - 1 - k]) / k;      // model units per beat
+    if (now - u[u.length - 1] > 3 * iv + 2) return null;
+    const sec = iv * WORLDS[world].tau0;
+    return { sec, perMin: 60 / sec, irregular: this.irregularity(u) };
+  }
+  irregularity(u) {
+    if (u.length < 5) return 0;
+    const d = []; for (let i = 1; i < u.length; i++) d.push(u[i] - u[i - 1]);
+    const m = d.reduce((a, b) => a + b, 0) / d.length;
+    const sd = Math.sqrt(d.reduce((a, b) => a + (b - m) * (b - m), 0) / d.length);
+    return sd / m;
+  }
+  draw(world, now, ink) {
+    const cv = this.cv, dpr = Math.min(devicePixelRatio || 1, 2);
+    const W = Math.round(cv.clientWidth * dpr), H = Math.round(cv.clientHeight * dpr);
+    if (!W || !H) return;
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    const c = this.ctx; c.clearRect(0, 0, W, H);
+    const win = world === 'heart' ? 3.0 / WORLDS.heart.tau0 : 16;    // model units shown
+    const x = t => W - (now - t) / win * W;
+    // grid: ECG paper for heart (0.2 s), minutes for BZ
+    const step = world === 'heart' ? 0.2 / WORLDS.heart.tau0 : 60 / WORLDS.bz.tau0;
+    c.lineWidth = 1;
+    for (let k = Math.floor((now - win) / step); k * step <= now; k++) {
+      const gx = Math.round(x(k * step)) + 0.5;
+      c.strokeStyle = 'rgba(255,125,140,0.10)'; c.beginPath(); c.moveTo(gx, 0); c.lineTo(gx, H); c.stroke();
+    }
+    for (let k = 1; k < 4; k++) { const gy = Math.round(H * k / 4) + 0.5; c.strokeStyle = 'rgba(255,125,140,0.07)'; c.beginPath(); c.moveTo(0, gy); c.lineTo(W, gy); c.stroke(); }
+    if (this.t.length < 2) return;
+    c.lineWidth = 1.6 * dpr; c.strokeStyle = ink; c.lineJoin = 'round';
+    c.shadowColor = ink; c.shadowBlur = 6 * dpr;
+    c.beginPath();
+    let started = false;
+    for (let i = 0; i < this.t.length; i++) {
+      if (this.t[i] < now - win - 1) continue;
+      const px = x(this.t[i]), py = H - 4 * dpr - (H - 10 * dpr) * Math.min(1, this.v[i] / 0.24);
+      if (!started) { c.moveTo(px, py); started = true; } else c.lineTo(px, py);
+    }
+    c.stroke(); c.shadowBlur = 0;
+  }
+}
+
+class DishView {
+  constructor(root, o = {}) {
+    this.root = root; this.o = o;
+    this.glc = root.querySelector('canvas.gl'); this.fxc = root.querySelector('canvas.fx');
+    this.hud = {}; root.querySelectorAll('[data-hud]').forEach(e => this.hud[e.dataset.hud] = e);
+    this.sim = new BZSim(this.glc, { N: o.N || 512 });
+    this.ok = this.sim.ok;
+    if (!this.ok) { root.classList.add('failed'); console.warn(this.sim.err); return; }
+    this.sim.bench = o.bench || [0.051, 0.043, 0.051];
+    this.zoom = this.sim.zoom = o.zoom || 1.1;
+    this.fx = this.fxc.getContext('2d');
+    this.world = 'bz'; this.speed = 1; this.paused = false; this.boost = 1;
+    this.sceneTime = 0; this.timeline = []; this.pacers = []; this.probe = null; this.meas = [];
+    this.tipsOn = false; this.trailLen = 2.5; this.tips = []; this.trails = []; this.tipFrame = 0;
+    this.flashEnv = null; this.tool = 'touch'; this.pointer = null; this.marks = [];
+    this.strip = o.strip || null; this.lastHud = 0; this.listeners = {};
+    this.resize();
+    if (window.ResizeObserver) new ResizeObserver(() => this.resize()).observe(root);
+    this.bindPointer();
+    this.visible = false;
+    new IntersectionObserver(es => { this.visible = es[0].isIntersecting; this.kick(); }, { rootMargin: '80px' }).observe(root);
+    document.addEventListener('visibilitychange', () => this.kick());
+  }
+  on(ev, fn) { (this.listeners[ev] = this.listeners[ev] || []).push(fn); }
+  emit(ev, x) { (this.listeners[ev] || []).forEach(f => f(x)); }
+  resize() {
+    const r = this.root.getBoundingClientRect(); if (!r.width) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const s = Math.max(64, Math.round(r.width * dpr));
+    if (this.glc.width !== s) { this.glc.width = this.glc.height = s; this.fxc.width = this.fxc.height = s; }
+    this.cssW = r.width; this.dpr = dpr;
+    this.updateHud(true);
+  }
+  // Reset the frame clock only when the loop starts from idle; resetting it after every frame
+  // would drop each frame's own compute time from dt and slow the model on slow GPUs.
+  kick() { if (this.raf) return; if (this.visible && !document.hidden && this.ok) { if (!this.looping) this.last = performance.now(); this.looping = true; this.raf = requestAnimationFrame(t => this.frame(t)); } else this.looping = false; }
+
+  /* ---------------- scene / timeline ---------------- */
+  setParams(p) { Object.assign(this.sim.p, p); this.emit('params', this.sim.p); }
+  resetScene({ keep = false, params = DEFAULT_P } = {}) {
+    this.timeline = []; this.meas = []; this.flashEnv = null; this.sim.flash = 0; this.sim.flashGlow = 0;
+    if (!keep) { this.pacers = []; this.trails = []; this.tips = []; this.marks = []; }
+    if (params) this.setParams(params);
+    if (!keep) this.sim.reset();
+    this.sceneTime = 0;
+    if (this.strip) this.strip.clear();
+  }
+  at(t, fn) { this.timeline.push({ t: this.sceneTime + t, fn }); this.timeline.sort((a, b) => a.t - b.t); }
+  every(t0, period, fn, count = Infinity) { let k = 0; const go = () => { fn(k); k++; if (k < count) this.at(period, go); }; this.at(t0, go); }
+  addPacer(x, y, T, phase = 0) { const p = { x, y, T, next: this.sceneTime + phase, fired: -9 }; this.pacers.push(p); return p; }
+  setProbe(x, y) { this.probe = x == null ? null : { x, y }; if (this.strip) this.strip.clear(); this.emit('probe', this.probe); }
+  setWorld(w) { this.world = w; if (this.strip) this.strip.clear(); this.updateHud(true); this.emit('world', w); }
+  setMode(m) { this.sim.mode = m; this.updateHud(true); this.emit('mode', m); }
+  flash(amp = 0.3, hold = 1.4) { this.flashEnv = { t0: this.sceneTime, amp, hold }; }
+  warp(T) { // fast-forward without rendering
+    const step = 0.05;
+    for (let t = 0; t < T; t += step) this.advance(Math.min(step, T - t));
+  }
+  advance(T) {
+    // run sim in chunks, honouring timeline events and pacemakers
+    while (T > 1e-9) {
+      let ch = Math.min(T, 0.02);
+      const nextEv = this.timeline.length ? this.timeline[0].t - this.sceneTime : Infinity;
+      if (nextEv > 1e-9) ch = Math.min(ch, nextEv);
+      for (const p of this.pacers) { const d = p.next - this.sceneTime; if (d > 1e-9) ch = Math.min(ch, d); }
+      if (this.flashEnv) {
+        const e = this.flashEnv, a = this.sceneTime - e.t0;
+        const env = a < 0.15 ? a / 0.15 : a < 0.15 + e.hold ? 1 : Math.max(0, 1 - (a - 0.15 - e.hold) / 0.6);
+        this.sim.flash = e.amp * env; this.sim.flashGlow = 0.55 * env;
+        if (a > 0.75 + e.hold + 0.15) { this.flashEnv = null; this.sim.flash = 0; this.sim.flashGlow = 0; }
+      }
+      if (ch > 1e-9) { this.sim.advance(ch); this.sceneTime += ch; T -= ch; }
+      while (this.timeline.length && this.timeline[0].t <= this.sceneTime + 1e-9) { const ev = this.timeline.shift(); ev.fn(); }
+      for (const p of this.pacers) if (p.next <= this.sceneTime + 1e-9) { this.sim.trigger(p.x, p.y, 2.4); p.fired = this.sceneTime; p.next += p.T; }
+      if (ch <= 1e-9 && !this.timeline.length) { if (T <= 1e-9) break; }
+    }
+  }
+
+  /* ---------------- per-frame ---------------- */
+  frame(now) {
+    this.raf = 0;
+    if (!this.visible || document.hidden) return;
+    const dtw = Math.min(0.05, Math.max(0, (now - this.last) / 1000)); this.last = now;
+    if (!this.paused) {
+      if (this.pointer && this.pointer.light) this.sim.inhibit(this.pointer.p, this.pointer.p, 7, 0.12);
+      this.advance(dtw * UNITS_PER_SEC * this.speed * this.boost);
+    }
+    this.sim.render(this.glc.width, this.glc.height);
+    if (!this.paused) this.sampleProbes();
+    // tips
+    if (this.tipsOn && !this.paused && (++this.tipFrame % 3 === 0)) this.trackTips(this.sim.readTips());
+    if (!this.tipsOn && this.trails.length) { this.trails = []; this.tips = []; }
+    this.drawFx();
+    if (this.strip && this.probe) this.strip.draw(this.world, this.sceneTime, this.sim.mode === 2 ? '#a8f08f' : '#ffd9c9');
+    if (now - this.lastHud > 200) { this.lastHud = now; this.updateHud(); this.emit('tick', this); }
+    this.kick();
+  }
+  sampleProbes() {
+    if (!this.probe && !this.meas.length) return;
+    const list = []; if (this.probe) list.push([this.probe.x, this.probe.y]);
+    const ms = this.meas.slice(0, 3); ms.forEach(m => list.push([m.x, m.y]));
+    this.sim.probes = list;
+    const vals = this.sim.readProbes(); let k = 0;
+    if (this.probe) { const v = vals[k++]; if (this.strip && v) this.strip.push(this.sceneTime, v.v); }
+    ms.forEach(m => { const v = vals[k++]; if (v && m.on) m.on(v, this.sceneTime); });
+    this.meas = this.meas.filter(m => !m.done);
+  }
+  trackTips(list) {
+    const t = this.sceneTime, L = 1;
+    const alive = this.trails.filter(tr => t - tr.last < 1.2);
+    const used = new Set();
+    for (const p of list) {
+      let best = null, bd = 0.03;
+      for (const tr of alive) { if (used.has(tr) || tr.c !== p.c) continue; const q = tr.pts[tr.pts.length - 1]; const d = Math.hypot(q[0] - p.x, q[1] - p.y); if (d < bd) { bd = d; best = tr; } }
+      if (best) { used.add(best); best.pts.push([p.x, p.y, t]); best.last = t; }
+      else { const tr = { c: p.c, pts: [[p.x, p.y, t]], last: t, born: t }; alive.push(tr); used.add(tr); }
+    }
+    for (const tr of alive) { while (tr.pts.length > 2 && tr.pts[0][2] < t - this.trailLen * L * T_SPIRAL) tr.pts.shift(); }
+    this.trails = alive.concat(this.trails.filter(tr => t - tr.last >= 1.2 && t - tr.last < 2.5));
+    this.tips = list;
+  }
+  tipStats() { let p = 0, m = 0; for (const t of this.tips) t.c > 0 ? p++ : m++; return { n: p + m, p, m }; }
+  toPx(x, y) { const s = this.fxc.width, z = this.zoom; return [(0.5 + (x - 0.5) / z) * s, (0.5 - (y - 0.5) / z) * s]; }
+  drawFx() {
+    const c = this.fx, s = this.fxc.width, d = this.dpr || 1, t = this.sceneTime;
+    c.clearRect(0, 0, s, s);
+    // tip trails
+    if (this.tipsOn) {
+      for (const tr of this.trails) {
+        const col = tr.c > 0 ? '255,214,140' : '160,225,255';
+        const fade = Math.max(0, 1 - Math.max(0, t - tr.last - 0.3) / 1.5);
+        c.lineWidth = 1.5 * d; c.lineCap = 'round';
+        for (let i = 1; i < tr.pts.length; i++) {
+          const a = tr.pts[i - 1], b = tr.pts[i];
+          if (Math.hypot(a[0] - b[0], a[1] - b[1]) > 0.02) continue;
+          const age = (t - b[2]) / (this.trailLen * T_SPIRAL);
+          c.strokeStyle = `rgba(${col},${(0.9 * (1 - age) * fade).toFixed(3)})`;
+          const [x1, y1] = this.toPx(a[0], a[1]), [x2, y2] = this.toPx(b[0], b[1]);
+          c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke();
+        }
+      }
+      for (const p of this.tips) {
+        const [x, y] = this.toPx(p.x, p.y);
+        c.strokeStyle = 'rgba(255,255,255,0.95)'; c.lineWidth = 1.6 * d;
+        c.fillStyle = p.c > 0 ? 'rgba(242,180,65,0.95)' : 'rgba(99,168,255,0.95)';
+        c.beginPath(); c.arc(x, y, 5.5 * d, 0, 7); c.fill(); c.stroke();
+        c.fillStyle = '#0d0b0d'; c.font = `600 ${9 * d}px "IBM Plex Mono", monospace`; c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.fillText(p.c > 0 ? '+' : '−', x, y + 0.5 * d);
+      }
+    }
+    // pacemakers: dust specks with a pulse when they fire
+    for (const p of this.pacers) {
+      const [x, y] = this.toPx(p.x, p.y);
+      const a = t - p.fired;
+      if (a >= 0 && a < 0.8) { c.strokeStyle = `rgba(255,240,225,${(0.7 * (1 - a / 0.8)).toFixed(3)})`; c.lineWidth = 1.5 * d; c.beginPath(); c.arc(x, y, (5 + 26 * a) * d, 0, 7); c.stroke(); }
+      c.fillStyle = 'rgba(25,18,16,0.92)'; c.beginPath(); c.arc(x, y, 3.4 * d, 0, 7); c.fill();
+      c.strokeStyle = 'rgba(255,240,225,0.75)'; c.lineWidth = 1 * d; c.beginPath(); c.arc(x, y, 6.5 * d, 0, 7); c.stroke();
+      if (p.label) { c.font = `500 ${10 * d}px "IBM Plex Mono", monospace`; c.fillStyle = 'rgba(255,245,238,0.9)'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.shadowColor = 'rgba(0,0,0,0.9)'; c.shadowBlur = 3 * d; c.fillText(p.label, x + 11 * d, y); c.shadowBlur = 0; }
+    }
+    // probe electrode
+    if (this.probe) {
+      const [x, y] = this.toPx(this.probe.x, this.probe.y);
+      c.strokeStyle = 'rgba(255,255,255,0.95)'; c.lineWidth = 1.4 * d;
+      c.beginPath(); c.arc(x, y, 7 * d, 0, 7); c.stroke();
+      c.beginPath(); c.moveTo(x - 11 * d, y); c.lineTo(x - 3 * d, y); c.moveTo(x + 3 * d, y); c.lineTo(x + 11 * d, y); c.moveTo(x, y - 11 * d); c.lineTo(x, y - 3 * d); c.moveTo(x, y + 3 * d); c.lineTo(x, y + 11 * d); c.stroke();
+    }
+    // transient marks (cuts, light, scripted gestures)
+    const nowW = performance.now();
+    this.marks = this.marks.filter(m => nowW - m.w < m.life);
+    for (const m of this.marks) {
+      const k = 1 - (nowW - m.w) / m.life;
+      if (m.type === 'cut') {
+        c.strokeStyle = `rgba(255,255,255,${(0.75 * k).toFixed(3)})`; c.lineWidth = 2 * d; c.setLineDash([5 * d, 4 * d]); c.lineCap = 'round';
+        const [x1, y1] = this.toPx(m.a[0], m.a[1]), [x2, y2] = this.toPx(m.b[0], m.b[1]);
+        c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke(); c.setLineDash([]);
+      } else if (m.type === 'tap') {
+        const [x, y] = this.toPx(m.a[0], m.a[1]);
+        c.strokeStyle = `rgba(255,255,255,${(0.8 * k).toFixed(3)})`; c.lineWidth = 1.5 * d;
+        c.beginPath(); c.arc(x, y, (4 + 16 * (1 - k)) * d, 0, 7); c.stroke();
+      }
+    }
+    if (this.pointer && this.pointer.light) {
+      const [x, y] = this.toPx(this.pointer.p[0], this.pointer.p[1]);
+      const g = c.createRadialGradient(x, y, 0, x, y, 34 * d);
+      g.addColorStop(0, 'rgba(255,255,240,0.45)'); g.addColorStop(1, 'rgba(255,255,240,0)');
+      c.fillStyle = g; c.beginPath(); c.arc(x, y, 34 * d, 0, 7); c.fill();
+    }
+  }
+  updateHud(force) {
+    const W = WORLDS[this.world], h = this.hud;
+    if (h.cat) { h.cat.textContent = CATS[this.sim.mode] || ''; h.cat.style.setProperty('--c', CAT_COL[this.sim.mode]); }
+    if (h.clock) h.clock.textContent = fmtClock(this.sceneTime * W.tau0);
+    if (h.lapse && (force || this._lapseSpeed !== this.speed || this._lapseWorld !== this.world)) {
+      this._lapseSpeed = this.speed; this._lapseWorld = this.world;
+      const f = UNITS_PER_SEC * this.speed * W.tau0;
+      h.lapse.textContent = f >= 1 ? `time-lapse ×${f >= 10 ? Math.round(f) : f.toFixed(1)}` : `slow motion ÷${(1 / f).toFixed(0)}`;
+    }
+    if (h.sb && this.cssW && (force || this._sbW !== this.cssW || this._sbWorld !== this.world)) {
+      this._sbW = this.cssW; this._sbWorld = this.world;
+      const mmPerCss = (this.sim.N * this.sim.dx * W.ell0 * this.zoom) / this.cssW;
+      const opts = [0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500];
+      let pick = opts[0]; for (const o of opts) { if (o / mmPerCss <= Math.max(70, this.cssW * 0.2)) pick = o; }
+      h.sb.style.width = (pick / mmPerCss).toFixed(1) + 'px'; h.sbl.textContent = fmtLen(pick);
+    }
+    if (h.tips) { const s = this.tipStats(); h.tips.textContent = this.tipsOn ? `tips  +${s.p}  −${s.m}` : ''; }
+  }
+
+  /* ---------------- pointer tools ---------------- */
+  uvOf(e) { const r = this.glc.getBoundingClientRect(), z = this.zoom; return [0.5 + ((e.clientX - r.left) / r.width - 0.5) * z, 0.5 + (0.5 - (e.clientY - r.top) / r.height) * z]; }
+  inDish(p) { return Math.hypot(p[0] - 0.5, p[1] - 0.5) < this.sim.R; }
+  bindPointer() {
+    const el = this.glc;
+    el.addEventListener('pointerdown', e => {
+      if (e.button > 0) return;
+      const p = this.uvOf(e); if (!this.inDish(p)) return;
+      el.setPointerCapture && el.setPointerCapture(e.pointerId);
+      this.pointer = { id: e.pointerId, p, start: p, x0: e.clientX, y0: e.clientY, moved: false, light: this.tool === 'light' };
+      this.emit('interact', this.tool);
+      if (this.tool === 'light') this.sim.inhibit(p, p, 7, 0.12);
+    });
+    el.addEventListener('pointermove', e => {
+      const P = this.pointer; if (!P || P.id !== e.pointerId) return;
+      const p = this.uvOf(e);
+      if (!P.moved && Math.hypot(e.clientX - P.x0, e.clientY - P.y0) > 7) P.moved = true;
+      if (this.tool === 'touch' && P.moved) {
+        this.sim.cut(P.p, p, 3.2); this.marks.push({ type: 'cut', a: P.p, b: p, w: performance.now(), life: 900 });
+      } else if (this.tool === 'light') {
+        this.sim.inhibit(P.p, p, 7, 0.12);
+      }
+      P.p = p;
+    });
+    const end = e => {
+      const P = this.pointer; if (!P || P.id !== e.pointerId) return;
+      this.pointer = null;
+      if (e.type === 'pointercancel') return;
+      const p = P.p;
+      if (P.moved) return;
+      if (this.tool === 'touch') { this.sim.trigger(p[0], p[1]); this.marks.push({ type: 'tap', a: p, w: performance.now(), life: 600 }); }
+      else if (this.tool === 'pace') {
+        const i = this.pacers.findIndex(q => Math.hypot(q.x - p[0], q.y - p[1]) < 0.03);
+        if (i >= 0) this.pacers.splice(i, 1);
+        else { const T = this.paceT || 4; const q = this.addPacer(p[0], p[1], T, 0); q.label = this.periodLabel(T); }
+      } else if (this.tool === 'probe') this.setProbe(p[0], p[1]);
+    };
+    el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  }
+  periodLabel(T) { const s = T * WORLDS[this.world].tau0; return s >= 60 ? (s / 60).toFixed(1) + ' min' : s.toFixed(2) + ' s'; }
+  /* scripted gestures that also show on the overlay */
+  sCut(a, b, r = 3.2) { this.sim.cut(a, b, r); this.marks.push({ type: 'cut', a, b, w: performance.now(), life: 1400 }); }
+  sTap(x, y, r) { this.sim.trigger(x, y, r); this.marks.push({ type: 'tap', a: [x, y], w: performance.now(), life: 700 }); }
+}
+
+/* ============================================================
+   Act II — the stirred clock. Reduced Field–Noyes Oregonator
+   with textbook constants (Scholarpedia, Field):
+     eps dx/dτ = x(1-x) - f z (x-q)/(x+q),  dz/dτ = x - z,
+     y = f z/(q+x)  (bromide at steady state)
+   A=[BrO3-]=0.06 M, B=[MA]=0.02 M, [H+]=0.8 M, kc=1/M/s -> τ0 = 50 s
+   ============================================================ */
+const OREG = { k1: 1.28, k2: 2.4e6, k3: 33.6, k4: 2400, kc: 1.0, A: 0.06, B: 0.02 };
+OREG.eps = OREG.kc * OREG.B / (OREG.k3 * OREG.A);            // 9.92e-3
+OREG.q = 2 * OREG.k1 * OREG.k4 / (OREG.k2 * OREG.k3);        // 7.62e-5
+OREG.tau0 = 1 / (OREG.kc * OREG.B);                          // 50 s
+OREG.X0 = OREG.k3 * OREG.A / (2 * OREG.k4); OREG.Y0 = OREG.k3 * OREG.A / OREG.k2; OREG.Z0 = (OREG.k3 * OREG.A) ** 2 / (OREG.kc * OREG.k4 * OREG.B);
+
+class StirredClock {
+  constructor() { this.f = 1.0; this.x = 0.0012; this.z = 0.05; this.t = 0; this.hist = []; this.ups = []; this.zmax = 0.28; this.zseen = [];
+    this.prev = 0; }
+  y() { return this.f * this.z / (OREG.q + this.x); }
+  step(dt) {
+    const { eps, q } = OREG, f = this.f, z = this.z;
+    let x = this.x; const x0 = x;
+    for (let i = 0; i < 4; i++) {
+      const xq = x + q;
+      const R = (x * (1 - x) - f * z * (x - q) / xq) / eps;
+      const dR = (1 - 2 * x - f * z * 2 * q / (xq * xq)) / eps;
+      x -= (x - x0 - dt * R) / (1 - dt * dR);
+      if (x < 1e-9) x = 1e-9;
+    }
+    this.x = Math.min(x, 1.2);
+    this.z = this.x + (z - this.x) * Math.exp(-dt);
+    this.t += dt;
+    if (this.prev < 0.1 && this.x >= 0.1) this.ups.push(this.t);
+    if (this.ups.length > 8) this.ups.shift();
+    this.prev = this.x;
+  }
+  period() { const u = this.ups; if (u.length < 3) return null; const p = (u[u.length - 1] - u[u.length - 3]) / 2; return (this.t - u[u.length - 1] > 2.5 * p) ? null : p; }
+  rates() {   // M/s for each Oregonator step
+    const X = this.x * OREG.X0, Y = this.y() * OREG.Y0, Z = this.z * OREG.Z0, { k1, k2, k3, k4, kc, A, B } = OREG;
+    return { R3: k1 * A * Y, R2: k2 * X * Y, R5: k3 * A * X, R4: k4 * X * X, Rc: kc * B * Z };
+  }
+  phase(dz) {
+    if (this.x > 0.02) return 'B';
+    if (this.z > 0.3 * this.zmax && dz < 0) return 'C';
+    return 'A';
+  }
+}
+
+/* ---------- colour of ferroin in the flask ---------- */
+function ferroinRGB(ox, depth = 1) {
+  const kr = [0.16, 1.75, 2.55], ko = [1.35, 0.62, 0.10];
+  return kr.map((k, i) => Math.round(255 * Math.min(1, 1.02 * Math.exp(-depth * (k * (1 - ox) + ko[i] * ox)))));
+}
+const rgbs = (c, a = 1) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+
+class ClockAct {
+  constructor() {
+    this.sc = new StirredClock();
+    this.flask = document.getElementById('flask'); this.fctx = this.flask.getContext('2d');
+    this.tr = document.getElementById('traces'); this.tctx = this.tr.getContext('2d');
+    this.pl = document.getElementById('plane'); this.pctx = this.pl.getContext('2d');
+    this.net = document.getElementById('net');
+    this.speeds = [0.25, 0.5, 1, 2, 4]; this.si = 2; this.playing = true;
+    this.hist = []; this.trail = [];
+    this.procEls = [...document.querySelectorAll('.proc')];
+    this.buildNet();
+    this.bindUI();
+    // settle onto the limit cycle before showing anything
+    for (let i = 0; i < 40000; i++) {
+      this.sc.step(5e-4);
+      if (i > 2000 && i % 8 === 0) this.hist.push([this.sc.t, this.sc.x, this.sc.y(), this.sc.z]);
+      if (i > 25000 && i % 17 === 0) this.trail.push([this.sc.x, this.sc.z]);
+    }
+    const off = this.sc.t; this.sc.t = 0; this.sc.ups = this.sc.ups.map(u => u - off);
+    this.hist.forEach(h => h[0] -= off); while (this.hist.length && this.hist[0][0] < -20) this.hist.shift();
+    this.trail = this.trail.slice(-900);
+    this.sc.zmax = Math.max(0.02, ...this.hist.map(h => h[3]));
+    this.lastPhase = 'A'; this.angle = 0;
+    this.visible = false;
+    new IntersectionObserver(es => { this.visible = es.some(e => e.isIntersecting); this.kick(); }, { rootMargin: '120px' }).observe(document.getElementById('clock'));
+    document.addEventListener('visibilitychange', () => this.kick());
+    this.drawAll(0);
+  }
+  kick() { if (this.raf) return; if (this.visible && !document.hidden) { if (!this.looping) this.last = performance.now(); this.looping = true; this.raf = requestAnimationFrame(t => this.frame(t)); } else this.looping = false; }
+  bindUI() {
+    const play = document.getElementById('flaskPlay');
+    play.onclick = () => { this.playing = !this.playing; play.textContent = this.playing ? 'Pause' : 'Play'; play.setAttribute('aria-pressed', String(!this.playing)); };
+    document.getElementById('flaskFast').onclick = () => { this.si = Math.min(this.speeds.length - 1, this.si + 1); this.lapse(); };
+    document.getElementById('flaskSlow').onclick = () => { this.si = Math.max(0, this.si - 1); this.lapse(); };
+    const fs = document.getElementById('fSlider');
+    fs.oninput = () => { this.sc.f = +fs.value; this.sc.ups = []; this.updateF(); };
+    this.updateF(); this.lapse();
+  }
+  lapse() { document.getElementById('r-lapse').textContent = '×' + Math.round(this.speeds[this.si] * OREG.tau0); }
+  updateF() {
+    const f = this.sc.f;
+    document.getElementById('fOut').textContent = f.toFixed(2);
+    const lo = 0.5, hi = 1 + Math.SQRT2, span = (x) => ((x - 0.2) / 2.8 * 100).toFixed(2) + '%';
+    const band = document.getElementById('oscBand'); band.style.left = span(lo); band.style.width = ((hi - lo) / 2.8 * 100).toFixed(2) + '%';
+    document.getElementById('fMark').style.left = span(f);
+    // linear stability of the fixed point decides the status
+    const st = this.fixedPoint(f);
+    const s = document.getElementById('fStatus');
+    if (st.stable) { const ox = st.z > 0.05; s.textContent = ox ? 'steady state: stuck oxidised (blue). The brake never catches.' : 'steady state: stuck reduced (red). The brake never lets go.'; s.style.setProperty('--sc', ox ? 'var(--ferriin)' : 'var(--ferroin)'); }
+    else { s.textContent = 'unstable steady state: the system has to oscillate'; s.style.setProperty('--sc', 'var(--amber)'); }
+    this.fp = st;
+  }
+  fixedPoint(f) {
+    const q = OREG.q, eps = OREG.eps;
+    // x(1-x)(x+q) = f x (x-q)  ->  x^2 - (1-q-f)x - q(1+f) = 0
+    const b = 1 - q - f, x = (b + Math.sqrt(b * b + 4 * q * (1 + f))) / 2;
+    const z = x, xq = x + q;
+    const a11 = (1 - 2 * x - f * z * 2 * q / (xq * xq)) / eps, a12 = -f * (x - q) / xq / eps;
+    const tr = a11 - 1, det = -a11 - a12;
+    return { x, z, stable: tr < 0 && det > 0 };
+  }
+  frame(now) {
+    this.raf = 0; if (!this.visible || document.hidden) return;
+    const dtw = Math.min(0.05, (now - this.last) / 1000); this.last = now;
+    if (this.playing) {
+      const T = dtw * this.speeds[this.si];
+      const n = Math.max(1, Math.ceil(T / 5e-4)), dt = T / n;
+      for (let i = 0; i < n; i++) {
+        this.sc.step(dt);
+        if (i % 8 === 0) { this.hist.push([this.sc.t, this.sc.x, this.sc.y(), this.sc.z]); }
+      }
+      while (this.hist.length && this.hist[0][0] < this.sc.t - 20) this.hist.shift();
+      this.trail.push([this.sc.x, this.sc.z]); if (this.trail.length > 900) this.trail.shift();
+      // running max of z for phase labels and colour scale
+      this.sc.zmax = Math.max(0.02, ...this.hist.map(h => h[3]));
+      this.angle += dtw * 14;
+    }
+    this.drawAll(dtw);
+    this.kick();
+  }
+  drawAll() {
+    const h = this.hist, n = h.length;
+    const dz = n > 4 ? h[n - 1][3] - h[n - 4][3] : 0;
+    const ph = this.sc.phase(dz);
+    this.procEls.forEach(e => e.classList.toggle('on', e.dataset.p === ph));
+    const per = this.sc.period();
+    document.getElementById('r-period').textContent = per ? (per * OREG.tau0 / 60).toFixed(1) + ' min' : 'steady';
+    const secs = this.sc.t * OREG.tau0;
+    document.getElementById('r-time').textContent = Math.floor(secs / 60) + ':' + String(Math.floor(secs % 60)).padStart(2, '0');
+    this.drawFlask(); this.drawTraces(); this.drawPlane(); this.updateNet(ph);
+  }
+
+  /* ---------------- flask ---------------- */
+  drawFlask() {
+    const cv = this.flask, dpr = Math.min(devicePixelRatio || 1, 2);
+    const W = Math.round(cv.clientWidth * dpr), H = Math.round(cv.clientHeight * dpr);
+    if (!W) return;
+    if (cv.width !== W) { cv.width = W; cv.height = H; }
+    const c = this.fctx; c.setTransform(W / 300, 0, 0, H / 380, 0, 0); c.clearRect(0, 0, 300, 380);
+    const ox = Math.min(1, Math.max(0, (this.sc.z / (this.sc.zmax || 0.28) - 0.02) / 0.55));
+    const oxs = ox * ox * (3 - 2 * ox);
+    const mid = ferroinRGB(oxs, 0.9), deep = ferroinRGB(oxs, 1.9), pale = ferroinRGB(oxs, 0.5);
+    // light-box glow behind the flask
+    const g0 = c.createRadialGradient(150, 250, 10, 150, 250, 200);
+    g0.addColorStop(0, rgbs(mid, 0.28)); g0.addColorStop(1, rgbs(mid, 0));
+    c.fillStyle = g0; c.fillRect(0, 0, 300, 380);
+    // stir plate
+    c.fillStyle = '#1d1719'; this.rr(c, 26, 326, 248, 44, 8); c.fill();
+    c.fillStyle = '#2a2225'; this.rr(c, 26, 326, 248, 9, 4); c.fill();
+    c.fillStyle = '#3a3135'; c.beginPath(); c.arc(246, 350, 8, 0, 7); c.fill();
+    c.strokeStyle = '#6e635e'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(246, 350); c.lineTo(246 + 6 * Math.cos(this.angle * 0.02), 350 + 6 * Math.sin(this.angle * 0.02) * 0 - 5); c.stroke();
+    c.fillStyle = '#5fd3c1'; c.beginPath(); c.arc(48, 350, 2.4, 0, 7); c.fill();
+    c.font = '500 8px "IBM Plex Mono", monospace'; c.fillStyle = '#6e635e'; c.fillText('STIR', 56, 353);
+    // flask geometry
+    const neckL = 126, neckR = 174, topY = 34, shY = 118, baseY = 318, bL = 52, bR = 248;
+    const wallX = (y, side) => { if (y <= shY) return side < 0 ? neckL : neckR; const k = (y - shY) / (baseY - 12 - shY); return side < 0 ? neckL + (bL - neckL) * k : neckR + (bR - neckR) * k; };
+    const flaskPath = () => {
+      c.beginPath(); c.moveTo(neckL, topY); c.lineTo(neckL, shY); c.lineTo(bL, baseY - 12); c.quadraticCurveTo(bL - 4, baseY, bL + 12, baseY);
+      c.lineTo(bR - 12, baseY); c.quadraticCurveTo(bR + 4, baseY, bR, baseY - 12); c.lineTo(neckR, shY); c.lineTo(neckR, topY);
+    };
+    // liquid
+    const level = 214;
+    c.save(); flaskPath(); c.closePath(); c.clip();
+    const lx = wallX(level, -1), rx = wallX(level, 1), dip = 9;
+    const lg = c.createLinearGradient(bL, 0, bR, 0);
+    lg.addColorStop(0, rgbs(deep)); lg.addColorStop(0.35, rgbs(mid)); lg.addColorStop(0.5, rgbs(pale)); lg.addColorStop(0.7, rgbs(mid)); lg.addColorStop(1, rgbs(deep));
+    c.fillStyle = lg;
+    c.beginPath(); c.moveTo(lx - 2, level); c.quadraticCurveTo(150, level + 2 * dip, rx + 2, level); c.lineTo(bR + 10, baseY + 4); c.lineTo(bL - 10, baseY + 4); c.closePath(); c.fill();
+    const vg = c.createLinearGradient(0, level, 0, baseY); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.35)');
+    c.fillStyle = vg; c.fill();
+    // swirl streaks
+    c.lineWidth = 1.1;
+    for (let i = 0; i < 7; i++) {
+      const yy = level + 18 + i * 13, half = (wallX(yy, 1) - wallX(yy, -1)) / 2 - 8;
+      const a = this.angle * (1.4 - i * 0.08) + i * 1.7;
+      c.strokeStyle = `rgba(255,255,255,${0.05 + 0.03 * Math.sin(a * 0.7)})`;
+      c.beginPath(); c.ellipse(150, yy, half, 3.2, 0, a % 6.28, a % 6.28 + 1.4); c.stroke();
+    }
+    // surface ellipse
+    c.strokeStyle = 'rgba(255,255,255,0.35)'; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(lx, level); c.quadraticCurveTo(150, level + 2 * dip, rx, level); c.stroke();
+    c.strokeStyle = 'rgba(255,255,255,0.12)'; c.beginPath(); c.moveTo(lx, level); c.quadraticCurveTo(150, level - 6, rx, level); c.stroke();
+    // stir bar
+    const sb = Math.cos(this.angle), len = 30;
+    c.fillStyle = 'rgba(240,236,230,0.92)';
+    this.rr(c, 150 - len * Math.abs(sb) - 4, baseY - 13, 2 * len * Math.abs(sb) + 8, 7, 3.5); c.fill();
+    c.restore();
+    // glass
+    flaskPath(); c.strokeStyle = 'rgba(235,240,245,0.55)'; c.lineWidth = 2; c.stroke();
+    c.strokeStyle = 'rgba(235,240,245,0.85)'; c.lineWidth = 2.5; c.beginPath(); c.moveTo(neckL - 5, topY); c.lineTo(neckR + 5, topY); c.stroke();
+    c.strokeStyle = 'rgba(255,255,255,0.22)'; c.lineWidth = 5; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(neckL + 8, topY + 12); c.lineTo(neckL + 8, shY - 6); c.lineTo(bL + 22, baseY - 40); c.stroke(); c.lineCap = 'butt';
+    // graduations
+    c.strokeStyle = 'rgba(235,240,245,0.5)'; c.lineWidth = 1; c.fillStyle = 'rgba(235,240,245,0.6)'; c.font = '500 8px "IBM Plex Mono", monospace';
+    [[290, '50'], [252, '100'], [214, '150'], [176, '200']].forEach(([y, l]) => { const x = wallX(y, 1) - 7; c.beginPath(); c.moveTo(x - 12, y); c.lineTo(x, y); c.stroke(); c.fillText(l, x - 32, y + 3); });
+    c.fillText('mL', 192, 160);
+  }
+  rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+
+  /* ---------------- traces ---------------- */
+  drawTraces() {
+    const cv = this.tr, dpr = Math.min(devicePixelRatio || 1, 2);
+    const W = Math.round(cv.clientWidth * dpr), H = Math.round(cv.clientHeight * dpr); if (!W) return;
+    if (cv.width !== W) { cv.width = W; cv.height = H; }
+    const c = this.tctx; c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const w = W / dpr, hgt = H / dpr; c.clearRect(0, 0, w, hgt);
+    const L = 64, Rm = 8, top = 16, lanes = 3, gap = 10, lh = (hgt - top - 8 - gap * (lanes - 1)) / lanes;
+    const tN = this.sc.t, win = 18;
+    const X = t => L + (w - L - Rm) * (1 - (tN - t) / win);
+    // process band
+    const h = this.hist;
+    const pc = { A: '#ff7d8c', B: '#f2b441', C: '#5fd3c1' };
+    c.globalAlpha = 0.85;
+    let runP = null, runX = 0;
+    for (let i = 1; i <= h.length; i++) {
+      let p = null;
+      if (i < h.length) { const dz = h[i][3] - h[i - 1][3], x = h[i][1], z = h[i][3]; p = x > 0.02 ? 'B' : (z > 0.3 * this.sc.zmax && dz < 0 ? 'C' : 'A'); }
+      if (p !== runP) {
+        if (runP) { const xe = X(h[i - 1][0]); c.fillStyle = pc[runP]; c.fillRect(runX, 4, Math.max(1, xe - runX + 0.5), 5); }
+        runP = p; if (i < h.length) runX = X(h[i - 1][0]);
+      }
+    }
+    c.globalAlpha = 1;
+    const lanesDef = [
+      { name: 'HBrO₂', col: '#f2b441', get: r => Math.log10(Math.max(r[1], 1e-9)), lo: -4.6, hi: 0.2, log: true },
+      { name: 'Br⁻', col: '#ff7d8c', get: r => Math.log10(Math.max(r[2], 1e-9)), lo: -2.2, hi: 3.6, log: true, crit: 0 },
+      { name: 'Fe³⁺', col: '#63a8ff', get: r => r[3], lo: 0, hi: Math.max(0.05, this.sc.zmax * 1.08), log: false }
+    ];
+    c.font = '500 10px "IBM Plex Mono", monospace'; c.textBaseline = 'middle';
+    lanesDef.forEach((ln, i) => {
+      const y0 = top + i * (lh + gap), Y = v => y0 + lh - (v - ln.lo) / (ln.hi - ln.lo) * lh;
+      c.strokeStyle = 'rgba(255,255,255,0.07)'; c.lineWidth = 1;
+      c.strokeRect(L + 0.5, y0 + 0.5, w - L - Rm - 1, lh - 1);
+      if (ln.log) { for (let d = Math.ceil(ln.lo); d <= ln.hi; d++) { const yy = Math.round(Y(d)) + 0.5; c.beginPath(); c.moveTo(L, yy); c.lineTo(w - Rm, yy); c.stroke(); } }
+      c.fillStyle = ln.col; c.textAlign = 'left'; c.fillText(ln.name, 4, y0 + lh / 2 - 6);
+      c.fillStyle = '#6e635e'; c.fillText(ln.log ? 'log' : 'lin', 4, y0 + lh / 2 + 8);
+      if (ln.crit !== undefined) {
+        const yy = Y(ln.crit); c.setLineDash([4, 4]); c.strokeStyle = 'rgba(255,125,140,0.6)'; c.beginPath(); c.moveTo(L, yy); c.lineTo(w - Rm, yy); c.stroke(); c.setLineDash([]);
+        const lbl = 'critical [Br⁻] ≈ 0.8 µM', tw = c.measureText(lbl).width;
+        c.fillStyle = 'rgba(22,18,20,0.88)'; c.fillRect(w - Rm - 8 - tw, yy - 14, tw + 8, 13);
+        c.fillStyle = 'rgba(255,125,140,0.95)'; c.textAlign = 'right'; c.fillText(lbl, w - Rm - 4, yy - 7);
+      }
+      c.save(); c.beginPath(); c.rect(L, y0, w - L - Rm, lh); c.clip();
+      c.strokeStyle = ln.col; c.lineWidth = 1.7; c.shadowColor = ln.col; c.shadowBlur = 5;
+      c.beginPath(); let st = false;
+      for (const r of h) { const xx = X(r[0]), yy = Y(Math.max(ln.lo - 0.5, Math.min(ln.hi + 0.5, ln.get(r)))); if (!st) { c.moveTo(xx, yy); st = true; } else c.lineTo(xx, yy); }
+      c.stroke(); c.restore();
+    });
+    // time ticks (minutes)
+    c.fillStyle = '#6e635e'; c.textAlign = 'center';
+    const mPer = 60 / OREG.tau0;
+    for (let k = Math.ceil((tN - win) / mPer); k * mPer <= tN; k++) { const xx = X(k * mPer); if (xx < L + 10) continue; c.fillRect(xx, hgt - 6, 1, 4); }
+  }
+
+  /* ---------------- phase plane ---------------- */
+  drawPlane() {
+    const cv = this.pl, dpr = Math.min(devicePixelRatio || 1, 2);
+    const W = Math.round(cv.clientWidth * dpr), H = Math.round(cv.clientHeight * dpr); if (!W) return;
+    if (cv.width !== W) { cv.width = W; cv.height = H; }
+    const c = this.pctx; c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const w = W / dpr, h = H / dpr; c.clearRect(0, 0, w, h);
+    const L = 46, B = 34, T = 30, R = 12;
+    const xl = -4.6, xh = 0.15, yl = -4.2, yh = -0.1;
+    const X = lx => L + (lx - xl) / (xh - xl) * (w - L - R), Y = lz => T + (1 - (lz - yl) / (yh - yl)) * (h - T - B);
+    c.font = '500 10px "IBM Plex Mono", monospace'; c.fillStyle = '#a99d95'; c.strokeStyle = 'rgba(255,255,255,0.08)'; c.lineWidth = 1;
+    c.textAlign = 'center'; c.textBaseline = 'top';
+    for (let d = -4; d <= 0; d++) { const xx = Math.round(X(d)) + 0.5; c.beginPath(); c.moveTo(xx, T); c.lineTo(xx, h - B); c.stroke(); c.fillText('10' + this.sup(d), xx, h - B + 6); }
+    c.textAlign = 'right'; c.textBaseline = 'middle';
+    for (let d = -4; d <= -1; d++) { const yy = Math.round(Y(d)) + 0.5; c.beginPath(); c.moveTo(L, yy); c.lineTo(w - R, yy); c.stroke(); c.fillText('10' + this.sup(d), L - 6, yy); }
+    c.textAlign = 'center'; c.fillStyle = '#f2b441'; c.fillText('HBrO₂  x  (scaled)', L + (w - L - R) / 2, h - 9);
+    c.save(); c.translate(11, T + (h - T - B) / 2); c.rotate(-Math.PI / 2); c.fillStyle = '#63a8ff'; c.fillText('oxidised iron  z', 0, 0); c.restore();
+    // nullclines
+    const q = OREG.q, f = this.sc.f;
+    c.save(); c.beginPath(); c.rect(L, T, w - L - R, h - T - B); c.clip();
+    c.lineWidth = 1.6; c.setLineDash([5, 4]);
+    c.strokeStyle = 'rgba(242,180,65,0.75)'; c.beginPath(); let st = false;
+    for (let i = 0; i <= 400; i++) {
+      const lx = Math.log10(q) + 0.0005 + (Math.log10(0.999) - Math.log10(q)) * Math.pow(i / 400, 0.6);
+      const x = Math.pow(10, lx); const z = x * (1 - x) * (q + x) / (f * (x - q));
+      if (!(z > 0)) continue; const yy = Y(Math.log10(z)); if (!st) { c.moveTo(X(lx), yy); st = true; } else c.lineTo(X(lx), yy);
+    }
+    c.stroke();
+    c.strokeStyle = 'rgba(99,168,255,0.6)'; c.beginPath(); c.moveTo(X(-5), Y(-5)); c.lineTo(X(0.2), Y(0.2)); c.stroke();
+    c.setLineDash([]);
+    // trail: the last ~1.6 cycles of the trajectory, sampled at fixed model time
+    const hh = this.hist, n0 = Math.max(1, hh.length - 3000), CH = 24;
+    for (let k = 0; k < CH; k++) {
+      const i0 = n0 + Math.floor((hh.length - n0) * k / CH), i1 = n0 + Math.floor((hh.length - n0) * (k + 1) / CH);
+      if (i1 - i0 < 1) continue;
+      const a = (k + 1) / CH; c.strokeStyle = `rgba(255,240,230,${(0.12 + 0.78 * a * a).toFixed(3)})`; c.lineWidth = 0.8 + 1.4 * a;
+      c.beginPath(); c.moveTo(X(Math.log10(hh[i0 - 1][1])), Y(Math.log10(Math.max(hh[i0 - 1][3], 1e-6))));
+      for (let i = i0; i <= Math.min(i1, hh.length - 1); i++) c.lineTo(X(Math.log10(hh[i][1])), Y(Math.log10(Math.max(hh[i][3], 1e-6))));
+      c.stroke();
+    }
+    // fixed point
+    if (this.fp) { const fx = X(Math.log10(this.fp.x)), fy = Y(Math.log10(this.fp.z)); c.lineWidth = 1.5; c.strokeStyle = '#efe6dd'; c.fillStyle = this.fp.stable ? '#efe6dd' : '#0d0b0d'; c.beginPath(); c.arc(fx, fy, 4.5, 0, 7); c.fill(); c.stroke(); }
+    // current state
+    const cx = X(Math.log10(this.sc.x)), cy = Y(Math.log10(Math.max(this.sc.z, 1e-6)));
+    c.fillStyle = '#fff'; c.shadowColor = '#fff'; c.shadowBlur = 12; c.beginPath(); c.arc(cx, cy, 4, 0, 7); c.fill(); c.shadowBlur = 0;
+    c.restore();
+    // legend
+    c.font = '500 10px "IBM Plex Mono", monospace'; c.textAlign = 'left'; c.textBaseline = 'middle';
+    const items = [['rgba(242,180,65,0.95)', '┄ dx/dτ = 0'], ['rgba(99,168,255,0.95)', '┄ dz/dτ = 0'], ['#efe6dd', '○ steady state']];
+    let lx = L; for (const [col, txt] of items) { c.fillStyle = col; c.fillText(txt, lx, 13); lx += c.measureText(txt).width + 16; }
+  }
+  sup(d) { const m = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵' }; return String(d).split('').map(ch => m[ch] || ch).join(''); }
+
+  /* ---------------- network ---------------- */
+  buildNet() {
+    const svg = this.net, NS = 'http://www.w3.org/2000/svg';
+    const el = (t, a, p = svg) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p.appendChild(e); return e; };
+    const defs = el('defs', {});
+    const cols = { A: '#ff7d8c', B: '#f2b441', C: '#5fd3c1' };
+    for (const k in cols) {
+      const m = el('marker', { id: 'ah' + k, viewBox: '0 0 10 10', refX: 8, refY: 5, markerWidth: 5, markerHeight: 5, orient: 'auto-start-reverse' }, defs);
+      el('path', { d: 'M0,0 L10,5 L0,10 z', fill: cols[k] }, m);
+    }
+    const glow = el('filter', { id: 'glow', x: '-50%', y: '-50%', width: '200%', height: '200%' }, defs);
+    el('feGaussianBlur', { stdDeviation: 4, result: 'b' }, glow);
+    const mg = el('feMerge', {}, glow); el('feMergeNode', { in: 'b' }, mg); el('feMergeNode', { in: 'SourceGraphic' }, mg);
+    // process labels
+    const lab = (x, y, txt, col, anchor = 'start') => el('text', { x, y, fill: col, 'font-size': 11, 'letter-spacing': '0.12em', 'text-anchor': anchor, 'font-weight': 500 }).textContent = txt;
+    lab(150, 236, 'A · BRAKE', cols.A, 'middle');
+    lab(330, 22, 'B · RUNAWAY', cols.B, 'middle');
+    lab(694, 214, 'C · RESET', cols.C, 'end');
+    // edges: [id, process, path, arrow?]
+    const E = [
+      ['R3a', 'A', 'M95,92 C95,150 150,185 196,185', false],
+      ['R3b', 'A', 'M95,278 C95,220 150,185 196,185', false],
+      ['R3c', 'A', 'M214,185 L296,185', true],
+      ['R2a', 'A', 'M330,207 C322,250 312,280 306,292', false],
+      ['R2b', 'A', 'M142,300 L292,300', false],
+      ['R2c', 'A', 'M300,308 L300,330', true],
+      ['R5a', 'B', 'M142,60 C250,10 420,30 466,112', false],
+      ['R5b', 'B', 'M395,176 C430,160 452,140 463,127', false],
+      ['R5c', 'B', 'M476,128 C482,190 450,212 404,200', true],
+      ['R5d', 'B', 'M478,114 C520,94 540,80 552,76', true],
+      ['R4a', 'B', 'M318,165 C292,132 262,110 234,104', false],
+      ['R4b', 'B', 'M218,98 C185,86 165,78 145,74', true],
+      ['Rca', 'C', 'M605,92 L605,176', false],
+      ['Rcb', 'C', 'M605,278 L605,194', false],
+      ['Rcc', 'C', 'M597,192 C540,250 560,358 380,358 C220,358 150,350 120,326', true]
+    ];
+    this.edges = {};
+    const g = el('g', { fill: 'none', 'stroke-linecap': 'round' });
+    for (const [id, p, d, arrow] of E) {
+      el('path', { d, stroke: cols[p], 'stroke-opacity': 0.12, 'stroke-width': 1.2 }, g);
+      const a = { d, stroke: cols[p], 'stroke-width': 2, 'stroke-dasharray': '3 9', filter: 'url(#glow)' };
+      if (arrow) a['marker-end'] = `url(#ah${p})`;
+      const pe = el('path', a, g);
+      const key = id.slice(0, 2) === 'Rc' ? 'Rc' : id.slice(0, 2);
+      (this.edges[key] = this.edges[key] || []).push(pe);
+    }
+    // junctions
+    const J = [['R3', 205, 185, 'A'], ['R2', 300, 300, 'A'], ['R5', 470, 120, 'B'], ['R4', 226, 101, 'B'], ['Rc', 605, 185, 'C']];
+    this.junc = {};
+    for (const [id, x, y, p] of J) {
+      const jg = el('g', {});
+      el('circle', { cx: x, cy: y, r: 7, fill: '#0d0b0d', stroke: cols[p], 'stroke-width': 1.5 }, jg);
+      const t = el('text', { x: x + (id === 'Rc' ? -12 : 0), y: y + (id === 'R2' ? 20 : -12), fill: cols[p], 'font-size': 9.5, 'text-anchor': id === 'Rc' ? 'end' : 'middle' }, jg);
+      t.textContent = id === 'Rc' ? 'C' : id;
+      this.junc[id] = jg;
+    }
+    el('text', { x: 300, y: 344, fill: '#a99d95', 'font-size': 10, 'text-anchor': 'middle' }).textContent = 'HOBr';
+    el('text', { x: 140, y: 60, fill: '#a99d95', 'font-size': 9, 'text-anchor': 'start' });
+    // species nodes
+    const S = [
+      ['A', 95, 70, 'BrO₃⁻', 'bromate', '#efe6dd'],
+      ['Y', 95, 300, 'Br⁻', 'bromide', '#ff7d8c'],
+      ['X', 352, 186, 'HBrO₂', 'bromous acid', '#f2b441'],
+      ['Z', 605, 70, 'Fe³⁺', 'ferriin, blue', '#63a8ff'],
+      ['B', 605, 300, 'MA', 'malonic acid', '#efe6dd']
+    ];
+    this.nodes = {};
+    for (const [id, x, y, f, name, col] of S) {
+      const ng = el('g', {});
+      const halo = el('rect', { x: x - 52, y: y - 27, width: 104, height: 54, rx: 27, fill: col, opacity: 0.0, filter: 'url(#glow)' }, ng);
+      el('rect', { x: x - 46, y: y - 22, width: 92, height: 44, rx: 22, fill: '#161214', stroke: col, 'stroke-width': 1.4 }, ng);
+      el('text', { x, y: y + 1, fill: col, 'font-size': 15, 'text-anchor': 'middle', 'font-weight': 500 }, ng).textContent = f;
+      el('text', { x, y: y + 15, fill: '#a99d95', 'font-size': 8.5, 'text-anchor': 'middle' }, ng).textContent = name;
+      this.nodes[id] = halo;
+    }
+    this.dash = 0;
+  }
+  updateNet(ph) {
+    const r = this.sc.rates();
+    const norm = v => Math.max(0, Math.min(1, (Math.log10(Math.max(v, 1e-14)) + 9) / 5.6));
+    this.dash -= 1;
+    for (const k in this.edges) {
+      const n = norm(r[k]);
+      const sw = (0.6 + 4.2 * n).toFixed(2), op = (0.15 + 0.85 * n).toFixed(3);
+      this.edges[k].forEach(p => { p.setAttribute('stroke-width', sw); p.setAttribute('stroke-opacity', op); p.setAttribute('stroke-dashoffset', (this.dash * (0.4 + 3.2 * n)).toFixed(1)); });
+      this.junc[k].setAttribute('opacity', (0.35 + 0.65 * n).toFixed(3));
+    }
+    const lx = (Math.log10(this.sc.x) + 4.2) / 4.2, ly = (Math.log10(this.sc.y()) + 2) / 5.5, lz = this.sc.z / (this.sc.zmax || 0.3);
+    this.nodes.X.setAttribute('opacity', (0.35 * Math.max(0, lx)).toFixed(3));
+    this.nodes.Y.setAttribute('opacity', (0.3 * Math.max(0, Math.min(1, ly))).toFixed(3));
+    this.nodes.Z.setAttribute('opacity', (0.35 * Math.max(0, Math.min(1, lz))).toFixed(3));
+    const lbl = { A: 'now: A, bromide is consumed', B: 'now: B, autocatalytic burst', C: 'now: C, bromide is regenerated' }[ph];
+    const np = document.getElementById('netphase'); if (np.textContent !== lbl) np.textContent = lbl;
+  }
+}
+
+/* ---------------- timeline (Act I) ---------------- */
+function buildTimeline() {
+  const svg = document.getElementById('timeline'), NS = 'http://www.w3.org/2000/svg';
+  const el = (t, a, p = svg) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p.appendChild(e); return e; };
+  const y0 = 1950, y1 = 1982, L = 30, R = 970, X = y => L + (y - y0) / (y1 - y0) * (R - L), base = 112;
+  el('line', { x1: L, y1: base, x2: R, y2: base, stroke: '#2b2427', 'stroke-width': 2 });
+  for (let y = y0; y <= y1; y++) {
+    const big = y % 5 === 0;
+    el('line', { x1: X(y), y1: base - (big ? 6 : 3), x2: X(y), y2: base + (big ? 6 : 3), stroke: big ? '#6e635e' : '#2b2427', 'stroke-width': 1 });
+    if (big) el('text', { x: X(y), y: base + 22, fill: '#6e635e', 'font-size': 11, 'text-anchor': 'middle' }).textContent = y;
+  }
+  // rejection span and the long silence
+  el('rect', { x: X(1951), y: base - 4, width: X(1957) - X(1951), height: 8, fill: '#e5582f', opacity: 0.55, rx: 4 });
+  el('rect', { x: X(1959), y: base - 2, width: X(1968) - X(1959), height: 4, fill: '#6e635e', opacity: 0.45, rx: 2 });
+  el('text', { x: (X(1951) + X(1957)) / 2, y: base + 40, fill: '#e5582f', 'font-size': 10.5, 'text-anchor': 'middle' }).textContent = 'six years of rejections';
+  el('text', { x: (X(1959) + X(1968)) / 2 + 8, y: base - 10, fill: '#a99d95', 'font-size': 10.5, 'text-anchor': 'middle' }).textContent = 'known mostly inside the USSR';
+  const ev = [
+    [1951, 'up', 1, 'Belousov sees the', 'colour oscillate', '#efe6dd'],
+    [1959, 'up', 2, 'Abstract printed', 'in obscure collection', '#efe6dd'],
+    [1961, 'down', 1, 'Zhabotinsky', 'takes it up', '#efe6dd'],
+    [1968, 'up', 1, 'Prague conference:', 'the West hears', '#efe6dd'],
+    [1970, 'down', 2, 'Waves in thin layers', '(Zaikin & Zhabotinsky)', '#63a8ff'],
+    [1970.05, 'down', 4, 'Belousov dies', '', '#a99d95'],
+    [1972, 'up', 2, 'Spirals (Winfree)', 'FKN mechanism', '#63a8ff'],
+    [1974, 'down', 1, 'The Oregonator', '(Field & Noyes)', '#f2b441'],
+    [1980, 'up', 1, 'Lenin Prize', '', '#e5582f']
+  ];
+  for (const [y, dir, lvl, a, b, col] of ev) {
+    const x = X(y), up = dir === 'up', ly = up ? base - 22 - (lvl - 1) * 34 : base + 56 + (lvl - 1) * 30;
+    if (lvl === 4) { el('text', { x: x - 6, y: base + 128, fill: col, 'font-size': 10.5, 'text-anchor': 'end' }).textContent = a; el('line', { x1: x, y1: base + 8, x2: x, y2: base + 132, stroke: '#2b2427', 'stroke-dasharray': '2 3' }); continue; }
+    el('line', { x1: x, y1: base, x2: x, y2: up ? ly + 6 : ly - 14, stroke: '#2b2427' });
+    el('circle', { cx: x, cy: base, r: 5, fill: '#0d0b0d', stroke: col, 'stroke-width': 2 });
+    const left = y === 1968, tx = left ? x - 6 : x + 6, anc = left ? 'end' : 'start';
+    const t = el('text', { x: tx, y: up ? ly - 8 : ly, fill: col, 'font-size': 11.5, 'text-anchor': anc }); t.textContent = a;
+    if (b) el('text', { x: tx, y: (up ? ly - 8 : ly) + 14, fill: '#a99d95', 'font-size': 10.5, 'text-anchor': anc }).textContent = b;
+  }
+}
+
+/* ---------------- thermodynamics figure (coda) ---------------- */
+function buildThermo() {
+  const svg = document.getElementById('thermo'), NS = 'http://www.w3.org/2000/svg';
+  const el = (t, a, p = svg) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p.appendChild(e); return e; };
+  const L = 54, R = 540, T = 22, M = 175, B = 290;
+  // simulate a closed dish: oscillation that slows and fades as fuel runs out (schematic)
+  const N = 1200; let ph = 0; const G = [], O = [];
+  for (let i = 0; i <= N; i++) {
+    const s = i / N, drive = Math.max(0, 1 - s / 0.78);
+    const freq = 15 * (0.45 + 0.55 * drive);
+    ph += freq / N * 2 * Math.PI;
+    const spike = drive > 0.02 ? Math.pow(Math.max(0, Math.cos(ph)), 18) * (0.25 + 0.75 * Math.sqrt(drive)) : 0;
+    O.push(spike);
+    G.push(1 - 0.92 * (1 - Math.exp(-2.4 * s)) / (1 - Math.exp(-2.4)) - 0.006 * spike);
+  }
+  const X = i => L + (R - L) * i / N;
+  el('text', { x: L, y: T - 6, fill: '#efe6dd', 'font-size': 11 }).textContent = 'Free energy of the mixture';
+  el('line', { x1: L, y1: M - 30, x2: R, y2: M - 30, stroke: '#2b2427' });
+  let d = ''; G.forEach((g, i) => d += (i ? 'L' : 'M') + X(i).toFixed(1) + ',' + (T + 8 + (1 - g) * (M - 48 - T)).toFixed(1));
+  el('path', { d, fill: 'none', stroke: '#efe6dd', 'stroke-width': 2 });
+  el('text', { x: R, y: T + 8 + (1 - G[N]) * (M - 48 - T) - 14, fill: '#a99d95', 'font-size': 10.5, 'text-anchor': 'end' }).textContent = 'only ever falls';
+  el('text', { x: L, y: M - 6, fill: '#63a8ff', 'font-size': 11 }).textContent = 'Colour (oxidised iron)';
+  let d2 = ''; O.forEach((o, i) => d2 += (i ? 'L' : 'M') + X(i).toFixed(1) + ',' + (B - 14 - o * (B - M - 40)).toFixed(1));
+  el('path', { d: d2, fill: 'none', stroke: '#63a8ff', 'stroke-width': 1.6 });
+  el('line', { x1: L, y1: B - 14, x2: R, y2: B - 14, stroke: '#2b2427' });
+  const xe = X(Math.round(0.78 * N));
+  el('line', { x1: xe, y1: M + 2, x2: xe, y2: B - 8, stroke: '#6e635e', 'stroke-dasharray': '3 4' });
+  el('text', { x: xe + 6, y: M + 22, fill: '#a99d95', 'font-size': 10.5 }).textContent = 'too close to';
+  el('text', { x: xe + 6, y: M + 36, fill: '#a99d95', 'font-size': 10.5 }).textContent = 'equilibrium:';
+  el('text', { x: xe + 6, y: M + 50, fill: '#a99d95', 'font-size': 10.5 }).textContent = 'no more ticks';
+  el('text', { x: L, y: B + 18, fill: '#6e635e', 'font-size': 10.5 }).textContent = 'mixing';
+  el('text', { x: R, y: B + 18, fill: '#6e635e', 'font-size': 10.5, 'text-anchor': 'end' }).textContent = 'about an hour later →';
+}
+
+/* ---------------- illustration thumbnails (coda) ----------------
+   A rigidly rotating spiral is a fixed picture turning about its core,
+   so each thumbnail is rendered once and then rotated. */
+class Worlds {
+  constructor() {
+    this.cv = [...document.querySelectorAll('.worlds canvas')];
+    this.src = this.cv.map(c => this.render(c));
+    this.t = 0; this.visible = false;
+    new IntersectionObserver(es => { this.visible = es.some(e => e.isIntersecting); this.kick(); }, { rootMargin: '60px' }).observe(document.querySelector('.worlds'));
+    this.cv.forEach((c, i) => this.draw(i));
+  }
+  kick() { if (this.raf) return; if (this.visible && !document.hidden) { if (!this.looping) this.last = performance.now(); this.looping = true; this.raf = requestAnimationFrame(t => this.frame(t)); } else this.looping = false; }
+  frame(now) { this.raf = 0; if (!this.visible || document.hidden) return; this.t += Math.min(0.05, (now - this.last) / 1000); this.last = now; this.cv.forEach((c, i) => this.draw(i)); this.kick(); }
+  render(c) {
+    const kind = c.dataset.world, W = c.width, S = Math.ceil(W * 1.5), off = document.createElement('canvas');
+    off.width = off.height = S;
+    const ctx = off.getContext('2d'), im = ctx.createImageData(S, S), d = im.data;
+    const cx = S / 2, cy = S / 2;
+    const lam = { heart: 70, dicty: 34, calcium: 46, platinum: 52 }[kind];
+    for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+      const dx = x - cx, dy = y - cy, r = Math.hypot(dx, dy), th = Math.atan2(dy, dx);
+      let phs = th / (2 * Math.PI) - r / lam;
+      if (kind === 'dicty') phs += 0.04 * Math.sin(r * 0.15 + th * 3);
+      const ph = phs - Math.floor(phs), core = Math.min(1, r / 10), n = Math.random();
+      let R, G, B;
+      if (kind === 'heart') {
+        const j = Math.min(1, Math.max(0, Math.exp(-Math.pow((ph - 0.12) / 0.16, 2)) * core));
+        R = 255 * Math.min(1, Math.max(0, 1.5 - Math.abs(4 * j - 3))); G = 255 * Math.min(1, Math.max(0, 1.5 - Math.abs(4 * j - 2))); B = 255 * Math.min(1, Math.max(0, 1.5 - Math.abs(4 * j - 1)));
+        const m = Math.hypot(dx / 1.05, dy) < W * 0.46 ? 1 : 0; R *= m; G *= m; B *= m;
+      } else if (kind === 'dicty') {
+        const v = (Math.exp(-Math.pow((ph - 0.2) / 0.14, 2)) * 0.8 + 0.12) * core * (0.55 + 0.6 * n);
+        R = 242 * Math.min(1, v); G = 255 * Math.min(1, v); B = 255 * Math.min(1, v);
+      } else if (kind === 'calcium') {
+        const inside = r < W * 0.44 ? 1 : 0;
+        const v = (Math.exp(-Math.pow((ph - 0.15) / 0.12, 2)) * 0.9 + 0.08) * core * inside * (0.85 + 0.25 * n);
+        R = 40 * v; G = 255 * v; B = 90 * v;
+      } else {
+        const v = (ph < 0.42 ? 0.78 : 0.22) * (0.85 + 0.3 * n) * (0.6 + 0.4 * core);
+        R = G = B = 235 * v;
+      }
+      const k = (y * S + x) * 4; d[k] = R; d[k + 1] = G; d[k + 2] = B; d[k + 3] = 255;
+    }
+    ctx.putImageData(im, 0, 0);
+    return off;
+  }
+  draw(i) {
+    const c = this.cv[i], ctx = c.getContext('2d'), W = c.width, src = this.src[i], kind = c.dataset.world;
+    const spd = { heart: 1.6, dicty: 0.5, calcium: 0.8, platinum: 0.7 }[kind];
+    const cx = W * 0.52, cy = W * 0.48;
+    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, W);
+    ctx.save(); ctx.translate(cx, cy); ctx.rotate(-2 * Math.PI * 0.25 * spd * this.t); ctx.drawImage(src, -src.width / 2, -src.height / 2); ctx.restore();
+    if (kind === 'heart' || kind === 'calcium') {   // keep the tissue / egg outline fixed
+      ctx.save(); ctx.globalCompositeOperation = 'destination-in'; ctx.beginPath();
+      if (kind === 'heart') ctx.ellipse(cx, cy, W * 0.46 * 1.05, W * 0.46, 0, 0, 7); else ctx.arc(cx, cy, W * 0.44, 0, 7);
+      ctx.fill(); ctx.restore();
+    }
+  }
+}
+
+/* ============================================================
+   Story: hero attract mode, scroll-driven scenes, lab controls
+   ============================================================ */
+(function () {
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const LUV = 512 * 0.4;                                  // model length units across the texture
+  const U = l => l / LUV;                                 // model length -> uv
+
+  /* ---------------- shared scene builders ---------------- */
+  function spiralPair(v, cx = 0.40, cy = 0.5, dir = 0) {
+    v.at(0.2, () => v.sTap(cx, cy));
+    const r0 = U(17), r1 = U(52), c = Math.cos(dir), s = Math.sin(dir);
+    v.at(3.3, () => v.sCut([cx + r0 * c, cy + r0 * s], [cx + r1 * c, cy + r1 * s], 13));
+  }
+  function singleSpiral(v, y = 0.5) {
+    // a line wave anchored on the wall, then make everything below it refractory
+    v.at(0.1, () => v.sim.triggerLine([0.0, y], [0.5, y], 2.0));
+    v.at(0.6, () => { v.sim.cut([0, y - 0.25], [1, y - 0.25], 0.25 * LUV - 1); v.marks.push({ type: 'cut', a: [0.06, y - 0.004], b: [0.5, y - 0.004], w: performance.now(), life: 1400 }); });
+  }
+  function randomCuts(v, n, t0, gap) {
+    for (let k = 0; k < n; k++) v.at(t0 + k * gap, () => {
+      const a = rnd(0, Math.PI * 2), r = Math.sqrt(Math.random()) * 0.33;
+      const x = 0.5 + r * Math.cos(a), y = 0.5 + r * Math.sin(a), o = rnd(0, Math.PI), h = U(rnd(14, 26));
+      v.sCut([x - h * Math.cos(o), y - h * Math.sin(o)], [x + h * Math.cos(o), y + h * Math.sin(o)], 3.4);
+    });
+  }
+  function periodMeter(v, x, y, store) {
+    const ups = []; let prev = 0;
+    v.meas.push({ x, y, on: (p, t) => { if (prev < 0.08 && p.v >= 0.08) { ups.push(t); if (ups.length > 6) ups.shift(); if (ups.length >= 3) store.per = (ups[ups.length - 1] - ups[1]) / (ups.length - 2); } prev = p.v; } });
+  }
+
+  /* ---------------- hero ---------------- */
+  const heroEl = document.getElementById('heroDish');
+  const hero = new DishView(heroEl, { N: 512 });
+  if (hero.ok) {
+    hero.resetScene();
+    if (RM) hero.speed = 0.5;
+    spiralPair(hero, 0.42, 0.53, -0.35);
+    hero.warp(2.7);
+    let lastTouch = -1e9;
+    hero.on('interact', () => lastTouch = hero.sceneTime);
+    hero.every(70, 70, () => { if (hero.sceneTime - lastTouch > 40 && !RM) { const a = rnd(0, 6.28), r = rnd(0.1, 0.3); hero.sTap(0.5 + r * Math.cos(a), 0.5 + r * Math.sin(a)); } });
+    hero.kick();
+  }
+
+  /* ---------------- the rest of the page ----------------
+     Built before the stage, so they still draw when the dishes cannot (no WebGL2). */
+  buildTimeline();
+  buildThermo();
+  try { new ClockAct(); } catch (e) { console.error(e); }
+  try { new Worlds(); } catch (e) { console.error(e); }
+
+  /* ---------------- stage ---------------- */
+  const stageEl = document.getElementById('stageDish');
+  const stripCv = document.getElementById('strip');
+  const strip = new Strip(stripCv, document.querySelector('[data-strip="rate"]'));
+  const v = new DishView(stageEl, { N: 512, strip });
+  if (!v.ok) { window.__bz = { hero, v }; return; }   // the dish shows its notice; the cards stay as text
+  const out = {};                 // live values shown in cards
+  let current = null, prevScene = null;
+
+  const SC = {
+    ring() {
+      v.resetScene(); v.setWorld('bz'); v.setMode(0); v.setProbe(null); v.tipsOn = false; v.speed = 1;
+      out.speed = null;
+      const go = (x, y) => {
+        v.sTap(x, y);
+        const pts = [[x + U(14), y], [x + U(44), y]], hit = [null, null];
+        v.meas = v.meas.filter(m => !m.speed);
+        pts.forEach((p, i) => v.meas.push({ x: p[0], y: p[1], speed: 1, on: (val, t) => {
+          if (hit[i] === null && val.v > 0.06) hit[i] = t;
+          if (hit[0] !== null && hit[1] !== null && !out._done) { out.speed = 30 / (hit[1] - hit[0]); v.meas.forEach(m => { if (m.speed) m.done = true; }); }
+        } }));
+      };
+      v.at(0.3, () => go(0.5, 0.5));
+      v.every(11, 11, () => go(rnd(0.32, 0.5), rnd(0.35, 0.65)));
+    },
+    collide() {
+      v.resetScene(); v.setWorld('bz'); v.setMode(0); v.setProbe(null); v.tipsOn = false; v.speed = 1;
+      const seq = () => {
+        v.at(0.3, () => { v.sTap(0.3, 0.5); v.sTap(0.7, 0.5); });
+        v.at(9, () => { for (let k = 0; k < 3; k++) { const a = k * 2.094 + 0.5; v.sTap(0.5 + 0.2 * Math.cos(a), 0.5 + 0.2 * Math.sin(a)); } });
+        v.at(18, () => v.sTap(0.36, 0.38));
+        v.at(19.6, () => v.sTap(0.62, 0.64));
+      };
+      seq(); v.every(28, 28, seq);
+    },
+    targets() {
+      v.resetScene(); v.setWorld('bz'); v.setMode(0); v.setProbe(null); v.tipsOn = false; v.speed = 1.6;
+      const a = v.addPacer(0.33, 0.62, 3.0, 0.2), b = v.addPacer(0.67, 0.37, 5.2, 0.6);
+      a.label = v.periodLabel(a.T); b.label = v.periodLabel(b.T);
+      out.p1 = a.label; out.p2 = b.label;
+    },
+    break() {
+      v.resetScene(); v.setWorld('bz'); v.setMode(0); v.setProbe(null); v.tipsOn = true; v.trailLen = 1.6; v.speed = 1;
+      spiralPair(v, 0.38, 0.5, 0);
+      out.per = null; periodMeter(v, 0.62, 0.70, out);
+    },
+    phase() {
+      if (!(prevScene === 'break' && v.sceneTime > 6)) { SC.break(); v.warp(7); }
+      v.setMode(3); v.tipsOn = true; v.trailLen = 1.6;
+    },
+    meander() {
+      v.resetScene({ params: { f: 1.6, q: 0.002, eps: 0.07, phi0: 0.02 } }); v.setWorld('bz'); v.setMode(0); v.setProbe(null);
+      v.tipsOn = true; v.trailLen = 7; v.speed = 1.8;
+      singleSpiral(v, 0.5);
+    },
+    sinus(keepGoing) {
+      v.resetScene(); v.setWorld('heart'); v.setMode(2); v.tipsOn = false; v.speed = 2.5;
+      const T = 0.8 / WORLDS.heart.tau0;
+      const p = v.addPacer(0.24, 0.76, T, 0.2); p.label = 'sinus node';
+      v.setProbe(0.64, 0.40);
+      return p;
+    },
+    reentry() {
+      SC.sinus(); v.tipsOn = true; v.trailLen = 1.4;
+      v.warp(5.0);
+      const d = [Math.SQRT1_2, -Math.SQRT1_2], p = [0.24, 0.76];
+      v.at(0.5, () => v.sCut([p[0] + 0.17 * d[0], p[1] + 0.17 * d[1]], [p[0] + 0.45 * d[0], p[1] + 0.45 * d[1]], 7));
+    },
+    chaos() {
+      SC.reentry(); v.warp(1.0);
+      randomCuts(v, 9, 0.4, 0.9);
+    },
+    defib() {
+      SC.sinus(); v.tipsOn = true; v.trailLen = 1.2;
+      v.warp(5.0);
+      const d = [Math.SQRT1_2, -Math.SQRT1_2], p = [0.24, 0.76];
+      v.sim.cut([p[0] + 0.17 * d[0], p[1] + 0.17 * d[1]], [p[0] + 0.45 * d[0], p[1] + 0.45 * d[1]], 7);
+      randomCuts(v, 7, 0.2, 0.5);
+      v.warp(6.0);
+      v.at(4.5, () => v.flash(0.32, 1.6));
+    },
+    lab() { v.tipsOn = v.tipsOn; }
+  };
+  const PRESET = {
+    pair() { v.resetScene({ params: { ...v.sim.p } }); v.tipsOn = true; spiralPair(v, 0.38, 0.5, 0); },
+    single() { v.resetScene({ params: { ...v.sim.p } }); v.tipsOn = true; singleSpiral(v, 0.5); },
+    targets() { v.resetScene({ params: { ...v.sim.p } }); const a = v.addPacer(0.33, 0.62, 3.0, 0.2), b = v.addPacer(0.67, 0.37, 5.2, 0.6); a.label = v.periodLabel(a.T); b.label = v.periodLabel(b.T); },
+    turb() { v.resetScene({ params: { ...v.sim.p } }); v.tipsOn = true; v.at(0.2, () => { v.sTap(0.5, 0.5); v.sTap(0.3, 0.35); v.sTap(0.68, 0.66); }); randomCuts(v, 10, 2.6, 0.6); },
+    meander() { v.resetScene({ params: { f: 1.6, q: 0.002, eps: 0.07, phi0: 0.02 } }); v.tipsOn = true; v.trailLen = 7; singleSpiral(v, 0.5); },
+    flash() { v.flash(0.32, 1.6); },
+    osc() { v.resetScene({ params: { f: 1.4, q: 0.002, eps: 0.02, phi0: 0.002 } }); v.at(0.2, () => { v.sTap(0.4, 0.45); }); v.at(1.2, () => v.addPacer(0.64, 0.6, 3.2, 0)); }
+  };
+
+  /* ---------------- card activation ---------------- */
+  const cards = [...document.querySelectorAll('.card')];
+  const theatre = document.querySelector('.theatre');
+  const stageBox = document.getElementById('stage');
+  let activeIdx = -1;
+  function runScene(name) {
+    if (!v.ok) return;
+    prevScene = current; current = name;
+    const keepTips = name === 'lab';
+    if (!keepTips) v.paused = false, syncPause();
+    SC[name] && SC[name]();
+    if (name !== 'lab') { v.boost = 1; }
+    syncTools(); syncLab();
+    v.kick();
+  }
+  function pickCard() {
+    const mobile = matchMedia('(max-width: 860px)').matches;
+    const tr = theatre.getBoundingClientRect();
+    if (tr.bottom < 0 || tr.top > innerHeight) return;
+    let line = innerHeight * 0.5;
+    if (mobile) { const sb = stageBox.getBoundingClientRect().bottom; line = sb + (innerHeight - sb) * 0.35; }
+    let idx = 0;
+    cards.forEach((c, i) => { if (c.getBoundingClientRect().top < line) idx = i; });
+    if (idx !== activeIdx) {
+      activeIdx = idx;
+      cards.forEach((c, i) => c.classList.toggle('active', i === idx));
+      runScene(cards[idx].dataset.scene);
+    }
+  }
+  let sTimer = 0;
+  addEventListener('scroll', () => { if (!sTimer) sTimer = setTimeout(() => { sTimer = 0; pickCard(); }, 50); }, { passive: true });
+  addEventListener('resize', pickCard);
+  cards.forEach(c => c.querySelectorAll('[data-replay]').forEach(b => b.addEventListener('click', () => runScene(c.dataset.scene))));
+
+  /* ---------------- live outputs in cards ---------------- */
+  const outEls = [...document.querySelectorAll('[data-out]')];
+  v.on('tick', () => {
+    const W = WORLDS[v.world];
+    const vals = {};
+    vals.speed = out.speed ? (out.speed * WORLDS.bz.ell0 / WORLDS.bz.tau0 * 60).toFixed(1) + ' mm/min' : 'measuring…';
+    vals.p1 = out.p1 || '…'; vals.p2 = out.p2 || '…';
+    vals.per = out.per ? (out.per * WORLDS.bz.tau0 / 60).toFixed(1) + ' min' : 'measuring…';
+    const ts = v.tipStats(); vals.tips = `${ts.n}  (+${ts.p} / −${ts.m})`; const q = ts.p - ts.m; vals.charge = q === 0 ? '0' : (q > 0 ? '+' : '−') + Math.abs(q);
+    vals.eps = v.sim.p.eps.toFixed(3);
+    const r = strip.rate(v.world, v.sceneTime);
+    vals.rate = r ? (v.world === 'heart' ? Math.round(r.perMin) + ' /min' : (r.sec / 60).toFixed(1) + ' min') + (r.irregular > 0.25 ? ', irregular' : '') : '–';
+    for (const e of outEls) { const k = e.dataset.out; if (vals[k] !== undefined && e.textContent !== vals[k]) e.textContent = vals[k]; }
+    const sr = document.querySelector('[data-strip="rate"]');
+    if (sr) sr.textContent = r ? (v.world === 'heart' ? `${Math.round(r.perMin)} beats/min` : `period ${(r.sec / 60).toFixed(1)} min`) + (r.irregular > 0.25 ? ' · irregular' : '') : '–';
+    if (v.hud.scene) v.hud.scene.textContent = v.paused ? 'paused' : '';
+  });
+
+  /* ---------------- toolbar ---------------- */
+  const toolBtns = [...document.querySelectorAll('[data-tool]')];
+  function syncTools() {
+    toolBtns.forEach(b => { const on = b.dataset.tool === v.tool; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+    const vs = document.getElementById('viewSel'); if (vs) vs.value = String(v.sim.mode);
+    const tb = document.getElementById('tipsBtn'); tb.classList.toggle('on', v.tipsOn); tb.setAttribute('aria-pressed', String(v.tipsOn));
+    const lab = document.querySelector('[data-label="light"]'); if (lab) lab.textContent = v.sim.mode === 2 ? 'Light' : 'Bromide';
+    document.getElementById('stripbox').hidden = !v.probe;
+  }
+  function syncPause() { const b = document.getElementById('pauseBtn'); b.textContent = v.paused ? 'Play' : 'Pause'; b.setAttribute('aria-pressed', String(v.paused)); }
+  toolBtns.forEach(b => b.addEventListener('click', () => { v.tool = b.dataset.tool; syncTools(); }));
+  document.getElementById('viewSel').addEventListener('change', e => { v.setMode(+e.target.value); syncTools(); });
+  document.getElementById('tipsBtn').addEventListener('click', () => { v.tipsOn = !v.tipsOn; syncTools(); });
+  document.getElementById('pauseBtn').addEventListener('click', () => { v.paused = !v.paused; syncPause(); });
+  document.getElementById('clearBtn').addEventListener('click', () => { v.resetScene({ params: { ...v.sim.p } }); v.setProbe(null); syncTools(); });
+  v.on('probe', syncTools); v.on('mode', syncTools);
+
+  /* ---------------- lab ---------------- */
+  const labInputs = [...document.querySelectorAll('.labgrid input[type=range]')];
+  const fmt = { f: x => (+x).toFixed(2), eps: x => (+x).toFixed(3), phi0: x => (+x).toFixed(3), speed: x => (+x).toFixed(2).replace(/0$/, '') + '×', pace: x => v.periodLabel(+x) };
+  function syncLab() {
+    labInputs.forEach(inp => {
+      const k = inp.dataset.p;
+      const val = k === 'speed' ? v.speed : k === 'pace' ? (v.paceT || 4) : v.sim.p[k];
+      if (document.activeElement !== inp) inp.value = val;
+      const o = document.querySelector(`[data-o="${k}"]`); if (o) o.textContent = fmt[k](val);
+    });
+    document.querySelectorAll('[data-world]').forEach(b => { if (b.tagName !== 'BUTTON') return; const on = b.dataset.world === v.world; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+  }
+  labInputs.forEach(inp => inp.addEventListener('input', () => {
+    const k = inp.dataset.p, x = +inp.value;
+    if (k === 'speed') v.speed = x; else if (k === 'pace') v.paceT = x; else v.setParams({ [k]: x });
+    syncLab();
+  }));
+  document.querySelectorAll('button[data-world]').forEach(b => b.addEventListener('click', () => { v.setWorld(b.dataset.world); v.pacers.forEach(p => p.label = p.label && p.label !== 'sinus node' ? v.periodLabel(p.T) : p.label); syncLab(); }));
+  document.querySelectorAll('[data-preset]').forEach(b => b.addEventListener('click', () => { PRESET[b.dataset.preset](); syncTools(); syncLab(); v.kick(); }));
+  v.on('params', () => syncLab());
+
+  syncTools(); syncLab(); pickCard();
+  window.__bz = { hero, v, SC, PRESET, out };
+})();
+</script>
+
+</body></html>
