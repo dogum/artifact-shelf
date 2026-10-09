@@ -5,6 +5,7 @@ All notable changes to this project are documented here. Versions follow [semant
 ## [Unreleased]
 
 ### Site
+- The home display window rotates through every featured artifact; it was capped at seven.
 - `stage: tall` in an artifact's front matter gives it the tall stage on any shelf (documented in docs/WRITEUPS.md). The Navier–Stokes page's figures now work only while on screen.
 
 ### Artifacts
