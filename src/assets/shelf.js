@@ -214,6 +214,19 @@
       f.focus();
       return f;
     };
+    // Pieces that draw on the GPU: if the browser won't give them the context they need, say so by the stage.
+    const glNote = $('.gl-note');
+    if (glNote) {
+      let ok = false;
+      try {
+        const c = document.createElement('canvas');
+        const ctx = c.getContext(glNote.dataset.gl) || (glNote.dataset.gl === 'webgl' && c.getContext('experimental-webgl'));
+        ok = !!ctx;
+        const lose = ctx && ctx.getExtension('WEBGL_lose_context');
+        if (lose) lose.loseContext();
+      } catch {}
+      glNote.hidden = ok;
+    }
     const runBtn = $('.stage-run', frame);
     if (runBtn) runBtn.addEventListener('click', start);
 

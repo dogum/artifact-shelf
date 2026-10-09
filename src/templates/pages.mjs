@@ -261,6 +261,10 @@ export function itemPage(ctx, L, it) {
           <button class="stage-run" type="button">${icons.play({ size: 18 })}<span>Run ${it.title}</span></button>`}
     </div>
     <div class="case-base" aria-hidden="true"></div>
+    ${it.tech.gl ? html`<aside class="gl-note" data-gl="${it.tech.gl}" role="note" hidden>
+      <span class="gl-note-meta">Runs on the graphics card</span>
+      <span class="gl-note-text">This piece draws with ${it.tech.gl === 'webgl2' ? 'WebGL2' : 'WebGL'}, which this browser isn't making available. It's best seen in a current browser or on another device.</span>
+    </aside>` : ''}
     <div class="stage-bar" role="toolbar" aria-label="Artifact controls">
       <button type="button" class="sbtn" data-act="restart" title="Restart (R)">${icons.restart({ size: 16 })}<span>Restart</span></button>
       <button type="button" class="sbtn" data-act="fullscreen" title="Fullscreen (F)">${icons.expand({ size: 16 })}<span>Fullscreen</span></button>

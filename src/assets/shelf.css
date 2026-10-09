@@ -539,6 +539,21 @@ button { cursor: pointer; }
 .sbtn:hover { background: var(--wall-2); color: var(--ink); }
 .sbtn.is-done { color: var(--accent); }
 .stage > .case-base { margin-top: 13px; }
+/* Shown only when the browser can't give the piece its GPU context: a paper label clipped to the ledge. */
+.gl-note {
+  position: relative; z-index: 2; display: block; max-width: 430px; margin: -4px 0 -6px 30px; padding: 12px 14px 13px;
+  background: var(--paper); color: var(--paper-ink); border-radius: 2px 2px 5px 5px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04), 0 8px 16px -10px rgba(0, 0, 0, 0.42);
+  font: 400 12.5px/1.45 var(--mono); transform: rotate(-0.6deg); transform-origin: 40px -4px;
+}
+.gl-note[hidden] { display: none; }
+.gl-note::before {
+  content: ""; position: absolute; top: -6px; left: 26px; width: 30px; height: 8px;
+  background: var(--clip); border-radius: 2px 2px 1px 1px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+.gl-note-meta { display: flex; align-items: center; gap: 6px; font-size: 10.5px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--paper-ink-3); }
+.gl-note-meta::before { content: ""; width: 7px; height: 7px; border-radius: 1.5px; background: var(--accent); }
+.gl-note-text { display: block; margin-top: 6px; color: var(--paper-ink-2); }
 
 .item-body {
   max-width: var(--maxw); margin: 0 auto; padding: 40px var(--gutter) 30px;

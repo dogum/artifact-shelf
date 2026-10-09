@@ -77,6 +77,10 @@ export function detect(source) {
     claudeGuarded,
     privateLinks,
     localStorage: /localStorage/.test(source),
+    // Which GPU context the piece needs, so its page can say when the browser has none.
+    gl: /getContext\(\s*['"`]webgl2['"`]|WebGL2RenderingContext/.test(source)
+      ? 'webgl2'
+      : apis.includes('WebGL') || libraries.includes('three.js') ? 'webgl' : null,
     animated: /requestAnimationFrame/.test(source),
   };
 }
