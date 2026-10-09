@@ -1,0 +1,1312 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Kármán's Street</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a night-time wind tunnel. One lit test section per act; a ~62ch narrative column
+   beside it; the tunnel pins while the story scrolls. Warm = clockwise spin, cool = counter-clockwise. */
+:root {
+  --void: #06090d;        /* test-section dark */
+  --panel: #0c1218;       /* instrument panels */
+  --rule: #1c2731;        /* hairlines */
+  --ink: #e6edf2;         /* smoke white */
+  --mute: #8d9ca8;
+  --faint: #55636e;
+  --cw: #ff8054;          /* clockwise vorticity */
+  --ccw: #41ccff;         /* counter-clockwise vorticity */
+  --lift: #ffc247;        /* lift coefficient trace */
+  --drag: #e6edf2;        /* drag coefficient trace */
+  --display: "Archivo", "Arial Narrow", "Helvetica Neue", system-ui, sans-serif;
+  --serif: "Spectral", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --s3: clamp(2rem, 4.4vw, 3.3rem);
+  --gut: 16px;
+  color-scheme: dark;
+}
+@media (min-width: 700px) { :root { --gut: 32px; } }
+html { background: var(--void); }
+body { background: var(--void); color: var(--ink); font: 400 1.08rem/1.62 var(--serif); -webkit-font-smoothing: antialiased; }
+::selection { background: var(--ccw); color: #031018; }
+a { color: var(--ink); text-decoration-color: color-mix(in srgb, var(--ccw) 70%, transparent); text-underline-offset: 3px; }
+a:hover { color: var(--ccw); }
+:focus-visible { outline: 2px solid var(--lift); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 800; margin: 0; line-height: 0.95; text-wrap: balance; letter-spacing: -0.01em; }
+h2 { font-size: var(--s3); font-variation-settings: "wdth" 72; text-transform: uppercase; font-weight: 800; }
+h3 { font-size: 1.3rem; font-variation-settings: "wdth" 82; text-transform: uppercase; font-weight: 750; line-height: 1.05; letter-spacing: 0.01em; }
+p { margin: 0; }
+.eyebrow { font: 500 0.72rem/1.3 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); }
+.eyebrow b { color: var(--lift); font-weight: 500; }
+.prose { max-width: 62ch; display: grid; gap: 1em; }
+.prose p { color: color-mix(in srgb, var(--ink) 90%, var(--void)); }
+.dim { color: var(--mute); }
+i.v { font-family: var(--serif); font-style: italic; }
+sub, sup { font-size: 0.7em; line-height: 0; }
+.wrap { padding-inline: var(--gut); max-width: 1320px; margin-inline: auto; }
+section { position: relative; }
+.act { padding-block: clamp(4rem, 10vw, 8rem) 0; }
+.act-head { display: grid; gap: 1rem; margin-bottom: 2.2rem; max-width: 62ch; }
+.btn { font: 500 0.74rem/1 var(--mono); letter-spacing: 0.03em; color: var(--ink); background: var(--panel); border: 1px solid var(--rule); border-radius: 999px; padding: 0.55rem 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.45rem; white-space: nowrap; transition: border-color .2s, background-color .2s; }
+.btn:hover { border-color: var(--mute); }
+.btn[aria-pressed="true"], .btn.on { background: var(--ink); color: var(--void); border-color: var(--ink); }
+.btn svg { width: 14px; height: 14px; flex: none; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+select { font: 500 0.74rem/1 var(--mono); color: var(--ink); background: var(--panel); border: 1px solid var(--rule); border-radius: 999px; padding: 0.5rem 0.7rem; }
+.ctrl { display: grid; gap: 0.4rem; }
+.ctrl label { display: flex; justify-content: space-between; gap: 1rem; font: 500 0.72rem/1.3 var(--mono); letter-spacing: 0.06em; color: var(--mute); text-transform: uppercase; }
+.ctrl label output { color: var(--ink); font-variant-numeric: tabular-nums; }
+.nt { text-transform: none; font-family: var(--serif); font-style: italic; font-size: 1.15em; letter-spacing: 0; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; margin: 0; }
+input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: linear-gradient(90deg, var(--ccw), var(--cw)); }
+input[type=range]::-moz-range-track { height: 4px; border-radius: 4px; background: linear-gradient(90deg, var(--ccw), var(--cw)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--ink); margin-top: -7px; border: 3px solid var(--void); box-shadow: 0 0 0 1px var(--mute); }
+input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--ink); border: 3px solid var(--void); box-shadow: 0 0 0 1px var(--mute); }
+
+/* ---------- tunnel (hero + stage) ---------- */
+.tunnel { position: relative; width: 100%; aspect-ratio: var(--ar, 2.333); user-select: none; -webkit-user-select: none; border-radius: 6px; overflow: hidden; background: var(--void); box-shadow: 0 0 0 1px var(--rule), 0 30px 80px -40px rgba(65, 204, 255, 0.25); }
+.tunnel canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.tunnel canvas.fx { pointer-events: none; }
+.tunnel .gl { touch-action: none; cursor: crosshair; }
+.hero .tunnel .gl { touch-action: pan-y; }
+.tunnel .nogl { position: absolute; inset: 10%; display: none; place-items: center; text-align: center; color: var(--mute); font: 0.85rem/1.5 var(--mono); }
+.tunnel.failed .nogl { display: grid; }
+.hud { position: absolute; inset: 0; pointer-events: none; font: 500 0.68rem/1.25 var(--mono); color: rgba(235, 243, 248, 0.9); text-shadow: 0 1px 2px rgba(0,0,0,0.9); letter-spacing: 0.04em; }
+.hud > * { position: absolute; }
+.hud .tl { left: 1.6%; top: 4%; display: grid; gap: 0.2rem; }
+.hud .tr { right: 1.6%; top: 4%; text-align: right; display: grid; gap: 0.2rem; }
+.hud .bl { left: 1.6%; bottom: 5%; }
+.hud .br { right: 1.6%; bottom: 5%; text-align: right; display: grid; gap: 0.2rem; }
+.hud b { font-weight: 500; color: #fff; font-variant-numeric: tabular-nums; }
+.hud .big { font-size: 0.86rem; }
+.hud .arrow { display: inline-block; width: 26px; height: 1px; background: currentColor; position: relative; vertical-align: middle; margin-right: 6px; }
+.hud .arrow::after { content: ""; position: absolute; right: -1px; top: -3px; border: 3.5px solid transparent; border-left: 6px solid currentColor; border-right: 0; }
+
+/* ---------- hero ---------- */
+.hero { display: grid; gap: clamp(1.2rem, 3vw, 2rem); padding-block: clamp(1.6rem, 5vw, 3.4rem) 0.5rem; }
+.hero-top { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: clamp(1rem, 4vw, 3.5rem); align-items: end; }
+.hero h1 { font-size: clamp(2.8rem, 8.6vw, 7.2rem); font-variation-settings: "wdth" 66; font-weight: 850; text-transform: uppercase; line-height: 0.86; letter-spacing: -0.015em; }
+.hero h1 span { display: inline-block; }
+.hero h1 .l { color: var(--cw); }
+.hero h1 .r { color: var(--ccw); }
+.hero-side { display: grid; gap: 1rem; }
+.lede { font-size: 1.2rem; line-height: 1.55; max-width: 44ch; }
+.hint { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; font: 500 0.76rem/1.4 var(--mono); color: var(--mute); }
+.hint span { display: inline-flex; gap: 0.5em; align-items: center; }
+.hint kbd { font: inherit; color: var(--ink); border: 1px solid var(--rule); border-radius: 4px; padding: 0.05em 0.45em; background: var(--panel); }
+.toc { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font: 500 0.72rem/1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; padding-top: 0.8rem; border-top: 1px solid var(--rule); }
+.toc a { text-decoration: none; color: var(--mute); }
+.toc a:hover { color: var(--ink); }
+.toc a b { color: var(--faint); font-weight: 500; margin-right: 0.4em; }
+@media (max-width: 820px) { .hero-top { grid-template-columns: minmax(0, 1fr); } .lede { font-size: 1.08rem; } }
+
+/* ---------- theatre ---------- */
+.theatre { display: grid; grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr); gap: clamp(1.5rem, 4vw, 3.5rem); margin-top: 1rem; }
+.stage { grid-column: 2; grid-row: 1; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); align-self: start; height: calc(100vh - 24px - env(safe-area-inset-top, 0px)); height: calc(100dvh - 24px - env(safe-area-inset-top, 0px)); display: flex; flex-direction: column; gap: 0.6rem; justify-content: center; z-index: 3; }
+.tools { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; justify-content: center; }
+.tg { display: flex; gap: 0.4rem; flex: none; }
+.meters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.4rem; }
+.meter { border: 1px solid var(--rule); border-radius: 8px; padding: 0.45rem 0.6rem; display: grid; gap: 0.1rem; background: var(--panel); min-width: 0; }
+.meter span { font: 500 0.6rem/1.2 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.meter b { font: 500 1rem/1.2 var(--mono); font-variant-numeric: tabular-nums; color: var(--ink); white-space: nowrap; }
+.meter[data-k="cl"] b { color: var(--lift); }
+.strip { width: 100%; height: 86px; display: block; border-radius: 8px; border: 1px solid var(--rule); background: var(--panel); }
+.cards { grid-column: 1; grid-row: 1; display: grid; }
+.card { min-height: 84vh; display: grid; align-content: center; gap: 1rem; padding-block: 2rem; opacity: 0.4; transition: opacity .5s; }
+.card.active { opacity: 1; }
+.card .k { display: flex; gap: 0.75rem; align-items: baseline; }
+.card h3 { font-size: clamp(1.35rem, 2.4vw, 1.9rem); }
+.card p { max-width: 54ch; }
+.card .meta { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.card canvas.chart { width: 100%; max-width: 460px; aspect-ratio: 1.45 / 1; display: block; border-radius: 10px; border: 1px solid var(--rule); background: var(--panel); }
+.stat { font: 500 0.76rem/1.3 var(--mono); padding: 0.45rem 0.7rem; border-radius: 8px; border: 1px dashed var(--rule); color: var(--mute); }
+.stat b { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+.act-marker { padding-top: 1.5rem; display: grid; gap: 0.6rem; }
+.act-marker h2 { font-size: clamp(1.9rem, 3.8vw, 2.9rem); }
+.labgrid { display: grid; gap: 1rem; }
+.labgrid .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem 1.2rem; }
+.wirepick { display: grid; gap: 0.5rem; }
+.tone { font: 500 0.82rem/1.4 var(--mono); color: var(--ink); }
+.tone b { color: var(--lift); font-weight: 500; }
+@media (max-width: 520px) { .labgrid .row { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 900px) {
+  .theatre { grid-template-columns: minmax(0, 1fr); margin-inline: calc(-1 * var(--gut)); }
+  .stage { grid-column: 1; grid-row: 1; top: env(safe-area-inset-top, 0px); height: auto; padding: 0.5rem var(--gut) 0.55rem; background: var(--void); gap: 0.4rem; }
+  .stage::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 22px; background: linear-gradient(var(--void), transparent); pointer-events: none; }
+  .tools { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; justify-content: flex-start; }
+  .tools::-webkit-scrollbar { display: none; }
+  .strip { height: 54px; }
+  .meter { padding: 0.3rem 0.45rem; }
+  .meter b { font-size: 0.86rem; }
+  .cards { grid-column: 1; grid-row: 2; padding-inline: var(--gut); }
+  .card { min-height: 50vh; min-height: 50svh; align-content: start; padding-block: 1.6rem 2.4rem; font-size: 1rem; }
+  .card h3 { font-size: 1.3rem; }
+}
+
+/* ---------- coda ---------- */
+.history { overflow-x: auto; margin-top: 1.5rem; padding-bottom: 0.4rem; }
+.history svg { display: block; min-width: 780px; width: 100%; height: auto; }
+.history text { font-family: var(--mono); }
+.notes { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: clamp(1.5rem, 4vw, 4rem); }
+@media (max-width: 900px) { .notes { grid-template-columns: minmax(0, 1fr); } }
+.eq { font-family: var(--serif); font-style: italic; font-size: 1.12rem; line-height: 1.9; padding: 1rem 1.2rem; border: 1px solid var(--rule); border-radius: 12px; background: var(--panel); overflow-x: auto; }
+.eq div { white-space: nowrap; }
+.eq .lbl { font: 500 0.64rem/1.3 var(--mono); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+table.params { width: 100%; border-collapse: collapse; font: 0.84rem/1.45 var(--mono); font-variant-numeric: tabular-nums; }
+table.params td, table.params th { text-align: left; padding: 0.45rem 0.5rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.params th { font-weight: 500; color: var(--mute); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; }
+table.params td.ok { color: var(--ccw); }
+.tablewrap { overflow-x: auto; }
+.refs { display: grid; gap: 0.55rem; font-size: 0.92rem; line-height: 1.45; color: var(--mute); padding-left: 1.2rem; margin: 0; }
+.refs li::marker { color: var(--faint); font-family: var(--mono); font-size: 0.8em; }
+footer { padding-block: 4rem 3rem; color: var(--faint); font: 0.72rem/1.5 var(--mono); }
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+</style>
+<!-- ===================== HERO ===================== -->
+<header class="wrap hero" id="top">
+  <div class="hero-top">
+    <div style="display:grid; gap:1.1rem">
+      <p class="eyebrow">Vortex shedding &middot; <b>a live wind tunnel</b></p>
+      <h1><span class="l">Left,</span> <span class="r">right,</span> <span class="l">left.</span></h1>
+    </div>
+    <div class="hero-side">
+      <p class="lede">Put almost anything in a steady wind and, above a certain speed, the air behind it starts to swing. A vortex peels off one side, then the other, and they line up in a staggered double row called a K&aacute;rm&aacute;n vortex street. It makes wires hum, chimneys shake and islands draw patterns in the clouds.</p>
+      <p class="dim">The tunnel below is a lattice-Boltzmann flow solver running on your graphics card, millions of times a second.</p>
+      <div class="hint"><span><kbd>drag</kbd> draw an obstacle into the flow</span><button class="btn" id="heroReset">Reset tunnel</button></div>
+    </div>
+  </div>
+  <div class="tunnel" id="heroTunnel" aria-label="Live wind tunnel showing a vortex street behind a cylinder. Drag to draw obstacles.">
+    <canvas class="gl"></canvas><canvas class="fx"></canvas>
+    <div class="hud">
+      <div class="tl"><span><span class="arrow"></span>wind</span></div>
+      <div class="tr"><span>Re <b data-hud="re">150</b></span><span>St <b data-hud="st">&ndash;</b></span></div>
+      <div class="bl"><span data-hud="view">smoke + surface dye</span></div>
+    </div>
+    <div class="nogl">This tunnel needs WebGL2 with 32-bit floating-point render targets, which this browser did not provide.</div>
+  </div>
+  <nav class="toc" aria-label="Contents">
+    <a href="#reynolds"><b>I</b>Reynolds</a>
+    <a href="#strouhal"><b>II</b>Strouhal</a>
+    <a href="#forces"><b>III</b>Forces</a>
+    <a href="#sound"><b>IV</b>Sound</a>
+    <a href="#sky"><b>V</b>Sky</a>
+    <a href="#wings"><b>VI</b>Wings</a>
+    <a href="#lab"><b>VII</b>Lab</a>
+    <a href="#notes"><b>&middot;</b>Notes</a>
+  </nav>
+</header>
+
+<!-- ===================== THEATRE ===================== -->
+<section class="wrap act" id="reynolds" aria-labelledby="h-re">
+  <div class="act-head">
+    <p class="eyebrow"><b>I</b> &middot; One number</p>
+    <h2 id="h-re">The Reynolds number decides</h2>
+    <div class="prose"><p>Whether a wake is calm or swinging depends on one ratio. The Reynolds number, <i class="v">Re</i> = <i class="v">UD</i>/<i class="v">&nu;</i>, compares the push of the air&rsquo;s momentum with the drag of its own viscosity: speed <i class="v">U</i> times size <i class="v">D</i>, over kinematic viscosity <i class="v">&nu;</i>. Scroll, and the tunnel steps up through the regimes.</p></div>
+  </div>
+  <div class="theatre">
+    <div class="stage" id="stage">
+      <div class="tunnel" id="stageTunnel" aria-label="Interactive wind tunnel">
+        <canvas class="gl"></canvas><canvas class="fx"></canvas>
+        <div class="hud">
+          <div class="tl"><span><span class="arrow"></span>wind</span><span data-hud="scene" class="dim"></span></div>
+          <div class="tr"><span data-hud="extra"></span></div>
+          <div class="bl"><span data-hud="view">smoke</span></div>
+          <div class="br"><span data-hud="paused" class="dim"></span></div>
+        </div>
+        <div class="nogl">This tunnel needs WebGL2 with 32-bit floating-point render targets, which this browser did not provide.</div>
+      </div>
+      <div class="meters" aria-live="off">
+        <div class="meter" data-k="re"><span>Reynolds</span><b data-m="re">&ndash;</b></div>
+        <div class="meter" data-k="cd"><span>Drag C<sub>d</sub></span><b data-m="cd">&ndash;</b></div>
+        <div class="meter" data-k="cl"><span>Lift C<sub>l</sub></span><b data-m="cl">&ndash;</b></div>
+        <div class="meter" data-k="st"><span>Strouhal</span><b data-m="st">&ndash;</b></div>
+      </div>
+      <canvas class="strip" id="forceStrip" aria-label="Scrolling plot of lift and drag coefficients"></canvas>
+      <div class="tools" role="toolbar" aria-label="Tunnel tools">
+        <div class="tg">
+          <button class="btn on" data-tool="draw" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 14l3-1 8-8-2-2-8 8z"/></svg>Draw</button>
+          <button class="btn" data-tool="erase" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 14h8M3 10l6-6 4 4-4 4H5z"/></svg>Erase</button>
+          <select id="viewSel" aria-label="View">
+            <option value="0">Smoke</option>
+            <option value="1">Vorticity</option>
+            <option value="2">Speed</option>
+            <option value="3">Pressure</option>
+            <option value="4">Clouds</option>
+          </select>
+        </div>
+        <div class="tg">
+          <button class="btn" id="pauseBtn" aria-pressed="false">Pause</button>
+          <button class="btn" id="restartBtn">Restart flow</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cards">
+      <article class="card" data-scene="re1">
+        <div class="k"><span class="eyebrow"><b>I.1</b></span><h3>Creeping flow, Re = 1</h3></div>
+        <p>At <i class="v">Re</i> = 1 viscosity wins outright. That is a hair-thin fibre, a tenth of a millimetre across, in a draught of 15 cm/s. The smoke parts in front of the cylinder and closes up again behind it, in almost the same shape fore and aft. Nothing separates and nothing swings.</p>
+        <div class="meta"><button class="btn" data-replay>Replay</button></div>
+      </article>
+      <article class="card" data-scene="re20">
+        <div class="k"><span class="eyebrow"><b>I.2</b></span><h3>Two trapped eddies, Re = 20</h3></div>
+        <p>Speed up and the air can no longer follow the back of the cylinder. The thin boundary layer on its surface separates, and two eddies settle in the lee, turning in opposite directions. They stay put. Dye released from the surface collects inside them and circulates there, coral on top and blue below.</p>
+        <div class="meta"><span class="stat">eddy length <b data-out="bubble">&hellip;</b></span><span class="stat">experiments: 0.93 D at Re 20, 2.1 D at Re 40</span><button class="btn" data-replay>Replay</button></div>
+      </article>
+      <article class="card" data-scene="onset">
+        <div class="k"><span class="eyebrow"><b>I.3</b></span><h3>The wake loses its balance</h3></div>
+        <p>Above <i class="v">Re</i> &asymp; 47 the symmetric pair becomes unstable. A tiny sideways nudge grows exponentially, then levels off into a steady swing. On a log scale the growing lift force climbs in a straight line and then bends flat, the signature of what mathematicians call a Hopf bifurcation.</p>
+        <canvas class="chart" id="onsetChart" aria-label="Lift amplitude versus time on a log scale"></canvas>
+        <div class="meta"><span class="stat">Re <b>100</b></span><span class="stat">growth per cycle <b data-out="growth">&hellip;</b></span><button class="btn" data-replay>Replay</button></div>
+      </article>
+      <article class="card" data-scene="street">
+        <div class="k"><span class="eyebrow"><b>I.4</b></span><h3>The street, Re = 150</h3></div>
+        <p>Now vortices peel off alternately and march downstream in two staggered rows, warm colours turning clockwise, cool ones counter-clockwise. In 1911 Theodore von K&aacute;rm&aacute;n showed that a street of ideal point vortices is only stable when the gap between the rows is about 0.28 of the spacing along a row. Henri B&eacute;nard had filmed the pattern three years earlier, and protested the name in 1930.</p>
+        <p class="dim">Real wakes turn three-dimensional above <i class="v">Re</i> &asymp; 190. This tunnel is a two-dimensional slice, so it keeps drawing a clean street.</p>
+        <div class="meta"><button class="btn" data-replay>Replay</button></div>
+      </article>
+
+      <div class="act-marker" id="strouhal"><p class="eyebrow"><b>II</b> &middot; The 0.2 rule</p><h2>One fifth</h2></div>
+      <article class="card" data-scene="strouhal">
+        <div class="k"><span class="eyebrow"><b>II</b></span><h3>Frequency follows speed</h3></div>
+        <p>The Strouhal number <i class="v">St</i> = <i class="v">fD</i>/<i class="v">U</i> compares the shedding frequency <i class="v">f</i> with the time air takes to pass the body. For a circular cylinder it sits near 0.2 from <i class="v">Re</i> of a few hundred up to about 200,000. At low <i class="v">Re</i> it climbs toward that value. Move the slider and the live measurement settles onto the curve fitted to experiments by Williamson.</p>
+        <canvas class="chart" id="stChart" aria-label="Strouhal number versus Reynolds number, live point against experimental fit"></canvas>
+        <div class="ctrl" style="max-width:460px"><label for="stRe"><span>Reynolds number</span> <output id="stReOut">100</output></label><input type="range" id="stRe" min="50" max="200" step="5" value="100"></div>
+        <p class="dim" style="font-size:0.94rem">The live point runs a few percent high. The tunnel is only 12 diameters tall, and squeezing the flow raises its speed past the cylinder. Real wind tunnels correct for the same blockage effect.</p>
+      </article>
+
+      <div class="act-marker" id="forces"><p class="eyebrow"><b>III</b> &middot; Push and pull</p><h2>The forces</h2></div>
+      <article class="card" data-scene="forces">
+        <div class="k"><span class="eyebrow"><b>III</b></span><h3>Lift swings, drag doubles</h3></div>
+        <p>Each departing vortex tugs the cylinder toward its own side, so the sideways force, the lift, swings once per shedding cycle. Drag gets a kick from every vortex, top or bottom alike, so it pulses twice per cycle. Plot one against the other and the trace draws a figure of eight.</p>
+        <canvas class="chart" id="lissChart" aria-label="Lift coefficient against drag coefficient: a figure of eight"></canvas>
+        <div class="meta"><span class="stat">mean C<sub>d</sub> <b data-out="cdm">&hellip;</b></span><span class="stat">C<sub>l</sub> amplitude <b data-out="cla">&hellip;</b></span><span class="stat">open-air 2D reference, Re 100: 1.33 and 0.33</span></div>
+      </article>
+
+      <div class="act-marker" id="sound"><p class="eyebrow"><b>IV</b> &middot; Sound</p><h2>Wires that sing</h2></div>
+      <article class="card" data-scene="sing">
+        <div class="k"><span class="eyebrow"><b>IV</b></span><h3>Aeolian tones</h3></div>
+        <p>In 1878 Vincenc Strouhal whirled wires through the air and measured the tone they made. The pitch rose with speed and fell with thickness, because it is the shedding frequency, <i class="v">f</i> = <i class="v">St</i>&middot;<i class="v">U</i>/<i class="v">D</i>. At these sizes the Reynolds number is in the thousands, where <i class="v">St</i> &asymp; 0.2.</p>
+        <div class="wirepick">
+          <div class="btnrow" role="group" aria-label="Pick a wire">
+            <button class="btn on" data-wire="0" aria-pressed="true">Power line</button>
+            <button class="btn" data-wire="1" aria-pressed="false">Guy wire</button>
+            <button class="btn" data-wire="2" aria-pressed="false">Car aerial</button>
+          </div>
+          <p class="tone" id="toneText">&nbsp;</p>
+          <div class="btnrow"><button class="btn" id="playTone" aria-pressed="false"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2v12l10-6z"/></svg>Play the tone</button></div>
+        </div>
+        <p class="dim" style="font-size:0.94rem">The same forcing shakes tall steel chimneys when the shedding frequency matches the chimney&rsquo;s own. The usual cure, helical strakes wound around the top, was found in 1957. Strakes work in three dimensions: vortices leave at different moments along the height, so their pushes cancel. A two-dimensional slice like this tunnel cannot show that.</p>
+        <p class="dim" style="font-size:0.94rem">The 1940 collapse of the Tacoma Narrows Bridge is often blamed on this effect. Engineers ruled it out: the shedding frequency did not match the deck&rsquo;s motion. The bridge failed by flutter, a self-excited twisting that feeds on the wind.</p>
+      </article>
+
+      <div class="act-marker" id="sky"><p class="eyebrow"><b>V</b> &middot; Sky</p><h2>Streets in the clouds</h2></div>
+      <article class="card" data-scene="island">
+        <div class="k"><span class="eyebrow"><b>V</b></span><h3>An island in the wind</h3></div>
+        <p>Guadalupe Island, 260 km off Baja California, rises about 1.3 km into a sheet of low stratocumulus cloud. The wind sheds the same alternating eddies off it, and satellites see them as a vortex street hundreds of kilometres long, cut into the cloud deck. NASA&rsquo;s MISR instrument photographed a famous example in June 2000.</p>
+        <p class="dim">The real Reynolds number is enormous. Turbulence in the lower atmosphere acts like a far thicker viscosity, and a temperature inversion caps the flow and keeps it nearly flat, which helps explain why the street looks so orderly.</p>
+        <div class="meta"><button class="btn" data-replay>Replay</button></div>
+      </article>
+
+      <div class="act-marker" id="wings"><p class="eyebrow"><b>VI</b> &middot; Wings</p><h2>Wings shed too</h2></div>
+      <article class="card" data-scene="airfoil">
+        <div class="k"><span class="eyebrow"><b>VI</b></span><h3>A stalled wing</h3></div>
+        <p>A wing at a small angle lets the air follow both surfaces and leave cleanly from its sharp trailing edge. Tilt it far enough and the flow tears away from the upper surface. The wing stalls, sheds vortices like any blunt body, and its lift starts to shake. This is a NACA 0012 section at <i class="v">Re</i> = 1,000 based on chord.</p>
+        <div class="ctrl" style="max-width:460px"><label for="aoa"><span>Angle of attack</span> <output id="aoaOut">20&deg;</output></label><input type="range" id="aoa" min="0" max="30" step="1" value="20"></div>
+        <div class="meta"><span class="stat">mean C<sub>l</sub> <b data-out="clm">&hellip;</b></span><span class="stat">mean C<sub>d</sub> <b data-out="cdm">&hellip;</b></span><span class="stat">based on chord</span></div>
+      </article>
+
+      <div class="act-marker" id="lab"><p class="eyebrow"><b>VII</b> &middot; Free play</p><h2>Your tunnel</h2></div>
+      <article class="card" data-scene="lab">
+        <div class="k"><span class="eyebrow"><b>VII</b></span><h3>Draw anything</h3></div>
+        <p>Every tool is open. Draw shapes into the flow, load a preset, and dial the Reynolds number. Drag and lift are measured on everything solid, with the obstacle&rsquo;s frontal height as the reference length.</p>
+        <div class="labgrid">
+          <div class="row">
+            <div class="ctrl"><label for="labRe"><span>Reynolds number</span> <output id="labReOut">150</output></label><input type="range" id="labRe" min="0" max="1" step="0.001" value="0.6"></div>
+            <div class="ctrl"><label for="labSpeed"><span>Playback speed</span> <output id="labSpeedOut">1&times;</output></label><input type="range" id="labSpeed" min="0.25" max="3" step="0.05" value="1"></div>
+          </div>
+          <div class="ctrl"><label>Presets</label>
+            <div class="btnrow">
+              <button class="btn" data-preset="cylinder">Cylinder</button>
+              <button class="btn" data-preset="square">Square</button>
+              <button class="btn" data-preset="plate">Flat plate</button>
+              <button class="btn" data-preset="tandem">Two in a row</button>
+              <button class="btn" data-preset="pair">Side by side</button>
+              <button class="btn" data-preset="airfoil">Airfoil</button>
+              <button class="btn" data-preset="island">Island</button>
+              <button class="btn" data-preset="blank">Empty</button>
+            </div>
+          </div>
+          <div class="ctrl"><label for="wordIn">Write a word into the wind</label>
+            <div class="btnrow"><input id="wordIn" type="text" maxlength="10" value="WIND" aria-label="Word to draw" style="font: 500 0.9rem var(--mono); color: var(--ink); background: var(--panel); border: 1px solid var(--rule); border-radius: 999px; padding: 0.5rem 0.8rem; width: 9.5rem;"><button class="btn" id="wordBtn">Place word</button></div>
+          </div>
+          <div class="ctrl"><label>Smoke</label>
+            <div class="btnrow"><button class="btn on" id="rakeBtn" aria-pressed="true">Smoke rake</button><button class="btn on" id="surfBtn" aria-pressed="true">Surface dye</button></div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== NOTES ===================== -->
+<section class="wrap act" id="notes" aria-labelledby="h-notes">
+  <div class="act-head" style="margin-bottom:0.5rem">
+    <p class="eyebrow">Who saw it first</p>
+    <h2 id="h-notes">A street with many names</h2>
+  </div>
+  <div class="history" role="img" aria-label="Timeline of vortex shedding research, 1878 to 1996"><svg id="history" viewBox="0 0 1000 230"></svg></div>
+
+  <div class="notes" style="margin-top: clamp(3rem, 8vw, 6rem)">
+    <div style="display:grid; gap:1.2rem; align-content:start">
+      <p class="eyebrow">Model notes</p>
+      <h2>What is being computed</h2>
+      <div class="eq" aria-label="Lattice Boltzmann equations">
+        <div class="lbl">Lattice Boltzmann, D2Q9, regularized BGK</div>
+        <div>f<sub>i</sub>(<b>x</b> + <b>c</b><sub>i</sub>, t + 1) = f<sub>i</sub><sup>eq</sup> + (1 &minus; 1/&tau;) f<sub>i</sub><sup>(1)</sup>(&Pi;<sup>neq</sup>)</div>
+        <div>f<sub>i</sub><sup>eq</sup> = w<sub>i</sub>&rho;[1 + 3<b>c</b><sub>i</sub>&middot;<b>u</b> + <sup>9</sup>&frasl;<sub>2</sub>(<b>c</b><sub>i</sub>&middot;<b>u</b>)&sup2; &minus; <sup>3</sup>&frasl;<sub>2</sub>u&sup2;],&nbsp;&nbsp; &nu; = (&tau; &minus; &frac12;)/3</div>
+        <div class="lbl" style="margin-top:0.6rem">Forces by momentum exchange</div>
+        <div><b>F</b> = &Sigma;<sub>links</sub> 2 f<sub>i</sub> <b>c</b><sub>i</sub>,&nbsp;&nbsp; C<sub>d,l</sub> = F<sub>x,y</sub> / (&frac12;&rho;U&sup2;D)</div>
+      </div>
+      <div class="prose" style="font-size:0.97rem">
+        <p>The air is modelled as packets of particle populations moving between neighbouring grid points in nine directions. Each step they stream to their neighbours and relax toward equilibrium; averaged, this reproduces the Navier&ndash;Stokes equations at low Mach number. The relaxation rate sets the viscosity, so the Reynolds slider changes &tau;.</p>
+        <p>The tunnel is 768 &times; 288 cells on a desktop (544 &times; 192 on phones), with the cylinder 24 cells across. Obstacles use half-way bounce-back; the walls are free-slip; air enters at the left at fixed speed (0.1 lattice units, Mach 0.17) and leaves through a hidden sponge layer that damps vortices before the exit. The regularized collision filters non-physical modes, and a Smagorinsky eddy viscosity (<i class="v">C<sub>s</sub></i> = 0.1, rising to 0.15 at <i class="v">Re</i> = 3,000) keeps fine eddies stable; at <i class="v">Re</i> = 100 it changes the drag by less than 0.3%. Forces are summed over every solid link on the GPU and read back once per frame; the Strouhal number comes from zero crossings of the lift.</p>
+        <p>I checked the GPU solver against an independent CPU implementation of the same scheme (fields agree to 10<sup>&minus;6</sup>) and against published results in the table.</p>
+      </div>
+    </div>
+    <div style="display:grid; gap:1.2rem; align-content:start">
+      <div class="tablewrap"><table class="params" id="valTable">
+        <tr><th>Cylinder</th><th>This tunnel</th><th>Open-flow reference</th></tr>
+        <tr><td>Drag C<sub>d</sub>, Re 20</td><td>2.32</td><td>2.00 (Fornberg 1980)</td></tr>
+        <tr><td>Eddy length, Re 20</td><td>1.00 D</td><td>0.93 D (Coutanceau &amp; Bouard 1977)</td></tr>
+        <tr><td>Drag C<sub>d</sub>, Re 40</td><td>1.74</td><td>1.50 (Fornberg 1980)</td></tr>
+        <tr><td>Eddy length, Re 40</td><td>2.33 D</td><td>2.13 D (Coutanceau &amp; Bouard 1977)</td></tr>
+        <tr><td>Onset of shedding</td><td>between Re 45 and 55</td><td>Re &asymp; 47 (Williamson 1996)</td></tr>
+        <tr><td>Strouhal, Re 55</td><td>0.141</td><td>0.130 (Williamson fit)</td></tr>
+        <tr><td>Strouhal, Re 100</td><td>0.173</td><td>0.164 (Williamson fit)</td></tr>
+        <tr><td>Mean C<sub>d</sub>, Re 100</td><td>1.49</td><td>&asymp; 1.33 (2D simulations)</td></tr>
+        <tr><td>C<sub>l</sub> amplitude, Re 100</td><td>0.40</td><td>&asymp; 0.33 (2D simulations)</td></tr>
+      </table></div>
+      <p class="dim" style="font-size:0.9rem">Measured on the desktop grid with the same solver, run to a settled state. The cylinder blocks 8% of the tunnel&rsquo;s height, so drag, lift and frequency run high, as they do in real wind tunnels before blockage corrections.</p>
+      <p class="eyebrow" style="margin-top:0.6rem">Sources</p>
+      <ol class="refs">
+        <li>V. Strouhal (1878). &Uuml;ber eine besondere Art der Tonerregung. <i>Annalen der Physik</i> 241, 216.</li>
+        <li>O. Reynolds (1883). An experimental investigation of the circumstances which determine whether the motion of water shall be direct or sinuous. <i>Phil. Trans. R. Soc.</i> 174, 935.</li>
+        <li>H. B&eacute;nard (1908). Formation de centres de giration &agrave; l&rsquo;arri&egrave;re d&rsquo;un obstacle en mouvement. <i>C. R. Acad. Sci.</i> 147, 839.</li>
+        <li>T. von K&aacute;rm&aacute;n (1911). &Uuml;ber den Mechanismus des Widerstandes, den ein bewegter K&ouml;rper in einer Fl&uuml;ssigkeit erf&auml;hrt. <i>Nachr. Ges. Wiss. G&ouml;ttingen</i>, 509.</li>
+        <li>A. Roshko (1954). On the drag and shedding frequency of two-dimensional bluff bodies. NACA Technical Note 3169.</li>
+        <li>M. Coutanceau &amp; R. Bouard (1977). Experimental determination of the main features of the viscous flow in the wake of a circular cylinder in uniform translation. <i>J. Fluid Mech.</i> 79, 231.</li>
+        <li>B. Fornberg (1980). A numerical study of steady viscous flow past a circular cylinder. <a href="https://www.colorado.edu/amath/sites/default/files/attached-files/jcp_80_fl_p_cyl.pdf" target="_blank" rel="noopener"><i>J. Fluid Mech.</i> 98, 819</a>.</li>
+        <li>C. H. K. Williamson (1996). Vortex dynamics in the cylinder wake. <i>Annu. Rev. Fluid Mech.</i> 28, 477.</li>
+        <li>K. Y. Billah &amp; R. H. Scanlan (1991). Resonance, Tacoma Narrows bridge failure, and undergraduate physics textbooks. <i>Am. J. Phys.</i> 59, 118.</li>
+        <li>J. Latt &amp; B. Chopard (2006). Lattice Boltzmann method with regularized pre-collision distribution functions. <i>Math. Comput. Simul.</i> 72, 165.</li>
+        <li>J. E. Wesfreid (2017). <a href="https://arxiv.org/abs/1712.07039" target="_blank" rel="noopener">Henri B&eacute;nard: thermal convection and vortex shedding</a>. <i>C. R. M&eacute;canique</i>, doi:10.1016/j.crme.2017.06.006 (history of the naming dispute).</li>
+        <li>NASA Earth Observatory. <a href="https://science.nasa.gov/earth/earth-observatory/atmospheric-vortices-near-guadalupe-island-987/" target="_blank" rel="noopener">Atmospheric vortices near Guadalupe Island</a> (MISR, 11 June 2000).</li>
+      </ol>
+    </div>
+  </div>
+</section>
+<footer class="wrap">K&aacute;rm&aacute;n&rsquo;s Street &middot; a live lattice-Boltzmann wind tunnel &middot; WebGL2, no libraries.</footer>
+<script>
+/* ============================================================
+   Tunnel — GPU lattice-Boltzmann wind tunnel (D2Q9)
+   Regularized BGK collision (Latt & Chopard) + Smagorinsky
+   eddy viscosity, half-way bounce-back on obstacles,
+   free-slip (specular) tunnel walls, equilibrium inlet,
+   zero-gradient outlet behind a viscous sponge.
+   Forces by momentum exchange (Ladd), reduced on the GPU.
+   ============================================================ */
+const T_VS = `#version 300 es
+in vec2 p; out vec2 uv;
+void main(){ uv = p*0.5+0.5; gl_Position = vec4(p,0.,1.); }`;
+
+const T_HEAD = `#version 300 es
+precision highp float; precision highp int; precision highp sampler2D;
+const int CX[9] = int[9](0,1,0,-1,0,1,-1,-1,1);
+const int CY[9] = int[9](0,0,1,0,-1,1,1,-1,-1);
+const float WT[9] = float[9](4./9.,1./9.,1./9.,1./9.,1./9.,1./36.,1./36.,1./36.,1./36.);
+const int OPP[9] = int[9](0,3,4,1,2,7,8,5,6);
+const int MIR[9] = int[9](0,1,4,3,2,8,7,6,5);
+uniform sampler2D F0, F1, F2, M;
+uniform ivec2 N;
+bool solidAt(ivec2 q){ return texelFetch(M, q, 0).r > 0.5; }
+`;
+
+const T_STEP = T_HEAD + `
+uniform float U, tau0, cs, spongeX, spongeAmp;
+layout(location=0) out vec4 o0; layout(location=1) out vec4 o1; layout(location=2) out vec4 o2;
+float popAt(int i, ivec2 q){
+  if(i < 4) return texelFetch(F0, q, 0)[i];
+  if(i < 8) return texelFetch(F1, q, 0)[i-4];
+  return texelFetch(F2, q, 0).x;
+}
+void main(){
+  ivec2 p = ivec2(gl_FragCoord.xy);
+  if(solidAt(p)){ o0 = vec4(0); o1 = vec4(0); o2 = vec4(0.,1.,0.,0.); return; }
+  vec4 a0 = texelFetch(F0,p,0), a1 = texelFetch(F1,p,0), a2 = texelFetch(F2,p,0);
+  float own[9] = float[9](a0.x,a0.y,a0.z,a0.w,a1.x,a1.y,a1.z,a1.w,a2.x);
+  float f[9];
+  for(int i=0;i<9;i++){
+    int sx = clamp(p.x - CX[i], 0, N.x-1), sy = p.y - CY[i];
+    int si = i;
+    if(sy < 0 || sy >= N.y){ si = MIR[i]; sy = p.y; }
+    ivec2 s = ivec2(sx, sy);
+    f[i] = solidAt(s) ? own[OPP[i]] : popAt(si, s);
+  }
+  float rho = 0., ux = 0., uy = 0.;
+  for(int i=0;i<9;i++){ rho += f[i]; ux += f[i]*float(CX[i]); uy += f[i]*float(CY[i]); }
+  ux /= rho; uy /= rho;
+  bool fresh = (p.x == 0) || !(rho > 0.3 && rho < 3.0) || isnan(ux) || isnan(uy);
+  if(p.x == 0){ rho = 1.0; ux = U; uy = 0.0; }
+  else if(fresh){ rho = 1.0; ux = 0.0; uy = 0.0; }
+  float sp = length(vec2(ux,uy)); if(sp > 0.3){ ux *= 0.3/sp; uy *= 0.3/sp; }
+  float usq = ux*ux + uy*uy;
+  float feq[9]; float pxx = 0., pyy = 0., pxy = 0.;
+  for(int i=0;i<9;i++){
+    float cu = float(CX[i])*ux + float(CY[i])*uy;
+    feq[i] = WT[i]*rho*(1. + 3.*cu + 4.5*cu*cu - 1.5*usq);
+    float d = f[i] - feq[i];
+    pxx += d*float(CX[i]*CX[i]); pyy += d*float(CY[i]*CY[i]); pxy += d*float(CX[i]*CY[i]);
+  }
+  if(fresh){ pxx = 0.; pyy = 0.; pxy = 0.; }
+  float tau = tau0;
+  float xs = float(p.x);
+  if(xs > spongeX){ float s = (xs - spongeX)/(float(N.x-1) - spongeX); tau += spongeAmp*s*s; }
+  if(cs > 0.){ float Q = pxx*pxx + pyy*pyy + 2.*pxy*pxy; tau = 0.5*(tau + sqrt(tau*tau + 18.*cs*cs*sqrt(2.*Q)/rho)); }
+  float om = 1. - 1./tau;
+  float g[9];
+  for(int i=0;i<9;i++){
+    float qxx = float(CX[i]*CX[i]) - 1./3., qyy = float(CY[i]*CY[i]) - 1./3., qxy = float(CX[i]*CY[i]);
+    g[i] = feq[i] + om*WT[i]*4.5*(qxx*pxx + qyy*pyy + 2.*qxy*pxy);
+  }
+  o0 = vec4(g[0],g[1],g[2],g[3]); o1 = vec4(g[4],g[5],g[6],g[7]); o2 = vec4(g[8], rho, ux, uy);
+}`;
+
+/* per-cell momentum exchange with obstacles (stationary walls: 2 f_i c_i on each link) */
+const T_FORCE = T_HEAD + `
+out vec4 o;
+void main(){
+  ivec2 p = ivec2(gl_FragCoord.xy);
+  o = vec4(0);
+  if(solidAt(p)) return;
+  vec4 a0 = texelFetch(F0,p,0), a1 = texelFetch(F1,p,0), a2 = texelFetch(F2,p,0);
+  float own[9] = float[9](a0.x,a0.y,a0.z,a0.w,a1.x,a1.y,a1.z,a1.w,a2.x);
+  vec2 F = vec2(0);
+  for(int i=1;i<9;i++){
+    ivec2 q = p + ivec2(CX[i],CY[i]);
+    if(q.x < 0 || q.y < 0 || q.x >= N.x || q.y >= N.y) continue;
+    if(solidAt(q)) F += 2.*own[i]*vec2(float(CX[i]), float(CY[i]));
+  }
+  o = vec4(F, 0., 0.);
+}`;
+
+const T_REDUCE = `#version 300 es
+precision highp float; precision highp int; precision highp sampler2D;
+uniform sampler2D S; uniform ivec2 SN;
+out vec4 o;
+void main(){
+  ivec2 b = ivec2(gl_FragCoord.xy)*4;
+  vec4 s = vec4(0);
+  for(int j=0;j<4;j++) for(int i=0;i<4;i++){ ivec2 q = b + ivec2(i,j); if(q.x < SN.x && q.y < SN.y) s += texelFetch(S,q,0); }
+  o = s;
+}`;
+
+/* fields for display: vorticity, speed, pressure, reverse-flow flag */
+const T_MACRO = T_HEAD + `
+uniform float U, Lc;
+out vec4 o;
+vec2 vel(ivec2 q){ q = clamp(q, ivec2(0), N-1); if(solidAt(q)) return vec2(0); return texelFetch(F2,q,0).zw; }
+void main(){
+  ivec2 p = ivec2(gl_FragCoord.xy);
+  vec4 a = texelFetch(F2,p,0);
+  if(solidAt(p)){ o = vec4(0,0,0,0); return; }
+  float w = (vel(p+ivec2(1,0)).y - vel(p-ivec2(1,0)).y)*0.5 - (vel(p+ivec2(0,1)).x - vel(p-ivec2(0,1)).x)*0.5;
+  o = vec4(w*Lc/U, length(a.zw)/U, (a.y - 1.0)/3.0/(0.5*U*U), a.z < 0. ? 1. : 0.);
+}`;
+
+/* passive dye: semi-Lagrangian advection, inlet rake + obstacle-surface sources */
+const T_DYE = T_HEAD + `
+uniform sampler2D D; uniform float S, decay, rake, rakeGap, rakeW, surf, time;
+out vec4 o;
+void main(){
+  ivec2 p = ivec2(gl_FragCoord.xy);
+  vec4 m = texelFetch(M,p,0);
+  if(m.r > 0.5){ o = vec4(0); return; }
+  vec2 u = texelFetch(F2,p,0).zw;
+  vec2 pos = vec2(p) + 0.5 - u*S;
+  vec4 d = texture(D, pos/vec2(N)) * (1.0 - decay);
+  if(rake > 0. && p.x < 3){
+    float k = mod(float(p.y) - 0.5*rakeGap, rakeGap);
+    float on = step(abs(k - 0.5*rakeGap), rakeW*0.5);
+    d.r = max(d.r, on*rake);
+  }
+  if(surf > 0. && m.g > 0.5){ if(m.b > 0.5) d.g = max(d.g, surf); else d.b = max(d.b, surf); }
+  o = clamp(d, 0., 1.);
+}`;
+
+const T_DISPLAY = `#version 300 es
+precision highp float; precision highp int; precision highp sampler2D;
+in vec2 uv; out vec4 o;
+uniform sampler2D A, D, M; uniform ivec2 N; uniform float visX, mode, time, gain, theme;
+uniform vec2 res; uniform vec3 bg;
+vec3 aero(float t){ t = clamp(t,0.,1.); return mix(mix(vec3(0.02,0.04,0.09), vec3(0.05,0.36,0.52), smoothstep(0.,0.45,t)), mix(vec3(0.33,0.85,0.78), vec3(1.0,0.96,0.78), smoothstep(0.55,1.,t)), smoothstep(0.35,0.75,t)); }
+float hash(vec2 q){ return fract(sin(dot(q, vec2(12.9898,78.233)))*43758.5453); }
+void main(){
+  vec2 g = vec2(uv.x*visX, uv.y*float(N.y));            /* grid coordinates */
+  vec2 t = g/vec2(N);
+  vec4 a = texture(A, t);                                /* (vort, speed, cp, reverse) */
+  vec4 d = texture(D, t);
+  float sol = texture(M, t).r;
+  vec3 cw = vec3(1.0,0.50,0.33), ccw = vec3(0.26,0.80,1.0);
+  float w = a.x*gain;
+  vec3 col = bg;
+  if(mode < 0.5){            /* smoke: rake streaks + surface dye over a faint vorticity field */
+    float wv = tanh(abs(w)*0.22);
+    col = bg + (w > 0. ? ccw : cw)*wv*0.20;
+    vec3 smoke = vec3(0.93,0.96,1.0)*d.r;
+    col = mix(col, smoke, clamp(d.r*0.9,0.,1.));
+    col += cw*d.g*0.95 + ccw*d.b*0.95;
+  } else if(mode < 1.5){     /* vorticity */
+    float wv = tanh(abs(w)*0.42);
+    col = mix(bg, (w > 0. ? ccw : cw), pow(wv, 0.85));
+    col += vec3(1.0)*pow(wv,7.0)*0.22;
+  } else if(mode < 2.5){     /* speed */
+    col = aero(a.y/1.6);
+    col = mix(col, col*0.55, a.w*0.6);
+  } else if(mode < 3.5){     /* pressure coefficient */
+    float c = clamp(a.z*0.5, -1., 1.);
+    col = c > 0. ? mix(vec3(0.06,0.05,0.08), vec3(1.0,0.42,0.30), pow(c,0.7)) : mix(vec3(0.06,0.05,0.08), vec3(0.30,0.62,1.0), pow(-c,0.7));
+  } else {                   /* clouds over ocean */
+    vec3 sea = mix(vec3(0.02,0.10,0.20), vec3(0.04,0.20,0.34), uv.y);
+    float cl = clamp(d.r*1.2 + d.g*0.9 + d.b*0.9, 0., 1.);
+    col = mix(sea, vec3(0.95,0.97,1.0), smoothstep(0.05, 0.9, cl));
+  }
+  /* obstacles: brushed metal with a rim */
+  if(sol > 0.02){
+    float e = smoothstep(0.02, 0.6, sol);
+    vec3 metal = mode > 3.5 ? vec3(0.28,0.36,0.22) : vec3(0.20,0.22,0.25) + 0.05*hash(floor(g*2.0));
+    col = mix(col, metal, e);
+    col += vec3(0.55,0.62,0.7)*(1.0 - abs(sol - 0.5)*2.0)*0.6;
+  }
+  col += (hash(uv*res + time) - 0.5)*0.012;
+  o = vec4(col, 1.0);
+}`;
+
+class Tunnel {
+  constructor(canvas, opt = {}) {
+    this.cv = canvas;
+    this.Nx = opt.Nx || 768; this.Ny = opt.Ny || 288; this.sponge = opt.sponge || 96;
+    this.visX = this.Nx - this.sponge;
+    this.U = 0.1; this.Re = 100; this.L = 24; this.cs = 0.0; this.mode = 0; this.gain = 1;
+    this.steps = 0; this.ok = false;
+    this.dyeOn = { rake: 1, surf: 1, gap: 12, w: 2.0, decay: 0.0008 };
+    const gl = canvas.getContext('webgl2', { antialias: false, alpha: false, preserveDrawingBuffer: false, powerPreference: 'high-performance' });
+    if (!gl) { this.err = 'WebGL2 unavailable'; return; }
+    this.gl = gl;
+    if (!gl.getExtension('EXT_color_buffer_float')) { this.err = 'Float render targets unavailable'; return; }
+    gl.getExtension('OES_texture_float_linear');
+    const vb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vb);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    this.vao = gl.createVertexArray(); gl.bindVertexArray(this.vao);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    this.P = { step: this.prog(T_STEP), force: this.prog(T_FORCE), reduce: this.prog(T_REDUCE), macro: this.prog(T_MACRO), dye: this.prog(T_DYE), disp: this.prog(T_DISPLAY) };
+    if (Object.values(this.P).some(p => !p)) { this.err = 'Shader compile failed'; return; }
+    const { Nx, Ny } = this;
+    const mk = (ifmt, fmt, type, filt, w = Nx, h = Ny) => this.tex(ifmt, fmt, type, filt, w, h);
+    this.F = [0, 1].map(() => [0, 1, 2].map(() => mk(gl.RGBA32F, gl.RGBA, gl.FLOAT, gl.NEAREST)));
+    this.FB = this.F.map(ts => this.fbo(ts));
+    this.cur = 0;
+    this.mask = new Uint8Array(Nx * Ny * 4);
+    this.Mt = mk(gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, gl.LINEAR);
+    this.At = mk(gl.RGBA16F, gl.RGBA, gl.HALF_FLOAT, gl.LINEAR); this.Afb = this.fbo([this.At]);
+    this.Dt = [0, 1].map(() => mk(gl.RGBA16F, gl.RGBA, gl.HALF_FLOAT, gl.LINEAR)); this.Dfb = this.Dt.map(t => this.fbo([t]));
+    this.dcur = 0;
+    this.Ft = mk(gl.RGBA32F, gl.RGBA, gl.FLOAT, gl.NEAREST); this.Ffb = this.fbo([this.Ft]);
+    this.red = []; let w = Nx, h = Ny;
+    while (w > 4 || h > 4) { w = Math.ceil(w / 4); h = Math.ceil(h / 4); const t = mk(gl.RGBA32F, gl.RGBA, gl.FLOAT, gl.NEAREST, w, h); this.red.push({ t, fb: this.fbo([t]), w, h }); }
+    this.redBuf = new Float32Array(w * h * 4);
+    this.rowBuf = new Float32Array(Nx * 4);
+    this.ok = true;
+  }
+  prog(fs) {
+    const gl = this.gl, sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(o)); return null; } return o; };
+    const v = sh(gl.VERTEX_SHADER, T_VS), f = sh(gl.FRAGMENT_SHADER, fs); if (!v || !f) return null;
+    const p = gl.createProgram(); gl.attachShader(p, v); gl.attachShader(p, f); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { console.error(gl.getProgramInfoLog(p)); return null; }
+    p.u = {}; const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+    for (let i = 0; i < n; i++) { const a = gl.getActiveUniform(p, i); p.u[a.name.replace(/\[0\]$/, '')] = gl.getUniformLocation(p, a.name); }
+    return p;
+  }
+  tex(ifmt, fmt, type, filt, w, h) {
+    const gl = this.gl, t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, ifmt, w, h, 0, fmt, type, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filt); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filt);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return t;
+  }
+  fbo(ts) {
+    const gl = this.gl, fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    ts.forEach((t, i) => gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0 + i, gl.TEXTURE_2D, t, 0));
+    gl.drawBuffers(ts.map((_, i) => gl.COLOR_ATTACHMENT0 + i));
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); return fb;
+  }
+  get nu() { return this.U * this.L / this.Re; }
+  get tau0() { return 3 * this.nu + 0.5; }
+  bind(p, texs) {
+    const gl = this.gl; gl.useProgram(p); gl.bindVertexArray(this.vao);
+    texs.forEach(([name, t], i) => { gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, t); gl.uniform1i(p.u[name], i); });
+    if (p.u.N) gl.uniform2i(p.u.N, this.Nx, this.Ny);
+  }
+  draw(fb, w, h) { const gl = this.gl; gl.bindFramebuffer(gl.FRAMEBUFFER, fb); gl.viewport(0, 0, w, h); gl.drawArrays(gl.TRIANGLES, 0, 3); }
+
+  /* ---------- obstacle mask (CPU side) ---------- */
+  clearMask() { this.mask.fill(0); this.maskDirty = true; }
+  setSolid(x, y, v) { if (x < 0 || y < 0 || x >= this.Nx || y >= this.Ny) return; if (x < 4) return; this.mask[(y * this.Nx + x) * 4] = v ? 255 : 0; this.maskDirty = true; }
+  isSolid(x, y) { return x >= 0 && y >= 0 && x < this.Nx && y < this.Ny && this.mask[(y * this.Nx + x) * 4] > 127; }
+  paintDisc(cx, cy, r, v) { const r2 = r * r; for (let y = Math.floor(cy - r); y <= Math.ceil(cy + r); y++) for (let x = Math.floor(cx - r); x <= Math.ceil(cx + r); x++) if ((x + 0.5 - cx) ** 2 + (y + 0.5 - cy) ** 2 <= r2) this.setSolid(x, y, v); }
+  /* surface-dye flags + frontal height (characteristic length for drawn shapes) */
+  finishMask() {
+    const { Nx, Ny, mask } = this;
+    let rows = 0, cyS = 0, n = 0;
+    for (let y = 0; y < Ny; y++) { let any = false; for (let x = 0; x < Nx; x++) if (mask[(y * Nx + x) * 4] > 127) { any = true; cyS += y; n++; } if (any) rows++; }
+    this.frontal = rows; this.centroidY = n ? cyS / n : Ny / 2; this.solidCount = n;
+    for (let y = 0; y < Ny; y++) for (let x = 0; x < Nx; x++) {
+      const k = (y * Nx + x) * 4; mask[k + 1] = 0; mask[k + 2] = 0;
+      if (mask[k] > 127) continue;
+      let near = false;
+      for (let j = -1; j <= 1 && !near; j++) for (let i = -1; i <= 1; i++) if (this.isSolid(x + i, y + j)) { near = true; break; }
+      if (near) { mask[k + 1] = 255; mask[k + 2] = y + 0.5 > this.centroidY ? 255 : 0; }
+    }
+    const gl = this.gl; gl.bindTexture(gl.TEXTURE_2D, this.Mt);
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, Nx, Ny, gl.RGBA, gl.UNSIGNED_BYTE, mask);
+    this.maskDirty = false;
+  }
+
+  /* ---------- state ---------- */
+  reset(kick = true) {
+    const { Nx, Ny, U } = this, gl = this.gl;
+    const W = [4 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 36, 1 / 36, 1 / 36, 1 / 36], CX = [0, 1, 0, -1, 0, 1, -1, -1, 1], CY = [0, 0, 1, 0, -1, 1, 1, -1, -1];
+    const a = [new Float32Array(Nx * Ny * 4), new Float32Array(Nx * Ny * 4), new Float32Array(Nx * Ny * 4)];
+    const cxo = this.kickX || Nx * 0.3, L = this.L, cyo = this.centroidY || Ny / 2;
+    for (let y = 0; y < Ny; y++) for (let x = 0; x < Nx; x++) {
+      const k = y * Nx + x, s = this.mask[k * 4] > 127;
+      let ux = s ? 0 : U, uy = 0;
+      if (kick && !s && x > cxo + L && x < cxo + 4 * L && y > cyo) uy = (this.kickAmp != null ? this.kickAmp : 0.1) * U;
+      const usq = ux * ux + uy * uy;
+      for (let i = 0; i < 9; i++) {
+        const cu = CX[i] * ux + CY[i] * uy, fe = s ? 0 : W[i] * (1 + 3 * cu + 4.5 * cu * cu - 1.5 * usq);
+        a[i >> 2][k * 4 + (i & 3)] = fe;
+      }
+      a[2][k * 4 + 1] = 1; a[2][k * 4 + 2] = ux; a[2][k * 4 + 3] = uy;
+    }
+    for (const set of this.F) set.forEach((t, j) => { gl.bindTexture(gl.TEXTURE_2D, t); gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, Nx, Ny, gl.RGBA, gl.FLOAT, a[j]); });
+    this.clearDye();
+    this.steps = 0;
+  }
+  clearDye() {
+    const gl = this.gl;
+    for (const fb of this.Dfb) { gl.bindFramebuffer(gl.FRAMEBUFFER, fb); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+  step(n) {
+    if (!this.ok || n <= 0) return;
+    if (this.maskDirty) this.finishMask();
+    const gl = this.gl, P = this.P.step;
+    gl.useProgram(P); gl.bindVertexArray(this.vao);
+    gl.uniform2i(P.u.N, this.Nx, this.Ny);
+    gl.uniform1f(P.u.U, this.U); gl.uniform1f(P.u.tau0, this.tau0); gl.uniform1f(P.u.cs, this.cs);
+    gl.uniform1f(P.u.spongeX, this.Nx - this.sponge); gl.uniform1f(P.u.spongeAmp, 1.0);
+    gl.uniform1i(P.u.F0, 0); gl.uniform1i(P.u.F1, 1); gl.uniform1i(P.u.F2, 2); gl.uniform1i(P.u.M, 3);
+    gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, this.Mt);
+    gl.viewport(0, 0, this.Nx, this.Ny);
+    for (let s = 0; s < n; s++) {
+      const src = this.F[this.cur];
+      for (let j = 0; j < 3; j++) { gl.activeTexture(gl.TEXTURE0 + j); gl.bindTexture(gl.TEXTURE_2D, src[j]); }
+      gl.bindFramebuffer(gl.FRAMEBUFFER, this.FB[1 - this.cur]);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      this.cur = 1 - this.cur;
+    }
+    this.steps += n;
+  }
+  /* advect dye by the motion of the last `stepsSince` lattice steps */
+  advectDye(S) {
+    const gl = this.gl, P = this.P.dye, d = this.dyeOn;
+    this.bind(P, [['F2', this.F[this.cur][2]], ['M', this.Mt], ['D', this.Dt[this.dcur]]]);
+    gl.uniform1f(P.u.S, S); gl.uniform1f(P.u.decay, d.decay); gl.uniform1f(P.u.rake, d.rake); gl.uniform1f(P.u.rakeGap, d.gap);
+    gl.uniform1f(P.u.rakeW, d.w); gl.uniform1f(P.u.surf, d.surf); gl.uniform1f(P.u.time, this.steps);
+    this.draw(this.Dfb[1 - this.dcur], this.Nx, this.Ny); this.dcur = 1 - this.dcur;
+  }
+  /* total force on all obstacles -> {Cd, Cl} using the characteristic length L */
+  forces() {
+    const gl = this.gl;
+    const P = this.P.force; this.bind(P, [['F0', this.F[this.cur][0]], ['F1', this.F[this.cur][1]], ['F2', this.F[this.cur][2]], ['M', this.Mt]]);
+    this.draw(this.Ffb, this.Nx, this.Ny);
+    const R = this.P.reduce; let src = this.Ft, sw = this.Nx, sh = this.Ny;
+    for (const r of this.red) {
+      gl.useProgram(R); gl.bindVertexArray(this.vao); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, src); gl.uniform1i(R.u.S, 0); gl.uniform2i(R.u.SN, sw, sh);
+      this.draw(r.fb, r.w, r.h); src = r.t; sw = r.w; sh = r.h;
+    }
+    gl.readPixels(0, 0, sw, sh, gl.RGBA, gl.FLOAT, this.redBuf);
+    let fx = 0, fy = 0; for (let i = 0; i < sw * sh; i++) { fx += this.redBuf[4 * i]; fy += this.redBuf[4 * i + 1]; }
+    const q = 0.5 * this.U * this.U * this.L;
+    return { Cd: fx / q, Cl: fy / q, Fx: fx, Fy: fy };
+  }
+  /* centreline u(x) for wake-bubble length */
+  readRow(y) {
+    const gl = this.gl; gl.bindFramebuffer(gl.FRAMEBUFFER, this.FB[this.cur]); gl.readBuffer(gl.COLOR_ATTACHMENT2);
+    gl.readPixels(0, Math.round(y), this.Nx, 1, gl.RGBA, gl.FLOAT, this.rowBuf);
+    gl.readBuffer(gl.COLOR_ATTACHMENT0); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    return this.rowBuf;
+  }
+  render(w, h, bg = [0.027, 0.043, 0.063]) {
+    const gl = this.gl;
+    const M = this.P.macro; this.bind(M, [['F2', this.F[this.cur][2]], ['M', this.Mt]]); gl.uniform1f(M.u.U, this.U); gl.uniform1f(M.u.Lc, this.Lref || this.L);
+    this.draw(this.Afb, this.Nx, this.Ny);
+    const P = this.P.disp; this.bind(P, [['A', this.At], ['D', this.Dt[this.dcur]], ['M', this.Mt]]);
+    gl.uniform1f(P.u.visX, this.visX); gl.uniform1f(P.u.mode, this.mode); gl.uniform1f(P.u.time, (this.steps % 997) * 0.37);
+    gl.uniform1f(P.u.gain, this.gain); gl.uniform2f(P.u.res, w, h); gl.uniform3f(P.u.bg, bg[0], bg[1], bg[2]);
+    this.draw(null, w, h);
+  }
+}
+
+/* ============================================================
+   TunnelView — runs a Tunnel in a page element: sizing, frame
+   loop with adaptive step budget, drawing tools, presets,
+   force history, Strouhal estimation, overlays and HUD.
+   ============================================================ */
+const IS_SMALL = Math.min(screen.width || 9999, screen.height || 9999) < 760 || matchMedia('(max-width: 760px)').matches;
+let GRID = IS_SMALL ? { Nx: 544, Ny: 192, sponge: 96, D: 16 } : { Nx: 768, Ny: 288, sponge: 96, D: 24 };
+try { if (/[?&]lite\b/.test(location.search)) GRID = { Nx: 272, Ny: 96, sponge: 48, D: 8 }; } catch (e) { }
+const VIEWS = ['smoke + surface dye', 'vorticity', 'speed', 'pressure', 'clouds'];
+
+class TunnelView {
+  constructor(root, o = {}) {
+    this.root = root; this.o = o;
+    this.glc = root.querySelector('canvas.gl'); this.fxc = root.querySelector('canvas.fx');
+    this.hud = {}; root.querySelectorAll('[data-hud]').forEach(e => this.hud[e.dataset.hud] = e);
+    const g = o.grid || GRID;
+    this.D = g.D;
+    this.t = new Tunnel(this.glc, { Nx: g.Nx, Ny: g.Ny, sponge: g.sponge });
+    this.ok = this.t.ok; this.listeners = {};
+    if (!this.ok) { root.classList.add('failed'); console.warn(this.t.err); return; }
+    this.t.cs = 0.1;
+    root.style.setProperty('--ar', (this.t.visX / this.t.Ny).toFixed(4));
+    this.fx = this.fxc.getContext('2d');
+    this.speed = 1; this.paused = false; this.boost = 0; this.tool = 'draw'; this.brush = Math.max(2, Math.round(this.D / 5));
+    this.target = IS_SMALL ? 12 : 18;         // lattice steps per frame at 1x
+    this.budget = this.target; this.slowFrames = 0;
+    this.hist = []; this.stHist = []; this.st = null; this.listeners = {}; this.lastHud = 0;
+    this.Lmode = 'fixed';
+    this.resize();
+    if (window.ResizeObserver) new ResizeObserver(() => this.resize()).observe(root);
+    this.bindPointer();
+    this.visible = false;
+    new IntersectionObserver(es => { this.visible = es[0].isIntersecting; this.kick(); }, { rootMargin: '60px' }).observe(root);
+    document.addEventListener('visibilitychange', () => this.kick());
+  }
+  on(e, f) { (this.listeners[e] = this.listeners[e] || []).push(f); }
+  emit(e, x) { (this.listeners[e] || []).forEach(f => f(x)); }
+  resize() {
+    const r = this.root.getBoundingClientRect(); if (!r.width) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
+    if (this.glc.width !== w || this.glc.height !== h) { this.glc.width = this.fxc.width = w; this.glc.height = this.fxc.height = h; }
+    this.cssW = r.width; this.dpr = dpr;
+  }
+  // Reset the clock only when the loop starts from idle; resetting it every frame hid slow frames from the budget.
+  kick() { if (this.raf) return; if (this.visible && !document.hidden && this.ok) { if (!this.looping) this.last = performance.now(); this.looping = true; this.raf = requestAnimationFrame(n => this.frame(n)); } else this.looping = false; }
+
+  /* ---------------- physics settings ---------------- */
+  setRe(Re) { this.t.Re = Re; this.t.cs = Re <= 500 ? 0.1 : 0.1 + 0.05 * Math.min(1, (Re - 500) / 2500); this.emit('re', Re); }
+  setL(L) { this.t.L = Math.max(1, L); this.t.Lref = this.D; }
+  setView(m) { this.t.mode = m; if (this.hud.view) this.hud.view.textContent = VIEWS[m]; this.emit('view', m); }
+  clearHistory() { this.hist = []; this.st = null; }
+  restart(kick = true) { this.t.kickX = this.kickX; this.t.reset(kick); this.prefillDye(); this.clearHistory(); }
+  /* straight smoke lines everywhere, so the first frame already shows the flow */
+  prefillDye() {
+    const t = this.t, gl = t.gl, d = t.dyeOn, N = t.Nx * t.Ny, buf = new Uint16Array(N * 4);
+    const h1 = 0x3c00; // half-float 1.0
+    if (d.rake) for (let y = 0; y < t.Ny; y++) {
+      const k = ((y - 0.5 * d.gap) % d.gap + d.gap) % d.gap, on = Math.abs(k - 0.5 * d.gap) <= d.w * 0.5;
+      if (!on) continue;
+      for (let x = 0; x < t.Nx; x++) if (!t.isSolid(x, y)) buf[(y * t.Nx + x) * 4] = h1;
+    }
+    for (const tex of t.Dt) { gl.bindTexture(gl.TEXTURE_2D, tex); gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, t.Nx, t.Ny, gl.RGBA, gl.HALF_FLOAT, buf); }
+  }
+
+  /* ---------------- geometry presets (lengths in units of D) ---------------- */
+  geom(fn, { L, Re, kick = true, kickX } = {}) {
+    const t = this.t; t.clearMask(); fn(t, this.D);
+    t.finishMask();
+    if (L) { this.Lmode = 'fixed'; this.setL(L); } else { this.Lmode = 'auto'; this.setL(t.frontal || this.D); }
+    if (Re) this.setRe(Re);
+    this.kickX = kickX != null ? kickX : this.D * 6.5;
+    this.restart(kick);
+  }
+  /* change geometry without restarting the flow (freed cells restart locally at rest) */
+  reshape(fn) { const t = this.t; t.clearMask(); fn(t, this.D); t.finishMask(); if (this.Lmode === 'auto') this.setL(t.frontal || this.D); }
+  static cyl(cxD = 6.5, cyD = null, dD = 1) { return (t, D) => t.paintDisc(cxD * D, cyD == null ? t.Ny / 2 : cyD * D, dD * D / 2, 1); }
+  static plateBehind(cxD, LD) { return (t, D) => { if (LD <= 0) return; const y0 = t.Ny / 2, x0 = cxD * D; for (let x = Math.floor(x0); x < x0 + D / 2 + LD * D; x++) for (let y = Math.floor(y0 - 1); y < y0 + 1; y++) t.setSolid(x, y, 1); }; }
+  static rect(cxD, cyD, wD, hD) { return (t, D) => { const cy = cyD == null ? t.Ny / 2 : cyD * D; for (let y = Math.round(cy - hD * D / 2); y < Math.round(cy + hD * D / 2); y++) for (let x = Math.round(cxD * D - wD * D / 2); x < Math.round(cxD * D + wD * D / 2); x++) t.setSolid(x, y, 1); }; }
+  static poly(points) { // points in cells; scanline fill via 2D canvas
+    return (t) => {
+      const c = document.createElement('canvas'); c.width = t.Nx; c.height = t.Ny; const x = c.getContext('2d');
+      x.fillStyle = '#fff'; x.beginPath(); points.forEach(([px, py], i) => i ? x.lineTo(px, t.Ny - py) : x.moveTo(px, t.Ny - py)); x.closePath(); x.fill();
+      const im = x.getImageData(0, 0, t.Nx, t.Ny).data;
+      for (let y = 0; y < t.Ny; y++) for (let xx = 0; xx < t.Nx; xx++) if (im[((t.Ny - 1 - y) * t.Nx + xx) * 4] > 127) t.setSolid(xx, y, 1);
+    };
+  }
+  static naca(cxD, chordD, alphaDeg, thick = 0.12) {
+    return (t, D) => {
+      const c = chordD * D, a = -alphaDeg * Math.PI / 180, x0 = cxD * D - c * 0.3, y0 = t.Ny / 2, pts = [];
+      const yt = s => 5 * thick * (0.2969 * Math.sqrt(s) - 0.1260 * s - 0.3516 * s * s + 0.2843 * s ** 3 - 0.1036 * s ** 4);
+      const rot = (px, py) => { const dx = px - 0.25 * c, dy = py; return [x0 + 0.25 * c + dx * Math.cos(a) - dy * Math.sin(a), y0 + dx * Math.sin(a) + dy * Math.cos(a)]; };
+      for (let i = 0; i <= 80; i++) { const s = 0.5 - 0.5 * Math.cos(Math.PI * i / 80); pts.push(rot(s * c, yt(s) * c)); }
+      for (let i = 80; i >= 0; i--) { const s = 0.5 - 0.5 * Math.cos(Math.PI * i / 80); pts.push(rot(s * c, -yt(s) * c)); }
+      TunnelView.poly(pts)(t, D);
+    };
+  }
+  static island(cxD, sizeD) {
+    return (t, D) => {
+      const pts = [], cx = cxD * D, cy = t.Ny / 2, R = sizeD * D / 2;
+      for (let i = 0; i < 64; i++) { const th = i / 64 * 2 * Math.PI; const r = R * (1 + 0.16 * Math.sin(3 * th + 0.6) + 0.09 * Math.sin(5 * th + 2.1) + 0.05 * Math.sin(9 * th)); pts.push([cx + r * Math.cos(th) * 0.8, cy + r * Math.sin(th) * 1.15]); }
+      TunnelView.poly(pts)(t, D);
+    };
+  }
+  static word(text, cxD) {
+    return (t, D) => {
+      const c = document.createElement('canvas'); c.width = t.Nx; c.height = t.Ny; const x = c.getContext('2d');
+      const size = Math.round(t.Ny * 0.30);
+      x.font = `900 ${size}px "Archivo", "Arial Black", Arial, sans-serif`; x.textAlign = 'left'; x.textBaseline = 'middle'; x.fillStyle = '#fff';
+      x.fillText(text, Math.round(cxD * D), Math.round(t.Ny / 2));
+      const im = x.getImageData(0, 0, t.Nx, t.Ny).data;
+      for (let y = 0; y < t.Ny; y++) for (let xx = 0; xx < t.visX - D * 3; xx++) if (im[((t.Ny - 1 - y) * t.Nx + xx) * 4] > 127) t.setSolid(xx, y, 1);
+    };
+  }
+
+  /* ---------------- frame ---------------- */
+  frame(now) {
+    this.raf = 0;
+    if (!this.visible || document.hidden) return;
+    const dt = now - this.last; this.last = now;
+    // adaptive budget: protect the frame rate on slow GPUs
+    if (dt > 26) { if (++this.slowFrames > 8) { this.budget = Math.max(4, Math.floor(this.budget * 0.85)); this.slowFrames = 0; } }
+    else { this.slowFrames = 0; if (dt < 18 && this.budget < this.target) this.budget = Math.min(this.target, this.budget + 1); }
+    if (!this.paused) {
+      let n = Math.max(1, Math.round(this.budget * this.speed));
+      if (this.boost > 0) { const extra = Math.min(this.boost, this.budget * 5); n += extra; this.boost -= extra; }
+      if (this.t.maskDirty && this.Lmode === 'auto') { this.t.finishMask(); this.setL(this.t.frontal || this.D); }
+      this.t.step(n);
+      for (let k = n; k > 0; k -= 30) this.t.advectDye(Math.min(30, k));
+      const f = this.t.forces();
+      if (isFinite(f.Cd) && isFinite(f.Cl)) this.pushForce(this.t.steps, f.Cd, f.Cl);
+      if (this.wantBubble && (this.t.steps % 5 === 0 || true)) this.measureBubble();
+    }
+    this.t.render(this.glc.width, this.glc.height);
+    this.drawFx();
+    if (now - this.lastHud > 180) { this.lastHud = now; this.updateHud(); this.emit('tick', this); }
+    this.emit('frame', this);
+    this.kick();
+  }
+  pushForce(s, cd, cl) {
+    const h = this.hist; h.push([s, cd, cl]);
+    const keep = 40 * this.period(); while (h.length > 4 && h[0][0] < s - keep) h.shift();
+    this.estimateSt();
+  }
+  period() { return this.t.L / (0.18 * this.t.U); }   // rough shedding period in steps
+  estimateSt() {
+    const h = this.hist, n = h.length; if (n < 20) { this.st = null; return; }
+    const span = 8 * this.period(), s1 = h[n - 1][0];
+    let i0 = n - 1; while (i0 > 0 && h[i0][0] > s1 - span) i0--;
+    let mean = 0, mx = -1e9, mn = 1e9; for (let i = i0; i < n; i++) { mean += h[i][2]; mx = Math.max(mx, h[i][2]); mn = Math.min(mn, h[i][2]); }
+    mean /= (n - i0); this.clAmp = (mx - mn) / 2; this.clMean = mean;
+    let cdm = 0; for (let i = i0; i < n; i++) cdm += h[i][1]; this.cdMean = cdm / (n - i0);
+    if (this.clAmp < 0.02) { this.st = null; return; }
+    const ups = [];
+    for (let i = i0 + 1; i < n; i++) { const a = h[i - 1][2] - mean, b = h[i][2] - mean; if (a < 0 && b >= 0) ups.push(h[i - 1][0] + (h[i][0] - h[i - 1][0]) * (-a) / (b - a)); }
+    if (ups.length < 3) { this.st = null; return; }
+    const T = (ups[ups.length - 1] - ups[0]) / (ups.length - 1);
+    const per = []; for (let i = 1; i < ups.length; i++) per.push(ups[i] - ups[i - 1]);
+    const sd = Math.sqrt(per.reduce((a, p) => a + (p - T) ** 2, 0) / per.length);
+    const st = this.t.L / (this.t.U * T);
+    this.stSteady = sd / T < 0.05 && st > 0.05 && st < 0.5;
+    this.st = this.stSteady ? st : null;
+  }
+  measureBubble() {
+    const t = this.t, row = t.readRow(this.bubbleY != null ? this.bubbleY : t.Ny / 2);
+    const back = Math.round(this.bubbleX0); let last = -1;
+    for (let x = back; x < Math.min(t.visX, back + 12 * this.D); x++) { if (t.isSolid(x, Math.round(t.Ny / 2))) continue; if (row[x * 4 + 2] < 0) last = x; }
+    this.bubble = last > 0 ? (last + 1 - back) / this.D : 0;
+  }
+  drawFx() {
+    const c = this.fx, w = this.fxc.width, h = this.fxc.height;
+    c.clearRect(0, 0, w, h);
+    if (this.hover && (this.tool === 'draw' || this.tool === 'erase')) {
+      const k = w / this.t.visX, r = this.brush * k;
+      c.strokeStyle = this.tool === 'erase' ? 'rgba(255,128,84,0.8)' : 'rgba(230,237,242,0.7)'; c.lineWidth = 1.2 * this.dpr;
+      c.beginPath(); c.arc(this.hover[0] * k, h - this.hover[1] * k, r, 0, 7); c.stroke();
+    }
+  }
+  updateHud() {
+    const h = this.hud;
+    if (h.re) h.re.textContent = fmtRe(this.t.Re);
+    if (h.st) h.st.textContent = this.st ? this.st.toFixed(3) : (this.clAmp > 0.02 ? 'settling' : '–');
+    if (h.paused) h.paused.textContent = this.paused ? 'paused' : '';
+  }
+
+  /* ---------------- pointer: draw / erase ---------------- */
+  cellOf(e) { const r = this.glc.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * this.t.visX, (1 - (e.clientY - r.top) / r.height) * this.t.Ny]; }
+  paint(a, b) {
+    const t = this.t, v = this.tool === 'erase' ? 0 : 1, d = Math.hypot(b[0] - a[0], b[1] - a[1]), n = Math.max(1, Math.ceil(d / (this.brush * 0.5)));
+    for (let i = 0; i <= n; i++) { const s = i / n; t.paintDisc(a[0] + (b[0] - a[0]) * s, a[1] + (b[1] - a[1]) * s, this.brush, v); }
+  }
+  bindPointer() {
+    const el = this.glc;
+    const start = (e, p) => {
+      el.setPointerCapture && el.setPointerCapture(e.pointerId);
+      this.pointer = { id: e.pointerId, p }; this.paint(p, p); this.emit('interact');
+      if (this.Lmode === 'fixed' && this.o.autoL !== false) this.Lmode = 'auto';
+    };
+    el.addEventListener('pointerdown', e => {
+      if (e.button > 0 || !(this.tool === 'draw' || this.tool === 'erase')) return;
+      const p = this.cellOf(e);
+      // where vertical swipes scroll the page (the title tunnel), a touch waits to see which way it goes
+      if (e.pointerType === 'touch' && getComputedStyle(el).touchAction.includes('pan-y')) { this.pending = { id: e.pointerId, x: e.clientX, y: e.clientY, p }; return; }
+      start(e, p);
+    });
+    el.addEventListener('pointermove', e => {
+      const p = this.cellOf(e); this.hover = p;
+      const q = this.pending;
+      if (q && q.id === e.pointerId) {
+        const dx = Math.abs(e.clientX - q.x), dy = Math.abs(e.clientY - q.y);
+        if (dx > 6 && dx > dy) { this.pending = null; start(e, q.p); }
+        else if (dy > 6) this.pending = null;
+      }
+      if (!this.pointer || this.pointer.id !== e.pointerId) return;
+      this.paint(this.pointer.p, p); this.pointer.p = p;
+    });
+    const end = e => {
+      if (this.pending && this.pending.id === e.pointerId) { const q = this.pending; this.pending = null; if (e.type === 'pointerup') { start(e, q.p); this.pointer = null; } }
+      if (this.pointer && this.pointer.id === e.pointerId) this.pointer = null;
+    };
+    el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+    el.addEventListener('pointerleave', () => { this.hover = null; });
+  }
+}
+function fmtRe(Re) { return Re >= 1000 ? Math.round(Re).toLocaleString('en-US') : Re >= 10 ? Math.round(Re) : Re.toFixed(Re < 2 ? 1 : 0); }
+
+/* ============================================================
+   Story: hero, scroll-driven scenes, charts, audio, lab
+   ============================================================ */
+(function () {
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = s => document.querySelector(s);
+  const W_ST = Re => -3.3265 / Re + 0.1816 + 1.6e-4 * Re;     // Williamson (1988) fit, 49 < Re < 178
+
+  /* ---------------- hero ---------------- */
+  const H = new TunnelView($('#heroTunnel'), {});
+  function heroScene() {
+    if (!H.ok) return;
+    H.t.dyeOn.surf = 1; H.t.dyeOn.rake = 1;
+    H.geom(TunnelView.cyl(6.5), { L: H.D, Re: 150 });
+    H.setView(0); H.boost = RM ? 0 : 6000; if (RM) H.speed = 0.5;
+  }
+  heroScene();
+  $('#heroReset').addEventListener('click', heroScene);
+
+  /* ---------------- stage ---------------- */
+  const v = new TunnelView($('#stageTunnel'), {});
+  const D = v.D || 24;
+  const out = {};
+  let current = null;
+  const rakeDefault = () => Object.assign(v.t.dyeOn, { rake: 1, surf: 1, gap: 12 * D / 24, w: 2.0, decay: 0.0008 });
+
+  function cylinder(Re, opt = {}) {
+    rakeDefault(); v.t.kickAmp = opt.kickAmp;
+    v.geom(TunnelView.cyl(6.5), { L: D, Re, kick: opt.kick !== false });
+  }
+  const SC = {
+    re1() { cylinder(1, { kick: false }); v.t.dyeOn.surf = 0; v.setView(0); v.boost = 2000; },
+    re20() { cylinder(20, { kick: false }); v.setView(0); v.wantBubble = true; v.bubbleX0 = 6.5 * D + D / 2; v.boost = 3000; },
+    onset() { cylinder(100, { kick: true, kickAmp: 0.003 }); v.setView(1); v.speed = 1.6; },
+    street() { cylinder(150); v.setView(0); v.boost = 3500; },
+    strouhal() { if (!v.t.solidCount || current !== 'street') { cylinder(+$('#stRe').value); v.boost = 3500; } else v.setRe(+$('#stRe').value); v.setView(1); },
+    forces() { cylinder(100); v.setView(1); v.boost = 4000; },
+    sing() { cylinder(150); v.boost = 3500; v.setView(0); },
+    island() { Object.assign(v.t.dyeOn, { rake: 1, surf: 0.6, gap: 4 * D / 24 + 1, w: 2.6 * D / 24 + 0.5, decay: 0.0006 }); v.t.kickAmp = undefined; v.geom(TunnelView.island(6.5, 2.4), { Re: 150 }); v.setView(4); v.boost = 4000; },
+    airfoil() { rakeDefault(); v.t.kickAmp = undefined; v.geom(TunnelView.naca(7, 4, +$('#aoa').value), { L: 4 * D, Re: 1000 }); v.setView(0); v.boost = 3000; },
+    lab() { }
+  };
+  const PRESET = {
+    cylinder() { cylinder(v.t.Re); },
+    square() { rakeDefault(); v.geom(TunnelView.rect(6.5, null, 1, 1), { L: D, Re: v.t.Re }); },
+    plate() { rakeDefault(); v.geom(TunnelView.rect(6.5, null, 0.12, 1.5), { L: 1.5 * D, Re: v.t.Re }); },
+    tandem() { rakeDefault(); v.geom(t => { TunnelView.cyl(5)(t, D); TunnelView.cyl(9)(t, D); }, { L: D, Re: v.t.Re }); },
+    pair() { rakeDefault(); v.geom(t => { TunnelView.cyl(6.5, 6 - 0.9)(t, D); TunnelView.cyl(6.5, 6 + 0.9)(t, D); }, { L: D, Re: v.t.Re }); },
+    airfoil() { rakeDefault(); v.geom(TunnelView.naca(7, 4, 12), { L: 4 * D, Re: Math.max(v.t.Re, 500) }); },
+    island() { SC.island(); },
+    blank() { rakeDefault(); v.geom(() => { }, { L: D, Re: v.t.Re, kick: false }); }
+  };
+
+  /* ---------------- card activation ---------------- */
+  const cards = [...document.querySelectorAll('.card')];
+  const theatre = $('.theatre'), stageBox = $('#stage');
+  let active = -1;
+  function runScene(name) {
+    if (!v.ok) return;
+    v.wantBubble = false; v.speed = +$('#labSpeed').value || 1; v.paused = false; syncPause();
+    if (name !== 'island' && current === 'island') rakeDefault();
+    SC[name] && SC[name]();
+    current = name; syncUI(); v.kick();
+    if (v.hud.scene) v.hud.scene.textContent = '';
+  }
+  function pickCard() {
+    const tr = theatre.getBoundingClientRect(); if (tr.bottom < 0 || tr.top > innerHeight) return;
+    const mobile = matchMedia('(max-width: 900px)').matches;
+    let line = innerHeight * 0.5;
+    if (mobile) { const sb = stageBox.getBoundingClientRect().bottom; line = sb + (innerHeight - sb) * 0.35; }
+    let idx = 0; cards.forEach((c, i) => { if (c.getBoundingClientRect().top < line) idx = i; });
+    if (idx !== active) { active = idx; cards.forEach((c, i) => c.classList.toggle('active', i === idx)); runScene(cards[idx].dataset.scene); }
+  }
+  let sTimer = 0;
+  addEventListener('scroll', () => { if (!sTimer) sTimer = setTimeout(() => { sTimer = 0; pickCard(); }, 60); }, { passive: true });
+  addEventListener('resize', pickCard);
+  cards.forEach(c => c.querySelectorAll('[data-replay]').forEach(b => b.addEventListener('click', () => runScene(c.dataset.scene))));
+
+  /* ---------------- inline controls in cards ---------------- */
+  $('#stRe').addEventListener('input', e => { $('#stReOut').textContent = e.target.value; if (current === 'strouhal') v.setRe(+e.target.value); });
+  $('#aoa').addEventListener('input', e => { $('#aoaOut').textContent = e.target.value + '°'; if (current === 'airfoil') v.reshape(TunnelView.naca(7, 4, +e.target.value)); });
+
+  /* ---------------- toolbar ---------------- */
+  const toolBtns = [...document.querySelectorAll('[data-tool]')];
+  function syncPause() { const b = $('#pauseBtn'); b.textContent = v.paused ? 'Play' : 'Pause'; b.setAttribute('aria-pressed', String(v.paused)); }
+  function syncUI() {
+    toolBtns.forEach(b => { const on = b.dataset.tool === v.tool; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+    $('#viewSel').value = String(v.t.mode);
+    const r = $('#labRe'); if (document.activeElement !== r) r.value = String(Math.log10(Math.max(1, v.t.Re)) / Math.log10(3000));
+    $('#labReOut').textContent = fmtRe(v.t.Re);
+    const tg = (id, on) => { const b = $(id); b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); };
+    tg('#rakeBtn', !!v.t.dyeOn.rake); tg('#surfBtn', !!v.t.dyeOn.surf);
+  }
+  toolBtns.forEach(b => b.addEventListener('click', () => { v.tool = b.dataset.tool; syncUI(); }));
+  $('#viewSel').addEventListener('change', e => v.setView(+e.target.value));
+  $('#pauseBtn').addEventListener('click', () => { v.paused = !v.paused; syncPause(); });
+  $('#restartBtn').addEventListener('click', () => { v.restart(true); });
+  $('#labRe').addEventListener('input', e => { const Re = Math.pow(3000, +e.target.value); v.setRe(Math.max(1, Re)); $('#labReOut').textContent = fmtRe(v.t.Re); });
+  $('#labSpeed').addEventListener('input', e => { v.speed = +e.target.value; $('#labSpeedOut').textContent = (+e.target.value).toFixed(2).replace(/\.?0+$/, '') + '×'; });
+  document.querySelectorAll('[data-preset]').forEach(b => b.addEventListener('click', () => { PRESET[b.dataset.preset](); v.setView(b.dataset.preset === 'island' ? 4 : v.t.mode === 4 ? 0 : v.t.mode); syncUI(); v.kick(); }));
+  $('#wordBtn').addEventListener('click', () => { rakeDefault(); const w = ($('#wordIn').value || 'WIND').toUpperCase().slice(0, 10); v.geom(TunnelView.word(w, 3.2), { Re: v.t.Re }); syncUI(); });
+  $('#rakeBtn').addEventListener('click', () => { v.t.dyeOn.rake = v.t.dyeOn.rake ? 0 : 1; syncUI(); });
+  $('#surfBtn').addEventListener('click', () => { v.t.dyeOn.surf = v.t.dyeOn.surf ? 0 : 1; syncUI(); });
+  v.on('re', () => syncUI());
+
+  /* ---------------- meters, strip and card outputs ---------------- */
+  const meters = {}; document.querySelectorAll('[data-m]').forEach(e => meters[e.dataset.m] = e);
+  const outEls = [...document.querySelectorAll('[data-out]')];
+  v.on('tick', () => {
+    const shed = v.clAmp > 0.02 && v.st;
+    meters.re.textContent = fmtRe(v.t.Re);
+    meters.cd.textContent = v.cdMean != null && isFinite(v.cdMean) ? v.cdMean.toFixed(2) : '–';
+    const last = v.hist[v.hist.length - 1];
+    meters.cl.textContent = shed ? '±' + v.clAmp.toFixed(2) : last ? last[2].toFixed(2) : '–';
+    meters.st.textContent = shed ? v.st.toFixed(3) : v.clAmp > 0.02 ? 'settling' : 'steady';
+    const vals = {
+      bubble: v.wantBubble && v.bubble != null ? v.bubble.toFixed(2) + ' D' : '…',
+      growth: out.growth ? '×' + out.growth.toFixed(1) : 'measuring…',
+      cdm: v.cdMean != null && isFinite(v.cdMean) ? v.cdMean.toFixed(2) : '…',
+      cla: v.clAmp != null ? v.clAmp.toFixed(2) : '…',
+      clm: v.clMean != null ? v.clMean.toFixed(2) : '…',
+      st: shed ? v.st.toFixed(3) : 'no shedding'
+    };
+    for (const e of outEls) { const k = e.dataset.out; if (vals[k] !== undefined && e.textContent !== vals[k]) e.textContent = vals[k]; }
+    if (v.hud.extra) v.hud.extra.textContent = v.wantBubble && v.bubble != null ? `eddy length ${v.bubble.toFixed(2)} D` : (shed ? `St ${v.st.toFixed(3)}` : '');
+    if (shed && v.stSteady) { const k = Math.round(v.t.Re); v.stPoints = v.stPoints || new Map(); if (v.t.Re >= 45 && v.t.Re <= 210 && current === 'strouhal') v.stPoints.set(k, v.st); }
+  });
+
+  const strip = $('#forceStrip'), sctx = strip.getContext('2d');
+  const rng = { cd: [0, 2], cl: [-0.5, 0.5] };
+  function sizeCanvas(cv, ctx) {
+    const dpr = Math.min(devicePixelRatio || 1, 2), W = Math.round(cv.clientWidth * dpr), Hh = Math.round(cv.clientHeight * dpr);
+    if (!W) return null; if (cv.width !== W || cv.height !== Hh) { cv.width = W; cv.height = Hh; }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); return [W / dpr, Hh / dpr];
+  }
+  function drawStrip() {
+    const s = sizeCanvas(strip, sctx); if (!s) return; const [w, h] = s, c = sctx; c.clearRect(0, 0, w, h);
+    const hist = v.hist; if (hist.length < 2) return;
+    const span = 7 * v.period(), s1 = hist[hist.length - 1][0], L = 34;
+    const X = st => L + (w - L - 6) * (1 - (s1 - st) / span);
+    let cdLo = 1e9, cdHi = -1e9, clA = 0;
+    for (const r of hist) { if (r[0] < s1 - span) continue; cdLo = Math.min(cdLo, r[1]); cdHi = Math.max(cdHi, r[1]); clA = Math.max(clA, Math.abs(r[2])); }
+    const pad = Math.max(0.02, (cdHi - cdLo) * 0.25);
+    rng.cd[0] += (cdLo - pad - rng.cd[0]) * 0.15; rng.cd[1] += (cdHi + pad - rng.cd[1]) * 0.15;
+    const ca = Math.max(0.03, clA * 1.15); rng.cl[0] += (-ca - rng.cl[0]) * 0.15; rng.cl[1] += (ca - rng.cl[1]) * 0.15;
+    const lane = (y0, y1, key, idx, col, label) => {
+      const lo = rng[key][0], hi = rng[key][1], Y = val => y1 - (val - lo) / (hi - lo) * (y1 - y0);
+      c.strokeStyle = 'rgba(255,255,255,0.06)'; c.lineWidth = 1; c.beginPath(); c.moveTo(L, Math.round((y0 + y1) / 2) + 0.5); c.lineTo(w - 6, Math.round((y0 + y1) / 2) + 0.5); c.stroke();
+      c.fillStyle = col; c.font = '500 10px "JetBrains Mono", monospace'; c.textBaseline = 'middle'; c.textAlign = 'left'; c.fillText(label, 6, (y0 + y1) / 2);
+      c.save(); c.beginPath(); c.rect(L, y0, w - L - 6, y1 - y0); c.clip();
+      c.strokeStyle = col; c.lineWidth = 1.6; c.shadowColor = col; c.shadowBlur = 5; c.beginPath(); let st = false;
+      for (const r of hist) { if (r[0] < s1 - span - 50) continue; const x = X(r[0]), y = Y(r[idx]); if (!st) { c.moveTo(x, y); st = true; } else c.lineTo(x, y); }
+      c.stroke(); c.restore();
+    };
+    lane(4, h / 2 - 2, 'cd', 1, '#e6edf2', 'Cd');
+    lane(h / 2 + 2, h - 4, 'cl', 2, '#ffc247', 'Cl');
+  }
+
+  /* onset: log |Cl| with the exponential growth line */
+  const onsetCv = $('#onsetChart'), octx = onsetCv.getContext('2d');
+  function drawOnset() {
+    const s = sizeCanvas(onsetCv, octx); if (!s) return; const [w, h] = s, c = octx; c.clearRect(0, 0, w, h);
+    const L = 44, B = 28, T = 14, R = 10, hist = v.hist;
+    const Tp = v.period(), lo = -3.5, hi = 0;
+    const tmax = Math.max(12, hist.length ? hist[hist.length - 1][0] / Tp : 12);
+    const X = t => L + (t / tmax) * (w - L - R), Y = lv => T + (hi - lv) / (hi - lo) * (h - T - B);
+    c.font = '500 10px "JetBrains Mono", monospace'; c.fillStyle = '#8d9ca8'; c.strokeStyle = 'rgba(255,255,255,0.07)';
+    c.textAlign = 'right'; c.textBaseline = 'middle';
+    for (let d = -3; d <= 0; d++) { const y = Math.round(Y(d)) + 0.5; c.beginPath(); c.moveTo(L, y); c.lineTo(w - R, y); c.stroke(); c.fillText(d === 0 ? '1' : '10' + ['⁻³', '⁻²', '⁻¹'][d + 3], L - 6, y); }
+    c.textAlign = 'center'; c.textBaseline = 'top';
+    for (let k = 0; k <= tmax; k += tmax > 30 ? 10 : 5) c.fillText(String(k), X(k), h - B + 6);
+    c.fillText('shedding cycles', L + (w - L - R) / 2, h - 12);
+    if (current !== 'onset' || hist.length < 3) return;
+    c.save(); c.beginPath(); c.rect(L, T, w - L - R, h - T - B); c.clip();
+    c.strokeStyle = 'rgba(255,194,71,0.35)'; c.lineWidth = 1; c.beginPath();
+    hist.forEach((r, i) => { const x = X(r[0] / Tp), y = Y(Math.log10(Math.max(1e-4, Math.abs(r[2])))); i ? c.lineTo(x, y) : c.moveTo(x, y); }); c.stroke();
+    // envelope: peaks of |Cl|
+    const pk = [];
+    for (let i = 1; i < hist.length - 1; i++) { const a = Math.abs(hist[i][2]); if (a > Math.abs(hist[i - 1][2]) && a >= Math.abs(hist[i + 1][2]) && a > 2e-4) pk.push([hist[i][0] / Tp, a]); }
+    c.strokeStyle = '#ffc247'; c.fillStyle = '#ffc247'; c.lineWidth = 2; c.shadowColor = '#ffc247'; c.shadowBlur = 6; c.beginPath();
+    pk.forEach((p, i) => { const x = X(p[0]), y = Y(Math.log10(p[1])); i ? c.lineTo(x, y) : c.moveTo(x, y); }); c.stroke(); c.shadowBlur = 0;
+    // growth per cycle from peaks in the linear regime (two peaks of |Cl| per cycle)
+    const top = pk.reduce((m, p) => Math.max(m, p[1]), 0);
+    let im = 0; for (let i = 0; i < pk.length && pk[i][1] < 0.25 * top; i++) if (pk[i][1] < pk[im][1]) im = i;
+    const lin = pk.slice(im).filter(p => p[1] < 0.25 * top && p[1] > 2e-3);
+    if (lin.length >= 4) { const a = lin[0], b = lin[lin.length - 1]; const g = Math.pow(b[1] / a[1], 1 / Math.max(0.5, b[0] - a[0])); if (isFinite(g) && g > 1) out.growth = g; }
+    c.restore();
+  }
+
+  /* Strouhal vs Re chart */
+  const stCv = $('#stChart'), stx = stCv.getContext('2d');
+  function drawSt() {
+    const s = sizeCanvas(stCv, stx); if (!s) return; const [w, h] = s, c = stx; c.clearRect(0, 0, w, h);
+    const L = 46, B = 30, T = 14, R = 12, x0 = 40, x1 = 210, y0 = 0.10, y1 = 0.22;
+    const X = r => L + (r - x0) / (x1 - x0) * (w - L - R), Y = st => T + (y1 - st) / (y1 - y0) * (h - T - B);
+    c.font = '500 10px "JetBrains Mono", monospace'; c.fillStyle = '#8d9ca8'; c.strokeStyle = 'rgba(255,255,255,0.07)';
+    c.textAlign = 'right'; c.textBaseline = 'middle';
+    for (let st = 0.10; st <= 0.2201; st += 0.02) { const y = Math.round(Y(st)) + 0.5; c.beginPath(); c.moveTo(L, y); c.lineTo(w - R, y); c.stroke(); c.fillText(st.toFixed(2), L - 6, y); }
+    c.textAlign = 'center'; c.textBaseline = 'top';
+    for (let r = 50; r <= 200; r += 50) { const x = Math.round(X(r)) + 0.5; c.beginPath(); c.moveTo(x, T); c.lineTo(x, h - B); c.stroke(); c.fillText(String(r), x, h - B + 6); }
+    c.fillText('Reynolds number', L + (w - L - R) / 2, h - 12);
+    // onset marker
+    c.setLineDash([3, 4]); c.strokeStyle = 'rgba(255,128,84,0.6)'; c.beginPath(); c.moveTo(X(47), T); c.lineTo(X(47), h - B); c.stroke(); c.setLineDash([]);
+    c.fillStyle = 'rgba(255,128,84,0.85)'; c.textAlign = 'left'; c.fillText('onset ≈ 47', X(47) + 4, T + 2);
+    // Williamson fit
+    c.strokeStyle = '#41ccff'; c.lineWidth = 2; c.beginPath();
+    for (let r = 49; r <= 178; r += 1) { const x = X(r), y = Y(W_ST(r)); r === 49 ? c.moveTo(x, y) : c.lineTo(x, y); } c.stroke();
+    c.setLineDash([4, 4]); c.beginPath(); for (let r = 178; r <= 205; r += 1) { const x = X(r), y = Y(W_ST(r)); r === 178 ? c.moveTo(x, y) : c.lineTo(x, y); } c.stroke(); c.setLineDash([]);
+    c.fillStyle = '#41ccff'; c.textAlign = 'right'; c.textBaseline = 'top'; c.fillText('experiments (Williamson fit)', w - R - 4, Y(W_ST(195)) + 14);
+    // stored live points
+    if (v.stPoints) { c.strokeStyle = 'rgba(255,194,71,0.8)'; c.lineWidth = 1.4; for (const [r, st] of v.stPoints) { c.beginPath(); c.arc(X(r), Y(st), 3.5, 0, 7); c.stroke(); } }
+    if (current === 'strouhal' && v.st && v.clAmp > 0.02) {
+      const x = X(Math.min(x1, Math.max(x0, v.t.Re))), y = Y(Math.min(y1, Math.max(y0, v.st)));
+      c.fillStyle = '#ffc247'; c.shadowColor = '#ffc247'; c.shadowBlur = 12; c.beginPath(); c.arc(x, y, 5, 0, 7); c.fill(); c.shadowBlur = 0;
+      c.fillStyle = '#ffc247'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText('this tunnel', x + 9, y);
+    }
+  }
+
+  /* Lissajous Cl vs Cd */
+  const lsCv = $('#lissChart'), lsx = lsCv.getContext('2d');
+  function drawLiss() {
+    const s = sizeCanvas(lsCv, lsx); if (!s) return; const [w, h] = s, c = lsx; c.clearRect(0, 0, w, h);
+    const L = 46, B = 30, T = 24, R = 12, hist = v.hist;
+    const span = 2.2 * v.period(); if (hist.length < 4) return;
+    const s1 = hist[hist.length - 1][0], pts = hist.filter(r => r[0] >= s1 - span);
+    let cdl = 1e9, cdh = -1e9, cla = 0; pts.forEach(r => { cdl = Math.min(cdl, r[1]); cdh = Math.max(cdh, r[1]); cla = Math.max(cla, Math.abs(r[2])); });
+    const cdm = (cdl + cdh) / 2, cdr = Math.max(0.03, (cdh - cdl) * 0.65), clr = Math.max(0.05, cla * 1.15);
+    const X = cd => L + (cd - (cdm - cdr)) / (2 * cdr) * (w - L - R), Y = cl => T + (clr - cl) / (2 * clr) * (h - T - B);
+    c.font = '500 10px "JetBrains Mono", monospace'; c.fillStyle = '#8d9ca8'; c.strokeStyle = 'rgba(255,255,255,0.07)';
+    c.textAlign = 'right'; c.textBaseline = 'middle';
+    [-clr * 0.8, 0, clr * 0.8].forEach(v2 => { const y = Math.round(Y(v2)) + 0.5; c.beginPath(); c.moveTo(L, y); c.lineTo(w - R, y); c.stroke(); c.fillText(v2.toFixed(2), L - 6, y); });
+    c.textAlign = 'center'; c.textBaseline = 'top';
+    [cdm - cdr * 0.8, cdm, cdm + cdr * 0.8].forEach(v2 => { const x = Math.round(X(v2)) + 0.5; c.beginPath(); c.moveTo(x, T); c.lineTo(x, h - B); c.stroke(); c.fillText(v2.toFixed(2), x, h - B + 6); });
+    c.fillText('drag Cd', L + (w - L - R) / 2, h - 12);
+    c.fillStyle = '#ffc247'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText('lift Cl', L + 6, 10);
+    for (let i = 1; i < pts.length; i++) {
+      const a = i / pts.length; c.strokeStyle = `rgba(255,194,71,${(0.15 + 0.85 * a).toFixed(3)})`; c.lineWidth = 1 + 1.6 * a;
+      c.beginPath(); c.moveTo(X(pts[i - 1][1]), Y(pts[i - 1][2])); c.lineTo(X(pts[i][1]), Y(pts[i][2])); c.stroke();
+    }
+    const p = pts[pts.length - 1]; c.fillStyle = '#fff'; c.shadowColor = '#fff'; c.shadowBlur = 10; c.beginPath(); c.arc(X(p[1]), Y(p[2]), 3.5, 0, 7); c.fill(); c.shadowBlur = 0;
+  }
+  v.on('frame', () => {
+    drawStrip();
+    if (current === 'onset' || !drawOnset.once) { drawOnset(); drawOnset.once = true; }
+    if (current === 'strouhal' || !drawSt.once) { drawSt(); drawSt.once = true; }
+    if (current === 'forces') drawLiss();
+  });
+  v.on('re', () => { if (current === 'onset') out.growth = null; });
+
+  /* ---------------- aeolian tones ---------------- */
+  const WIRES = [{ name: 'power line', D: 0.025, U: 10, ctx: 'in a 10 m/s wind' }, { name: 'guy wire', D: 0.006, U: 10, ctx: 'in a 10 m/s wind' }, { name: 'car aerial', D: 0.005, U: 25, ctx: 'at 90 km/h' }];
+  let wire = 0, audio = null;
+  function toneInfo() {
+    const w = WIRES[wire], f = 0.2 * w.U / w.D, Re = w.U * w.D / 1.5e-5;
+    $('#toneText').innerHTML = `${w.D * 1000} mm ${w.name} ${w.ctx} \u2192 <b>${Math.round(f)} Hz</b> &middot; Re \u2248 ${(Math.round(Re / 100) * 100).toLocaleString('en-US')}`;
+    return f;
+  }
+  toneInfo();
+  document.querySelectorAll('[data-wire]').forEach(b => b.addEventListener('click', () => {
+    wire = +b.dataset.wire; document.querySelectorAll('[data-wire]').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); });
+    const f = toneInfo(); if (audio) audio.set(f);
+  }));
+  function makeAudio(f) {
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+    const ac = new AC(), master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination);
+    const o1 = ac.createOscillator(), o2 = ac.createOscillator(), g2 = ac.createGain(); o1.type = 'sine'; o2.type = 'sine'; g2.gain.value = 0.12;
+    const trem = ac.createOscillator(), tg = ac.createGain(), amp = ac.createGain(); trem.frequency.value = 0.7; tg.gain.value = 0.25; amp.gain.value = 0.75;
+    trem.connect(tg); tg.connect(amp.gain);
+    o1.connect(amp); o2.connect(g2); g2.connect(amp); amp.connect(master);
+    const len = ac.sampleRate * 2, nb = ac.createBuffer(1, len, ac.sampleRate), d = nb.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    const ns = ac.createBufferSource(); ns.buffer = nb; ns.loop = true; const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 6; const ng = ac.createGain(); ng.gain.value = 0.35;
+    ns.connect(bp); bp.connect(ng); ng.connect(master);
+    const set = f2 => { o1.frequency.setTargetAtTime(f2, ac.currentTime, 0.05); o2.frequency.setTargetAtTime(2 * f2, ac.currentTime, 0.05); bp.frequency.setTargetAtTime(f2, ac.currentTime, 0.05); };
+    set(f); o1.start(); o2.start(); trem.start(); ns.start();
+    master.gain.setTargetAtTime(0.22, ac.currentTime, 0.15);
+    return { set, stop() { master.gain.setTargetAtTime(0, ac.currentTime, 0.12); setTimeout(() => ac.close(), 600); } };
+  }
+  $('#playTone').addEventListener('click', e => {
+    const b = e.currentTarget;
+    if (audio) { audio.stop(); audio = null; b.setAttribute('aria-pressed', 'false'); b.lastChild.textContent = 'Play the tone'; return; }
+    audio = makeAudio(toneInfo()); if (!audio) return;
+    b.setAttribute('aria-pressed', 'true'); b.lastChild.textContent = 'Stop';
+  });
+
+  /* ---------------- history timeline ---------------- */
+  (function buildHistory() {
+    const svg = $('#history'), NS = 'http://www.w3.org/2000/svg';
+    const el = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); svg.appendChild(e); return e; };
+    const y0 = 1870, y1 = 2000, L = 30, R = 970, X = y => L + (y - y0) / (y1 - y0) * (R - L), base = 118;
+    el('line', { x1: L, y1: base, x2: R, y2: base, stroke: '#1c2731', 'stroke-width': 2 });
+    for (let y = y0; y <= y1; y += 10) { el('line', { x1: X(y), y1: base - 5, x2: X(y), y2: base + 5, stroke: '#55636e' }); el('text', { x: X(y), y: base + 22, fill: '#55636e', 'font-size': 11, 'text-anchor': 'middle' }).textContent = y; }
+    const ev = [
+      [1878, -1, 'Strouhal measures', 'aeolian tones', '#ffc247'],
+      [1883, 1, 'Reynolds: when flow', 'turns sinuous', '#e6edf2'],
+      [1908, -2, 'Bénard films', 'alternating vortices', '#ff8054'],
+      [1911, 1, 'von Kármán: why', 'the street is stable', '#41ccff'],
+      [1940, -1, 'Tacoma Narrows', 'fails by flutter', '#8d9ca8'],
+      [1954, 1, 'Roshko measures', 'St across Re', '#e6edf2'],
+      [1957, -2, 'helical strakes', 'on chimneys', '#e6edf2'],
+      [1996, 1, 'Williamson maps', 'the wake regimes', '#41ccff']
+    ];
+    for (const [yr, lv, a, b, col] of ev) {
+      const x = X(yr), up = lv < 0, ly = up ? base - 26 - (Math.abs(lv) - 1) * 40 : base + 52 + (lv - 1) * 34;
+      el('line', { x1: x, y1: base, x2: x, y2: up ? ly + 6 : ly - 14, stroke: '#1c2731' });
+      el('circle', { cx: x, cy: base, r: 5, fill: '#06090d', stroke: col, 'stroke-width': 2 });
+      const anchor = yr > 1990 ? 'end' : 'start', tx = anchor === 'end' ? x - 6 : x + 6;
+      el('text', { x: tx, y: up ? ly - 10 : ly, fill: col, 'font-size': 11.5, 'text-anchor': anchor }).textContent = a;
+      el('text', { x: tx, y: (up ? ly - 10 : ly) + 14, fill: '#8d9ca8', 'font-size': 10.5, 'text-anchor': anchor }).textContent = b;
+    }
+  })();
+
+  if (v.ok) { syncUI(); pickCard(); }
+  window.__wt = { H, v, SC, PRESET, out };
+})();
+</script>
+
+</body></html>

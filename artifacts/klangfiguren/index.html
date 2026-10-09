@@ -1,0 +1,1987 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Klangfiguren</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* A dark plate under a workshop lamp: black steel, pale sand, a little brass.
+   One theme by design; the sand only reads on a dark plate. */
+:root {
+  --ink: #060607;
+  --panel: #0e0e10;
+  --rule: #222226;
+  --sand: #ece2cc;      /* text, the colour of dry quartz sand */
+  --mute: #9a9388;
+  --faint: #5d5953;
+  --brass: #c9a55a;
+  --copper: #e08a4f;
+  --teal: #4fb3c9;
+  --display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --serif: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --gut: 16px;
+  color-scheme: dark;
+}
+@media (min-width: 700px) { :root { --gut: 32px; } }
+html { background: var(--ink); }
+body { background: var(--ink); color: var(--sand); font: 400 1.02rem/1.66 var(--serif); -webkit-font-smoothing: antialiased; margin: 0; }
+::selection { background: var(--brass); color: #120d00; }
+a { color: var(--sand); text-decoration-color: color-mix(in srgb, var(--brass) 70%, transparent); text-underline-offset: 3px; }
+a:hover { color: var(--brass); }
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; margin: 0; line-height: 1.02; text-wrap: balance; }
+h2 { font-size: clamp(2.2rem, 5vw, 3.8rem); font-style: italic; letter-spacing: -0.01em; }
+h3 { font-size: 1.5rem; }
+p { margin: 0; }
+.eyebrow { font: 500 0.7rem/1.3 var(--mono); letter-spacing: 0.18em; text-transform: uppercase; color: var(--mute); }
+.eyebrow b { color: var(--brass); font-weight: 500; }
+.prose { max-width: 62ch; display: grid; gap: 1em; }
+.dim { color: var(--mute); }
+i.v { font-style: italic; }
+sub, sup { font-size: 0.7em; line-height: 0; }
+.wrap { padding-inline: var(--gut); max-width: 1320px; margin-inline: auto; }
+section { position: relative; }
+.act { padding-block: clamp(4rem, 10vw, 8rem) 0; }
+.act-head { display: grid; gap: 1rem; margin-bottom: 2.2rem; max-width: 64ch; }
+.btn { font: 500 0.72rem/1 var(--mono); letter-spacing: 0.03em; color: var(--sand); background: var(--panel); border: 1px solid var(--rule); border-radius: 999px; padding: 0.55rem 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.45rem; white-space: nowrap; transition: border-color .2s, background-color .2s; }
+.btn:hover { border-color: var(--mute); }
+.btn[aria-pressed="true"], .btn.on { background: var(--sand); color: var(--ink); border-color: var(--sand); }
+.btn svg { width: 14px; height: 14px; flex: none; }
+.btn.ico { padding: 0.5rem 0.6rem; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+select { font: 500 0.72rem/1 var(--mono); color: var(--sand); background: var(--panel); border: 1px solid var(--rule); border-radius: 999px; padding: 0.5rem 0.7rem; }
+.ctrl { display: grid; gap: 0.35rem; max-width: 480px; }
+.ctrl label { display: flex; justify-content: space-between; gap: 1rem; font: 500 0.7rem/1.3 var(--mono); letter-spacing: 0.06em; color: var(--mute); text-transform: uppercase; }
+.ctrl label output { color: var(--sand); font-variant-numeric: tabular-nums; text-transform: none; letter-spacing: 0.02em; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; margin: 0; }
+input[type=range]::-webkit-slider-runnable-track { height: 3px; border-radius: 3px; background: linear-gradient(90deg, var(--faint), var(--brass)); }
+input[type=range]::-moz-range-track { height: 3px; border-radius: 3px; background: linear-gradient(90deg, var(--faint), var(--brass)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--sand); margin-top: -7.5px; border: 3px solid var(--ink); box-shadow: 0 0 0 1px var(--mute); }
+input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--sand); border: 3px solid var(--ink); box-shadow: 0 0 0 1px var(--mute); }
+.nogl { position: absolute; inset: 12%; display: none; place-items: center; text-align: center; color: var(--mute); font: 0.85rem/1.5 var(--mono); }
+.failed .nogl { display: grid !important; }
+
+/* ---------- hero ---------- */
+.hero { position: relative; display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); align-items: center; gap: clamp(1rem, 3vw, 3rem); min-height: min(100vh, 900px); padding-block: 2rem; }
+.hero-copy { display: grid; gap: 1.3rem; max-width: 520px; }
+.hero h1 { font-size: clamp(3.4rem, 7.4vw, 7rem); font-style: italic; line-height: 0.92; letter-spacing: -0.02em; }
+.hero h1 .src { display: block; font: 500 0.7rem/1.3 var(--mono); font-style: normal; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); margin-top: 1rem; }
+.lede { font-size: 1.12rem; line-height: 1.6; max-width: 46ch; }
+.hplate { position: relative; width: 100%; aspect-ratio: 1 / 1; max-height: 88vh; }
+.hplate canvas, .frame canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hplate canvas { touch-action: pan-y; }
+.hhud { position: absolute; left: 4%; right: 4%; bottom: 2%; display: flex; justify-content: space-between; align-items: end; pointer-events: none; gap: 1rem; }
+.hz { font: 400 clamp(1.8rem, 4vw, 3rem)/1 var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -0.03em; color: var(--sand); text-shadow: 0 2px 18px #000; }
+.hz small { font-size: 0.4em; color: var(--mute); letter-spacing: 0.04em; margin-left: 0.3em; }
+.hmode { font: 500 0.68rem/1.4 var(--mono); color: var(--mute); text-align: right; letter-spacing: 0.06em; text-shadow: 0 1px 8px #000; }
+.hmode b { color: var(--sand); font-weight: 500; }
+.hint { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; font: 500 0.74rem/1.4 var(--mono); color: var(--mute); }
+.toc { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font: 500 0.7rem/1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; padding-block: 0.9rem 0; border-top: 1px solid var(--rule); }
+.toc a { text-decoration: none; color: var(--mute); }
+.toc a:hover { color: var(--sand); }
+.toc a b { color: var(--faint); font-weight: 500; margin-right: 0.4em; }
+@media (max-width: 820px) {
+  .hero { grid-template-columns: minmax(0, 1fr); min-height: 0; padding-block: 0.5rem 1rem; }
+  .hplate { order: -1; max-height: 64vh; margin-inline: auto; }
+  .hero-copy { max-width: none; }
+}
+
+/* ---------- theatre ---------- */
+.theatre { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(1.5rem, 4vw, 3.5rem); margin-top: 1rem; }
+.stage { grid-column: 2; grid-row: 1; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 10px); align-self: start; height: calc(100vh - 20px - env(safe-area-inset-top, 0px)); height: calc(100dvh - 20px - env(safe-area-inset-top, 0px)); display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; z-index: 3; }
+.frame { position: relative; width: 100%; flex: 1 1 auto; min-height: 260px; max-height: 68vh; }
+.frame canvas { touch-action: none; }
+.frame.tool-none canvas { touch-action: pan-y; }
+.hud { position: absolute; inset: 0; pointer-events: none; font: 500 0.68rem/1.25 var(--mono); color: rgba(236, 226, 204, 0.88); letter-spacing: 0.04em; }
+.hud > * { position: absolute; display: grid; gap: 0.2rem; }
+.hud .tl { left: 1.5%; top: 2%; }
+.hud .tr { right: 1.5%; top: 2%; text-align: right; }
+.hud b { color: #fff; font-weight: 500; font-variant-numeric: tabular-nums; }
+.hud span:not(:empty) { background: rgba(6, 6, 7, 0.7); padding: 1px 5px; border-radius: 3px; justify-self: start; }
+.hud .tr span:not(:empty) { justify-self: end; }
+.hud .big { font: 400 1.5rem/1 var(--mono); letter-spacing: -0.02em; }
+.strip { position: relative; height: 92px; border: 1px solid var(--rule); border-radius: 10px; background: var(--panel); overflow: hidden; flex: none; }
+.strip canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: ew-resize; }
+.tools { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; justify-content: center; flex: none; }
+.tg { display: flex; gap: 0.35rem; flex: none; align-items: center; }
+.tg .lbl { font: 500 0.6rem/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); margin-right: 0.15rem; }
+.cards { grid-column: 1; grid-row: 1; display: grid; }
+.card { min-height: 88vh; display: grid; align-content: center; gap: 1rem; padding-block: 2rem; opacity: 0.38; transition: opacity .5s; }
+.card.active { opacity: 1; }
+.card .k { display: flex; gap: 0.75rem; align-items: baseline; }
+.card h3 { font-size: clamp(1.7rem, 2.8vw, 2.4rem); font-style: italic; }
+.card p { max-width: 56ch; }
+.card .meta { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.quote { font-family: var(--display); font-style: italic; font-size: 1.3rem; line-height: 1.4; border-left: 1px solid var(--faint); padding-left: 1rem; max-width: 46ch; }
+.quote cite { display: block; margin-top: 0.5rem; font: 500 0.66rem/1.3 var(--mono); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+.figure { width: 100%; max-width: 520px; display: block; border-radius: 10px; border: 1px solid var(--rule); background: var(--panel); }
+canvas.figure { aspect-ratio: 1.6 / 1; }
+.stat { font: 500 0.74rem/1.3 var(--mono); padding: 0.45rem 0.7rem; border-radius: 8px; border: 1px dashed var(--rule); color: var(--mute); }
+.stat b { color: var(--sand); font-weight: 500; font-variant-numeric: tabular-nums; }
+.eqbox { font-family: var(--display); font-style: italic; font-size: 1.3rem; line-height: 1.7; padding: 0.8rem 1.1rem; border: 1px solid var(--rule); border-radius: 12px; background: var(--panel); overflow-x: auto; max-width: 520px; }
+.eqbox div { white-space: nowrap; }
+.eqbox .lbl { font: 500 0.6rem/1.3 var(--mono); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+.gal { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; max-width: 520px; }
+.gal button { position: relative; aspect-ratio: 1; padding: 0; border: 1px solid var(--rule); border-radius: 7px; background: #000; overflow: hidden; cursor: pointer; }
+.gal button canvas { width: 100%; height: 100%; display: block; }
+.gal button span { position: absolute; left: 3px; bottom: 2px; font: 500 0.55rem/1 var(--mono); color: var(--mute); text-shadow: 0 0 4px #000; }
+.gal button.dark { opacity: 0.45; }
+.gal button.on { border-color: var(--brass); box-shadow: 0 0 0 1px var(--brass); }
+.gal.wide { max-width: none; grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); }
+.labgrid { display: grid; gap: 1.1rem; }
+.labgrid .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem 1.2rem; }
+.labgrid .full { grid-column: 1 / -1; }
+.fstep { display: flex; gap: 0.4rem; align-items: center; }
+.fstep input { flex: 1 1 auto; }
+.readouts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }
+@media (max-width: 520px) { .labgrid .row { grid-template-columns: minmax(0, 1fr); } .gal { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 900px) {
+  .theatre { grid-template-columns: minmax(0, 1fr); margin-inline: calc(-1 * var(--gut)); }
+  .stage { grid-column: 1; grid-row: 1; top: env(safe-area-inset-top, 0px); height: auto; padding: 0.4rem var(--gut) 0.5rem; background: var(--ink); gap: 0.35rem; }
+  .stage::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 22px; background: linear-gradient(var(--ink), transparent); pointer-events: none; }
+  .frame { height: 38vh; height: 38svh; flex: none; min-height: 210px; }
+  .strip { height: 54px; }
+  .tools { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; justify-content: flex-start; }
+  .tools::-webkit-scrollbar { display: none; }
+  .hud .big { font-size: 1.1rem; }
+  .cards { grid-column: 1; grid-row: 2; padding-inline: var(--gut); }
+  .card { min-height: 52vh; min-height: 52svh; align-content: start; padding-block: 1.6rem 2.6rem; }
+  .card h3 { font-size: 1.6rem; }
+}
+
+/* ---------- notes ---------- */
+.history { overflow-x: auto; margin-top: 1.5rem; padding-bottom: 0.4rem; }
+.history svg { display: block; min-width: 860px; width: 100%; height: auto; }
+.history text { font-family: var(--mono); }
+.notes { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: clamp(1.5rem, 4vw, 4rem); }
+@media (max-width: 900px) { .notes { grid-template-columns: minmax(0, 1fr); } }
+.eq { font-family: var(--display); font-style: italic; font-size: 1.2rem; line-height: 1.85; padding: 1rem 1.2rem; border: 1px solid var(--rule); border-radius: 12px; background: var(--panel); overflow-x: auto; }
+.eq div { white-space: nowrap; }
+.eq .lbl { font: 500 0.6rem/1.3 var(--mono); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+table.params { width: 100%; border-collapse: collapse; font: 0.8rem/1.45 var(--mono); font-variant-numeric: tabular-nums; }
+table.params td, table.params th { text-align: left; padding: 0.45rem 0.5rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.params th { font-weight: 500; color: var(--mute); font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; }
+table.params td.ok { color: #9fd28a; }
+.tablewrap { overflow-x: auto; }
+.refs { display: grid; gap: 0.55rem; font-size: 0.9rem; line-height: 1.45; color: var(--mute); padding-left: 1.2rem; margin: 0; }
+.refs li::marker { color: var(--faint); font-family: var(--mono); font-size: 0.8em; }
+footer { padding-block: 4rem 3rem; color: var(--faint); font: 0.7rem/1.5 var(--mono); }
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+</style>
+<main>
+<header class="wrap hero" id="top">
+  <div class="hero-copy">
+    <h1>Klangfiguren<span class="src">Sound figures &middot; E. F. F. Chladni, 1787</span></h1>
+    <p class="lede">Bow a metal plate and it rings. Scatter sand on it first and the sand runs into lines, a different drawing for every note. This page solves the plate equation in your browser and pours up to 131,072 grains of sand on the answer.</p>
+    <div class="btnrow">
+      <button class="btn" data-sound aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 6h3l4-3v10l-4-3H2z"/><path class="w1" d="M11 5.5c1 .8 1 4.2 0 5"/><path class="w2" d="M12.8 3.8c2 1.8 2 6.6 0 8.4"/></svg><span>Sound off</span></button>
+      <button class="btn" id="heroPour">Pour again</button>
+    </div>
+    <p class="hint"><span>Every pattern you see is a computed vibration mode of the plate.</span></p>
+    <nav class="toc" aria-label="Contents">
+      <a href="#c-sing"><b>01</b>A plate that sings</a><a href="#c-nodes"><b>02</b>Standing still</a><a href="#c-zoo"><b>03</b>Ritz&rsquo;s zoo</a><a href="#c-res"><b>04</b>Resonance</a><a href="#c-gam"><b>05</b>One g</a><a href="#c-far"><b>06</b>Faraday&rsquo;s dust</a><a href="#c-round"><b>07</b>Round plates</a><a href="#c-gtr"><b>08</b>The luthier&rsquo;s plate</a><a href="#c-lab"><b>09</b>Your plate</a><a href="#notes"><b>&rarr;</b>Notes</a>
+    </nav>
+  </div>
+  <div class="hplate" id="hero">
+    <canvas aria-label="A square steel plate covered in sand, sweeping through its vibration modes"></canvas>
+    <div class="nogl">This page needs WebGL2 with float render targets.</div>
+    <div class="hhud"><div class="hz" data-hz>&nbsp;</div><div class="hmode" data-hmode></div></div>
+  </div>
+</header>
+
+<section class="wrap act" id="story">
+  <div class="act-head">
+    <p class="eyebrow"><b>Part one</b> &middot; the figures</p>
+    <h2>Sand finds the stillness</h2>
+  </div>
+  <div class="theatre">
+    <div class="stage" id="stage">
+      <div class="frame tool-none" id="frame">
+        <canvas aria-label="Simulated vibrating plate with sand"></canvas>
+        <div class="nogl">This page needs WebGL2 with float render targets.</div>
+        <div class="hud">
+          <div class="tl"><span class="big" data-hud="f"></span><span data-hud="mode"></span></div>
+          <div class="tr"><span data-hud="g"></span><span data-hud="amp"></span><span data-hud="note"></span></div>
+        </div>
+      </div>
+      <div class="strip" id="strip"><canvas aria-label="Resonance curve: plate acceleration against frequency. Drag to change the frequency."></canvas></div>
+      <div class="tools">
+        <div class="tg" role="group" aria-label="View"><span class="lbl">View</span>
+          <button class="btn on" data-view="sand" aria-pressed="true">Sand</button><button class="btn" data-view="motion" aria-pressed="false">Motion</button><button class="btn" data-view="gamma" aria-pressed="false">&Gamma;</button>
+        </div>
+        <div class="tg" role="group" aria-label="Touch tool"><span class="lbl">Touch</span>
+          <button class="btn" data-tool="drive" aria-pressed="false">Move drive</button><button class="btn" data-tool="pour" aria-pressed="false">Pour</button><button class="btn" data-tool="wipe" aria-pressed="false">Wipe</button>
+        </div>
+        <div class="tg">
+          <button class="btn ico" data-sound aria-pressed="false" aria-label="Sound"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 6h3l4-3v10l-4-3H2z"/><path class="w1" d="M11 5.5c1 .8 1 4.2 0 5"/><path class="w2" d="M12.8 3.8c2 1.8 2 6.6 0 8.4"/></svg><span>Off</span></button>
+          <button class="btn" id="pourAll">Pour</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cards">
+      <article class="card" data-scene="sing" id="c-sing">
+        <div class="k"><span class="eyebrow"><b>01</b> &middot; 1680&ndash;1787</span></div>
+        <h3>A plate that sings</h3>
+        <p>On 8 July 1680 Robert Hooke ran a violin bow along the edge of a glass plate dusted with flour, and the flour gathered into lines. A century later Ernst Chladni, a law graduate from Wittenberg who had turned to acoustics, made the trick into a science. His <i>Entdeckungen &uuml;ber die Theorie des Klanges</i> (1787) drew 166 of these figures from brass and glass plates held at one point and bowed at the edge.</p>
+        <p>Here the plate is 24&nbsp;cm of steel, 0.8&nbsp;mm thick, bolted on a post at its centre and shaken by it at <b data-out="f">&hellip;</b>. Watch where the sand goes.</p>
+        <div class="meta"><button class="btn" data-replay>Pour again</button><span class="stat">peak &Gamma; <b data-out="g">&hellip;</b></span></div>
+      </article>
+
+      <article class="card" data-scene="nodes" id="c-nodes">
+        <div class="k"><span class="eyebrow"><b>02</b> &middot; the shape of a note</span></div>
+        <h3>Where the plate stands still</h3>
+        <p>Here the camera is lifted and time slowed about a thousand times. The plate bends in one fixed shape: the copper regions rise while the teal ones fall, then the other way round, <b data-out="fi">&hellip;</b> times a second. Between them run lines that never move, the <i>nodal lines</i>. Sand thrown off the moving parts lands there and stays.</p>
+        <p>The shape solves the equation of a thin elastic plate, which took sixty years to get right:</p>
+        <div class="eqbox"><div>D&thinsp;&nabla;<sup>4</sup>w + &rho;h&thinsp;&part;<sup>2</sup>w/&part;t<sup>2</sup> = 0,&ensp; D = Eh<sup>3</sup>/12(1&minus;&nu;<sup>2</sup>)</div><div class="lbl">w deflection &middot; h thickness &middot; E stiffness &middot; &rho; density &middot; &nu; Poisson&rsquo;s ratio</div></div>
+        <p>Napoleon watched Chladni&rsquo;s figures in 1808 and had the Paris Academy offer a prize for their theory. Sophie Germain, self-taught, was its only serious entrant; Lagrange, one of the judges, used her first memoir of 1811 to write down the fourth-order equation, and she won on her third attempt in 1816. The right conditions for a free edge (no bending moment and no net shear at the rim) came from Gustav Kirchhoff in 1850.</p>
+        <div class="meta"><button class="btn" data-view="sand" aria-pressed="false">Sand view</button><button class="btn" data-view="motion" aria-pressed="false">Motion view</button></div>
+      </article>
+
+      <article class="card" data-scene="zoo" id="c-zoo">
+        <div class="k"><span class="eyebrow"><b>03</b> &middot; 1909</span></div>
+        <h3>Ritz&rsquo;s zoo</h3>
+        <p>Even with the right equation, nobody could solve the free square plate exactly, and nobody has since. In 1909 Walther Ritz attacked this very problem with a new idea: write the shape as a sum of simple functions and pick the mixture that makes the plate&rsquo;s energy stationary. The finite element method descends from it.</p>
+        <p>This page does the same with 576 Legendre polynomials when it loads. Here are the first 24 modes; tap one to drive it. The dim ones have a nodal line through the post, so shaking the post cannot excite them, and the drive moves to where it can.</p>
+        <div class="gal" id="zooGal"></div>
+        <div class="meta"><span class="stat">solved in your browser in <b data-out="ms">&hellip;</b></span></div>
+      </article>
+
+      <article class="card" data-scene="res" id="c-res">
+        <div class="k"><span class="eyebrow"><b>04</b> &middot; resonance</span></div>
+        <h3>Only the right notes</h3>
+        <p>Between resonances the plate barely moves and the sand lies still. Sweep the frequency slowly and the plate wakes only near its natural frequencies, each a sharp peak on the curve below it. Each new peak redraws the sand.</p>
+        <p>The sharpness is set by damping. With a quality factor Q of <b data-out="q">150</b>, a peak is about 1/Q of its frequency wide. Drag along the curve to play the plate yourself. The gold ticks under it mark modes the post can drive; the grey ones it cannot reach.</p>
+        <div class="meta"><button class="btn" id="sweepBtn" aria-pressed="true">Sweeping</button><span class="stat">width of this peak <b data-out="bw">&hellip;</b></span></div>
+      </article>
+
+      <article class="card" data-scene="gam" id="c-gam">
+        <div class="k"><span class="eyebrow"><b>05</b> &middot; threshold</span></div>
+        <h3>One g</h3>
+        <p>A grain resting on the plate leaves it only when the plate drops faster than gravity can pull the grain after it, which happens when <i class="v">&Gamma; = A&omega;<sup>2</sup>/g</i> exceeds&nbsp;1 (A is the local amplitude, &omega; the angular frequency). At 1&nbsp;kHz that takes a quarter of a micrometre.</p>
+        <p>The colours show &Gamma;. Grains in the warm regions are thrown up again and again and land a few millimetres away in random directions. Once they land inside the white line, where &Gamma; &lt; 1, they stay. Turn the drive up and the quiet band narrows: louder notes draw thinner lines.</p>
+        <div class="ctrl"><label for="gamF">Drive force <output id="gamFOut">&hellip;</output></label><input type="range" id="gamF" min="0" max="1" step="0.001" value="0.5"></div>
+        <div class="meta"><span class="stat">peak &Gamma; <b data-out="g">&hellip;</b></span><span class="stat">largest amplitude <b data-out="amp">&hellip;</b></span></div>
+      </article>
+
+      <article class="card" data-scene="far" id="c-far">
+        <div class="k"><span class="eyebrow"><b>06</b> &middot; 1831</span></div>
+        <h3>Faraday&rsquo;s dust</h3>
+        <p>Chladni noticed that fine dust from his bow went the other way, to the parts that moved most. In 1831 Michael Faraday showed why. The vibrating plate drives slow, steady currents in the air, running from the still lines toward the moving regions, and light powder rides them into little heaps. Under an air pump the heaps did not form: with the air gone, his lycopodium went to the quiet parts like sand.</p>
+        <p>Yellow is lycopodium, the spores of club moss; the pale grains are sand.</p>
+        <div class="meta"><button class="btn" id="airBtn" aria-pressed="false">Pump out the air</button><button class="btn" data-replay>Pour again</button></div>
+      </article>
+
+      <article class="card" data-scene="round" id="c-round">
+        <div class="k"><span class="eyebrow"><b>07</b> &middot; circles</span></div>
+        <h3>Round plates and Chladni&rsquo;s law</h3>
+        <p>A round plate shaken at its centre can only take shapes that look the same all the way round, so the sand draws rings. Move the drive toward the rim and diameters appear, cutting the rings into petals.</p>
+        <p>Chladni counted the lines, <i class="v">m</i> diameters and <i class="v">n</i> circles, and found that the pitch rises roughly as (<i class="v">m</i>&nbsp;+&nbsp;2<i class="v">n</i>)<sup>2</sup>. The round plate has an exact solution in Bessel functions; the dots are its frequencies, against Chladni&rsquo;s count.</p>
+        <div class="meta"><button class="btn on" data-rdrive="c" aria-pressed="true">Drive at centre</button><button class="btn" data-rdrive="r" aria-pressed="false">Drive near the rim</button></div>
+        <canvas class="figure" id="lawFig" aria-label="Frequency against m + 2n for the round plate, log scales"></canvas>
+      </article>
+
+      <article class="card" data-scene="gtr" id="c-gtr">
+        <div class="k"><span class="eyebrow"><b>08</b> &middot; instruments</span></div>
+        <h3>The luthier&rsquo;s plate</h3>
+        <p>Spruce is about twelve times stiffer along the grain than across it, so bending waves run faster lengthwise and the figures stretch along the grain, here top to bottom. This is a free, unbraced guitar top, 2.8&nbsp;mm thick, with its soundhole cut.</p>
+        <p>Instrument makers use the figures to see inside their wood. From the 1960s Carleen Hutchins and the Catgut Acoustical Society tuned free violin plates by scattering glitter on them over a loudspeaker and shaving wood until the patterns, and their pitches, fell where they wanted.</p>
+        <div class="meta"><button class="btn" id="gtrNext">Next mode</button><span class="stat">mode <b data-out="gm">&hellip;</b></span></div>
+      </article>
+
+      <article class="card" data-scene="lab" id="c-lab">
+        <div class="k"><span class="eyebrow"><b>09</b> &middot; the bench</span></div>
+        <h3>Your plate</h3>
+        <p>Everything is live: change the plate and the modes are solved again. Touch the plate to move the drive, pour sand or wipe it away.</p>
+        <div class="labgrid">
+          <div class="btnrow" role="group" aria-label="Plate shape">
+            <button class="btn on" data-shape="square" aria-pressed="true">Square</button><button class="btn" data-shape="rect" aria-pressed="false">Rectangle</button><button class="btn" data-shape="circle" aria-pressed="false">Circle</button><button class="btn" data-shape="guitar" aria-pressed="false">Guitar top</button>
+          </div>
+          <div class="row">
+            <div class="ctrl"><label for="labMat">Material</label><select id="labMat"><option value="steel">Steel</option><option value="brass">Brass</option><option value="alu">Aluminium</option><option value="glass">Glass</option><option value="spruce">Spruce (grain vertical)</option></select></div>
+            <div class="ctrl"><label for="labH">Thickness <output id="labHOut">0.8 mm</output></label><input type="range" id="labH" min="0.4" max="3" step="0.05" value="0.8"></div>
+            <div class="ctrl"><label for="labL">Size <output id="labLOut">24 cm</output></label><input type="range" id="labL" min="10" max="50" step="1" value="24"></div>
+            <div class="ctrl" id="aspCtrl"><label for="labA">Aspect <output id="labAOut">1.50</output></label><input type="range" id="labA" min="1" max="2.5" step="0.01" value="1.5"></div>
+          </div>
+          <div class="ctrl full"><label for="labF">Frequency <output id="labFOut">&hellip;</output></label>
+            <div class="fstep"><button class="btn ico" id="prevRes" aria-label="Previous resonance">&#9664;</button><input type="range" id="labF" min="0" max="1" step="0.0001" value="0.5"><button class="btn ico" id="nextRes" aria-label="Next resonance">&#9654;</button><button class="btn" id="labSweep" aria-pressed="false">Sweep</button></div>
+          </div>
+          <div class="row">
+            <div class="ctrl"><label for="labDrive">Drive force <output id="labDriveOut">&hellip;</output></label><input type="range" id="labDrive" min="0" max="1" step="0.001" value="0.5"></div>
+            <div class="ctrl"><label for="labQ">Quality factor Q <output id="labQOut">150</output></label><input type="range" id="labQ" min="0" max="1" step="0.001" value="0.5"></div>
+          </div>
+          <div class="btnrow" role="group" aria-label="Grains">
+            <button class="btn on" data-grain="0" aria-pressed="true">Sand</button><button class="btn" data-grain="1" aria-pressed="false">Lycopodium</button><button class="btn" data-grain="0.5" aria-pressed="false">Both</button>
+            <button class="btn" id="labAir" aria-pressed="false">Vacuum</button><button class="btn" id="labPour">Pour</button><button class="btn" id="labClear">Clear</button>
+          </div>
+          <div class="readouts">
+            <span class="stat">nearest mode <b data-out="near">&hellip;</b></span>
+            <span class="stat">peak &Gamma; <b data-out="g">&hellip;</b></span>
+            <span class="stat">bending wavelength <b data-out="lam">&hellip;</b></span>
+            <span class="stat">bending wave speed <b data-out="cb">&hellip;</b></span>
+            <span class="stat">largest amplitude <b data-out="amp">&hellip;</b></span>
+            <span class="stat">modes below 4&nbsp;kHz <b data-out="nm">&hellip;</b></span>
+          </div>
+          <div class="gal wide" id="labGal"></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="wrap act" id="notes">
+  <div class="act-head">
+    <p class="eyebrow"><b>Part two</b> &middot; working</p>
+    <h2>How the page computes</h2>
+  </div>
+  <div class="notes">
+    <div class="prose">
+      <p><b>The plate.</b> A thin plate obeys Kirchhoff&rsquo;s equation, with bending stiffness D growing as the cube of the thickness. All edges are free: no bending moment and no net shear. Every frequency of a plate of side L therefore scales as h/L<sup>2</sup> times &radic;(E/&rho;), and doubling the thickness doubles every note.</p>
+      <p><b>Square and rectangle.</b> The deflection is written as a double sum of normalised Legendre polynomials, 24 in each direction for the square (for other plates the 576 are shared out by how many half-waves fit each way). Minimising the energy turns the equation into a 576&times;576 matrix eigenproblem. Because the Legendre polynomials are orthonormal the mass matrix is the identity, and the four symmetry classes (even or odd across each centre line) split it into four problems of 144, solved in your browser with Householder reduction and the QL algorithm. Spruce enters through four separate stiffnesses (D<sub>x</sub>, D<sub>y</sub>, D<sub>12</sub>, D<sub>66</sub>) instead of one.</p>
+      <p><b>Circle.</b> The round plate is solved exactly: w = [J<sub>n</sub>(kr) + C&thinsp;I<sub>n</sub>(kr)]&thinsp;cos&thinsp;n&theta;. The two free-edge conditions give a 2&times;2 determinant whose roots are the frequencies; the Bessel functions are summed from their power series.</p>
+      <p><b>Guitar top.</b> The same polynomial basis (18&times;26) over the outline with the soundhole removed, integrated on a masked grid and solved offline in Python; only the coefficients ship with the page. These frequencies are converged to a few per cent; the square&rsquo;s to better than one part in a million.</p>
+      <p><b>Driving.</b> A point force F&thinsp;cos&thinsp;&Omega;t at the post excites each mode in proportion to its deflection there, through a resonance with damping 1/2Q. The plate&rsquo;s complex amplitude is the sum over all modes below 4&nbsp;kHz. The post itself is taken to be massless; it holds the plate up but keeps the plate&rsquo;s rigid-body motion out of the picture.</p>
+      <p><b>Sand.</b> Up to 131,072 grains live in float textures on the GPU. A grain where &Gamma; &gt; 1 is thrown up with a take-off speed growing with &Gamma; &minus; 1 (hops of a few millimetres, under real gravity), in a random direction with a slight lean down the amplitude slope. Below &Gamma; = 1 it no longer leaves the plate but can creep slowly downhill in amplitude. Grains that land off the plate fall. Lycopodium follows the air currents, with a drift proportional to &nabla;&Gamma;<sup>2</sup>; in vacuum it hops like sand. Grain collisions, the weight of the sand, air loading and large-amplitude effects are left out.</p>
+      <p><b>What you hear.</b> A sine at the drive frequency, its loudness following how hard the plate is moving, so it swells at each resonance.</p>
+    </div>
+    <div>
+      <div class="eq">
+        <div class="lbl">Plate and free edge</div>
+        <div>D&nabla;<sup>4</sup>w + &rho;h&thinsp;&#7813; = F&thinsp;&delta;(x &minus; x<sub>0</sub>)&thinsp;cos&thinsp;&Omega;t</div>
+        <div>M<sub>n</sub> = 0,&ensp; Q<sub>n</sub> + &part;M<sub>nt</sub>/&part;s = 0</div>
+        <div class="lbl">Ritz</div>
+        <div>w = &Sigma;&Sigma; c<sub>ij</sub>&thinsp;P&#770;<sub>i</sub>(x/a)&thinsp;P&#770;<sub>j</sub>(y/b),&ensp; K c = &omega;<sup>2</sup>&rho;h&thinsp;c</div>
+        <div class="lbl">Forced response</div>
+        <div>w = &Sigma;<sub>k</sub> F&phi;<sub>k</sub>(x<sub>0</sub>)&phi;<sub>k</sub>(x) / m(&omega;<sub>k</sub><sup>2</sup> &minus; &Omega;<sup>2</sup> + i&omega;<sub>k</sub>&Omega;/Q)</div>
+        <div class="lbl">Threshold</div>
+        <div>&Gamma; = &Omega;<sup>2</sup>|w|/g &gt; 1</div>
+      </div>
+      <h3 style="margin-top:2rem">Checks</h3>
+      <p class="dim" style="font-size:0.9rem;margin:0.4rem 0 0.8rem">Computed when the page loads.</p>
+      <div class="tablewrap">
+        <table class="params" id="checks">
+          <thead><tr><th>Quantity</th><th>This page</th><th>Reference</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="act-head" style="margin-top:4rem">
+    <p class="eyebrow"><b>Part three</b> &middot; people</p>
+    <h2>Three centuries of figures</h2>
+  </div>
+  <div class="history"><svg id="history" viewBox="0 0 1000 250" role="img" aria-label="Timeline from Hooke in 1680 to Zhou and colleagues in 2016"></svg></div>
+
+  <div class="act-head" style="margin-top:4rem">
+    <p class="eyebrow"><b>Sources</b></p>
+  </div>
+  <ol class="refs">
+    <li>E. F. F. Chladni, <i>Entdeckungen &uuml;ber die Theorie des Klanges</i>, Leipzig (1787).</li>
+    <li>S. Germain, <i>Recherches sur la th&eacute;orie des surfaces &eacute;lastiques</i>, Paris (1821).</li>
+    <li>M. Faraday, &ldquo;On a peculiar class of acoustical figures; and on certain forms assumed by groups of particles upon vibrating elastic surfaces&rdquo;, <i>Phil. Trans. R. Soc.</i> 121, 299 (1831).</li>
+    <li>G. Kirchhoff, &ldquo;&Uuml;ber das Gleichgewicht und die Bewegung einer elastischen Scheibe&rdquo;, <i>J. reine angew. Math.</i> 40, 51 (1850).</li>
+    <li>W. Ritz, &ldquo;Theorie der Transversalschwingungen einer quadratischen Platte mit freien R&auml;ndern&rdquo;, <i>Ann. Phys.</i> 333, 737 (1909).</li>
+    <li>A. W. Leissa, <i>Vibration of Plates</i>, NASA SP-160 (1969).</li>
+    <li>M. D. Waller, <i>Chladni Figures: A Study in Symmetry</i>, Bell (1961).</li>
+    <li>C. M. Hutchins, &ldquo;The acoustics of violin plates&rdquo;, <i>Scientific American</i> 245(4) (1981).</li>
+    <li>T. D. Rossing and N. H. Fletcher, <i>Principles of Vibration and Sound</i>, 2nd ed., Springer (2004).</li>
+    <li>M. J. Gander and G. Wanner, &ldquo;From Euler, Ritz, and Galerkin to modern computing&rdquo;, <i>SIAM Review</i> 54, 627 (2012).</li>
+    <li>Q. Zhou, V. Sariola, K. Latifi and V. Liimatainen, &ldquo;Controlling the motion of multiple objects on a Chladni plate&rdquo;, <i>Nat. Commun.</i> 7, 12764 (2016).</li>
+  </ol>
+</section>
+<footer class="wrap">Klangfiguren &middot; Kirchhoff plates solved by Rayleigh&ndash;Ritz and Bessel functions, sand stepped on the GPU.</footer>
+</main>
+<script>
+const GUITAR_RITZ = {"Mx":18,"My":26,"A":0.1825,"B":0.2425,"modes":[{"f":29.294,"p":1,"s":6.52275,"c":"pNABgNIFVCC+9ioIFvwmISIGGQX++XEEkApJ88TvT+D586jtpfOr6xL0C/pUAVgCfwFnAOj2cQhmEnwagvgn/Pf76BoRBer6Ofj4A14TyfZP9Wjj7ftB9MT4pe1C9fj7bAMtBEoCrwAd+3z9mR7+DTD+Cesi+s0Fi/2+7cT1/gNbGJcE6wN3+WsM4wfABR77o/zHAYEFgwWQAt0AQwFhAAIgmwh1/5znFvUU+jTzYOsm8WIHuxQgEscMuw4+Fq8XZA5cB7ECLwbaBXIFLQLRAEkCQAWpFs4KMf2X8e/wufuR7VDzUO4zCj0LKBZaC+wV6BPOGeENBQsNBHcGSgTyA1wBjQAqAUIHUAsJC5r7Y/zJ8pYACfCu+y3xvQgPA0kQcQVOEFgLXhEzCMQHcgL5AysCBgKaAD4AJwDYBAQEEwfj/KMAjvjzATv3bf+294oEu/+pB08BawcvBJsHIANCA8MAeQG5ALAALwAOAPL/xwEEAZUC1v6tAIv9+wAa/QsAMP1aAYr/JQIJAPoB7QAGArkAxQAVAEcAJAAjAAoAAAD1/0cALQB0AND/HQCf/zMAkf8AAIr/LQDo/0gA9f88ABgAQgAVABMA/f8DAAMAAwACAAAA"},{"f":40.912,"p":0,"s":5.40927,"c":"3B+xB8jdL/9/7qn31/Aq+3D+vwDABEP+/vu68L/tyOws8Pj27/plA4sGjwrmB4sF+AGnAP9/MvG+6h8D3+bv9KfsJPvGBFkGxRAXAw//Femd4p/hvuZ99GL6BwufDyQXvhCzCyIEYwFh+GUUMQQkClb4cvu0/MMA4w/0DNYbwg4MC4f3EO+b8fnyZQKhA44UcRVIHEATWg2eBJkB3wtrEYQNhAdMAbr5iADc/GALHgmaFjISNQ4qBlz8CAVHAXsQvAuaGf4VyhoFEbcL5ANiARoEdwUMBhn9Svip7xT0ovLV+S/9BQSRCqgFkQnJ/8IMdQbXE0wMGBa5ELYTtgv6B3kC5AC//ij94PrH9Vvw2uzp68zuH+9Q9gT31gEW/awFKv7nCYcE8w2yB3ENSAnvChwGEQQjAWQADP38+6n5QviV82XzEfHB9MfyTfjw9q3+vPvcAcr9egSrAWUGHgObBZ4DVQRPAnMBWAAXALX+Wf4k/Q39JvuP+0f68/vW+g39O/wi/xD+VAD5/jcBVwDQAcoAdwHoABgBkgBRAA8A//+1/7X/k/+Z/y7/Qf8N/2b/Kf+A/1f/1/+t/wcAzv8nAAkAQQAZAC4AHAAiABIABwABAP//"},{"f":62.359,"p":0,"s":6.61663,"c":"pvm97/9/+CKu+g0B0AzwLFIPtRhkCtgnVR0uFosPxA3zF3UIZQrUARAOSQtZC38DPQGr/2jv08iGIuAeH/aW7yAC6jiGB4ATpACWMVEnfhKkELcI6CWaBAIPcP3LGSMU7xU5BkQCKv+z0xPa+BmHBL7Yk8cm4WQOJ+dp3x7d0/7ZCV3kiPYU5Z8VX+4KBVjxWBaoEI4VDwXvAdn+hNyX5AMUyAii4JbTneUOAQ3l+s+Y2KfiCflny23pYtKtBvThIP1C7H4PzQqMEEEDVQH2/pnx2wqEKAIwlwfhB98MWiJuB5HyRPaM9eUETd2p87zfgQVL6rb9LvJ3CmcH6wotAtgAZ/+sAukggC5JQI8hVCwXJm03fx8cFYwQ3w6NEYX5LAJy9i4Ip/j/ABP71AY8BREGeQFzAMX/LAWXGfAetizjGnQkFR52KVMaKhdQEb0RUw8FBbAFNAGDBh0AvwGO/3YD8gKeArkAIQDq/yoCxgkxC6EQQQpWDpQL9w9OCvcJTAfnBy0GXAPAAsEBmwLcAMUASgAeAQcBvwA0AP7/9f8mAIQB7AHUAoYBMwLkAckCtgGbASsBcwEXAZ8AbgBjAHoANQAYABEALgAuABkAAwD9//3/"},{"f":82.057,"p":0,"s":6.00091,"c":"h+ct4UjBXP4L44cDhPAW8kPy0/j5EO4DvvhN1d7FGske0EXnuOge/30DGRVFEYEP1wVNAvfm+co47FABGNbcClH4MOvL9cf5yTKtGLAFO8HmoK6qPrSe4wPgpwvaDqcwuiUoIV0M5AQDZ/9/Bwy+9cL5UBMcGhvr4wbVA15O2jnZJ2TtKccV3prbGBGN/c4pWCCKQIktvCYhDq0FE0s7TsggC+6b/9T86xFf3n34aP3VPChFujGIHULzWxz/CSc/8BtRQPYp7kFfKhIjPwwDBdQv/Sc/AtfXC+EY4IPl7Msb0Cvr2QoiMi0ZXSvvAac1JBu7SesiVj0HJHIzYB6uGBUIXQMODlMHzOiM1nHNytYYyz7OYcDf46PnlRbk/lUeAv7FKaYTiDSKF20nFxW3HWMQEQ3nA5cBRQEy/hrpwOXC2qHmxNhy4tXT8uzx50QGVffdDGf7vBMJCIIY6Qn0EEwIDAxYBt0ESwF0AEr/tP6Q9v/2x/Fc9w/xAvZ77/b44vXwAJL7VgNx/YMF6AEdB5ICcwT3AQsDngEjAUMACgAnAAUAPv5a/qj99P66/WP+G/3N/lr+JAAu/1sAdf+9AD4AAQFRAIcANQBcADcAHwAGAP7/"},{"f":90.98,"p":1,"s":8.70741,"c":"5Q/C+wGAl+SLGLAyjA2bB1IKrx9YIhfqKOl0uWfmnbl23MC6QOEB1gnsH+X18Ojz/vtm/rBCzvZ15NjXJQ90MLwHfPo3+nIlzSgW+zHzyc9L/93XsvTZz1LxLONd81no+fCt88n7fP7OLDgKa/h82KMR+Rjj8gThS9nUGIgX0BWfA34LLCcOH2IifwtCE1AHJQWF+Ib3pPgi/Tb/NTv8F88ag+o/Fp8FM+G4ztu9dAF29/MasAItLvQzN0iXN/0x4SSnHa4ODATV/M78Ov6o/4E0oyC1KvL/+Rip/+be5871uXPucN/rCvn03Sb+Icc+8ipFL+4dDBvSC0AFb/5F/rf+sv8bJIEcPCVrCsEUrADQ6VLeWs1r6gbesPv27c0PxgqlH2kT4hgLDmcNywTUAYD+lP4b/7T/7xFEEPQU+QhRDOABjfYL8EHnafIr7Mf48PLNAej/Swm5BIUHpAOcA7IArv/o/hf/lP/V/+IFwgVgB8YDsgRCAcH9S/uM+Dr7ZvmR/An7Bf/K/kwBVQASAVwAWADQ/43/kv+t/+X/9f/5APsARgG1AOUAWQDO/1H/6v5F/wr/Xv8m/63/vP8LAO7/AQD7//n/7//j/+3/9P/+////"},{"f":105.553,"p":1,"s":11.9028,"c":"yaMmxUVgZGUqyHOjjdRkYvYunu4QtO4C7jZeI3vvpNfi/wUQmwnU7Dbql/nSCIIMoQYyAv6eLZjHY/Z4uNTogYzXk3I9SFDapqE09T5JXiSA63XGMwErFHgO9ufY5GP4BwyeEMEI5AIBgNu9j3wDbCbqLoKS6clek0wkze6puegWRm0bfe4cyUgEfhZuEYzt/ug5+0YMdBBvCNwCn6Z0yj9hj1Xy71mekO1bRp03k9bvuvTu3jQ/GsL0zN6gB8AaAhJl+YrxJQBsCsENpwZrAlG/5+AqM7c7CefsxaDmDzQYGQHuVM1YAPcfrx2W+vD3qQgOHEEPOgNA+ZADUwenCUkEsQE72KjxRQ7LIiHlr+YV5lciVwTF/3vgVgpCDwQaLv4HBXwGphXtCfwFm/2eAwkEWwUrAuQAa+yR+lsAABB97mn3ou+FEUb++QPS8H4IxQUFD3//WQUkA00LpQS2AzP/2AGiASYCzgBOAI75Yf7k/u4EiPm6/f35uQXf/vEBHvsqA5UBJQXd//sB4ACVA2gBKwG2/3UAbACNADUADgDA/p//6//uANv+b//y/ggB6v9EABz/eQBRANkA8f88ABsAjwA5ACQA7P8IAA8AEQAIAAEA"},{"f":144.434,"p":0,"s":12.9079,"c":"MvW5EuDJFPki1BHT7dR33pb43O11Crzz2u5nxB+x07PtvTvfgOlHDIYW+SgMH4cWFgiwAv8L9T6zvwYAqso6xbDRTNiJD+b5NjRGCwz8va0BgCWLbZVp2W3kSSmZNp5ZhEFWL9sQsAWEPj9by0p0JDf2R+W1Cf7/MzqSJh9jWEzdMJ7zD7MP0LrFvhFfB71N/EvYbKxKWjWVEnIG6DDtS3hCTxceA6rhvwfa+6EmTSiTU5ZjBkDFMMnqtxxs/slFiSaWXxlOlWUrQfAtYA9tBa8TaxKjDtviA9GUtvLL+M454Gr59gx6PVgccTTp+ZA0PxPuTDApC1DOOgtJIyxxHpEJWQOY9yfrrN/vxFuyracrqgG4bbeY19PakA3z9lIZ2PSxIwUNRjIdGbguEyBMJ58WCA9QBGQBKvOe6Yjfa9S/xnDFAML+zX3IKt2L23T6q+9ZBQX16w0XBGAVpQmEEkoMFQ9jCCcFTAFPAFr64/an8rfvVuri6rzogu2e6vzx9PCx+2z40v8n+ysDmgCfBUQClQQNA7MDCQITATgA//8B/4z+7/10/Wf8lPxT/CX9dfyF/W39PP++/sH/E/9XABQAvQA+AIYAYwBzAD8AFgADAP7/"},{"f":174.723,"p":1,"s":43.9315,"c":"Y7Yv4edUT06R8U6gwuI5L04zAeMpwAHy3yR/L68AD/57BvgjAhXdCTH8lQVNCeIKDgXGAcCSKtIJYEZvDehiiSfY2kd7RurgN6187LYrJzVR9znwk/3UIvAS2wRP9n0DSArzDC4GJAIBgLK9zk8AbY7irpcz3JVQTEsL6z62kOojJQIkauv+3Kruiw7sBbn4S/C6/RUHYQpABcQBA537zPAzn1DV52izyuu3RYFGEPVf0GvrbxwEDgboEtMq59L6EvtA8OTukvldA3AGmgMqAeK8RtibHxkvJfN4za/7fi7sOEv6Gut371UVbABp7tbYEOtX82H4gvDY8oD5LAFWAxwCqwDL3I7nIBGkFCn8HuNWA40XqiS4/B77zvU7DgD9fff95zn0QvYL+2H2zPgI/GUAjgERAVoAKPE/9AMIRAeO/2TyIAMyCZQRUf72/4T7XQds/k79xPWI+8j7Kv4a/Dv9ev4zAKkAbgAoAIz7OfyZAvEBAQCM+xQBlAKEBW//OgC//n4Cu/96/zb97v7+/qP/DP9P/6v/FwA3AB8ADAAV/0n/kgB9APL/FP8SAIEA9wDi/+z/zv93AA8A7v+W/93/7P/9/+P/5//4/wYACgAEAAEA"},{"f":183.958,"p":0,"s":8.82469,"c":"4QMPC0cCz1AXGOwBet6T/TQbAU0SIyz8c+0CEOwqeRD1897iDwIVE84YogTB+b/1+PpN/qkQ5PnL99f5Fis8FGa3fdfgJf9/FTsG4MHMGw0TT+QXMOQywNACniXQMqQJivM66/j1pPw2CXDJMeJeBuoy7ev3n7KonRQXWzwjqrDnseTxgUdyCW/bBbdtA/IoHTc4C8nz++rE9Y/8RAJf6vD6gARnMJjyva+PqQAEcTltDbuqLa9D6b00wAZ44FzHogXqJ7YwBg1l91TwMviW/f8MeAhcCz8rPjMNFxTRR9/CCOg6jAew0fLHGv8uJ+QRJe6g5TQJPSQNJCYNtPt591P7yf6WC0sdfRFwOf0oQzB58PIMBg3BOzIKUvuF5csRbBugGK36+fvhCKca3xU3Cm7+cfy9/ZL/kwaeFusKiyhOF7kkRvxLFOMKmyilB80HNPeSEX8PTRE+/6YClgUyDugJJQV+/9P+Gv/T/yYCtAhsAy8P8Qd4Div/5whBBLQPNQNUBLT9bQevBawG9P92AfMBvgQKA5AByf+Z/7j/7f8/AEYBYAC1AosBYAJj/0QB+gAWA4oAYABs/3kBPwEgAcf/HABhANwAfAAoAOn/6v/2//z/"},{"f":190.678,"p":0,"s":5.39987,"c":"Atfe7jEXBxV3+DW7U+aN4av6085t2yvcku426tbi5OnX8FX/RAVeDlMTTxLhDCwFgQHb/9O8swbbLqQCUvUarBLi1u/ADKTMhtFz4fHxWPAx02/kMei1BJkLER6bJj8k4hifCa0Cn/8BgP5KUmtiYlDwas/i/b1DEzwFGFf7EiYjGqgfMugo+1jx2AshDDAdwSWMInEXnAe+AS//QuDy5D4pTEp+66rdYgL1UVNIHDZ4GM0+2C16K3f5Qv9O9m8BXgT5DCoZMhTYDgEC+v+T/l3ANNFIAR/3ANJtsv/sPhGuKXkHAg7ZE78e8gcR+ETq8PKz7FT6CflOCh0E2wUh/b3+Tf6j1I66B+hew53NWZ3l4PHVzwV82BT8TeegBoHmtvPZ3c3xp+Nd9vrwswEB/KIA5/u5/r/+OefjzzbvP86e34K5LerZ1T/6Z9cy90bjdP3c5V/2Mucz91rsSvlX9ZX/LfxO/2/9Vf9//4P35+2E+nrsmfT85Fr4Yu6V/GTu/fur8xr+qvQ+/NT2If2k+Hb9PPzq/6L+j/8i/8//7/8f/tj8zv8v/fD9BPv0/nL9iP+l/Cv/D/7U//j9Rf+S/rL/zv6G/2z/FADZ/+X/2//5/wQA"},{"f":214.631,"p":1,"s":28.4917,"c":"UqWRzHwRP0Qr2tnN8uETah4wMAq1zVL2NyR+7cvcV5/G47jWMfMPzCncx+Jp+/cAsAKZAHWgBbodPKo/kOO7rQXlhm3SPFj4XMEV9Nc+1P0j7cejXfi86ZYFW9FN3Y3jSf5GBG4EPQHhxXPB/3/PPK35VJkZ6f9EninS3tu8zflkSdAhyg9H3QggExvYI4zzyO988xMERwhIBc8Bnt5A4wd1LTlNAoin/9o/IB//D9fbs6oEdTczPf4fPxXVNOI/ezLjEdj/gAITB6IJowTZAQjvIv88UJE27vU3yxLM1BBt3EHivbG4C2UXxT0oF9QpPSytQdopYBrQBMYHzwV5B+4CSgHV9TMLXyViKdfuq+sT0XYLOte58X3DVgrYAAUp1geuHzMXnCoIFy8S1QJqBdMC5gNOAZMAVPrMCLcMjxax8w77ZeUUB7rnBvu/3+MEYfskEvj/3A2kBy8SgghoB2gAzwHKAE4BaAAiAPb9SwMxA7UHjvtU/y33sQLw97X+avUpAan97wQV/2kDaAG+BP0BsgHE/ykAFQA/ABoAAwCD/3cApwBpAUf/yv+i/pkA5f6+/0H+FACr/64Av/9QABkAngBAACYA5f/z////BQAFAAEA"},{"f":247.114,"p":1,"s":29.1373,"c":"1aDA1wtYWG5x4biY0sfSQS87ZvxRtg7qGiKaN8EKcfAu+pwVuxoHCyD6evcb/BIBYQG/ALmBPru+c8durOcBgLLCbFEdWcb1uaS517EqDTvxB+zdyvAKErEdvwiC9V3y6/m7AKIB4QDvgUy19WJhdhT284JN0mRN8GEI84Gvnc7AJQYpc//xz53nHQVNFeQBm/Jx8Bn5GwBnAckApZ8zxV1KP1eR9U+kF+AdQZhRwvqVxcLYDhtMGkf63dNz5vz98gvL/r7zIvMU+hYAHAGzABO6YthiIqs5he8Eyq/lHTLYM1IGQ9t37d4Q5RQh+1Plee1H/5MGMgDq92r4P/yAANYAlQCS1sXqMwjqHi3uSefg6wwgnxj+CpXs+vwuCZMQVf779Zf2FQL4A+YBOvzi/D3+ngCKAGIAbuy99mn/XA2b9JX2VfR+DxUJrweS940BQQTVCSkA5P2Z/EwCPQK1Abf+Ef9n/2UAQQAqALb5F/0L//wDzPsw/cX73QR0AtACZP3uAGcBkgNVANL/Jv//ANkAtQCz/8b/1/8fABUADADL/mf/8P/NAEn/U/8n/9cAiQB2AHP/EABKALEAGADv/9j/MgAwACEA8f/y//r/BgAEAAIA"},{"f":286.564,"p":0,"s":20.8844,"c":"CONkEU7vvhykyvDY89SBCzwPvBILGcgTGQes14+4ZLTEwm/h6OolCNMSdifdH1AYBwkgAxLZ9iFMARky47j3srbEww3OLZMeCT9eKxkfFL+KhgGA35u92XrnSSC/L+dW20NRM/ESmAaLBG8s+T9jFj3qvLEE7Pn28zq2Dk5PbDfhOujhNqyms2HIVA6JDHVGb0dKbM9O4jpaFZwHrStbN9psBiPkADWu/uwX4aIWLvhVLds5uzc7FnbewAU9Ag5LVzA9Ys1OiWr7Rtw0YBLVBtQQXCb8O7QWRuZpvkDFqtoP19ntPvGIMtEVGzQk9c03ZhwjYXc2rF25P5lSDDJyJSMMwQTW/wUXdgiMDXPMTde4sQ/ms7rf8bzQtSIB+VEw4/fSN6cXKkvZJGA+GiVsMOYaJxTmBVcCePgFCvj0xwYz17/uecmy9N/Nw/my2l0RifOmGjT5xB6vCpglLxAiHPQOGhR1CqMH9AGsAAz8MANQ+a0CwO9i+1DrKP0A7Vz+Q/FuBTT6sQju/KgJxQJ0C3EEywe+AzUFqgLJAWIACwA8/4gAxf6PAED9aP+Q/Kr/0fzB/4P90gD5/kcBaf9hAVkApgGYAAABcACgAFcALgAJAPz/"},{"f":299.319,"p":1,"s":36.2137,"c":"majHzptQwETa8titY/8zQKEuJ87MwKL8Xi+4GGrm2eTU/+MU8AEb9Pz1aAvYFLUSXQhjAuSEKMgPYHphBNwWlWH0elyFNu/GwqtIBfs/USd14PLgdQHnHIMCSPCI8k0OjRrPF6AKBQMBgJfVZlhLZH7NCpv16xRfny+R0L+w8gwBQGYpQeQ05LMCGhpOAcDuEPKGC6sXDBVuCZkCEqk70zdA6Uwj2z+wp/IzSFoo39gCx1cHfTRqGifrueRoAcgNfP6i7VHzmAViED8OgwakAfzHDeYgNp0ujfITx9EBqSeSIUPdTOC9+lYjfwVb8cvk5P68ACH8y+4D9nsA5whpB40DwQDE56nw+iVmFqgCWt3JCa0OTxc85VXyrPTQErj5ufad6r796voE/LLzvPmF/sAD9AKJAUMAM/cz+akU2wj8BDTv0gfkA+0LAvEd++H3xAek+TT7ePR3/gT8nv3f+SP97f47AewAhQAXAJT96/03B7QCKQKL+hAD7ADoA8v6mf4Z/UUCc/1S/jz8gf+b/iz/Hf4q/67/TgA8ACEACABj/5n/awGnAEEA7f6FAFsAswAN/6n/mP9yAJr/p/9l//b/1//e/7T/3//6/w4ACgAEAAEA"},{"f":313.553,"p":0,"s":26.4767,"c":"kz0ZJg3GKcquDPo4/w0N43XnFBmPKKwJBOxe8K4IdQuk/DbwPfVa/5MB2/zb+OL5D/1I//l2TEc4kHGYUx2ma8Ac7rrbysMp4k4LDT7VxN3TERkYDfuK4ojsHgHaBB/7avJB9Ev6ov7/f71C9Y4tjTIkGGngHuKkeL/1HEVMkgN5zXXZ6xNTHj7/Eeje8KoHDAmZ/qPzJ/WG+sv+WmSwJAPAV6A/H5NWNhjyrC3B0BAvNqMAStHg5PsRISMABZ33BfoMD+0LxwMx+BX5I/xS/ztNXC2z0B/KvBjDQ7IMqM0rzogQ+B1nB27d/Pe+DWgj1AdfBfUAsBE9C6AGjfz9/N39x//iKYEeGug17dEMHzAdBFPtyOCMERENMQzs62YEggg3G4gGpQkEA7wNjQe4BQf/Kv8G//T/PBOVESr0Dvw2BbsacAA4/CDxWgzKBAgJ+faqBRIEfA5TA1cGBAIGB30D9ALd/9j/nv/z/yMGMAbK+33/gAGZCdL/oP8v++oEbgFtAyT9aQJUAb4E+gArArEAKgIBAd4AAADy/+L/9f9gATUB8f6g/1oA8wH+/7v/FP/3AGIAiABt/14ARgDDABwASgAbAFMAJAAbAP//+//7//3/"},{"f":342.741,"p":0,"s":24.6317,"c":"g9cv5Mb36iQrFt7adrfp4ecpiBto8mW8Pt1jBIsKHusQy4zjk/k5EM39f/bU7wT5J/04ABm4MdZl+hVZaxRRwNyTedVCYNJG3/O2iwLIxBsQIsvnbaC20yD6qyjM/87wyeDr8qb6vgBTxSzlyxwpdkNF0M1voYfm/3/caSUIaKPM2SdFcj7+CRuutOu7CfA85wcV9+jh+/Q9+zsBOd6s6/spy1VpPEXSQ7TJ6JtndWBrB/bFqecBV7RDSyf3y/QHJRViQsQNw//n6Ur53Px2AdXe4tsvCrMjKxinxMGtzNUxLeI1qO8x09DjXUWULwQoNOCYEZUUtDVnDBUDcvLq/FL+IgEw52/cUfO8+wr1/MVNtrzQ9P4kDVrhN9xi4lkk5BSkF57sagwaDKMfTQduAuH4lv47/6YA4PDo6AHxMfVt8TTc+tGC4Pr0Lf/C6Drp4OuqDXEGsQg09Z4EHgWrDdUCkgDm/G//v/8+AJ36rfet+U77zflJ80DvcvTR+qz++PZP91L4jAN7AfUBCPzYAHIB7QPDAO//A//E//b/EwD//nb+6v6U/1//3v24/N/9jP9JAGv+AP5+/s8AjwApAAr/8v9cALMAFwDd/9H/+v8CAAMA"},{"f":362.81,"p":0,"s":32.2884,"c":"ocrp5NIUjyL74yfCyd9iBfsX/uia55/u7wik9e7XptNe31f9BP2OBrkESBImESMPLAYjAkKizN6aOjpWSuDJkAHKER+bP6XkLtz68M4fhv40vBK3nshEBsAAxxOyDF4ndyMvH5gMZgSsrAT4Tl3/fy/oUJs34Zc+vlZHALXufxP/OXAifdBd08raFx4yDn0hmxNXLusmwyFmDcQECskcAOxa1FdM73ysBuaENM1H7Qe/9bwh/TsiNXHqC/Xn8jcsHxe3JfEUJimRIMEbwwrRA6nK2OSIK1ckFeFtp3fYPgr7G33yCOq5D/sj7ybX9DQBVv5+JUEUmRx+D7cbORWZEakGSgJY3XLfBwm3+CLadLJd1F3r5Pq+4kjjY/peCssOrfY8/3r/hRRcC8kO4we6DYgKcgggA/4AU+zd6Af9G/Kb5n/Rl+PG6+b0yOib6wn2sv+/AWj5Tv0P/30HLwT/BKkC0ATRA+oCEAFNACb5Wfcc/gD6sPZu77P14vcU+8z2J/hO+/H+Yv9f/W/+eP/AAf4ABAGIABIB6gCqAD4ADwCV/nD+9P9O/3L+Df1I/t3+VP9e/oz+K//k/9z/f/+j/+r/QAAhABQACQAfAB4AFAAHAAEA"},{"f":388.135,"p":1,"s":69.7958,"c":"N7fz23hhtk4iAQebwfPTHOM35c3yvXbsiibEPXwEYRAXBy80NxpmGrkEJhC2DSwO4wUnAnyPYtM1Yxty7eRKiVLhmj5oRirSsKYR7dwpBEij9cUCG/cHMZ0T6BTm/XEOkQ4yEOcGfAIBgOXSiD3dd5jOOJ0r2k1X40pR6rCwb/DKIKQwpOEZ4kvenw6f/fz9KPIQA/IIqAtlBc0B+49i0uMZek8n15+5mPAFTz1Rhvc81eLrcRtUC6/bJcZf0h3rDu176b3rW/jnApYFRQPjADW6JtUtGFon1vMJyxcPLTAsUBv2gvo45hYaGfGy5QfC1tkU3U3rY+RX7hH12/+eAbABTwC83nThChaVCnUIPNy7Gh4TcTw+9LILu+n+FIbswPNi1GXqqeTp8pnswvVF+Gf/QADQACUAFfQ/8LEOCgHUCR/tPhIcBdUfCvjlCevz9gvm9GX8kuu69x7zwvpm9wb8x/zM/x8AWQAcAMz83fqUBdf/AwSV+YkGCwFpChn9ngM6/DAEpvxh/yT6Bv55/Lz+wP0P/0n/AQAbABoADgBP/xr/GgEsAJcAwv73AE0AvQGA/20Acv/DAKH/7P8n/8P/mf/g/7n/4f/y/wYACQADAAIA"},{"f":423.936,"p":1,"s":27.6964,"c":"xRQdIHwtO+d95Wrpm08Y+QHCcpE77+dUVjj+G2Df7E6BVTBrnwQLA+QGpz4cP2YxUxOtBc4L4iw7JA3sHt5b+VtQQRV6tgGAM+f2ZNU2Z/9Usno23UvSYYHqceiE+qVFJ01YPNcXsAZh7dciO+7Y87utrhQ7VUw81M6pnJn1KVEUJZnIhYz97H4ZKR8Fx3PC6OeSMMdB8TKjFE0FY9arBWDIgOtQuc8ce1cHSoAE0MNXGoAyMiLIpqaQkbYG9eHkRrr3sJHgtxeSLVgigQ5GA2Pd7+8y00bfQ9XrDq5YszmiLQ7gGjhVG1op163It7WygPBv1NzJ/r3e5xAJPht5E5wIuAHX6rPoTOeu37/x4/85Q14e5DGi8H42Iw4KJrPNzOBez036UuJ/4/3Z+/PVAygOhQk7BMkAMffq8Aj3xOvB/EL7NSNKC6ocCPlCH3cHtxb+6vv2cez8AGL0ovXj8Df8TQIKBskDkQFLAF39dfqK/Yf4I/9W/TwLzgIpCZn9XwoHAwAIavo1/kv7egGS/YT9JPxP/xUB2gEXAV0ADQCR/yD/oP+j/pf/c//eAYAAKgFa/5UB0wBmASH/mf+A/4UA4P+a/23/9f9LAFEAJAAHAP//"},{"f":437.263,"p":0,"s":31.9875,"c":"0TIMGSW53cXUBX0sIPSEwNHiKA/+JY3sUNRZ2kf0l/Vh3iHi5Oz9BecCt/+M9536Hv2z//NsRT/thBecAx07Z977ioyC0g0u/1qD6q21ascq97791sja0Vzi7RSuCloDq/Bc9pT6lf//fzlax510qrM3E3weGIqYz+HnR4h0MQnzyF3qlhIbJF3fMO0t86IoORXNC2/zVvgM++v/VmwRUf3AWLoHNaJgOxNIphnikEBSYAEazNzXDHIjG0D7+uEMWwbbMm8aVhH/+O/7i/wtAJ9SRxvHwoq4bRFXJ2jxKKpa0CYciSzDDpPgSBP9G4I76QXyF80MUiseFnIP+Pw9/uL9IQAdIAYFeM7VwTnyhv3s3Ea55Mv3/cAD8/3l4iYJswtvIw0EIRH3CMsZ4wwMCa7+Dv/P/vj/KgyJ+g7hfdvD7x/14uQO1wreDPdd+DH5Ue0fATYCHQ64AAcHnQOYCjkFbANT/2L/cv/q/wcDbf3Q9AnzN/kz+6L1jvF488H7AvyH/PL4XP8CAKMDy/+UAdsAzAJmAb0AtP+1/9P/9f/KALD/6/2t/Qn/gv9W/nD91f1i/3X/Vv+z/sL/BQCIAOj/GwAXAGQANQAOAOz/7//6////"},{"f":448.679,"p":1,"s":40.1816,"c":"ymGuNGCrv6xOFkVL4wKjwFbjTC5+OrT15dM167kZDhTw+3jy0gbyD7kCQ+t847jqCvfO/f9/1UcdmESbwyNCYMoHlqrL2mg6K0o570bCK+NxHkcZDPiF7jQIxRWJA9PlVdsD5aH0TP0VeRFB8aSNp58l81moCh+sgtsaNvRBCe5DwHPlEBnoGH71pPGCBwcXwANH6aLeGOjm9b7951kAJvvDtrAYHAJIsgbSvs7gOizHLvD0c8sG8csRzBfM9pz5zAZ1FekDMfEC6IPv//ic/nM7xBwpz7TOLRBlLg8ADtlI6fUhxBvN/uLdZP5xDD0VzvoYASUGQRGjA9j4MvIP9yr8Xv/mHK0M0+OA5V0FtBof/STu2fLdFjgONQQL7y8FQwhMD0/+7AOhBBELmQKG/bj5N/xc/sv/PAzDBdnx1vR+AYQMoP2X+V/69QsnBp4DqPm7BHsEzAe0/8YCiQIwBUIBWP/N/cf+eP/x/7kDvgFH+5X8ZgAkBBT/Lf5e/h4E+gFRAUn+6gGhAXcC7v/yAOEAkgFdANT/cv+2/+L//P/TAF8ABv9I/ysA2wDV/43/t//GAGUAJACu/1YAVgBfAPD/HgAqAEAADADz/+v/9//9////"},{"f":499.194,"p":0,"s":41.2676,"c":"z8tB22kkh0HgIZT0s//XKmA8ASI77C/wJBYnQFE8QyFnEUsQLxJ0AMDs6eDa5h/ycvsl/1mRmqjROSJtwzFOyubb/Dw0X0QnMry7w50TY2ezY1othhJBErgaGPml1G6+9stR46r2Q/4BgHWQsCJFVQUXc6N9pJ0T8TxW/7WLiIyz53o+F0KLBeTx4vV7CVjqickXtd3GHOEh9in+05VLp+MVc0bRAsS0bLPmCo4qr/MWki6HZtRrFKEbMeRZ2v3f0fgx4x3NJr810PjmW/jB/tvFbdv9K9tZ1Cs79FHtrCmHP8kTJMyrt4bp6QyeEOPjdd3c4ar2Teqr3KvU2eDE8Lb7jv+v7nII6TYTVZQ97iG5HDw8hkc2K6T/fewvBE8SABHj8xnua/AL/C72He5P6nPwMflc/hgAHP81Dmcl1zXILEEgvxyCKnswEyNODbABbwqlD+cMM/7I+VH7FwDn/Xj5/vdC+v39p/8uAN4AYAbdDWgT5xDpDJYLAxBIEiMOrgaQAv8ExwZIBVwAcv5J/6AAEgBj/gP+jv6m////FwD+/9YAPwJsAwAD8gF3AX8CXwO9AgsBIwDHAHcBIAEKAJL/7f9HACwAwP+v/87/AAAFAAMA"},{"f":512.713,"p":1,"s":116.385,"c":"I2TAP067H6wSDaZNthlKuxjHphEHOcwQmNu374YSRC7xD6cEQwIoE1kP6AIQ9931uvp0/v9/X07Mo92RyxTvaZklXqj0uqAXUktLDwnLHN/cDtAu4woD+/r7TRJzEAgBYfMm8v344f30cgVChqEOlbgXqGlGKPKy3MaMGd9JCggwyAbTaALEGl795+wv86YI/gqc/RvzZvJe+e/9T1CLKsarIK2RDT1VyCPTzFfbhhq2PcIFddM+1g77cglx9crnQ/ARAaYFUPzh9aL1Ift5/vIx7RmqwZ/GfwSXOgAYC+am7fwYzCwrCMvl2uU1/HQD5vbS7W/0Rv8SA5H9Bfrx+Tv9J/9GFi4KjNmg4CL/YCBmDEj2yPiOEgUb1ggw9Xz15P84AwD8Qvea+jMADwJR/3P9W/3M/qj/BwnTA7vtzfFW/iUOygT7/H/90wmhDMMF8/yX/VcBswJA/1T9dv6xADsBHAA//yn/m//l/6EC/QAN+nT7Pf9IBEABG/80/0MD/QMhAmj/yP/KADUBEwCF/8T/YgB4ACUA3P/Q/+f/+v+hAEAA3P4O/+b/1gA4ALX/v/+NALgAXgDe//j/LgBDAAsA8P/6/xYAGAAJAPv/+f/9////"},{"f":538.486,"p":0,"s":75.3053,"c":"RC5mBtzfK9Y9LPA83hxX2pvidAr0Ev73PeaNBU0tETEaHEYAzwL4/IX6CenA6JnsG/hs/d9V/wqasRmrEUmFe7MqXLQivAoXBh/O7C7DZgMoUVlYbi6W9iH+evMQ8dDOv88H2NHvsvqeTjEJ1JPRo8cy/3/tFdu2W69HHYkYp+XIse/x8kFwRJIbJd8s7jjkFejKxYfKK9SB7i76xTgcBqiXIbfHHqpuehFgzALGjyCwG7nkU7u44H0nGhzUAjDLTOJm2ejkwsk40q7aifEP+xwnTwQQt7DLSiNSU6sf/OR68aMdeidN6krZqtzvFlb+lPcAyvHjm9tB6uHXCuG15qX2tPycHC0D0eby5fEjYTGmJkL1wQ1KFDoouPIu9K3lvg5m9cX4ANqB7iXoxPNK6c3vuPJj+17+tA/vAZD6W/SyGJEWVxrg+1MP7AmzGfb5dv+w8lMIAPn4/LDtnvh79Wn7zPa8+ev6XP56/8oFqADO/yj8VQnlBvIJdP5eBioDlQk1/rkAvvsWA9T9Tv9s+v79Mf0B/6b9Xv68/p//7P8vASsAzv8f/6cBQwGtAYH/9QCXAL8Bvf8NAE3/lQDJ/+z/I/+1/67/7/+4/8X/2P/1/wAA"},{"f":581.676,"p":1,"s":96.2674,"c":"PlgrKoqjmaNwA49m6xq13HvOWiIaQucN2tpLwfT0qvG4+NXWKOjL6cP43vC+8tTz7/pF/oZ7IDhbmfODuBBXepEpWMGQu4siDFfqFOHXVL1gAQsD5gfn3SXu0O/U/UfyivEc8gn6CP7/fzM7k7YAivgb82RRKKyxZbNcE/VLmRmJ4d3YyhR9I8QeJP1OAWkD1wfT+0j2wfU5+4v+CWtsOMjYe6xzHFZI9xKdtyaxngazKoMalef/91gbzTdGKEYXng5FEkgNAQR/+2366fwq/ztNQCzK6kjTyg3mMGn9j87guHcBjAmvFSzp0gfWElUz2B/DHP0OmhNXCxYGaf6A/Tr+jf97JuweQvSF70ECcB1F9LnmC852AHv53gxp7U0IOQeCH6gQIxOACCUMFQbgA2L/4v4V/7r/pRAID7P5m/up/lsOpfcy9uHmJABH+TsFY/V+Aw0B/QzMBdcH4QKnBBcCWQGt/3f/nv/a/9ME7gTT/RP/Sv/HBCX9Qf359/7/ff1NAUv8mQDI/1cDQgHaAYcABAFsADQA3v/O/+b/8//zAOEAiP+0/+//8gCs/4H/qv78/7X/MgBe//L/6v9zACkALwAEABYADAABAPn/9v/9////"},{"f":600.873,"p":0,"s":10.2412,"c":"G+7c7KJI0xsBDInp9B6vQp3/Ntct4yQ5NkLIF3EHXBiKSgwpMhMG88wUeiL2KnYWIwnOAKbA4M91eDgzmPTdsC0l/39S7D+dj7LGXtFvixT59KAUfX+2O3wVwtbJIPE+RFMdK5YRTgF+kQbDMUwfPYm3oIuJB6t5StNYgzqVtUBeUNzdnMGR2r9XIQ348Sa0ZA84NGVQoyjFELwAV4V1vvQwZ0vZpL2kDxFrcM3oo5ygreUibjDbtCul8ak/HtnZyNEXolz62BycOpUcEgwLABynKMFsT8gZ9d2e7DI5cXCkH6/Vouz+HtIqnLnUttap9ABFyhnOFa+M8n8L8SJhECcHz/+s33f6UzDjN3wTkAnTS3ZfFTxsAbUXdB9qKZ7YiNtUyrL9Q9qq36/OM/YxBKMRFgiMA+L/5fPB/RooNh1XF4ASwTTQNVEshQvrGbEVYBvp8ZL0QurmAOrvMfIN6w/8JgJgB10DXAH3/13+igFTDeQKxwpXB5MTfBINEZMF3ApsCIsKA/29/XT6QwEe/Ej8M/oS/xQBUgIMAU8A9/93//b/hgKmAZEBAwFnAxUDsAK9AOABqQHhAZD/nv9W/3QAof9s/yH/6f9QAGkAKQAEAPv/"},{"f":617.813,"p":0,"s":18.5722,"c":"rNoq480OYCjrFE4AUvut/YEdCOYYv8zBMP1tMOEtfiOQETwe+QnG8NnLFsnA1hjumvqg//KfQ7YsHltNhCTDzDr5dy0yPtDPAYBMjrv6ZWOkVBZB/Bn0NREMHdsUku+Oi6tQ2/X0TP91kWapZAp8U3wcze5F9Sw81lBz8DOCfpUT9/poskobM54CKiTv+vHL6IFMgv2jpNhZ9Ej/QJF0qt8CX03HGhDrxfghRfZU5Af1pNWui/Y1THIqaA4P5sgCk+dtxPeNTZJmsi3ftPaC/0+3fLro8DQeOBP96zsCwinzSAkLls7CwWT2ESM4DyTvQ9jX6aThu8tCrQWylst/6n/60/8+2zXQ//xrA34OcekoBu0MqDBXAVXrZdRS+U4GCQEi5i3fx+ZR6bDdH9GA1GzkRPXJ/SoAze+C5pz+4vtJCe7vhQPy/h4Y4P15+bnnFfy//cn+7O4e7ufwY/Wf8Gbs5e1J9Wn8nf9FACn8yPfw/0L9WwOw+QQBFf7sB6v+R/5w98D+mf5y/8n5EfoL+xP9svuR+hP7SP1Y/xoALAA3/3n+AgC1/8AAyv7N/3D/hwERAKz/Rf60/wMAIQDr/uL+Qf/C/3//Mv9I/63/AgANAAkA"},{"f":631.126,"p":1,"s":64.3341,"c":"Tk3QNHvQaKMD3qRTa1SPCq+lhcycIgRM5wqYuFnBdfhRJUX/P9e4zLD2xRpwJvsY6QniAT5laT56xAGAz9WsZu90YQG+ig235DQ3aGobD63/vBcEoj+0CgXUeMOQ+M8lpTMOIQQNbwIDYxo3rs4vgg7b/lRLcVj4Lo5Nsic2T2l3Jxq/O9FLFnNOoxm24RLPsf4uJy0yUh8gDC4CoVAWMh3km6fG6mtAyU5R9WWekb0BI4xU/SAn1nriSx3GRjke+e5o3xAC5x/QJnsXzAhsAcM0XDEP9I7Reut4LngrS/lxsqvPeQk1NVUOAeU26XEVgS4lFl31uOt2ATwUCBjfDfUEngAMHVMenfoW8Z/yFRzqDyr928xX4rX67Bj9//Xt/u0hCQIWUAqJ+P3z5P+xCcILVwYhAhoA0wuNEGr+QvxI+BcNvgRA/2zmHvG2+cAIpvyE9SH14QG5B+sCk/vo+Xj/ggNyBCACqgDz/40DQQWu/2L/XP0YBFUB5/+l99f6fP1HAmn+7/vs+/3/BwJxAFL+2v2+/+kAOAGAACEA9f+pAP4A///B/2//vQCDABgAe/7q/qr/kQDR/x3/J//8/3IAEQCg/4//+f8vADMADAABAP7/"},{"f":678.915,"p":1,"s":53.4109,"c":"WVsNMdCpNqcGDHRteidOzDXCOxUhRmIRd9Z8vfD2G/6k+4XQy99z7eYIYAKX/rP3ofvz/TR5/TfYlAGAWRQ9fQo207o4qrcWB16sIMHTq7t1BBsUHgtm1Mbh+PLGEfoHQACU9rr6i/1GeXU186WVh/MZX3hrMN2rkqPZEaFVlynS3rvXPxdMMYkfq++H8p0CdxjKDbIC2PiA++/9G2XuMWHKPar8G+5TGxuut2mogAX4NMskX+Uw8bsaSDsSJZwFQf9aDFUXqw5pA3v7tPyG/glJ8CvH6NrQBRLJOBgJHcvftnb8dRKWFSHmlPpwD50tFBpeCsIBawuxD1sKJgIy/dT9C/9BKN4cMPeP7oEK5R/6/lfirM9d+Qz/kQeP6jb7TQOPF40LlAXG/5wFWwftBLMAS/7E/nb/AxIoDwT+QvtSBAMPL/4t82HohvsM/BYBefPI+8X+TAgQAwUBwf6BAXACgwH//yX/e//G/5sFDgWU/yH/gAH9BHz/QfyR+GD+Xf7Y/5v7BP4F/94BbgDI/0r/IACLAEkA8f+4/9v/8f8QAfAA3/++/04ACwEYAFL/s/7F/+3/AAAw/4T/2P9OAAoA2f/T/wAAGQAHAPr/9P/7////"},{"f":681.808,"p":0,"s":66.7826,"c":"++PV6hNDPyK5EX3yNCxlPRkH6OWD3OAhti6HLX0eySqVQugsVhb98AX3OvgpBOMAOQFy/6W2tMWdZEIzyv/t1Ls3PGqj+aO5YqJVK+pHMT7cJHk3A3AuQjkdR9JA5VTpXwWz/8cBhv6nk4apFjMgHj3K1buSDPFd1N3KmQGAWAJ1JwgFQPek+YlJVBFf/T2uAtKC2Xr/L/uGAMj9fJY+sswROhupx8XS0QhYWCXxIKrsm4vnVBJI0DfWCr0tFenZ/N4enATKWdIT+hb4av+n/Zi8T9qdHKAxLvPcBRU49mF7Jr3dmeMr8nkb4cjQ20WxxPyCx7HZK6ro0xLalvnv+F//Vf6s58sCsiz+NqQhXiTrS4dW9ULyBbAV6wToIx/fwPE/y837y9Ye57HLlebc6V/8OPzd/z//CvugB9whJCSXH9Qc/TUeM2YwLA0CGukJFhrs80T+RenP/5jtkfXJ6d71Z/fw/t/+HgDX/7b/IQRNDeUM5QyqCjMU6RFaEucFDAvtBDgKWv2LAOX5swAl+0T9+Plk/Qb+8v/s/xUAAQDB/4UAYAIeAuUBeAFrAxYD+wLEAMsBFgHgAaf/AgAu/04Ad/+Y/yP/qf/Z/w4ABwACAAEA"},{"f":725.022,"p":1,"s":161.865,"c":"G2jwOUi3+KpOKWxU4h0MnerOmBSJR1ICy8297VIZIDijCEkBFQDCHMQVPQYj9a3za/ki/v9/FkwGk+SUBiicdQUeeIyUvHMlhVluBlO3sePwFqE/ugDR9zH4qR4nGAQFdvAN7yr3cP0XcJJGGonrnbMYmXhtFtShBsIxMEFUDwjhtEXcTgnSK4vydejL7RwS4xDl/6Hvz+5u92b9O1GJMFKc1LHKEfdfGhf6vuPapyuWSNwDTsZr2T4A+xCF643e5em+A3oIh/tl8uXxZ/ne/So0fRfPvenDuRIeOxwb5NVn9tQbxDni/S/gdN61/3X/Lu/C4IDuLfyEA6v6Mfe69vr7nv49HRoHXONh26kQoxqxFy7nyAR9DGEmoPsw9A/q1wHb+jf3vet39r77pQGI/LH7TPsb/lb/YA0jAVL12+1gCmgJkA3783UFEQQOEyP9Pf3b9SYC+/wY/fz2bfwA/u4Arf54/kT+Vv/K/0sECwBT/R36oAN2AqEEBvwRAv8AKgYY/5b/A/0FAT7/df94/SD/i/9oAML/pP+V/9b/9v/dABQAaP/i/qIAigDCADn/NgA0ABEB5f/i/4n/OQD7//X/of/h//r/GAD///P/8//6////"},{"f":732.771,"p":0,"s":106.071,"c":"dDLlE7bXicoGErkt2hWv0J3Xq/maE8D62OO17C8IYRMPB0f4vfg+/b7/Q/kY95v3R/zC/t1lJS3dqsmZnSIyZ1IuArFesqkAXS0aAYLL8t/zElMq8A738AbxH/o1/yjy5+3y7nL4ef3Ha/Q3yJ1TnLIf/39tMx3GabacFw07kBSA0UfoDhjhL54QHO/67qz3UP5k8K3slO3r9z39JlmULlWm7avqE01x/yqw1tnJFx6FOg8Y5+Al7TIWSCPlDGfs8e+O9F/9KPHu7z3wSfmQ/Ys7cBXTvCG2wAfdPXIcadmy3TcLIixFCA7ugemADqkN0gap6hTzAPM1/f/zO/Xl9IP7Of7RGx4Aldfyx3kB2xHnDqPbRe32+HUZhvl59kzprQb5/kICWO6o9431GP5g+Ev6y/mn/QP/fw7Y+y3u3N/L//7/tAby6Kr39/UuC/n3z/tO8Q4CEfyKADn2+/t4+kH/pfzA/XH9F/+j/woEy/2y+q30DQCK/loCaPdV/XH7igOe/K7+gPprAEn+LQC8/LX+R/7m/yH/aP9S/8P/7v8LAdD/D//h/QkA6v+TAH/+bf8q/64AiP/F/wL/BgDH/xcAfv/E/7//BgDr/+z/6P/3////"},{"f":774.143,"p":1,"s":27.8742,"c":"1HNTSLLae6LIHANIwkKdriihk8MjMUA7o//+9DsE3V1KS389ef4nEEUdCjhRLAUcjwllAv9/5lxLrvSNFAoaakdRHbKEiDHFmz+yTCXvItm/5m1W+kH3LhLlF/8qGXM/OjV+IW0LqQIMW0JQjIfDnG3qNXOZUYTaZKGj4yxGWEW03xG1H8D1GuMRbvrww9XezQWxLdgrHxtjCdsBHzGGKBWLr6yW4SRlOVXn+c/YLP6QTkQwjuTjoje0GORj7AjQL7cby/T2Vhf7HDsRPgbnAIYXZ/8pt0CnS/aCQQNR6gWWCWoGfE4MG433Ca/jx5TSxOUVybXF0c+99B0JoxBBCaADWgDdDq34a9UZzxsFVBmsPU0EKBoqBaw7zgx6BR/OquQ63wbxz9uy3+XisvmbA6EIewTVASQAQAZD9+XyiuMiBjEJcSBYANwREwKdH7IF/Aaa6lL3A/K3+/HwovM29DX+9QHUA98BtAAPAKUCOP3y+/D2tQLiAZAKkv8XBn4AbAoWAhUDI/pI/pf8sv9T/O/8AP3Z/+0AQQGUACYA//+QAJH/VP83/lYAZwDMAc3/sgD6/8EBjACGABb/w/+z/y0Amf+O/5j/DQA+ADgAFAABAP7/"},{"f":783.863,"p":0,"s":45.3126,"c":"kSOW/9XQ3+X/MNQ47/OO0Bz6EjkzHSXcm8zJB308TSYD/MDlrwF1CBn8yNv71d3fzvJk/BBHlf6rncTKfGFUcODlkJYW7IJu9jfKsXOTggqhdkhJ2fQAyKsB7A/A98S2NKsvv4DlzPgmTon7AY9hwuphB3bs1gGA+OaPcMgzIaE8hI4DSXhvRYnsr745/58Pj/ZLst6mZryF5JH4eUW/+MegXclDVLpb3Nn5lwfq/1smKQCtvZTt/kJfYjOC6bvFR/2TDE34E8ECuPrJTOpG+us0FACZwsrhdUOZSxXnd7yu99RIzh98yWO3vgGYQBYh5ew61wz+8Qme+03XZNHB3Xbykvw6GjcMJeJ490op4TEx+Gji3QC8MJ4WZuYM2ngE7CThEjz03Olv/wgHnf5a6/3n1u5p+Xn+yxArBDH0YwAmFv8Zrf2R9YwD2xlkDIP2V/AHBEoRvAgz+pr2VwAqBAcA7Pd79ov5pP2I/14E4QKm/GAAYQe/CJD/D/2kAfcIdgRU/T77qQGvBdkC//0Z/UQAqAFGANP9V/1P/nP/8P8fAT0AKP8EAJsBpAGZ/xn/YwDsAeUAQf/0/mcANwGEAHj/Zv8gAG8AGgCi/5L/x//z/wIA"},{"f":836.302,"p":0,"s":99.3763,"c":"wTauETLewNA0I15DCSAy42rfQBOmJDYPAe6G++MgiSiJGdH4d/yR/WAHW/sz+Bv1B/v9/bBp7SAdrguZyTf/f3g0Xrx8rr4d/j96FJHQ6eokOC1HhSs36UTzRPZ3DNf0eO9o6cn13ftUaAEgJ5KTh0QfyHyZHUGrqZlhEvUyswLFu9HS3CgBNdsdi9bE59zrRwhl8C3tLOf09Hj7TFQZH2adD5wmEuZnoxcWvRarPgwwKj34msBPyIAVyxcbDKjNCONP5g8DDvDC7/jq5fY3/Lk+Zx9ox0bJXhmjWOskT+C22gwTxSz3/FPcV9QKDmwGGASX1SbpUOr4ACj0VPUJ8iH6hP3YKO8XtO7M7xoiWz7jKE794/+AFWcp5QSA9ubo2gvNATUDuOaQ823zEQHp+cz62PgR/cT+1BXsEMD/Qv3hFtQhzxunBPwIkw7AGb4F3ACp98kHcQGRAmj1Ufso+xEB/f0x/k/95f6O/3QHPgUGASgA4AiBC2IKXQJeBHcFhQmoAjwB6v34AucAKQEW/cX+3P6RALH/l/9P/7P/5f+HASkBBwC5/3kBGgLTATgAlQD3AL8BgwAhAKT/jABJADgAjP/M/+X/JgACAPH/5//0//3/"},{"f":836.865,"p":1,"s":96.1425,"c":"AgjXHM9GPP0P+QTWdkmz/f/UeYor3zw/mDJ0Hwbg50WORb1f4QOJCQ4PW0GMPqUu5RH/BP/ufyH5KQUD+8654XdPViGTygGAMNZZViE3JxFnuxE1FD2TWGbsHvMBBn1JT0ylOPAV0AXJzuMUGu7VBbeqef8iRdZLAuL5pAvoJ0+ZLGLl4Jw09IwQHhqHytrMbPI0Mz9A2C6gEmQE+sY8/jLV9PvCtXUNk0uoUiIRj8i4DrIvHCj3u4Sd8rkz7WDdxboWtVrm9Rb3KgIemAxlAmTX+eue4xzt8tkTAlBWnTlhNH7ZoyyhDuUn47C/uk6rXeaxx/LFELuh6GgFKhigDxoHAgGd6wbszfkh6af9GPhbRWUZljW95DAt2v13II7FS91nw7/wftVA3q7UlvISAMEL+QZcA2YA8/mm8jEDU/HLBKL3kSaVB5MervAgGp78bhKT43fzM+RV+7/sW/J47RX7NwDYBK4CPQEsAGb+nfswAqb6egJX/M4MngH4CZH6rggn/3AGhvfS/Ff4lP//+mj8BPvz/noAgAHPAEoACwC9/0z/fgAZ/ywASf8lAmIAYwHo/koBKwAqAbj+af8E/zMAfP93/0j/5/82AEYAHwAEAP//"},{"f":894.435,"p":1,"s":56.8835,"c":"Hac/1IJMmmLO7jCtxba+J+YN2wEXxi0Llh8jRUAjbykcJ9IytiR3GXkPqw8GDVsJ1gMpAYyN4MAWbv9/WABGknu5Nig4MZD2Hr1D6kQbpCqCEcwEpBNnHOcZrQv4CE4LOg20CU0EJAHljMyzm2RncZ8TH5tz3LEn61Ky86vREspyCbXy8uxiyvHpoOwg/LvxuvpZAPIHrAZuA9gAa5HFrnAuE0uNBa+3V/BrOntZ7goF7gPW/gCa4CfcTrlw1KTX2Op26Af05fvHA7AEngLZANyh5L0K8nArquS+5hLwbEBXQissnQJC/fkDk/aL5gXV2tyI5AXuMfJ798H+aQIaBBAC7QD9wt/bGtw8Flbcqvzk6rc2viMzMsEIqxXRB8MM1fd39cHvxfjD+Bj+Tv37AQsCNANaAbEAud7D7I7knAjk5goD5fD2HDwNth8xBt0S8QVeDpkAyALL+4cBJf9SAicAEQI6AasBngBNANb1X/o39eoBh/YYAZL5HglIAzILFgJAB08CRwZTAX8ChP+UAW4AaAFcANIAbQB8ACkAEAAL/sT+H/5HAGX+BgC0/jkBawDZAVsAGwFMABUBYQCNAPn/RgAgAE0AHAAeAAoADQAGAAIA"},{"f":918.04,"p":0,"s":76.0639,"c":"tdYB6Hk3FipECGHrxiXDPHQXV9+B3EwTKjOMKEkNexMKKz8sRBLj8U3ql/JV/zkDfQKhAOSdccQ2WjRJr+6OwawplW4DI52w6qE+FmBV1j/IBwQUaEaEStIZENoGzpjgmvxbBZcEFAGUh7e0wDxEOcPBuKeYCRZk/gYSlwGAMPwdO4IeVeNG7bwpqC6rA1TDyL7n1SL4CQMEBNMAD5f+wmot/TGdwkG0LQQaWkgJkqdKkwLuMSIC+2DNxsp+BUkGgO3aufq+mdTT9TUAsQJkAPHDsuaVMhY2zvIp6AomlFWzJx3Wfs9f+LwfW/AG15rHtvbP8E/o6cTQzh7ejfcN/7EBMgDR6Dv/GjLjMWkZEQosOEBGJzdF+5T/aAXMH/P2PO3H2r74vvBc8OjbGORV7F/7gv8VASsAwPw7B44l+h60GIQNnihWKKkmqQXlC80HVBWO/f76hO/S/ZH4eflc8Ir0//dp/hUAmgApANn/9gLhDLEKtgq0BXEP+w2bDgsD6gWYAzYI3f84/zz7zf8R/l3+m/vU/O39u/81ADwAFQDX/4AAtwLtAYMBnQCqAoMCbwJKAOwAxwCMAQQAyv9D/xkA2//J/1b/h//D/wMAEgAKAAQA"},{"f":957.792,"p":1,"s":89.0044,"c":"ALer4BtdgDSb0AS2ySJQWvv5cZyjvc48tFQgBZTAUu+bNBo6WvN50WXpoCcePpkzOhY5BnCXFNQIbtJET7aVocYoWX1U/QGAfqpaT99u+v9vqCTiNUDNRO7qVr4s4J4x8E9CQocc6gfZklfUqV3QQgS0UKr8LFl+g/+DiW+3ikmhaU30G6cc1102wjVm5aO6zt6NK2pJgzwKGhwHkKRr3cxCNTVlwRfBDijUZKAKH6Xc0C41KlSh6ui2KtSuJLoe1eUhxPPjZB5VNlgsAhMMBTLD7uclKhsgctgC1fEie0JlDrDC3unQHow43uiezgXc+RQADd7r7NXv7J8RHyGMGkcL5QJp4iDwKRiWDjHuDuhHFlchEwxs3S34+g0SHzbv8eTQ6UcKUAQx9KvowPWQCIAQ5AxWBUkBsvGg+fAKKwWd+Ij0FQtPDbYFKvDH/W8FPQ2A9zD0SvZxBH8Bxvow9uH7gQN5BtIE5wFpAFv8rv1lA1gBvv1K/GMD0gOdAe36WP+3AfUDSv1M/Dz9ewGgAHL+Kf3Y/hEB1gFHAXMAEAAW/6T/twBNAGr/P/+oAMkAIgD3/tf/fQC6AHv/QP+g/2IAMwCz/4L/1/85AEwAKQAMAAAA"},{"f":961.105,"p":0,"s":82.1368,"c":"njpKGv7NwMjkEWBBZxqj46vcxQ+aI3UNT+yS8+8KeBRSBiz3V/be+iP8PfeM9ar3VPz8/pl1MTRBmY+NICD5fFYuFb5SuNkYiENWFK3VgeL5FDInpQyx7S7tAfbY+MDuaet/77r49/3/f5452Y61gJ0gjn+8L6SqYKtGDUNC2QrxzkDZRxSvJksO++zm7db2SPpi75TrYO+t+PT9omuENJiiJZm3GoRnxCertD+1fAQLNFAEwtWg3b4QbiAMDkrzHPR0+8n91vQI8Z7zePp6/qZLKisTxCXBqxLyTk8do9KrzkgGriMOB3XlcOzVDMAZgQwI/N36QAC6ABf7l/fk+Lb8Jf/FKfccsOYa5TwORzROEq7u6ObYCbQV2AnZ8xH6ngjHEdwIVAHz/lQCnwHx/mv85Pxy/p7/ehTVEJrxmvj2Bk8agQmz/A/2fgdjCncHBfy+/zMELwmRBAUCGwC6ARQBMQDl/vf+av/a/+YFcwXU/On9BAJZCQMDmv8L/REDcAP2Av7+XgBNAQYDeQHfABoAmwBcAC0Ax//B/9f/8v9hASwB1v51/2EAwgGMANb/Y/+JAKQAjgDS/wYALAB+AEEAJwD//xIADQALAPz/9//5//3/"},{"f":974.838,"p":0,"s":112.534,"c":"K8zj4ewuHDbTAzXNz+y5GBskjPPL1/7qmg/mHNMK6gARBXwRjQ9yBJn6KPnN/LP/gQA3AAOSusCDVzxtGQEZm5rWcDgYR5brLK7I1w0dqjjOEJb8EgSWHV8avgQT8v/vSPip/sIAXQABgG639E8QdUf0W5U9zTlIV0789Mup6ddwGoI2iQcG71X2FxG7EBX7jerU6Qv19PxGADQAH4+iv7A5nWH28LKp1NZwQ1dK0v+NviXeCBRQI538weBv6Yj82gE78Fjnxuce9LD7wP/6/12y4M8tKJpAFPuQxvHs8S17PhgDZ9255L8Ouw0O+XbcKOeL73z5x+wJ62XrQ/b4+6j/4/9Z147huxnOG/wD2d3f/VEY2ityAEv03exVCgEBTPuw5ILur+9e+ZXxCvPw8h36eP3g//n/9e7i8R8OwA20BfbueALICAoXef8H/qT1oAU9/nH+5fGm9+L2tfwc+Wb6J/p7/QT/DwARABP7P/sTBTwDigKL+mABUQLyB57/7P9n/AkCQf/O/3z7eP0V/SD/Df53/lv+Tv/N/xEAEADs/iX/EQEAAYIA1P4RAGoAgQH//+j/Tv9dAAAADwBH/5P/kv/w/8X/yv/E/+f///8FAAQA"},{"f":983.519,"p":1,"s":72.2853,"c":"CKdw2GhSV018yYektep/ZukpvdJnqB8IiEGlJbjqW9xpCykdOQ6j7rXuBwOkEuoSLgm7AoyP0shPd8Jgd8cwgoPz/3/vO+29H5WZAp1WBSla4pfKJAymIXwQNudb6BoD0xdqGOALiwOblMfHZnfAV/nQKoId+4J0rUWhu2+fEPuYUpMejeCcxk0HcxutDO7mU+hQArwVxxYDC1kDXqdC1OtWbEPn2GagDAH9Wr016sy5t7784T0DFizkttIdApMUegdm7Q3tMgIFEHURRgikAqLAl+SRLikvC9tJxrb6CEKCHxTmbs9tBGslqBK965vmgf/jD/EDW/bD82QC2gk9CxsFuQF336nxNxFXG9fmtuaM9qMo7Azq+FfkaggvEroOb/SS9kL/GQsRAtj8wvn6AfcE4QWKAuIAze14/PADyAyV8Yf3y/mKE7YD8v928xAGLgeQCBD7vv2n/+0FHAFy/3n9AwH+AVoC9ABOAF77oP6TAEMEKvvP/X/9TgbfAIQADvw/Ah4CDwOS/p3/6f8GAm8A9P9C/0cAjwChAD8ADwDt/uH/JQDCABT/gv+X/yQBNgAFAED/WQBvAJAAwP/g//v/YAAcAPr/2/8GABgAFwAIAAEA"},{"f":1015.668,"p":0,"s":64.5114,"c":"aOWCDR0VShZsvtPco/4BOYkPrOx4BNQy4jJh67+9m8r+8MUElfL6+lcO1jFEMmoltw5CBJTV3hnJP9MknIweqzcJT2EqHFjIBAkYXmJoa9YBgMGbxOoNExjsc/wcIeFn9GZhTOkdqwik4/0ZVmxhHjGe+YkXFpFJQRctphcC7Vfab/zZL4T6qwH+nyzh+mgMDix/daZvZ1LXH1IJ2PNSHOtyRBuTuMiSIRThLCAADaNn7+ZJgljg8vCj3tsEFA1FgwwuHk4tWWnqXSdF+RnGB7f2/B9zUQUhssdYu7YAfyY352zCZ97pQNkzAQ/ZxRcH9xsjSg0TniOLI6VMVD+OLq8QGgWB968d3SbxHqHasumg7pMhaeFj6BjdITKrFYsZAeCPFmMVrTdvDnQaiBSqK6ghhBg1CHECbfyzDxYOfxXj5fH83fOvFpLqQ/tF6lQcZAaKETzx0g+1CngcrAZeDDUIPhJ7DXIJ4QK1ABH9rAaHAoMHo/fyAHD60wge+K//7PfeCW0BTwYU+3UFYwMQCdUBRQP8AfAEswNfAqEADADI//QAtABJARn+HQBX/9IBkv6v/43+ywFgAOYA/v7FAKMAcwEwAEkANQCwAIwARgAOAPv/"},{"f":1077.821,"p":1,"s":171.392,"c":"TJXEwdE5RVs53K+10c4FXD480Ahnwcjr+CBvCe3smbqA5+brDgFq5ObnL+sF/FcBVQK1AAGAHqomZANwzOdbj8vKAWT2UPX8I7TD44g2Fhjl+GC41vGF96gO3eeA5x/qK/1eA48DLAHdk46tdXqcZvX+ZIU40rdGlkdF7P+2E+ajPZIqhg4U2s0JExN5H/36K/Iz81kAdAXxA3YB07O2x3drNlY1BA+eUtHLKekkcegZufHwFy4DNUUWbP7xFvomnCSfC+X7zPwsAvEFTANkAe7P/+cGRU1EEfuixQ3PThsbAKLwD78U/H8TRi8DDoUPChPUJsMb2g+f/00BzAF8BAsC+QAi5qf97B+KLQ/0e+lJ2A8RbPBo+ijQ6AAgAQEeTwPlDbQIzhhlDr8Ko/9bAaQAUwLvAHgA/fIeAFEKkBeC93n5/OkiCfzz0f4C594AevwdDeX+Ogb1AW4KFwVhBFP/SQAAAMsAUgAlABn8MAG1ApoHufyq/qP4HgPA+93/yvcNADP+ogMT/28B/v+tAi0BBQGZ/97/6v8pABcABwAY/97/egBoAYf/rv/F/pUAeP/6/6T+6P+7/4kA0P8XAOr/VwApABoA5//v//r/BAAFAAIA"},{"f":1093.9,"p":0,"s":94.553,"c":"hxi4DXrMUd0/9pgDrti7tG7iEwaBHdTjsdJQykvhVdqrzc/TI+ysDG0UMhFkBR8BXf/1/349tyu8s3XTfQt2JdDOmYkk33krslTm6GG8LrSm2ZHRG64vvAjlVCYRMCQoEQ3FAyj/KQCEVk5ENtkT8eM9MFV+/G6zfQDKXv9/8SEM4Vzt2QPICc/QHeRB/nZChUA8NQ4Szwbe/5cA90xVM3Tq7u0NPKtEDgJ9wxD+OVt0bzM58/h2HJUi0TgL+tAPGxZnTb1ArzQcEoIHQwCqAD4p/AQ51tzI0ARgAoTXFqlb13wfBC3BGubvMRsHHVQ5XQmwHLUZMT5VMI8m+gwhBfj/TgAhCFHkj8umt2HeS8+Xv5GlJsEs7Ob4kvdl5K8FoAmWH/gFihK1DwIjjBp1FHEG9wGZ//H/8/tt413aXMwj39zXA9L9w/nSaOZB7t7vcupN+4j/lwoEAXYG2AWnDYAKiwcIAiwAm//c/9T9tvX+8QztPvOK74fuJer37sP03vdl+F73ovzH/jACwv8WAUQBdAPNAsIBTwDO/9L/8P9a/7j9kP3G/Pj9gv0y/UX8HP0p/sD+pP5r/kP/0P9RAOX//P8dAHsAawAwAPv/7v/4//7/"},{"f":1110.147,"p":0,"s":64.5077,"c":"uhepFVjhWdXv34IOUgfF42/GAORIGKAlbPXMxKzDpeSg+fryV+0t+xYWMiM+HncPEQWkALY5Fza52xG6ptiOJm0kBdP0nWPbnUdUWof8e5kjmMTXxABr8AfjN/xtMANJKT6zH00KOwGDUH5LxPmwxzj6hUIQTg7oabFw7INt/3/UHv2wcbF19DgeQwaO8QUHBDu3UYlDnSHFCjoBh0M7PY/+TM8O+BUykT5I7hbHofPWYbp5iyzw1D/W6BD9MIUZHQJyD3M2GEY8OCQbUwi6AJ8jkBkE55HGM92JCysSxd5UunrkiDEeT9sZLeZX5wUX3ys1G4QGuw1eJoov3yS7ELsEKgCoBaX9/9tMzRfOkO3j6cPXn70Y3WEFnyA6AqzsoO3EDTAZqBB3AwMHHhSpGLwSxAfcAcj/mvss+Snkc9+B2nvte+rH5e7ULeYG+P4IlPr08uvz+ASDCoIGEQCYAb4HlwkUB2sCaADG/9/9Kfyx9bn04vGd+P32PvYA8NT1i/u5AfH8mvo3+yIBFQOKAXb/6P8AAoAC0gF1AAAA4/8p/3z/X/4a/kX9xf78/qH+9PzZ/Vv/rgCL/6/+6v5FAL0ANACv/9D/UwBpAD4AAAD6//z/"},{"f":1180.276,"p":1,"s":70.8376,"c":"u8TK7utHDSMzvG+/ax/xYHkC76xXwuUrElQzCMjVLeU0Kmot1gEJ3WLpwBEYJfogsQ4+BHK0pOmaYmEtGqllq7Qs/3/LBUGRWK3FNHVoowJgwPzUCzCdNXX9Kc8w4PMVeC+DKuMSdgVyugLpIWM2KGqvja9DLjN8PwmulkWxCi+SXAz6rbkLz68kdCyK99jOc9+OE3crXidfEQ8FzsoS6tlNoRgqwmzBECfDZG4JNLLsxYEn20RZ+RLEDNg0Fy8g8/Xf2efl7Q5cIKsd6wzRA6bbBO6oK/cKKNXB1FYZ6kXSB+bTE94oIEgtV//T2HnpHQ50Fvv4Y+ma7zMKFhSHEuAHXAJP6/r0Jw7GBa3kRelbDDQmswSP7VTwRxaNGcgDeezP90gIOQ7l/OD19ffiBTgKXgnXAyEBPvaG+TsJov0O8nn2YQTVELQBnvlU+pkLbgtfA4L4Uf4TBBUHHf+F/PD8kwIOBJkDZwFgAE79BP5yAOr/0fto/DsBEwVFAC/+af7nA44DSAHf/dn/YAFWAtX/Ff8k/7kAIAHxAFkAEQCC/5D/3ACk/wD/VP9ZAPUA7v+B/7f/vgCnACcAk//7/0kAagD1/9L/3f8dACwAHwALAAEA"},{"f":1183.844,"p":0,"s":68.0201,"c":"V8E574EWpC1v2427lOQ4C7EZR+UB4Cft8wbP/jHbLOFf4Ln/mvTMATn96w25DPcMCwXpAZGJRedTQYlqtMlbhzrctCxLRXXQ1M4h7/QcvAzKwaPQ6MpGCjjvbgmx/eQesxqyGloKAQR/kd/wS2L/f4PmCpCp+EJB22Ja6rHjMAkiNgYuKdYU6/3aUSB3+7wWzgNYJeQddx05C2AEAKoo79hZ+WQG8JagzPwdOtZUUPJh6yUZkTatPLrrSweO8JktiwZpHRgIpyJ/GacYLgmnA93AeOPiLCMtbuBNp7LjERLGIWLq+t7rC+0aRS5A8l0OF/ncJjcIlBjkBhMYuBAlENEFSQJl037hPQb5BFzX4rjx1AT1u/gy497Y7vsWAeIUCfKtB1/69xX6A4QNTQNlDEcI8QfMAhEBH+Tw7T/4+/m+39bWi+Fa8tjwc+v85PH3SvlcBWv2cQGk+xoI6gAABdIAVgT0AtsCAgFWAD74QPja+yv9MPSd8bzzW/om+eD3n/U9/IH8fwA1/MT/Rv7aAfv/FgEXAPYAswCnAEIAEgBU/fj+a//7/4/9TP0U/kb/6P6V/ir+Rf9g/wkAaP/e/6f/MAABACIA//8UABYAFAAKAAMA"}]};
+
+/* ============================================================
+   Plate modes.
+   Kirchhoff plate:  D ∇⁴w + ρh ∂²w/∂t² = f,   D = Eh³ / 12(1−ν²).
+   Free edges everywhere (no bending moment, no Kirchhoff shear).
+
+   - Rectangles (any aspect, isotropic or orthotropic): Rayleigh–Ritz
+     with normalised Legendre polynomials in x and y, solved here in
+     the browser. The four symmetry classes (even/odd in x and y)
+     are separate eigenproblems.
+   - Circle: the exact solution, w = [J_n(kr) + C·I_n(kr)]·cos nθ,
+     with k found from the free-edge conditions.
+   - Guitar top: Ritz with the same basis over the outline (masked
+     quadrature), solved offline in Python; coefficients shipped.
+   ============================================================ */
+const PLATE = (() => {
+  /* ---------- Legendre polynomials (normalised: ∫P̂ᵢP̂ⱼ = δᵢⱼ) ---------- */
+  function legTables(M, xs) {
+    const n = xs.length, P = new Float64Array(M * n), D1 = new Float64Array(M * n), D2 = new Float64Array(M * n);
+    for (let i = 0; i < n; i++) {
+      const x = xs[i];
+      let p0 = 1, p1 = x, d0 = 0, d1 = 1, e0 = 0, e1 = 0;
+      const pv = [p0, p1], dv = [d0, d1], ev = [e0, e1];
+      for (let k = 1; k < M - 1; k++) {
+        const p2 = ((2 * k + 1) * x * pv[k] - k * pv[k - 1]) / (k + 1);
+        const d2 = dv[k - 1] + (2 * k + 1) * pv[k];        // P'_{k+1} = P'_{k-1} + (2k+1) P_k
+        const e2 = ev[k - 1] + (2 * k + 1) * dv[k];
+        pv.push(p2); dv.push(d2); ev.push(e2);
+      }
+      for (let m = 0; m < M; m++) {
+        const s = Math.sqrt((2 * m + 1) / 2);
+        P[m * n + i] = pv[m] * s; D1[m * n + i] = dv[m] * s; D2[m * n + i] = ev[m] * s;
+      }
+    }
+    return { P, D1, D2, n };
+  }
+  function gauss(n) {
+    const x = new Float64Array(n), w = new Float64Array(n);
+    for (let i = 0; i < n; i++) {
+      let z = Math.cos(Math.PI * (i + 0.75) / (n + 0.5)), pp = 0;
+      for (let it = 0; it < 100; it++) {
+        let p1 = 1, p2 = 0;
+        for (let j = 0; j < n; j++) { const p3 = p2; p2 = p1; p1 = ((2 * j + 1) * z * p2 - j * p3) / (j + 1); }
+        pp = n * (z * p1 - p2) / (z * z - 1);
+        const dz = p1 / pp; z -= dz; if (Math.abs(dz) < 1e-15) break;
+      }
+      x[i] = z; w[i] = 2 / ((1 - z * z) * pp * pp);
+    }
+    return { x, w };
+  }
+  /* 1D integrals E0 = ∫P̂P̂, E1 = ∫P̂'P̂', E2 = ∫P̂''P̂'', E02 = ∫P̂ᵢP̂''ₖ (exact by Gauss quadrature) */
+  const M1D = {};
+  function mats1d(M) {
+    if (M1D[M]) return M1D[M];
+    const g = gauss(M + 4), T = legTables(M, g.x), n = g.x.length;
+    const E0 = new Float64Array(M * M), E1 = new Float64Array(M * M), E2 = new Float64Array(M * M), E02 = new Float64Array(M * M);
+    for (let a = 0; a < M; a++) for (let b = 0; b < M; b++) {
+      let s0 = 0, s1 = 0, s2 = 0, s3 = 0;
+      for (let q = 0; q < n; q++) {
+        const w = g.w[q];
+        s0 += w * T.P[a * n + q] * T.P[b * n + q]; s1 += w * T.D1[a * n + q] * T.D1[b * n + q];
+        s2 += w * T.D2[a * n + q] * T.D2[b * n + q]; s3 += w * T.P[a * n + q] * T.D2[b * n + q];
+      }
+      E0[a * M + b] = s0; E1[a * M + b] = s1; E2[a * M + b] = s2; E02[a * M + b] = s3;
+    }
+    return (M1D[M] = { E0, E1, E2, E02 });
+  }
+
+  /* ---------- symmetric eigensolver: Householder tridiagonalisation + implicit QL (tred2/tql2) ---------- */
+  function symEig(A, n) {
+    const V = new Float64Array(A), d = new Float64Array(n), e = new Float64Array(n);
+    const v = (i, j) => V[i * n + j];
+    for (let j = 0; j < n; j++) d[j] = V[(n - 1) * n + j];
+    for (let i = n - 1; i > 0; i--) {
+      let scale = 0, h = 0;
+      for (let k = 0; k < i; k++) scale += Math.abs(d[k]);
+      if (scale === 0) {
+        e[i] = d[i - 1];
+        for (let j = 0; j < i; j++) { d[j] = V[(i - 1) * n + j]; V[i * n + j] = 0; V[j * n + i] = 0; }
+      } else {
+        for (let k = 0; k < i; k++) { d[k] /= scale; h += d[k] * d[k]; }
+        let f = d[i - 1], g = Math.sqrt(h); if (f > 0) g = -g;
+        e[i] = scale * g; h -= f * g; d[i - 1] = f - g;
+        for (let j = 0; j < i; j++) e[j] = 0;
+        for (let j = 0; j < i; j++) {
+          f = d[j]; V[j * n + i] = f; g = e[j] + V[j * n + j] * f;
+          for (let k = j + 1; k <= i - 1; k++) { g += V[k * n + j] * d[k]; e[k] += V[k * n + j] * f; }
+          e[j] = g;
+        }
+        f = 0;
+        for (let j = 0; j < i; j++) { e[j] /= h; f += e[j] * d[j]; }
+        const hh = f / (h + h);
+        for (let j = 0; j < i; j++) e[j] -= hh * d[j];
+        for (let j = 0; j < i; j++) {
+          f = d[j]; g = e[j];
+          for (let k = j; k <= i - 1; k++) V[k * n + j] -= (f * e[k] + g * d[k]);
+          d[j] = V[(i - 1) * n + j]; V[i * n + j] = 0;
+        }
+      }
+      d[i] = h;
+    }
+    for (let i = 0; i < n - 1; i++) {
+      V[(n - 1) * n + i] = V[i * n + i]; V[i * n + i] = 1;
+      const h = d[i + 1];
+      if (h !== 0) {
+        for (let k = 0; k <= i; k++) d[k] = V[k * n + i + 1] / h;
+        for (let j = 0; j <= i; j++) {
+          let g = 0;
+          for (let k = 0; k <= i; k++) g += V[k * n + i + 1] * V[k * n + j];
+          for (let k = 0; k <= i; k++) V[k * n + j] -= g * d[k];
+        }
+      }
+      for (let k = 0; k <= i; k++) V[k * n + i + 1] = 0;
+    }
+    for (let j = 0; j < n; j++) { d[j] = V[(n - 1) * n + j]; V[(n - 1) * n + j] = 0; }
+    V[(n - 1) * n + n - 1] = 1; e[0] = 0;
+    /* tql2 */
+    for (let i = 1; i < n; i++) e[i - 1] = e[i];
+    e[n - 1] = 0;
+    let f = 0, tst1 = 0; const eps = Math.pow(2, -52);
+    for (let l = 0; l < n; l++) {
+      tst1 = Math.max(tst1, Math.abs(d[l]) + Math.abs(e[l]));
+      let m = l; while (m < n) { if (Math.abs(e[m]) <= eps * tst1) break; m++; }
+      if (m > l) {
+        let iter = 0;
+        do {
+          iter++;
+          let g = d[l], p = (d[l + 1] - g) / (2 * e[l]), r = Math.hypot(p, 1); if (p < 0) r = -r;
+          d[l] = e[l] / (p + r); d[l + 1] = e[l] * (p + r);
+          const dl1 = d[l + 1]; let h = g - d[l];
+          for (let i = l + 2; i < n; i++) d[i] -= h;
+          f += h;
+          p = d[m]; let c = 1, c2 = c, c3 = c, el1 = e[l + 1], s = 0, s2 = 0;
+          for (let i = m - 1; i >= l; i--) {
+            c3 = c2; c2 = c; s2 = s;
+            g = c * e[i]; h = c * p; r = Math.hypot(p, e[i]);
+            e[i + 1] = s * r; s = e[i] / r; c = p / r; p = c * d[i] - s * g;
+            d[i + 1] = h + s * (c * g + s * d[i]);
+            for (let k = 0; k < n; k++) { h = V[k * n + i + 1]; V[k * n + i + 1] = s * V[k * n + i] + c * h; V[k * n + i] = c * V[k * n + i] - s * h; }
+          }
+          p = -s * s2 * c3 * el1 * e[l] / dl1; e[l] = s * p; d[l] = c * p;
+        } while (Math.abs(e[l]) > eps * tst1 && iter < 60);
+      }
+      d[l] = d[l] + f; e[l] = 0;
+    }
+    return { d, V };   // eigenvector j is column j: V[k*n + j]
+  }
+
+  /* ---------- rectangle Ritz ---------- */
+  function rectRitz(M, a, b, D11, D22, D12, D66, My) {
+    const Mx = M; My = My || M;
+    const X1 = mats1d(Mx), Y1 = mats1d(My), out = [];
+    const ca = D11 / a ** 4, cb = D22 / b ** 4, cc = D12 / (a * a * b * b), cd = 4 * D66 / (a * a * b * b);
+    for (let px = 0; px < 2; px++) for (let py = 0; py < 2; py++) {
+      const ix = [], iy = [];
+      for (let i = px; i < Mx; i += 2) ix.push(i);
+      for (let j = py; j < My; j += 2) iy.push(j);
+      const nx = ix.length, ny = iy.length, n = nx * ny, K = new Float64Array(n * n);
+      for (let p = 0; p < nx; p++) for (let q = 0; q < ny; q++) {
+        const r = p * ny + q, i = ix[p], j = iy[q];
+        for (let s = 0; s < nx; s++) for (let t = 0; t < ny; t++) {
+          const c = s * ny + t, k = ix[s], l = iy[t];
+          const ik = i * Mx + k, ki = k * Mx + i, jl = j * My + l, lj = l * My + j;
+          K[r * n + c] = ca * X1.E2[ik] * Y1.E0[jl] + cb * X1.E0[ik] * Y1.E2[jl]
+            + cc * (X1.E02[ik] * Y1.E02[lj] + X1.E02[ki] * Y1.E02[jl])
+            + cd * X1.E1[ik] * Y1.E1[jl];
+        }
+      }
+      for (let r = 0; r < n; r++) for (let c = r + 1; c < n; c++) { const m = 0.5 * (K[r * n + c] + K[c * n + r]); K[r * n + c] = K[c * n + r] = m; }
+      const { d, V } = symEig(K, n);
+      for (let k = 0; k < n; k++) {
+        const C = new Float64Array(nx * ny);
+        for (let r = 0; r < n; r++) C[r] = V[r * n + k];
+        out.push({ ev: d[k], px, py, ix, iy, C });
+      }
+    }
+    out.sort((u, v) => u.ev - v.ev);
+    return out;
+  }
+
+  /* ---------- Bessel functions by power series (fine for x ≲ 25) ---------- */
+  function besselJ(n, x) {
+    n = Math.abs(n); const h = x / 2; let t = Math.pow(h, n); for (let k = 2; k <= n; k++) t /= k;
+    let s = t; const h2 = h * h;
+    for (let k = 1; k < 200; k++) { t *= -h2 / (k * (k + n)); s += t; if (Math.abs(t) < 1e-17 * Math.abs(s) && k > h) break; }
+    return s;
+  }
+  function besselI(n, x) {
+    n = Math.abs(n); const h = x / 2; let t = Math.pow(h, n); for (let k = 2; k <= n; k++) t /= k;
+    let s = t; const h2 = h * h;
+    for (let k = 1; k < 200; k++) { t *= h2 / (k * (k + n)); s += t; if (t < 1e-17 * s) break; }
+    return s;
+  }
+  const Jn = (n, x) => n < 0 ? ((n & 1) ? -besselJ(-n, x) : besselJ(-n, x)) : besselJ(n, x);
+  const dJ = (n, x) => 0.5 * (Jn(n - 1, x) - Jn(n + 1, x));
+  const In = (n, x) => besselI(Math.abs(n), x);
+  const dI = (n, x) => 0.5 * (In(n - 1, x) + In(n + 1, x));
+  /* free-edge conditions at r = 1 for w = R(r) cos nθ: bending moment and Kirchhoff shear */
+  function circBC(k, n, nu) {
+    const J = Jn(n, k), J1 = k * dJ(n, k), I = In(n, k), I1 = k * dI(n, k);
+    const J2 = k * k * (-dJ(n, k) / k - (1 - n * n / (k * k)) * J);
+    const I2 = k * k * (-dI(n, k) / k + (1 + n * n / (k * k)) * I);
+    const mJ = J2 + nu * (J1 - n * n * J), mI = I2 + nu * (I1 - n * n * I);
+    const vJ = -k * k * J1 - (1 - nu) * n * n * (J1 - J), vI = k * k * I1 - (1 - nu) * n * n * (I1 - I);
+    return { det: (mJ * vI - mI * vJ) / I, C: -mJ / mI };
+  }
+  function circRoots(nu, lamMax) {
+    const kmax = Math.sqrt(lamMax), res = [];
+    for (let n = 0; n < 40; n++) {
+      let k0 = 0.25, f0 = circBC(k0, n, nu).det, found = 0;
+      for (let k = k0 + 0.02; k <= kmax; k += 0.02) {
+        const f1 = circBC(k, n, nu).det;
+        if (f0 * f1 < 0) {
+          let lo = k - 0.02, hi = k, flo = f0;
+          for (let it = 0; it < 60; it++) { const mid = 0.5 * (lo + hi), fm = circBC(mid, n, nu).det; if (flo * fm <= 0) hi = mid; else { lo = mid; flo = fm; } }
+          const kk = 0.5 * (lo + hi);
+          if (kk > 0.3) { res.push({ n, s: found, k: kk, lam: kk * kk, C: circBC(kk, n, nu).C }); found++; }
+        }
+        f0 = f1;
+      }
+      if (!found && n > 2) break;
+    }
+    res.sort((a, b) => a.lam - b.lam);
+    return res;
+  }
+
+  /* ---------- guitar outline (same implicit function as the offline solver) ---------- */
+  function guitarSDF(xm, ym) {      // metres
+    const xc = xm * 100, yc = ym * 100;
+    const ell = (cx, cy, ax, ay, p) => (Math.pow(Math.pow(Math.abs((xc - cx) / ax), p) + Math.pow(Math.abs((yc - cy) / ay), p), 1 / p) - 1) * Math.min(ax, ay);
+    const e1 = ell(0, 12.4, 14.0, 11.85, 2.5), e2 = ell(0, -10.0, 18.25, 14.25, 2.25), k = 4;
+    const h = Math.min(1, Math.max(0, 0.5 + 0.5 * (e2 - e1) / k));
+    const d = e2 * (1 - h) + e1 * h - k * h * (1 - h);
+    const hole = 4.3 - Math.hypot(xc, yc - 7.0);
+    return Math.max(d, hole);       // cm, < 0 inside
+  }
+  function decodeI16(b64) {
+    const s = atob(b64), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
+    return new Int16Array(u.buffer);
+  }
+
+  /* ---------- materials ---------- */
+  const MATS = {
+    steel: { name: 'Steel', E: 200e9, nu: 0.30, rho: 7850 },
+    brass: { name: 'Brass', E: 105e9, nu: 0.34, rho: 8500 },
+    alu: { name: 'Aluminium', E: 69e9, nu: 0.33, rho: 2700 },
+    glass: { name: 'Glass', E: 70e9, nu: 0.22, rho: 2500 },
+    spruce: { name: 'Spruce', EL: 11e9, ER: 0.9e9, G: 0.7e9, nuLR: 0.37, rho: 420, ortho: true }
+  };
+  function rigidity(mat, h) {
+    if (mat.ortho) {
+      const nuRL = mat.nuLR * mat.ER / mat.EL, den = 1 - mat.nuLR * nuRL;
+      /* grain runs along y */
+      return { Dx: mat.ER * h ** 3 / (12 * den), Dy: mat.EL * h ** 3 / (12 * den), D12: mat.nuLR * mat.ER * h ** 3 / (12 * den), D66: mat.G * h ** 3 / 12 };
+    }
+    const D = mat.E * h ** 3 / (12 * (1 - mat.nu * mat.nu));
+    return { Dx: D, Dy: D, D12: mat.nu * D, D66: (1 - mat.nu) * D / 2, D };
+  }
+
+  /* ---------- build a plate: modes on a grid over the bounding box ----------
+     opts: shape ('square'|'rect'|'circle'|'guitar'), mat, h (m), L (m, side / diameter / ignored),
+           aspect (rect), N (grid along the longer side), fmax (Hz), M (basis size) */
+  function build(o) {
+    const t0 = performance.now();
+    const mat = MATS[o.mat] || MATS.steel, h = o.h, rhoh = mat.rho * h, R = rigidity(mat, h);
+    let hw, hh, kind = o.shape;
+    if (kind === 'guitar') { hw = GUITAR_RITZ.A; hh = GUITAR_RITZ.B; }
+    else if (kind === 'rect') { hw = o.L / 2; hh = o.L / 2 * o.aspect; }
+    else { hw = hh = o.L / 2; }
+    const N = o.N || 128, NX = hw >= hh ? N : Math.max(8, Math.round(N * hw / hh)), NY = hh >= hw ? N : Math.max(8, Math.round(N * hh / hw));
+    const xs = new Float64Array(NX), ys = new Float64Array(NY);
+    for (let i = 0; i < NX; i++) xs[i] = -1 + (i + 0.5) * 2 / NX;
+    for (let j = 0; j < NY; j++) ys[j] = -1 + (j + 0.5) * 2 / NY;
+    /* coverage mask (4×4 supersampled), row-major [j*NX + i] */
+    const mask = new Float32Array(NX * NY);
+    for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) {
+      let c = 0;
+      for (let sy = 0; sy < 4; sy++) for (let sx = 0; sx < 4; sx++) {
+        const u = -1 + (i + (sx + 0.5) / 4) * 2 / NX, v = -1 + (j + (sy + 0.5) / 4) * 2 / NY;
+        let inside;
+        if (kind === 'circle') inside = u * u + v * v <= 1;
+        else if (kind === 'guitar') inside = guitarSDF(u * hw, v * hh) < 0;
+        else inside = true;
+        c += inside ? 1 : 0;
+      }
+      mask[j * NX + i] = c / 16;
+    }
+    const fmax = o.fmax || 4000, modes = [];
+    const wscale = 1 / (2 * Math.PI);
+    if (kind === 'square' || kind === 'rect') {
+      /* share 576 basis functions between x and y in proportion to how many half-waves fit each way */
+      const rx = hw * Math.pow(R.Dx, -0.25), ry = hh * Math.pow(R.Dy, -0.25), NB = (o.M || 24) ** 2;
+      const ev2 = v => Math.max(12, Math.min(44, 2 * Math.round(v / 2)));
+      const Mx = ev2(Math.sqrt(NB * rx / ry)), My = ev2(Math.sqrt(NB * ry / rx));
+      const rz = rectRitz(Mx, hw, hh, R.Dx, R.Dy, R.D12, R.D66, My);
+      const TX = legTables(Mx, xs), TY = legTables(My, ys);
+      for (const m of rz) {
+        const w2 = m.ev / rhoh; if (w2 <= 0) continue;
+        const f = Math.sqrt(w2) * wscale; if (f < 1e-3 * Math.sqrt(R.Dy / rhoh) / (hh * hh)) continue;  // rigid-body modes
+        if (f > fmax || modes.length >= 150) break;
+        const nx = m.ix.length, ny = m.iy.length, tmp = new Float64Array(NX * ny), phi = new Float32Array(NX * NY);
+        for (let i = 0; i < NX; i++) for (let q = 0; q < ny; q++) {
+          let s = 0; for (let p = 0; p < nx; p++) s += m.C[p * ny + q] * TX.P[m.ix[p] * NX + i]; tmp[i * ny + q] = s;
+        }
+        for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) {
+          let s = 0; for (let q = 0; q < ny; q++) s += tmp[i * ny + q] * TY.P[m.iy[q] * NY + j]; phi[j * NX + i] = s;
+        }
+        modes.push({ f, phi, sym: [m.px, m.py], lam: Math.sqrt(m.ev) });
+      }
+    } else if (kind === 'circle') {
+      const a = hw, nu = mat.nu, D = R.D;
+      const lamMax = o.lamMax || 2 * Math.PI * fmax * a * a * Math.sqrt(rhoh / D);
+      const roots = circRoots(nu, lamMax), NR = 768;
+      for (const rt of roots) {
+        const f = rt.lam / (a * a) * Math.sqrt(D / rhoh) * wscale;
+        if (modes.length >= 150) break;
+        const tab = new Float64Array(NR + 2);
+        for (let q = 0; q <= NR + 1; q++) { const r = q / NR; tab[q] = Jn(rt.n, rt.k * r) + rt.C * In(rt.n, rt.k * r); }
+        const mk = (ang) => {
+          const phi = new Float32Array(NX * NY);
+          for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) {
+            const u = xs[i], v = ys[j], r = Math.min(1.0, Math.hypot(u, v)), th = Math.atan2(v, u);
+            const g = r * NR, q = Math.floor(g), fr = g - q, Rv = tab[q] * (1 - fr) + tab[Math.min(q + 1, NR + 1)] * fr;
+            phi[j * NX + i] = Rv * (ang ? Math.sin(rt.n * th) : Math.cos(rt.n * th));
+          }
+          return phi;
+        };
+        const nc = rt.s + (rt.n < 2 ? 1 : 0);   /* nodal circles: an axisymmetric or one-diameter mode of a free plate needs at least one */
+        modes.push({ f, phi: mk(0), nd: rt.n, nc, lam: rt.lam, ang: 0 });
+        if (rt.n > 0) modes.push({ f, phi: mk(1), nd: rt.n, nc, lam: rt.lam, ang: 1 });
+      }
+    } else if (kind === 'guitar') {
+      const G = GUITAR_RITZ, TX = legTables(G.Mx, xs), TY = legTables(G.My, ys);
+      /* the offline solve is for spruce 2.8 mm; frequencies scale with thickness */
+      const fs = h / 2.8e-3;
+      for (const gm of G.modes) {
+        const f = gm.f * fs; if (f > fmax || modes.length >= 150) break;
+        const c = decodeI16(gm.c), ix = []; for (let i = gm.p; i < G.Mx; i += 2) ix.push(i);
+        const nx = ix.length, ny = G.My, tmp = new Float64Array(NX * ny), phi = new Float32Array(NX * NY);
+        for (let i = 0; i < NX; i++) for (let q = 0; q < ny; q++) {
+          let s = 0; for (let p = 0; p < nx; p++) s += c[p * ny + q] * TX.P[ix[p] * NX + i]; tmp[i * ny + q] = s;
+        }
+        for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) {
+          let s = 0; for (let q = 0; q < ny; q++) s += tmp[i * ny + q] * TY.P[q * NY + j]; phi[j * NX + i] = s;
+        }
+        modes.push({ f, phi, sym: [gm.p, -1] });
+      }
+    }
+    /* normalise each mode so that its mean square over the plate is 1; fix the sign so the largest lobe is positive */
+    let area = 0; for (let q = 0; q < mask.length; q++) area += mask[q];
+    for (const m of modes) {
+      let s = 0, mx = 0, arg = 0;
+      for (let q = 0; q < mask.length; q++) { const v = m.phi[q]; s += mask[q] * v * v; if (mask[q] > 0.5 && Math.abs(v) > mx) { mx = Math.abs(v); arg = q; } }
+      const k = (m.phi[arg] < 0 ? -1 : 1) / Math.sqrt(s / area);
+      for (let q = 0; q < mask.length; q++) m.phi[q] *= k;
+      m.peak = mx * Math.abs(k);
+    }
+    modes.forEach((m, i) => m.idx = i);
+    const P = {
+      kind, mat: o.mat, matName: mat.name, h, L: o.L, aspect: o.aspect || 1, hw, hh, NX, NY, xs, ys, mask, area: area * (2 * hw / NX) * (2 * hh / NY),
+      rhoh, R, modes, ms: performance.now() - t0, nbasis: kind === 'square' || kind === 'rect' ? (o.M || 24) ** 2 : 0
+    };
+    P.mass = P.rhoh * P.area;
+    return P;
+  }
+
+  /* bilinear sample of a grid at plate-box coords (u,v ∈ [-1,1]) */
+  function sample(P, arr, u, v) {
+    const gx = (u + 1) / 2 * P.NX - 0.5, gy = (v + 1) / 2 * P.NY - 0.5;
+    const i0 = Math.max(0, Math.min(P.NX - 2, Math.floor(gx))), j0 = Math.max(0, Math.min(P.NY - 2, Math.floor(gy)));
+    const fx = Math.max(0, Math.min(1, gx - i0)), fy = Math.max(0, Math.min(1, gy - j0));
+    const a = arr[j0 * P.NX + i0], b = arr[j0 * P.NX + i0 + 1], c = arr[(j0 + 1) * P.NX + i0], d = arr[(j0 + 1) * P.NX + i0 + 1];
+    return (a * (1 - fx) + b * fx) * (1 - fy) + (c * (1 - fx) + d * fx) * fy;
+  }
+  function inside(P, u, v) { return sample(P, P.mask, u, v) > 0.5; }
+
+  /* ---------- forced response: point force F cos Ωt at (u0,v0), modal damping 1/(2Q) ----------
+     W(x) = Σ c_k φ_k(x),   c_k = F φ_k(x0) / ( m (ω_k² − Ω² + i ω_k Ω / Q) ),  m = total mass
+     (modes have mean square 1 over the plate, so they are mass-orthonormal with modal mass m) */
+  function coeffs(P, f, u0, v0, Q, F) {
+    const W = 2 * Math.PI * f, cs = [];
+    let ms = 0;
+    for (const m of P.modes) {
+      const wk = 2 * Math.PI * m.f, p0 = sample(P, m.phi, u0, v0);
+      const re = wk * wk - W * W, im = wk * W / Q, den = re * re + im * im;
+      const s = F * p0 / P.mass;
+      const cr = s * re / den, ci = -s * im / den;
+      cs.push([cr, ci]); ms += cr * cr + ci * ci;
+    }
+    return { cs, rms: Math.sqrt(ms), W };
+  }
+  /* RMS acceleration over the plate in g: Ω² √(Σ|c_k|²) / g — cheap, used for the resonance curve */
+  function grms(P, f, u0, v0, Q, F) { const r = coeffs(P, f, u0, v0, Q, F); return r.W * r.W * r.rms / 9.81; }
+  /* complex displacement field (metres), interleaved re/im on the grid; skips negligible modes */
+  function field(P, f, u0, v0, Q, F, out) {
+    const r = coeffs(P, f, u0, v0, Q, F), n = P.NX * P.NY;
+    out = out && out.length === 2 * n ? out : new Float32Array(2 * n); out.fill(0);
+    let mx = 0; for (const c of r.cs) mx = Math.max(mx, Math.hypot(c[0], c[1]));
+    for (let k = 0; k < P.modes.length; k++) {
+      const [cr, ci] = r.cs[k]; if (Math.hypot(cr, ci) < mx * 2e-3) continue;
+      const ph = P.modes[k].phi;
+      for (let q = 0; q < n; q++) { const v = ph[q]; out[2 * q] += cr * v; out[2 * q + 1] += ci * v; }
+    }
+    let peak = 0; for (let q = 0; q < n; q++) if (P.mask[q] > 0.5) peak = Math.max(peak, Math.hypot(out[2 * q], out[2 * q + 1]));
+    return { W: out, peak, gpeak: r.W * r.W * peak / 9.81, grms: r.W * r.W * r.rms / 9.81, cs: r.cs };
+  }
+  /* bending wave number and speed at f */
+  function bending(P, f) { const w = 2 * Math.PI * f, D = P.R.D || Math.sqrt(P.R.Dx * P.R.Dy); const k = Math.pow(P.rhoh * w * w / D, 0.25); return { k, lambda: 2 * Math.PI / k, c: w / k }; }
+
+  return { build, coeffs, grms, field, sample, inside, bending, MATS, rigidity, legTables, symEig, rectRitz, circRoots, circBC, guitarSDF, Jn, In };
+})();
+
+/* ============================================================
+   Stage — WebGL2 view of a driven plate with real sand.
+   Grains live in float textures and are stepped on the GPU.
+   A grain at rest sits still unless the plate under it accelerates
+   by more than g (Γ = Ω²|W|/g > 1); then it is thrown up with a
+   take-off speed that grows with Γ − 1 and lands a few millimetres
+   away in a random direction (sand grains are not round), with a
+   slight bias down the amplitude slope. Grains that land off the
+   plate fall off. Fine powder (lycopodium) is instead carried by
+   the air currents the plate stirs up, towards the antinodes,
+   unless the air is pumped away.
+   ============================================================ */
+const LITE = /[?&]lite\b/.test(location.search);
+const IS_SMALL = Math.min(screen.width, screen.height) < 700 || matchMedia('(max-width: 700px)').matches;
+const G_ACC = 9.81;
+const FF = /[?&]ff\b/.test(location.search);   /* test hook: fixed 0.1 s steps for slow software renderers */
+
+const GL_HEAD = `#version 300 es
+precision highp float; precision highp sampler2D; precision highp int;
+float hash(vec3 p){ p = fract(p*vec3(443.897, 441.423, 437.195)); p += dot(p, p.yzx + 19.19); return fract((p.x + p.y)*p.z); }
+`;
+const Q_VS = `#version 300 es
+in vec2 p; out vec2 uv; void main(){ uv = p*0.5 + 0.5; gl_Position = vec4(p, 0., 1.); }`;
+
+/* ---------- grain step ---------- */
+const S_SIM = GL_HEAD + `
+in vec2 uv;
+uniform sampler2D S0, S1, Fld, Msk;
+uniform vec2 hlf; uniform float dt, time, gsc, hopH, hopK, bias, air, powK, grav, live, creep;
+layout(location = 0) out vec4 o0; layout(location = 1) out vec4 o1;
+vec2 toUV(vec2 x){ return x/(2.0*hlf) + 0.5; }
+float gam(vec2 u){ return gsc*length(texture(Fld, u).xy); }
+void main(){
+  ivec2 ij = ivec2(gl_FragCoord.xy);
+  vec4 a = texelFetch(S0, ij, 0), b = texelFetch(S1, ij, 0);
+  float kind = b.z;
+  if (kind < 0.0) { o0 = a; o1 = b; return; }
+  vec2 x = a.xy, v = b.xy; float z = a.z, vz = a.w;
+  vec3 hs = vec3(vec2(ij), time*37.13);
+  float r1 = hash(hs), r2 = hash(hs + 17.3), r3 = hash(hs + 41.9), r4 = hash(hs + 73.1);
+  if (z < 0.0) {                                    /* falling off the edge */
+    x += v*dt; vz -= grav*dt; z += vz*dt;
+    if (z < -0.06) kind = -1.0;
+  } else if (z > 0.0 || vz > 0.0) {                 /* in flight */
+    x += v*dt; vz -= grav*dt; z += vz*dt;
+    if (z <= 0.0) {
+      /* sand does not stop dead: a short roll-out along the flight direction */
+      float sp = length(v); if (sp > 1e-6) x += v/sp*min(0.0015, sp*0.02)*r1;
+      z = 0.0; vz = 0.0; v = vec2(0.0);
+      vec2 u = toUV(x);
+      if (any(lessThan(u, vec2(0.0))) || any(greaterThan(u, vec2(1.0))) || textureLod(Msk, u, 0.0).r < 0.5) { z = -1e-5; vz = -0.05; v = 0.05*normalize(x + 1e-6); }
+    }
+  } else if (live > 0.5) {                          /* resting */
+    vec2 u = toUV(x);
+    if (any(lessThan(u, vec2(0.0))) || any(greaterThan(u, vec2(1.0))) || textureLod(Msk, u, 0.0).r < 0.5) { z = -1e-5; vz = -0.05; v = 0.05*normalize(x + 1e-6); }
+    else {
+      float G = gam(u);
+      vec2 e = 1.0/vec2(textureSize(Fld, 0));
+      float gxp = gam(u + vec2(e.x, 0.0)), gxm = gam(u - vec2(e.x, 0.0)), gyp = gam(u + vec2(0.0, e.y)), gym = gam(u - vec2(0.0, e.y));
+      vec2 grad = vec2((gxp - gxm)/(2.0*e.x*2.0*hlf.x), (gyp - gym)/(2.0*e.y*2.0*hlf.y));   /* dΓ/dx per metre */
+      bool powder = kind > 0.5;
+      if (powder && air > 0.5) {
+        /* Faraday: steady air currents run from the still lines towards the moving parts (∝ ∇Γ²) */
+        vec2 drift = powK*2.0*G*grad;
+        float sp = length(drift); if (sp > 0.06) drift *= 0.06/sp;
+        float ang = 6.2831853*r2;
+        vec2 xn = x + drift*dt + vec2(cos(ang), sin(ang))*sqrt(dt)*0.0008*min(G, 4.0);
+        vec2 un = toUV(xn);
+        /* the powder is carried along the surface; it does not blow off the rim */
+        if (all(greaterThan(un, vec2(0.004))) && all(lessThan(un, vec2(0.996))) && textureLod(Msk, un, 0.0).r > 0.6) x = xn;
+      } else if (G <= 1.0) {
+        /* below threshold the grain no longer leaves the plate, but the shaking still lets it creep downhill in amplitude */
+        float gl = length(grad);
+        if (gl > 1e-6) x -= grad/gl*creep*clamp((G - 0.12)/0.5, 0.0, 1.0)*dt*(0.5 + r1);
+      } else if (r4 < 1.0 - exp(-dt*40.0)) {
+        float s = clamp((G - 1.0)/(powder ? 1.2 : 2.5), 0.0, 1.0);
+        float H = hopH*s*(0.25 + 1.5*r1*r1)*(powder ? 0.5 : 1.0);
+        vz = sqrt(2.0*grav*H);
+        float ang = 6.2831853*r2;
+        vec2 dir = vec2(cos(ang), sin(ang));
+        float gl = length(grad);
+        if (gl > 1e-6) dir = normalize(dir - bias*grad/gl);
+        v = dir*vz*hopK*(0.25 + r3);
+        z = 1e-6;
+      }
+    }
+  }
+  o0 = vec4(x, z, vz); o1 = vec4(v, kind, b.w);
+}`;
+
+/* ---------- sprinkle / pour / wipe / clear ---------- */
+const S_SPR = GL_HEAD + `
+in vec2 uv;
+uniform sampler2D S0, S1, Msk;
+uniform vec2 hlf, res, brush; uniform int mode; uniform float time, rad, i0, cnt, fill, pfrac, total;
+layout(location = 0) out vec4 o0; layout(location = 1) out vec4 o1;
+void main(){
+  ivec2 ij = ivec2(gl_FragCoord.xy);
+  vec4 a = texelFetch(S0, ij, 0), b = texelFetch(S1, ij, 0);
+  float idx = float(ij.y)*res.x + float(ij.x);
+  vec3 hs = vec3(vec2(ij), time*11.7 + 3.0);
+  float seed = hash(hs + 91.0);
+  float kind = hash(hs + 5.0) < pfrac ? 1.0 : 0.0;
+  if (mode == 0) {                       /* rain over the whole plate */
+    if (hash(hs + 2.0) > fill) { o0 = vec4(0.0); o1 = vec4(0.0, 0.0, -1.0, seed); return; }
+    vec2 x = vec2(0.0); bool ok = false;
+    for (int t = 0; t < 10; t++) {
+      vec2 u = vec2(hash(hs + float(t)*7.1 + 0.3), hash(hs + float(t)*3.7 + 9.1));
+      if (textureLod(Msk, u, 0.0).r > 0.6) { x = (u - 0.5)*2.0*hlf; ok = true; break; }
+    }
+    if (!ok) { o0 = vec4(0.0); o1 = vec4(0.0, 0.0, -1.0, seed); return; }
+    float z = 0.004 + 0.16*pow(hash(hs + 33.0), 1.5);
+    o0 = vec4(x, z, -0.2); o1 = vec4((hash(hs + 4.0) - 0.5)*0.02, (hash(hs + 6.0) - 0.5)*0.02, kind, seed);
+  } else if (mode == 1) {                /* pour at the brush */
+    float k = mod(idx - i0 + total, total);
+    if (k >= cnt) { o0 = a; o1 = b; return; }
+    float r = rad*sqrt(-2.0*log(max(1e-6, hash(hs + 1.0)))), th = 6.2831853*hash(hs + 2.0);
+    vec2 x = brush + r*vec2(cos(th), sin(th));
+    o0 = vec4(x, 0.01 + 0.06*hash(hs + 3.0), -0.1); o1 = vec4(0.0, 0.0, kind, seed);
+  } else if (mode == 2) {                /* wipe: grains under the finger are flicked away */
+    if (b.z < 0.0 || a.z != 0.0) { o0 = a; o1 = b; return; }
+    vec2 d = a.xy - brush; float l = length(d);
+    if (l > rad) { o0 = a; o1 = b; return; }
+    vec2 dir = l > 1e-5 ? d/l : vec2(1.0, 0.0);
+    float th = (hash(hs + 8.0) - 0.5)*0.9; dir = vec2(dir.x*cos(th) - dir.y*sin(th), dir.x*sin(th) + dir.y*cos(th));
+    o0 = vec4(a.xy, 1e-6, 0.25 + 0.5*hash(hs + 4.0)); o1 = vec4(dir*(0.15 + 0.5*hash(hs + 7.0))*(1.0 - 0.5*l/rad), b.zw);
+  } else {                               /* clear */
+    o0 = vec4(0.0); o1 = vec4(0.0, 0.0, -1.0, seed);
+  }
+}`;
+
+/* ---------- plate mesh ---------- */
+const P_VS = `#version 300 es
+precision highp float; precision highp sampler2D;
+in vec2 p;
+uniform sampler2D Fld; uniform mat4 VP; uniform vec2 ext, grow; uniform float exag, phase, zoff;
+out vec2 uv; out vec3 wp;
+void main(){
+  uv = (p*grow)*0.5 + 0.5;
+  vec2 w = texture(Fld, clamp(uv, 0.0, 1.0)).xy;
+  float d = exag*(w.x*cos(phase) - w.y*sin(phase));
+  wp = vec3(p*grow*ext, d + zoff);
+  gl_Position = VP*vec4(wp, 1.0);
+}`;
+const P_FS = GL_HEAD + `
+in vec2 uv; in vec3 wp;
+uniform sampler2D Fld, Msk;
+uniform vec2 ext, hlf, drive, texel; uniform vec3 eye;
+uniform float exag, phase, gsc, vMot, vGam, time, shadowPass, boxy, circ, showPost, post, gmax;
+out vec4 o;
+float disp(vec2 u){ vec2 w = texture(Fld, u).xy; return exag*(w.x*cos(phase) - w.y*sin(phase)); }
+vec3 heat(float t){ t = clamp(t, 0.0, 1.0)*4.0;
+  vec3 c0 = vec3(0.16, 0.05, 0.22), c1 = vec3(0.58, 0.11, 0.33), c2 = vec3(0.93, 0.36, 0.17), c3 = vec3(0.99, 0.74, 0.33), c4 = vec3(1.0, 0.97, 0.86);
+  return t < 1.0 ? mix(c0, c1, t) : t < 2.0 ? mix(c1, c2, t - 1.0) : t < 3.0 ? mix(c2, c3, t - 2.0) : mix(c3, c4, t - 3.0); }
+void main(){
+  vec2 u = clamp(uv, 0.0, 1.0);
+  float inBox = step(0.0, uv.x)*step(uv.x, 1.0)*step(0.0, uv.y)*step(uv.y, 1.0);
+  if (shadowPass > 0.5) {
+    vec2 q = abs(uv - 0.5)*2.0*ext; vec2 dd = max(q - ext, 0.0);
+    float boxA = 1.0 - smoothstep(0.0, 0.10, length(dd));
+    float m = boxy > 0.5 ? boxA : circ > 0.5 ? 1.0 - smoothstep(0.92, 1.08, length(uv*2.0 - 1.0)) : textureLod(Msk, u, 3.0).r*boxA;
+    o = vec4(0.0, 0.0, 0.0, 0.55*m); return;
+  }
+  float m = texture(Msk, u).r*inBox;
+  float alpha = smoothstep(0.25, 0.75, m);
+  float cd = (1.0 - length(uv*2.0 - 1.0))*hlf.x;          /* circle: distance to the rim in metres */
+  if (circ > 0.5) { float fw = fwidth(cd)*1.2 + 1e-6; alpha = smoothstep(0.0, fw, cd); m = alpha; }
+  if (alpha < 0.002) discard;
+  /* surface normal of the (exaggerated) bent plate */
+  vec3 N = vec3(0.0, 0.0, 1.0);
+  if (exag > 0.0) {
+    vec2 e = texel;
+    float dx = (disp(u + vec2(e.x, 0.0)) - disp(u - vec2(e.x, 0.0)))/(2.0*e.x*2.0*ext.x);
+    float dy = (disp(u + vec2(0.0, e.y)) - disp(u - vec2(0.0, e.y)))/(2.0*e.y*2.0*ext.y);
+    N = normalize(vec3(-dx, -dy, 1.0));
+  }
+  vec3 V = normalize(eye - wp);
+  vec3 L1 = normalize(vec3(-0.45, 0.55, 0.75)), L2 = normalize(vec3(0.7, -0.2, 0.5));
+  /* blued-steel plate with a faint brushed grain */
+  vec2 xm = (u - 0.5)*2.0*hlf;
+  float br = hash(vec3(floor(xm.y*5200.0), floor(xm.x*90.0), 1.0))*0.6 + hash(vec3(floor(xm.y*2600.0), 0.0, 2.0))*0.4;
+  vec3 base = vec3(0.050, 0.054, 0.062)*(0.86 + 0.28*br);
+  float dif = 0.55 + 0.45*max(dot(N, L1), 0.0);
+  vec3 H1 = normalize(L1 + V), H2 = normalize(L2 + V);
+  float sp = pow(max(dot(N, H1), 0.0), 90.0)*0.55 + pow(max(dot(N, H2), 0.0), 40.0)*0.12;
+  float sheen = 0.05*pow(1.0 - max(dot(N, V), 0.0), 3.0);
+  vec3 col = base*dif + vec3(0.85, 0.88, 0.95)*sp + vec3(0.55, 0.62, 0.75)*sheen;
+  /* rim light along the edges */
+  float bx = min(min(u.x, 1.0 - u.x)*2.0*hlf.x, min(u.y, 1.0 - u.y)*2.0*hlf.y);
+  float rim = boxy > 0.5 ? 1.0 - smoothstep(0.0, 0.0025, bx) : circ > 0.5 ? 1.0 - smoothstep(0.0, 0.0025, cd) : (1.0 - smoothstep(0.55, 0.95, textureLod(Msk, u, 1.0).r))*smoothstep(0.3, 0.6, m);
+  col += vec3(0.42, 0.44, 0.48)*rim*0.55;
+  /* motion view: copper above the rest plane, teal below */
+  vec2 w = texture(Fld, u).xy;
+  float Gm = gsc*length(w);
+  if (vMot > 0.001) {
+    float dn = clamp(disp(u)/max(1e-9, ext.x*0.12), -1.0, 1.0);
+    vec3 c = dn > 0.0 ? vec3(0.95, 0.52, 0.26) : vec3(0.22, 0.68, 0.80);
+    col = mix(col, col*0.35 + c*abs(dn)*(0.55 + 0.6*dif) + vec3(0.9)*sp, vMot);
+  }
+  if (vGam > 0.001) {
+    float t = log(max(Gm, 1.0))/log(max(gmax, 2.0));
+    vec3 c = Gm < 1.0 ? vec3(0.015, 0.03, 0.06) + vec3(0.05, 0.16, 0.36)*Gm*Gm : heat(0.12 + 0.88*t);
+    float fw = fwidth(Gm)*1.2 + 1e-4;
+    float line = 1.0 - smoothstep(0.0, fw, abs(Gm - 1.0));
+    c = mix(c, vec3(0.95, 0.97, 1.0), line*0.9);
+    col = mix(col, c*(0.75 + 0.25*dif) + sp*0.4, vGam);
+  }
+  /* the post / drive point */
+  if (showPost > 0.5) {
+    float dp = length(xm - drive), R = post;
+    float disc = 1.0 - smoothstep(R - 0.0006, R, dp);
+    float ring = smoothstep(R*0.55, R*0.6, dp)*(1.0 - smoothstep(R*0.62, R*0.7, dp));
+    vec3 pc = mix(vec3(0.42, 0.40, 0.36), vec3(0.85, 0.78, 0.62), clamp(1.0 - dp/R + 0.25*dot(normalize(xm - drive + 1e-6), vec2(-0.6, 0.6)), 0.0, 1.0));
+    pc *= 1.0 - 0.45*ring;
+    float halo = (1.0 - smoothstep(R, R*1.6, dp))*smoothstep(R*0.98, R, dp);
+    col = mix(col, pc, disc);
+    col *= 1.0 - 0.6*halo;
+  }
+  col += (hash(vec3(gl_FragCoord.xy, time)) - 0.5)*0.008;
+  o = vec4(col, alpha);
+}`;
+
+/* ---------- grains ---------- */
+const G_VS = `#version 300 es
+precision highp float; precision highp sampler2D; precision highp int;
+uniform sampler2D S0, S1, Fld; uniform mat4 VP; uniform vec2 hlf, ext; uniform int W;
+uniform float wsc, exag, phase, psz, shadow, zlift;
+out vec4 col;
+float hash1(float n){ return fract(sin(n)*43758.5453); }
+void main(){
+  ivec2 ij = ivec2(gl_VertexID % W, gl_VertexID / W);
+  vec4 a = texelFetch(S0, ij, 0), b = texelFetch(S1, ij, 0);
+  if (b.z < 0.0) { gl_Position = vec4(2.0, 2.0, 2.0, 1.0); gl_PointSize = 0.0; col = vec4(0.0); return; }
+  vec2 u = a.xy/(2.0*hlf) + 0.5;
+  vec2 w = texture(Fld, clamp(u, 0.0, 1.0)).xy;
+  float d = exag*(w.x*cos(phase) - w.y*sin(phase));
+  float z = a.z;
+  vec3 p = vec3(a.xy*wsc, d);
+  float fall = z < 0.0 ? clamp(-z/0.06, 0.0, 1.0) : 0.0;
+  float up = max(z, 0.0);
+  float sd = b.w;
+  if (shadow > 0.5) {
+    p.xy += vec2(0.42, -0.62)*min(up, 0.03)*wsc*2.2;
+    gl_Position = VP*vec4(p, 1.0);
+    gl_PointSize = psz*(1.0 + 1.5*clamp(up/0.01, 0.0, 1.0));
+    col = vec4(0.0, 0.0, 0.0, (0.42 - 0.25*clamp(up/0.01, 0.0, 1.0))*(1.0 - fall));
+    return;
+  }
+  p.z += up*wsc*zlift + z*wsc*(z < 0.0 ? 2.0 : 0.0);
+  gl_Position = VP*vec4(p, 1.0);
+  float big = b.z > 0.5 ? 0.8 : 1.0;
+  gl_PointSize = psz*big*(0.85 + 0.35*sd)*(1.0 + 0.5*clamp(up/0.006, 0.0, 1.0))*(1.0 - 0.6*fall);
+  vec3 c = b.z > 0.5 ? mix(vec3(0.93, 0.70, 0.22), vec3(1.0, 0.86, 0.42), sd) : mix(vec3(0.78, 0.71, 0.58), vec3(0.98, 0.94, 0.85), sd);
+  c *= 1.0 + 0.25*clamp(up/0.005, 0.0, 1.0);
+  col = vec4(c, (0.92 - 0.1*sd)*(1.0 - fall));
+}`;
+const G_FS = `#version 300 es
+precision highp float; in vec4 col; out vec4 o;
+void main(){ vec2 q = gl_PointCoord - 0.5; float r = dot(q, q); if (r > 0.25) discard; o = vec4(col.rgb, col.a*(1.0 - smoothstep(0.12, 0.25, r))); }`;
+
+/* ---------- tiny GL + matrix helpers ---------- */
+function makeGL(canvas) {
+  let gl = null;
+  try { gl = canvas.getContext('webgl2', { antialias: false, alpha: false, premultipliedAlpha: false, preserveDrawingBuffer: false, powerPreference: 'high-performance' }); } catch (e) { }
+  if (!gl) return null;
+  if (!gl.getExtension('EXT_color_buffer_float')) return null;
+  gl.getExtension('OES_texture_float_linear');
+  return gl;
+}
+function glProgram(gl, vs, fs, attribs) {
+  const sh = (t, s) => { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(x), s.slice(0, 200)); return null; } return x; };
+  const v = sh(gl.VERTEX_SHADER, vs), f = sh(gl.FRAGMENT_SHADER, fs); if (!v || !f) return null;
+  const p = gl.createProgram(); gl.attachShader(p, v); gl.attachShader(p, f);
+  (attribs || ['p']).forEach((a, i) => gl.bindAttribLocation(p, i, a));
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { console.error(gl.getProgramInfoLog(p)); return null; }
+  p.u = {}; const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+  for (let i = 0; i < n; i++) { const a = gl.getActiveUniform(p, i); p.u[a.name.replace('[0]', '')] = gl.getUniformLocation(p, a.name); }
+  return p;
+}
+const M4 = {
+  mul(a, b) { const o = new Float32Array(16); for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { let s = 0; for (let k = 0; k < 4; k++) s += a[k * 4 + j] * b[i * 4 + k]; o[i * 4 + j] = s; } return o; },
+  persp(fy, asp, n, f) { const t = 1 / Math.tan(fy / 2), o = new Float32Array(16); o[0] = t / asp; o[5] = t; o[10] = (f + n) / (n - f); o[11] = -1; o[14] = 2 * f * n / (n - f); return o; },
+  look(e, c, up) {
+    const z = norm3(sub3(e, c)), x = norm3(cross3(up, z)), y = cross3(z, x);
+    return new Float32Array([x[0], y[0], z[0], 0, x[1], y[1], z[1], 0, x[2], y[2], z[2], 0, -dot3(x, e), -dot3(y, e), -dot3(z, e), 1]);
+  },
+  inv(m) {
+    const inv = new Float32Array(16), a = m;
+    inv[0] = a[5] * a[10] * a[15] - a[5] * a[11] * a[14] - a[9] * a[6] * a[15] + a[9] * a[7] * a[14] + a[13] * a[6] * a[11] - a[13] * a[7] * a[10];
+    inv[4] = -a[4] * a[10] * a[15] + a[4] * a[11] * a[14] + a[8] * a[6] * a[15] - a[8] * a[7] * a[14] - a[12] * a[6] * a[11] + a[12] * a[7] * a[10];
+    inv[8] = a[4] * a[9] * a[15] - a[4] * a[11] * a[13] - a[8] * a[5] * a[15] + a[8] * a[7] * a[13] + a[12] * a[5] * a[11] - a[12] * a[7] * a[9];
+    inv[12] = -a[4] * a[9] * a[14] + a[4] * a[10] * a[13] + a[8] * a[5] * a[14] - a[8] * a[6] * a[13] - a[12] * a[5] * a[10] + a[12] * a[6] * a[9];
+    inv[1] = -a[1] * a[10] * a[15] + a[1] * a[11] * a[14] + a[9] * a[2] * a[15] - a[9] * a[3] * a[14] - a[13] * a[2] * a[11] + a[13] * a[3] * a[10];
+    inv[5] = a[0] * a[10] * a[15] - a[0] * a[11] * a[14] - a[8] * a[2] * a[15] + a[8] * a[3] * a[14] + a[12] * a[2] * a[11] - a[12] * a[3] * a[10];
+    inv[9] = -a[0] * a[9] * a[15] + a[0] * a[11] * a[13] + a[8] * a[1] * a[15] - a[8] * a[3] * a[13] - a[12] * a[1] * a[11] + a[12] * a[3] * a[9];
+    inv[13] = a[0] * a[9] * a[14] - a[0] * a[10] * a[13] - a[8] * a[1] * a[14] + a[8] * a[2] * a[13] + a[12] * a[1] * a[10] - a[12] * a[2] * a[9];
+    inv[2] = a[1] * a[6] * a[15] - a[1] * a[7] * a[14] - a[5] * a[2] * a[15] + a[5] * a[3] * a[14] + a[13] * a[2] * a[7] - a[13] * a[3] * a[6];
+    inv[6] = -a[0] * a[6] * a[15] + a[0] * a[7] * a[14] + a[4] * a[2] * a[15] - a[4] * a[3] * a[14] - a[12] * a[2] * a[7] + a[12] * a[3] * a[6];
+    inv[10] = a[0] * a[5] * a[15] - a[0] * a[7] * a[13] - a[4] * a[1] * a[15] + a[4] * a[3] * a[13] + a[12] * a[1] * a[7] - a[12] * a[3] * a[5];
+    inv[14] = -a[0] * a[5] * a[14] + a[0] * a[6] * a[13] + a[4] * a[1] * a[14] - a[4] * a[2] * a[13] - a[12] * a[1] * a[6] + a[12] * a[2] * a[5];
+    inv[3] = -a[1] * a[6] * a[11] + a[1] * a[7] * a[10] + a[5] * a[2] * a[11] - a[5] * a[3] * a[10] - a[9] * a[2] * a[7] + a[9] * a[3] * a[6];
+    inv[7] = a[0] * a[6] * a[11] - a[0] * a[7] * a[10] - a[4] * a[2] * a[11] + a[4] * a[3] * a[10] + a[8] * a[2] * a[7] - a[8] * a[3] * a[6];
+    inv[11] = -a[0] * a[5] * a[11] + a[0] * a[7] * a[9] + a[4] * a[1] * a[11] - a[4] * a[3] * a[9] - a[8] * a[1] * a[7] + a[8] * a[3] * a[5];
+    inv[15] = a[0] * a[5] * a[10] - a[0] * a[6] * a[9] - a[4] * a[1] * a[10] + a[4] * a[2] * a[9] + a[8] * a[1] * a[6] - a[8] * a[2] * a[5];
+    let det = a[0] * inv[0] + a[1] * inv[4] + a[2] * inv[8] + a[3] * inv[12]; det = det ? 1 / det : 0;
+    for (let i = 0; i < 16; i++) inv[i] *= det; return inv;
+  }
+};
+function sub3(a, b) { return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; }
+function dot3(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+function cross3(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
+function norm3(a) { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; }
+const ease = (a, b, k) => a + (b - a) * k;
+
+class Loop {
+  constructor(el, fn) { this.fn = fn; this.vis = false; new IntersectionObserver(es => { this.vis = es[0].isIntersecting; this.kick(); }, { rootMargin: '80px' }).observe(el); document.addEventListener('visibilitychange', () => this.kick()); }
+  /* Reset the clock only when the loop starts from idle; resetting it every frame dropped each frame's own work from dt. */
+  kick() { if (this.raf) return; if (this.vis && !document.hidden) { if (!this.looping) this.last = performance.now(); this.looping = true; this.raf = requestAnimationFrame(t => this.tick(t)); } else this.looping = false; }
+  tick(t) { this.raf = 0; if (!this.vis || document.hidden) return; const dt = FF ? 0.1 : Math.min(1 / 30, (t - this.last) / 1000); this.last = t; this.fn(dt, t); this.kick(); }
+}
+function fitCanvas(cv) { const r = cv.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2); const w = Math.max(2, Math.round(r.width * d)), h = Math.max(2, Math.round(r.height * d)); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; } return [w, h, d]; }
+
+/* ============================================================ */
+class Stage {
+  constructor(root, opts = {}) {
+    this.root = root; this.cv = root.querySelector('canvas');
+    this.hud = {}; root.querySelectorAll('[data-hud]').forEach(e => this.hud[e.dataset.hud] = e);
+    const gl = this.gl = makeGL(this.cv);
+    this.ok = !!gl;
+    if (!gl) { root.classList.add('failed'); return; }
+    const gq = +(new URLSearchParams(location.search).get('g') || 0);
+    const big = opts.grains || (gq ? [gq, gq] : LITE ? [64, 64] : IS_SMALL ? [256, 256] : [512, 256]);
+    this.GW = big[0]; this.GH = big[1]; this.NG = this.GW * this.GH;
+    this.pSim = glProgram(gl, Q_VS, S_SIM); this.pSpr = glProgram(gl, Q_VS, S_SPR);
+    this.pPlate = glProgram(gl, P_VS, P_FS); this.pGrain = glProgram(gl, G_VS, G_FS, []);
+    if (!this.pSim || !this.pSpr || !this.pPlate || !this.pGrain) { this.ok = false; root.classList.add('failed'); return; }
+    this.quad = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, this.quad); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    this.vaoQ = gl.createVertexArray(); gl.bindVertexArray(this.vaoQ); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    this.vaoE = gl.createVertexArray();
+    gl.bindVertexArray(null);
+    /* grain state ping-pong */
+    const mk = () => { const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, this.GW, this.GH, 0, gl.RGBA, gl.FLOAT, null); [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach(p => gl.texParameteri(gl.TEXTURE_2D, p, gl.NEAREST)); return t; };
+    this.st = [0, 1].map(() => { const a = mk(), b = mk(), fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, a, 0); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, b, 0); gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]); return { a, b, fb }; });
+    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) { this.ok = false; root.classList.add('failed'); return; }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    this.cur = 0;
+    this.fld = gl.createTexture(); this.msk = gl.createTexture();
+    /* view state (eased) */
+    this.view = 'sand'; this.v = { tilt: 0, mot: 0, gam: 0, yaw: 0, ex: 0 };
+    this.time = 0; this.phase = 0; this.slow = 1; this.paused = false; this.yawDrift = 0;
+    this.live = true; this.air = true; this.pfrac = 0; this.fill = opts.fill || 0.55;
+    this.hopH = 0.0032; this.hopK = 1.3; this.bias = 0.6; this.powK = 1e-5; this.creep = 0.003;
+    this.gsc = 0; this.peak = 0; this.gpeak = 0; this.drive = [0, 0]; this.showPost = true;
+    this.ring = 0; this.tool = null; this.listeners = {};
+    this.zoom = opts.zoom || 1.0; this.offsetY = opts.offsetY || 0;
+    this.bindPointer();
+    this.loop = new Loop(root, dt => this.frame(dt));
+  }
+  on(e, f) { (this.listeners[e] = this.listeners[e] || []).push(f); }
+  emit(e, x) { (this.listeners[e] || []).forEach(f => f(x)); }
+
+  setPlate(P, keepSand) {
+    if (!this.ok) return;
+    const gl = this.gl, same = this.P && this.P.kind === P.kind && this.P.hw === P.hw && this.P.hh === P.hh;
+    this.P = P;
+    const mh = Math.max(P.hw, P.hh); this.wsc = 1 / mh; this.ext = [P.hw / mh, P.hh / mh];
+    /* mask (with mipmaps for soft edges) */
+    const m8 = new Uint8Array(P.NX * P.NY); for (let q = 0; q < m8.length; q++) m8[q] = Math.round(255 * P.mask[q]);
+    gl.bindTexture(gl.TEXTURE_2D, this.msk); gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, P.NX, P.NY, 0, gl.RED, gl.UNSIGNED_BYTE, m8);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    /* field texture */
+    gl.bindTexture(gl.TEXTURE_2D, this.fld);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RG16F, P.NX, P.NY, 0, gl.RG, gl.FLOAT, new Float32Array(2 * P.NX * P.NY));
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    this.fieldHas = false;
+    /* mesh */
+    const nx = Math.max(16, P.NX), ny = Math.max(16, P.NY), vx = [], ix = [];
+    for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) vx.push(-1 + 2 * i / nx, -1 + 2 * j / ny);
+    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const a = j * (nx + 1) + i, b = a + 1, c = a + nx + 1, d = c + 1; ix.push(a, b, c, b, d, c); }
+    if (!this.vaoM) { this.vaoM = gl.createVertexArray(); this.vbM = gl.createBuffer(); this.ibM = gl.createBuffer(); }
+    gl.bindVertexArray(this.vaoM);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbM); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vx), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibM); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(ix), gl.STATIC_DRAW);
+    gl.bindVertexArray(null);
+    this.nIdx = ix.length;
+    if (!this.vaoC) {   /* coarse mesh for the flat views and the shadow */
+      const cx = [], ci = [], n = 8;
+      for (let j = 0; j <= n; j++) for (let i = 0; i <= n; i++) cx.push(-1 + 2 * i / n, -1 + 2 * j / n);
+      for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const a = j * (n + 1) + i, b = a + 1, c = a + n + 1, d = c + 1; ci.push(a, b, c, b, d, c); }
+      this.vaoC = gl.createVertexArray(); gl.bindVertexArray(this.vaoC);
+      const vb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cx), gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+      const ib = gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(ci), gl.STATIC_DRAW);
+      gl.bindVertexArray(null); this.nIdxC = ci.length;
+    }
+    if (!(keepSand && same)) this.sprinkle();
+    this.loop.kick();
+  }
+  setField(fr) {
+    /* fr: { W (Float32 re/im, metres), peak, gpeak, f } */
+    if (!this.ok || !this.P) return;
+    const gl = this.gl; gl.bindTexture(gl.TEXTURE_2D, this.fld);
+    const n = fr.W.length; if (!this.um || this.um.length !== n) this.um = new Float32Array(n);
+    for (let q = 0; q < n; q++) this.um[q] = fr.W[q] * 1e6;          /* stored in micrometres (half floats) */
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.P.NX, this.P.NY, gl.RG, gl.FLOAT, this.um);
+    const w = 2 * Math.PI * fr.f; this.gsc = w * w / G_ACC * 1e-6; this.peak = fr.peak; this.gpeak = fr.gpeak; this.f = fr.f; this.fieldHas = true;
+  }
+  setView(v) { this.view = v; this.loop.kick(); }
+
+  /* ---------- grain operations ---------- */
+  spr(mode, o = {}) {
+    if (!this.ok || !this.P) return;
+    const gl = this.gl, p = this.pSpr, src = this.st[this.cur], dst = this.st[1 - this.cur];
+    gl.bindFramebuffer(gl.FRAMEBUFFER, dst.fb); gl.viewport(0, 0, this.GW, this.GH); gl.disable(gl.BLEND);
+    gl.useProgram(p);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, src.a); gl.uniform1i(p.u.S0, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, src.b); gl.uniform1i(p.u.S1, 1);
+    gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, this.msk); gl.uniform1i(p.u.Msk, 2);
+    gl.uniform2f(p.u.hlf, this.P.hw, this.P.hh); gl.uniform2f(p.u.res, this.GW, this.GH);
+    gl.uniform2f(p.u.brush, (o.x || 0), (o.y || 0)); gl.uniform1i(p.u.mode, mode);
+    gl.uniform1f(p.u.time, (this.time * 7.31 + Math.random() * 100) % 1000); gl.uniform1f(p.u.rad, o.r || 0.01);
+    gl.uniform1f(p.u.i0, o.i0 || 0); gl.uniform1f(p.u.cnt, o.cnt || 0); gl.uniform1f(p.u.fill, o.fill != null ? o.fill : this.fill);
+    gl.uniform1f(p.u.pfrac, o.pfrac != null ? o.pfrac : this.pfrac); gl.uniform1f(p.u.total, this.NG);
+    gl.bindVertexArray(this.vaoQ); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    this.cur = 1 - this.cur; this.loop.kick();
+  }
+  sprinkle(o = {}) { this.spr(0, o); this.pourAt = 0; }
+  clear() { this.spr(3); }
+  pour(x, y, n, r) { this.spr(1, { x, y, i0: this.pourAt || 0, cnt: n, r }); this.pourAt = ((this.pourAt || 0) + n) % this.NG; }
+  wipe(x, y, r) { this.spr(2, { x, y, r }); }
+  step(dt) {
+    const gl = this.gl, p = this.pSim, src = this.st[this.cur], dst = this.st[1 - this.cur];
+    gl.bindFramebuffer(gl.FRAMEBUFFER, dst.fb); gl.viewport(0, 0, this.GW, this.GH); gl.disable(gl.BLEND);
+    gl.useProgram(p);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, src.a); gl.uniform1i(p.u.S0, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, src.b); gl.uniform1i(p.u.S1, 1);
+    gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, this.fld); gl.uniform1i(p.u.Fld, 2);
+    gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, this.msk); gl.uniform1i(p.u.Msk, 3);
+    gl.uniform2f(p.u.hlf, this.P.hw, this.P.hh); gl.uniform1f(p.u.dt, dt); gl.uniform1f(p.u.time, (this.time * 13.7) % 1000);
+    gl.uniform1f(p.u.gsc, this.fieldHas ? this.gsc : 0); gl.uniform1f(p.u.hopH, this.hopH); gl.uniform1f(p.u.hopK, this.hopK);
+    gl.uniform1f(p.u.bias, this.bias); gl.uniform1f(p.u.air, this.air ? 1 : 0); gl.uniform1f(p.u.powK, this.powK);
+    gl.uniform1f(p.u.grav, G_ACC); gl.uniform1f(p.u.live, this.live ? 1 : 0); gl.uniform1f(p.u.creep, this.creep);
+    gl.bindVertexArray(this.vaoQ); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    this.cur = 1 - this.cur;
+  }
+
+  /* ---------- camera ---------- */
+  camera(W, H) {
+    const v = this.v, asp = W / H, fy = 26 * Math.PI / 180, ex = this.ext;
+    const tilt = v.tilt, yaw = v.yaw;
+    /* distance that fits the plate: box fit when flat, sphere fit when tilted */
+    const t = Math.tan(fy / 2);
+    const dBox = Math.max(ex[1] / t, ex[0] / (t * asp)) * 1.07 / this.zoom;
+    const r = Math.hypot(ex[0], ex[1]), dSph = r / Math.sin(Math.min(fy, 2 * Math.atan(t * asp)) / 2) * 0.93 / this.zoom;
+    const k = Math.min(1, tilt / 0.8), d = ease(dBox, dSph, k);
+    const eye = [d * Math.sin(tilt) * Math.sin(yaw), -d * Math.sin(tilt) * Math.cos(yaw), d * Math.cos(tilt)];
+    const ctr = [0, this.offsetY * ex[1], 0];
+    const e2 = [eye[0] + ctr[0], eye[1] + ctr[1], eye[2]];
+    const up = tilt < 1e-3 ? [-Math.sin(yaw), Math.cos(yaw), 0] : [0, 0, 1];
+    const Vm = M4.look(e2, ctr, up), Pm = M4.persp(fy, asp, d * 0.1, d * 4);
+    this.VP = M4.mul(Pm, Vm); this.eye = e2; this.pxPerWorld = H / (2 * d * t);
+    this.iVP = M4.inv(this.VP);
+  }
+  /* screen (css px) → plate metres on the rest plane */
+  pick(cx, cy) {
+    const r = this.cv.getBoundingClientRect(), x = (cx - r.left) / r.width * 2 - 1, y = 1 - (cy - r.top) / r.height * 2;
+    if (!this.iVP) return null;
+    const un = (z) => { const m = this.iVP, v = [x, y, z, 1], o = [0, 0, 0, 0]; for (let i = 0; i < 4; i++) for (let k = 0; k < 4; k++) o[i] += m[k * 4 + i] * v[k]; return [o[0] / o[3], o[1] / o[3], o[2] / o[3]]; };
+    const a = un(-1), b = un(1), dz = b[2] - a[2]; if (Math.abs(dz) < 1e-9) return null;
+    const t = -a[2] / dz, wx = a[0] + t * (b[0] - a[0]), wy = a[1] + t * (b[1] - a[1]);
+    return [wx / this.wsc, wy / this.wsc];
+  }
+  bindPointer() {
+    let down = false, last = 0;
+    const act = (e, first) => {
+      if (!this.tool || !this.P) return;
+      const p = this.pick(e.clientX, e.clientY); if (!p) return;
+      const now = performance.now();
+      if (this.tool === 'drive') { if (Math.abs(p[0]) <= this.P.hw && Math.abs(p[1]) <= this.P.hh && PLATE.inside(this.P, p[0] / this.P.hw, p[1] / this.P.hh)) this.emit('drive', p); }
+      else if (this.tool === 'pour') { if (first || now - last > 16) { this.pour(p[0], p[1], Math.round(this.NG * (IS_SMALL ? 0.006 : 0.004)), 0.010 * Math.max(this.P.hw, this.P.hh) / 0.12); last = now; } }
+      else if (this.tool === 'wipe') { if (first || now - last > 16) { this.wipe(p[0], p[1], 0.018 * Math.max(this.P.hw, this.P.hh) / 0.12); last = now; } }
+    };
+    this.cv.addEventListener('pointerdown', e => { if (!this.tool) return; down = true; try { this.cv.setPointerCapture(e.pointerId); } catch (_) { } act(e, true); e.preventDefault(); });
+    this.cv.addEventListener('pointermove', e => { if (down) act(e, false); });
+    const up = () => { down = false; };
+    this.cv.addEventListener('pointerup', up); this.cv.addEventListener('pointercancel', up);
+  }
+
+  /* ---------- frame ---------- */
+  frame(dt) {
+    if (!this.ok || !this.P) return;
+    const gl = this.gl, [W, H, dpr] = fitCanvas(this.cv);
+    this.emit('frame', dt);
+    const tv = this.view, v = this.v, k = 1 - Math.exp(-dt * 3.2);
+    const goal = { tilt: tv === 'motion' ? 0.95 : 0, mot: tv === 'motion' ? 1 : 0, gam: tv === 'gamma' ? 1 : 0 };
+    v.tilt = ease(v.tilt, goal.tilt, k); v.mot = ease(v.mot, goal.mot, k); v.gam = ease(v.gam, goal.gam, k);
+    v.yaw = tv === 'motion' ? v.yaw + dt * 0.09 * (this.paused ? 0 : 1) : ease(v.yaw, 0, k);
+    if (tv !== 'motion' && Math.abs(v.yaw) > Math.PI) v.yaw -= Math.sign(v.yaw) * 2 * Math.PI;
+    if (!this.paused) {
+      this.time += dt;
+      this.phase += dt * 2 * Math.PI * 0.9;      /* the plate's motion, slowed to ~1 Hz for the eye */
+      const sub = Math.max(1, Math.ceil(dt / 0.02));
+      for (let s = 0; s < sub; s++) this.step(dt / sub);
+    }
+    /* exaggeration: peak displacement shown as 12% of the plate half-size in motion view */
+    const exTarget = this.peak > 0 ? v.mot * 0.12 / (this.peak * 1e6 * this.wsc) : 0;
+    v.ex = exTarget;
+    const exag = v.ex * this.wsc;   /* micrometres of real displacement → world units */
+    this.camera(W, H);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, W, H);
+    gl.clearColor(0.024, 0.024, 0.028, 1); gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.enable(gl.BLEND); gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    /* plate: shadow then surface */
+    const p = this.pPlate; gl.useProgram(p);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, this.fld); gl.uniform1i(p.u.Fld, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, this.msk); gl.uniform1i(p.u.Msk, 1);
+    gl.uniformMatrix4fv(p.u.VP, false, this.VP); gl.uniform2f(p.u.ext, this.ext[0], this.ext[1]);
+    gl.uniform2f(p.u.hlf, this.P.hw, this.P.hh); gl.uniform2f(p.u.texel, 1 / this.P.NX, 1 / this.P.NY);
+    gl.uniform3f(p.u.eye, this.eye[0], this.eye[1], this.eye[2]);
+    gl.uniform1f(p.u.phase, this.phase); gl.uniform1f(p.u.gsc, this.fieldHas ? this.gsc : 0);
+    gl.uniform1f(p.u.vMot, v.mot); gl.uniform1f(p.u.vGam, v.gam); gl.uniform1f(p.u.time, this.time % 100);
+    gl.uniform1f(p.u.boxy, this.P.kind === 'square' || this.P.kind === 'rect' ? 1 : 0); gl.uniform1f(p.u.circ, this.P.kind === 'circle' ? 1 : 0);
+    gl.uniform1f(p.u.showPost, this.showPost ? 1 : 0); gl.uniform2f(p.u.drive, this.drive[0], this.drive[1]);
+    gl.uniform1f(p.u.post, 0.0055 * Math.max(this.P.hw, this.P.hh) / 0.12); gl.uniform1f(p.u.gmax, Math.max(1.5, this.gpeak));
+    /* shadow (flat, offset, slightly larger) */
+    gl.bindVertexArray(this.vaoC);
+    gl.uniform1f(p.u.exag, 0); gl.uniform1f(p.u.shadowPass, 1); gl.uniform2f(p.u.grow, 1.08, 1.08); gl.uniform1f(p.u.zoff, -0.06 - 0.10 * v.mot);
+    gl.drawElements(gl.TRIANGLES, this.nIdxC, gl.UNSIGNED_INT, 0);
+    const fine = exag > 0;
+    gl.bindVertexArray(fine ? this.vaoM : this.vaoC);
+    gl.uniform1f(p.u.exag, exag); gl.uniform1f(p.u.shadowPass, 0); gl.uniform2f(p.u.grow, 1, 1); gl.uniform1f(p.u.zoff, 0);
+    gl.drawElements(gl.TRIANGLES, fine ? this.nIdx : this.nIdxC, gl.UNSIGNED_INT, 0);
+    /* grains: shadows, then grains */
+    const g = this.pGrain; gl.useProgram(g);
+    const s = this.st[this.cur];
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, s.a); gl.uniform1i(g.u.S0, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, s.b); gl.uniform1i(g.u.S1, 1);
+    gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, this.fld); gl.uniform1i(g.u.Fld, 2);
+    gl.uniformMatrix4fv(g.u.VP, false, this.VP); gl.uniform2f(g.u.hlf, this.P.hw, this.P.hh); gl.uniform1i(g.u.W, this.GW);
+    gl.uniform1f(g.u.wsc, this.wsc); gl.uniform1f(g.u.exag, exag); gl.uniform1f(g.u.phase, this.phase);
+    /* grain size: ~0.45 mm sand on screen, never smaller than ~1.3 device px */
+    const pxPerM = this.pxPerWorld * this.wsc;
+    const psz = Math.max(1.35 * dpr, Math.min(3.2 * dpr, 0.00045 * pxPerM * 1.6));
+    gl.uniform1f(g.u.psz, psz); gl.uniform1f(g.u.zlift, 1.0);
+    gl.bindVertexArray(this.vaoE);
+    gl.uniform1f(g.u.shadow, 1); gl.drawArrays(gl.POINTS, 0, this.NG);
+    gl.uniform1f(g.u.shadow, 0); gl.drawArrays(gl.POINTS, 0, this.NG);
+    gl.bindVertexArray(null);
+  }
+}
+
+/* ============================================================
+   Resonance curve, mode thumbnails, Chladni's-law figure, tone.
+   ============================================================ */
+const FMT = {
+  hz(f) { return f >= 1000 ? (f / 1000).toFixed(f >= 10000 ? 1 : 3).replace(/\.?0+$/, '') + ' kHz' : (f >= 100 ? f.toFixed(1) : f.toFixed(2)) + ' Hz'; },
+  hzBig(f) { return f >= 1000 ? Math.round(f).toLocaleString('en-US') : f.toFixed(1); },
+  um(m) { const u = m * 1e6; return u >= 100 ? Math.round(u) + ' µm' : u >= 10 ? u.toFixed(1) + ' µm' : u >= 1 ? u.toFixed(2) + ' µm' : Math.round(u * 1000) + ' nm'; },
+  g(x) { return x >= 10 ? x.toFixed(0) : x >= 1 ? x.toFixed(1) : x.toFixed(2); },
+  n(x) { return x >= 1000 ? Math.round(x).toLocaleString('en-US') : x >= 100 ? x.toFixed(0) : x.toFixed(1); }
+};
+function sizeCv(cv) { const d = Math.min(devicePixelRatio || 1, 2), W = Math.round(cv.clientWidth * d), H = Math.round(cv.clientHeight * d); if (!W || !H) return null; if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; } return [W, H, d]; }
+
+/* drive coupling of every mode at a point (box coords in metres) */
+function coupling(P, x0, y0) { return P.modes.map(m => PLATE.sample(P, m.phi, x0 / P.hw, y0 / P.hh)); }
+/* RMS acceleration (g) over the plate at frequency f, from the modal sum */
+function grmsFast(P, pk, f, Q, F) {
+  const W = 2 * Math.PI * f, W2 = W * W; let s = 0;
+  for (let k = 0; k < pk.length; k++) {
+    const wk = 2 * Math.PI * P.modes[k].f, re = wk * wk - W2, im = wk * W / Q, a = F * pk[k] / P.mass;
+    s += a * a / (re * re + im * im);
+  }
+  return W2 * Math.sqrt(s) / 9.81;
+}
+
+class Strip {
+  constructor(root) {
+    this.root = root; this.cv = root.querySelector('canvas'); this.ctx = this.cv.getContext('2d');
+    this.listeners = {}; this.f = 100; this.curve = null; this.dirty = true;
+    let down = false;
+    const go = e => {
+      if (!this.P) return;
+      const r = this.cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width;
+      let f = this.fmin * Math.pow(this.fmax / this.fmin, Math.max(0, Math.min(1, x)));
+      /* snap onto a nearby peak */
+      const px = 9 / r.width; let best = null, bd = 1e9;
+      this.P.modes.forEach((m, k) => { if (m.f < this.fmin || m.f > this.fmax) return; const xm = Math.log(m.f / this.fmin) / Math.log(this.fmax / this.fmin), d = Math.abs(xm - x); if (d < px && d < bd && Math.abs(this.pk[k]) > 0.08 * this.pkMax) { bd = d; best = m.f; } });
+      if (best) f = best;
+      this.emit('scrub', f);
+    };
+    this.cv.addEventListener('pointerdown', e => { down = true; try { this.cv.setPointerCapture(e.pointerId); } catch (_) { } go(e); e.preventDefault(); });
+    this.cv.addEventListener('pointermove', e => { if (down) go(e); });
+    this.cv.addEventListener('pointerup', () => { down = false; this.emit('scrubend'); });
+    this.cv.addEventListener('pointercancel', () => { down = false; });
+    addEventListener('resize', () => { this.dirty = true; this.draw(); });
+  }
+  on(e, f) { (this.listeners[e] = this.listeners[e] || []).push(f); }
+  emit(e, x) { (this.listeners[e] || []).forEach(f => f(x)); }
+  set(P, drive, Q, F, range) {
+    this.P = P; this.Q = Q; this.F = F; this.drive = drive;
+    this.pk = coupling(P, drive[0], drive[1]); this.pkMax = Math.max(1e-9, ...this.pk.map(Math.abs));
+    const f1 = P.modes.length ? P.modes[0].f : 50;
+    this.fmin = range ? range[0] : f1 * 0.7; this.fmax = range ? range[1] : Math.min(4000, P.modes.length ? P.modes[P.modes.length - 1].f * 1.02 : 4000);
+    this.dirty = true;
+  }
+  compute(W) {
+    const P = this.P, n = Math.max(200, Math.round(W * 1.5)), fs = [];
+    for (let i = 0; i <= n; i++) fs.push(this.fmin * Math.pow(this.fmax / this.fmin, i / n));
+    P.modes.forEach(m => { if (m.f > this.fmin && m.f < this.fmax) fs.push(m.f, m.f * (1 - 0.5 / this.Q), m.f * (1 + 0.5 / this.Q)); });
+    fs.sort((a, b) => a - b);
+    this.curve = fs.map(f => [f, grmsFast(P, this.pk, f, this.Q, this.F)]);
+    let mx = -1e9; this.curve.forEach(c => mx = Math.max(mx, 20 * Math.log10(c[1] + 1e-12)));
+    this.top = Math.max(12, mx + 6); this.bot = this.top - 72;
+    this.dirty = false;
+  }
+  draw() {
+    const s = sizeCv(this.cv); if (!s || !this.P) return; const [W, H, d] = s, c = this.ctx;
+    if (this.dirty || !this.curve) this.compute(W / d);
+    c.clearRect(0, 0, W, H);
+    const small = H / d < 70, L = 0, R = 0, T = (small ? 4 : 16) * d, B = (small ? 9 : 18) * d;
+    const X = f => L + Math.log(f / this.fmin) / Math.log(this.fmax / this.fmin) * (W - L - R);
+    const Y = g => { const db = 20 * Math.log10(g + 1e-12); return T + (1 - (db - this.bot) / (this.top - this.bot)) * (H - T - B); };
+    c.font = `500 ${9.5 * d}px "IBM Plex Mono", monospace`; c.textBaseline = 'alphabetic';
+    /* decade grid */
+    [20, 50, 100, 200, 500, 1000, 2000, 5000].forEach(f => {
+      if (f < this.fmin || f > this.fmax) return; const x = X(f);
+      c.fillStyle = 'rgba(255,255,255,0.05)'; c.fillRect(x, T, 1, H - T - B);
+      if (!small) { c.fillStyle = '#5d5953'; c.textAlign = 'center'; c.fillText(f >= 1000 ? f / 1000 + 'k' : String(f), x, H - 5 * d); }
+    });
+    /* 1 g line */
+    const y1 = Y(1); c.strokeStyle = 'rgba(201,165,90,0.55)'; c.setLineDash([3 * d, 4 * d]); c.lineWidth = 1 * d;
+    c.beginPath(); c.moveTo(0, y1); c.lineTo(W, y1); c.stroke(); c.setLineDash([]);
+    if (!small) { c.fillStyle = '#c9a55a'; c.textAlign = 'left'; c.fillText('1 g rms', 6 * d, y1 - 4 * d); }
+    /* curve */
+    const pts = this.curve.map(([f, g]) => [X(f), Math.min(H - B, Math.max(T - 2 * d, Y(g)))]);
+    const grd = c.createLinearGradient(0, T, 0, H - B); grd.addColorStop(0, 'rgba(236,226,204,0.28)'); grd.addColorStop(1, 'rgba(236,226,204,0.0)');
+    c.fillStyle = grd; c.beginPath(); c.moveTo(pts[0][0], H - B); pts.forEach(p => c.lineTo(p[0], p[1])); c.lineTo(pts[pts.length - 1][0], H - B); c.closePath(); c.fill();
+    c.strokeStyle = 'rgba(236,226,204,0.9)'; c.lineWidth = 1.2 * d; c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])); c.stroke();
+    /* mode ticks: bright if the drive point couples to the mode */
+    this.P.modes.forEach((m, k) => {
+      if (m.f < this.fmin || m.f > this.fmax) return; const x = X(m.f), on = Math.abs(this.pk[k]) > 0.08 * this.pkMax;
+      c.fillStyle = on ? 'rgba(201,165,90,0.9)' : 'rgba(255,255,255,0.16)'; c.fillRect(x - 0.5 * d, H - B, 1 * d, (small ? 4 : 5) * d);
+    });
+    /* current frequency */
+    const xf = X(this.f), gNow = grmsFast(this.P, this.pk, this.f, this.Q, this.F), yf = Math.min(H - B, Math.max(T, Y(gNow)));
+    c.fillStyle = 'rgba(255,255,255,0.85)'; c.fillRect(xf - 0.5 * d, 0, 1 * d, H - B);
+    c.beginPath(); c.arc(xf, yf, 3.2 * d, 0, 7); c.fill();
+    if (!small) {
+      const t = FMT.hz(this.f); c.font = `500 ${10 * d}px "IBM Plex Mono", monospace`; const tw = c.measureText(t).width + 10 * d;
+      const bx = Math.min(W - tw - 2 * d, Math.max(2 * d, xf - tw / 2));
+      c.fillStyle = 'rgba(6,6,7,0.85)'; c.fillRect(bx, 1 * d, tw, 13 * d); c.fillStyle = '#fff'; c.textAlign = 'left'; c.fillText(t, bx + 5 * d, 11 * d);
+    }
+  }
+}
+
+/* nodal-pattern thumbnail: sand-white lines on dark, faint copper/teal for the sign */
+const THUMB_CACHE = new WeakMap();
+function drawThumb(cv, P, k) {
+  const m = P.modes[k]; let img = THUMB_CACHE.get(m);
+  if (!img) {
+    img = document.createElement('canvas'); img.width = P.NX; img.height = P.NY;
+    const x = img.getContext('2d'), id = x.createImageData(P.NX, P.NY), D = id.data;
+    for (let j = 0; j < P.NY; j++) for (let i = 0; i < P.NX; i++) {
+      const q = j * P.NX + i, o = ((P.NY - 1 - j) * P.NX + i) * 4, mk = P.mask[q];
+      const v = m.phi[q] / m.peak, ln = Math.exp(-((v / 0.07) ** 2)), a = Math.abs(v);
+      let r = 12 + (v > 0 ? 70 * a : 18 * a), g = 13 + (v > 0 ? 32 * a : 58 * a), b = 16 + (v > 0 ? 14 * a : 66 * a);
+      r = r * (1 - ln) + 236 * ln; g = g * (1 - ln) + 226 * ln; b = b * (1 - ln) + 204 * ln;
+      D[o] = r * mk; D[o + 1] = g * mk; D[o + 2] = b * mk; D[o + 3] = 255;
+    }
+    x.putImageData(id, 0, 0); THUMB_CACHE.set(m, img);
+  }
+  const s = 96; cv.width = s; cv.height = s; const c = cv.getContext('2d');
+  c.fillStyle = '#000'; c.fillRect(0, 0, s, s);
+  const sc = Math.min(s / P.NX, s / P.NY) * 0.94, w = P.NX * sc, h = P.NY * sc;
+  c.imageSmoothingEnabled = true; c.drawImage(img, (s - w) / 2, (s - h) / 2, w, h);
+}
+
+/* ---------- tone ---------- */
+const Tone = {
+  on: false, ac: null,
+  ensure() {
+    if (this.ac) return;
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    const ac = this.ac = new AC();
+    this.o1 = ac.createOscillator(); this.o2 = ac.createOscillator(); this.g2 = ac.createGain(); this.g = ac.createGain(); this.lp = ac.createBiquadFilter();
+    this.o1.type = 'sine'; this.o2.type = 'sine'; this.g2.gain.value = 0.12; this.g.gain.value = 0; this.lp.type = 'lowpass'; this.lp.frequency.value = 9000;
+    this.o1.connect(this.g); this.o2.connect(this.g2); this.g2.connect(this.g); this.g.connect(this.lp); this.lp.connect(ac.destination);
+    this.o1.start(); this.o2.start();
+  },
+  toggle() { this.on = !this.on; if (this.on) { this.ensure(); this.ac && this.ac.resume(); } else this.mute(); this.sync(); return this.on; },
+  set(f, gpeak) {
+    if (!this.on || !this.ac) return; const t = this.ac.currentTime;
+    this.o1.frequency.setTargetAtTime(f, t, 0.02); this.o2.frequency.setTargetAtTime(2 * f, t, 0.02);
+    const lvl = 0.035 + 0.2 * Math.pow(Math.min(1, gpeak / 10), 0.6);
+    this.g.gain.setTargetAtTime(lvl, t, 0.06);
+  },
+  mute() { if (this.ac) this.g.gain.setTargetAtTime(0, this.ac.currentTime, 0.05); },
+  sync() { document.querySelectorAll('[data-sound]').forEach(b => { b.setAttribute('aria-pressed', String(this.on)); b.classList.toggle('on', this.on); const s = b.querySelector('span'); if (s) s.textContent = s.textContent.length > 3 ? (this.on ? 'Sound on' : 'Sound off') : (this.on ? 'On' : 'Off'); }); }
+};
+
+/* ============================================================
+   Story: hero tour, scroll scenes, lab, checks, history
+   ============================================================ */
+(function () {
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const NGRID = LITE ? 48 : 128;
+  const set = (k, v) => $$(`[data-out="${k}"]`).forEach(e => { if (e.textContent !== v) e.textContent = v; });
+
+  /* ---------------- plates (built once, cached) ---------------- */
+  /* Modes are solved once per shape, material and aspect ratio. Thickness and size only rescale
+     the frequencies (f ∝ h/L² for a given shape), so those plates are derived without a new solve. */
+  const PC = new Map(), STORY_KEYS = new Set(), DC = new Map();
+  function basePlate(c) {
+    const key = [c.shape, c.mat, c.shape === 'rect' ? c.aspect.toFixed(3) : '1'].join('|');
+    if (PC.has(key)) { const v = PC.get(key); PC.delete(key); PC.set(key, v); return v; }
+    const B = PLATE.build({ shape: c.shape, mat: c.mat, h: c.shape === 'guitar' ? 2.8e-3 : 1e-3, L: 0.24, aspect: c.aspect, N: NGRID, fmax: 1e9, lamMax: 480 });
+    PC.set(key, B);
+    for (const k of [...PC.keys()]) { if (PC.size <= STORY_KEYS.size + 3) break; if (!STORY_KEYS.has(k)) PC.delete(k); }
+    return B;
+  }
+  function plate(cfg, story) {
+    const c = Object.assign({ mat: 'steel', h: 0.8e-3, L: 0.24, aspect: 1 }, cfg);
+    if (c.shape === 'guitar') { c.mat = 'spruce'; c.L = 0.485; }
+    const B = basePlate(c);
+    if (story) STORY_KEYS.add([c.shape, c.mat, c.shape === 'rect' ? c.aspect.toFixed(3) : '1'].join('|'));
+    const dkey = B.kind + B.mat + B.aspect + '|' + c.h.toFixed(6) + '|' + c.L.toFixed(4);
+    if (DC.has(dkey) && DC.get(dkey).base === B) return DC.get(dkey);
+    const g = B.kind === 'guitar' ? 1 : c.L / B.L, s = (c.h / B.h) / (g * g);
+    const mat = PLATE.MATS[B.mat], rhoh = mat.rho * c.h, area = B.area * g * g;
+    let modes = B.modes.map(m => Object.assign({}, m, { f: m.f * s })).filter((m, i) => m.f <= 4000 || i < 12);
+    modes.forEach((m, i) => m.idx = i);
+    const P = Object.assign({}, B, { base: B, h: c.h, L: B.kind === 'guitar' ? B.L : c.L, hw: B.hw * g, hh: B.hh * g, rhoh, R: PLATE.rigidity(mat, c.h), area, mass: rhoh * area, modes });
+    if (story) P.story = true;
+    if (DC.size > 10) { for (const [k, v] of DC) { if (!v.story) { DC.delete(k); break; } } }
+    DC.set(dkey, P);
+    return P;
+  }
+  const SQ = { shape: 'square', mat: 'steel', h: 0.8e-3, L: 0.24 };
+  const CIRC = { shape: 'circle', mat: 'steel', h: 0.8e-3, L: 0.24 };
+  const GTR = { shape: 'guitar', mat: 'spruce', h: 2.8e-3 };
+
+  /* the centre-driven mode nearest a target frequency */
+  const centreMode = (P, f) => { let b = 0, bd = 1e9; P.modes.forEach((m, k) => { if (Math.abs(PLATE.sample(P, m.phi, 0, 0)) < 0.4 * m.peak) return; const d = Math.abs(Math.log(m.f / f)); if (d < bd) { bd = d; b = k; } }); return b; };
+  const couple = (P, k, d) => PLATE.sample(P, P.modes[k].phi, d[0] / P.hw, d[1] / P.hh);
+  /* force that gives a peak Γ of about gt when sitting on mode k */
+  function Fstar(P, k, d, Q, gt) { const p = Math.max(0.02 * P.modes[k].peak, Math.abs(couple(P, k, d))); return gt * P.mass * 9.81 / (Q * p * P.modes[k].peak); }
+  /* a mode near f that the drive point can excite well (or, failing that, the nearest mode) */
+  function chooseMode(P, f, d) {
+    let b = -1, bd = 1e9, n = 0, nd = 1e9;
+    P.modes.forEach((m, k) => { const dl = Math.abs(Math.log(m.f / f)); if (dl < nd) { nd = dl; n = k; } if (Math.abs(couple(P, k, d)) >= 0.4 * m.peak && dl < bd) { bd = dl; b = k; } });
+    return b >= 0 && bd < 0.5 ? b : n;
+  }
+  /* an antinode of mode k close to `near`, away from the rim */
+  function bestDrive(P, k, near) {
+    const m = P.modes[k], mh = Math.max(P.hw, P.hh); let best = null, bs = -1e9;
+    for (let j = 2; j < P.NY - 2; j += 2) for (let i = 2; i < P.NX - 2; i += 2) {
+      const q = j * P.NX + i; if (P.mask[q] < 0.999) continue;
+      const x = P.xs[i] * P.hw, y = P.ys[j] * P.hh;
+      if (P.kind === 'square' || P.kind === 'rect') { if (Math.abs(P.xs[i]) > 0.75 || Math.abs(P.ys[j]) > 0.75) continue; }
+      else if (P.kind === 'circle') { if (Math.hypot(P.xs[i], P.ys[j]) > 0.8) continue; }
+      else if (PLATE.sample(P, P.mask, (x + 0.12 * mh * Math.sign(x)) / P.hw, (y + 0.12 * mh * Math.sign(y)) / P.hh) < 0.99 || PLATE.sample(P, P.mask, (x - 0.12 * mh * Math.sign(x)) / P.hw, y / P.hh) < 0.99) continue;
+      const a = Math.abs(m.phi[q]) / m.peak; if (a < 0.6) continue;
+      const s = a - 0.9 * Math.hypot(x - near[0], y - near[1]) / mh;
+      if (s > bs) { bs = s; best = [x, y]; }
+    }
+    return best || near;
+  }
+
+  /* ---------------- a driven plate on a stage ---------------- */
+  class Driven {
+    constructor(S, strip) {
+      this.S = S; this.strip = strip; this.f = 300; this.drive = [0, 0]; this.Q = 150; this.F = 0.05;
+      this.dirty = true; this.buf = null; this.fr = null; this.listeners = {};
+      if (S.ok) S.on('frame', dt => { this.emit('tick', dt); this.update(); });
+      if (strip) strip.on('scrub', f => { this.emit('scrub', f); this.setF(f); });
+    }
+    on(e, f) { (this.listeners[e] = this.listeners[e] || []).push(f); }
+    emit(e, x) { (this.listeners[e] || []).forEach(f => f(x)); }
+    setPlate(P, keepSand) { this.P = P; if (this.S.ok) this.S.setPlate(P, keepSand); this.syncStrip(); this.dirty = true; }
+    syncStrip() { if (this.strip && this.P) { this.strip.set(this.P, this.drive, this.Q, this.F); this.strip.f = this.f; } }
+    setF(f) { this.f = f; this.dirty = true; if (this.S.ok) this.S.loop.kick(); }
+    setDrive(d) { this.drive = d.slice(); if (this.S.ok) this.S.drive = d.slice(); this.syncStrip(); this.dirty = true; }
+    setQF(Q, F) { if (Q != null) this.Q = Q; if (F != null) this.F = F; this.syncStrip(); this.dirty = true; }
+    nearest() { let b = 0, bd = 1e9; this.P.modes.forEach((m, k) => { const d = Math.abs(Math.log(m.f / this.f)); if (d < bd) { bd = d; b = k; } }); return b; }
+    update() {
+      if (!this.dirty || !this.P) return;
+      this.fr = PLATE.field(this.P, this.f, this.drive[0] / this.P.hw, this.drive[1] / this.P.hh, this.Q, this.F, this.buf);
+      this.buf = this.fr.W;
+      if (this.S.ok) this.S.setField(Object.assign({ f: this.f }, this.fr));
+      if (this.strip) { this.strip.f = this.f; this.strip.draw(); }
+      this.dirty = false; this.emit('field', this.fr);
+    }
+  }
+
+  /* ================= hero: a tour through the square plate's modes ================= */
+  const HS = new Stage($('#hero'), { fill: 0.55, zoom: 0.92, offsetY: -0.09 });
+  const hero = new Driven(HS, null);
+  const tour = { list: [], i: 0, t: 0, phase: 'dwell', from: 0, to: 0, n: 0 };
+  function startHero() {
+    const P = plate(SQ, true); hero.setPlate(P);
+    /* centre-driven modes with clear figures */
+    const ok = []; P.modes.forEach((m, k) => { if (k >= 6 && m.f < 2600 && Math.abs(couple(P, k, [0, 0])) > 0.35 * m.peak) ok.push(k); });
+    const pick = [], want = [12, 20, 28, 36, 46, 58, 70, 84];
+    want.forEach(w => { let b = ok[0], bd = 1e9; ok.forEach(k => { if (Math.abs(k - w) < bd && !pick.includes(k)) { bd = Math.abs(k - w); b = k; } }); if (!pick.includes(b)) pick.push(b); });
+    tour.list = pick.length ? pick : ok.slice(0, 6);
+    const k0 = tour.list[0]; hero.setQF(150, Fstar(P, k0, [0, 0], 150, 11)); hero.setF(P.modes[k0].f); tour.t = 0; tour.phase = 'dwell';
+    heroHud();
+  }
+  function heroHud() {
+    const P = hero.P; if (!P) return; const k = hero.nearest(), on = Math.abs(Math.log(hero.f / P.modes[k].f)) < 0.004;
+    const hz = $('[data-hz]'); if (hz) hz.innerHTML = FMT.hzBig(hero.f) + '<small>Hz</small>';
+    const hm = $('[data-hmode]'); if (hm) hm.innerHTML = on ? `mode <b>${k + 1}</b> of ${P.modes.length}<br>peak &Gamma; <b>${FMT.g(hero.fr ? hero.fr.gpeak : 0)}</b>` : 'between resonances<br>sand at rest';
+  }
+  hero.on('tick', dt => {
+    if (!hero.P || RM) return;
+    tour.t += dt;
+    const P = hero.P;
+    if (tour.phase === 'dwell' && tour.t > 6.0) {
+      tour.phase = 'glide'; tour.t = 0; tour.from = hero.f; tour.n++;
+      tour.i = (tour.i + 1) % tour.list.length; tour.to = P.modes[tour.list[tour.i]].f;
+      if (tour.n % 4 === 0) HS.sprinkle();
+    } else if (tour.phase === 'glide') {
+      const s = Math.min(1, tour.t / 1.6), e = s * s * (3 - 2 * s);
+      hero.setF(Math.exp(Math.log(tour.from) * (1 - e) + Math.log(tour.to) * e));
+      if (s >= 1) { tour.phase = 'dwell'; tour.t = 0; hero.setQF(150, Fstar(P, tour.list[tour.i], [0, 0], 150, 11)); }
+    }
+  });
+  hero.on('field', () => { heroHud(); if (HS.loop.vis) Tone.set(hero.f, hero.fr.gpeak); });
+  $('#heroPour').addEventListener('click', () => HS.ok && HS.sprinkle());
+
+  /* ================= story stage ================= */
+  const S = new Stage($('#frame'), { fill: 0.55 });
+  const strip = new Strip($('#strip'));
+  const D = new Driven(S, strip);
+  const st = { scene: null, sweep: null, gtrI: 0, gtrT: 0, rd: 'c', vac: false, zooK: null, labCfg: Object.assign({}, SQ, { aspect: 1.5 }), labSweep: false, gam: 0.5 };
+
+  function setView(v) { if (S.ok) S.setView(v); $$('[data-view]').forEach(b => { const on = b.dataset.view === v; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); }); }
+  function setTool(t) {
+    if (S.ok) S.tool = t; $('#frame').classList.toggle('tool-none', !t);
+    $$('[data-tool]').forEach(b => { const on = b.dataset.tool === t; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+  }
+  function useMode(k, gt, opts = {}) {
+    const P = D.P, m = P.modes[k]; if (!m) return;
+    if (opts.moveDrive !== false && Math.abs(couple(P, k, D.drive)) < 0.15 * m.peak) D.setDrive(bestDrive(P, k, D.drive));
+    D.setQF(D.Q, Fstar(P, k, D.drive, D.Q, gt || 10)); D.setF(m.f);
+  }
+  function stdPlate(cfg, keep) { const P = plate(cfg, true); if (D.P !== P) { D.setPlate(P, false); return true; } if (!keep && S.ok) S.sprinkle(); return false; }
+
+  const SC = {
+    sing() { S.pfrac = 0; S.air = true; setView('sand'); stdPlate(SQ); D.setDrive([0, 0]); D.setQF(150); useMode(centreMode(D.P, 1000), 10); if (S.ok) S.sprinkle(); },
+    nodes() { S.pfrac = 0; S.air = true; if (stdPlate(SQ, true) || st.prev !== 'sing') { D.setDrive([0, 0]); D.setQF(150); useMode(centreMode(D.P, 1000), 10); } setView('motion'); },
+    zoo() { S.pfrac = 0; S.air = true; setView('sand'); if (stdPlate(SQ, true)) { } D.setQF(150); if (st.zooK == null) { D.setDrive([0, 0]); st.zooK = 13; } useMode(st.zooK, 10); syncZoo(); },
+    res() {
+      S.pfrac = 0; S.air = true; setView('sand'); stdPlate(SQ, true); D.setDrive([0, 0]); D.setQF(150);
+      const P = D.P; let lo = 520, hi = 1060;
+      const mid = P.modes.findIndex(m => m.f > 760); D.setQF(150, Fstar(P, Math.max(0, mid), [0, 0], 150, 9) * 1.0);
+      st.sweep = { lo, hi, dir: 1, rate: 0.03, on: true }; D.setF(lo); syncSweep();
+    },
+    gam() { S.pfrac = 0; S.air = true; stdPlate(SQ, true); D.setDrive([0, 0]); D.setQF(150); useMode(centreMode(D.P, 620), gamLevel()); setView('gamma'); },
+    far() { S.pfrac = 0.45; S.air = !st.vac; setView('sand'); stdPlate(SQ, true); D.setDrive([0, 0]); D.setQF(150); useMode(12, 9, { moveDrive: true }); if (S.ok) S.sprinkle(); syncAir(); },
+    round() { S.pfrac = 0; S.air = true; setView('sand'); stdPlate(CIRC); D.setQF(150); roundDrive(st.rd, true); drawLaw(); },
+    gtr() { S.pfrac = 0; S.air = true; setView('sand'); stdPlate(GTR); D.setQF(120); D.setDrive([0, -0.085]); st.gtrI = 0; st.gtrT = 0; gtrMode(); },
+    lab() {
+      S.air = !st.vac; syncAir(); st.sweep = null;
+      /* the bench starts from whatever plate is on the stage */
+      const P = D.P; if (P) { const c = st.labCfg; c.shape = P.kind; if (P.kind !== 'guitar') { c.mat = P.mat; c.h = P.h; c.L = P.L; if (P.kind === 'rect') c.aspect = P.aspect; } else c.h = P.h;
+        $('#labH').value = (c.h * 1000).toFixed(2); $('#labHOut').textContent = (c.h * 1000).toFixed(2).replace(/0$/, '') + ' mm'; if (c.L) $('#labL').value = Math.round(c.L * 100); syncShape(); }
+      $('#labDrive').value = Math.max(0, Math.min(1, logInv(D.F / labForceRef(), 1 / 20, 20)));
+      $('#labQ').value = Math.max(0, Math.min(1, logInv(D.Q, 20, 1000)));
+      if (!D.fr || D.fr.gpeak < 1.5) { useMode(chooseMode(D.P, D.f, D.drive), null, { moveDrive: true }); D.setQF(D.Q, labForce()); }
+      buildLabGallery(); syncLabF();
+    }
+  };
+  const ringK = P => { let b = 0, bf = 1e9; P.modes.forEach((m, k) => { if (m.nd === 0 && m.nc === 3 && m.f < bf) { bf = m.f; b = k; } }); return b; };
+  const petalK = P => { let b = 0; P.modes.forEach((m, k) => { if (m.nd === 6 && m.nc === 1 && !m.ang) b = k; }); return b; };
+  function roundDrive(which, fresh) {
+    st.rd = which; const P = plate(CIRC, true);
+    $$('[data-rdrive]').forEach(b => { const on = b.dataset.rdrive === which; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+    if (D.P !== P) return;
+    if (which === 'c') { D.setDrive([0, 0]); useMode(ringK(P), 10, { moveDrive: false }); }
+    else { const k = petalK(P); D.setDrive(bestDrive(P, k, [0.1, 0.02])); useMode(k, 10, { moveDrive: false }); }
+    if (!fresh && S.ok) { /* keep the sand: it re-forms */ }
+  }
+  $$('[data-rdrive]').forEach(b => b.addEventListener('click', () => { if (st.scene !== 'round') return; roundDrive(b.dataset.rdrive); }));
+  function gtrMode() {
+    const P = D.P; if (!P || P.kind !== 'guitar') return;
+    const list = [1, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 15]; const k = list[st.gtrI % list.length];
+    useMode(k, 10); set('gm', `${k + 1} · ${FMT.hz(P.modes[k].f)}`);
+  }
+  $('#gtrNext').addEventListener('click', () => { if (st.scene !== 'gtr') return; st.gtrI++; st.gtrT = 0; gtrMode(); });
+
+  /* drive level in the "one g" card: slider → target peak Γ */
+  const gamLevel = () => Math.exp(Math.log(1.3) + st.gam * (Math.log(40) - Math.log(1.3)));
+  $('#gamF').addEventListener('input', e => { st.gam = +e.target.value; if (st.scene === 'gam') { useMode(D.nearest(), gamLevel(), { moveDrive: false }); } });
+
+  /* zoo gallery */
+  const zooGal = $('#zooGal');
+  function buildZoo() {
+    const P = plate(SQ, true); zooGal.innerHTML = '';
+    for (let k = 0; k < 24; k++) {
+      const b = document.createElement('button'), c = document.createElement('canvas'), s = document.createElement('span');
+      b.appendChild(c); b.appendChild(s); s.textContent = Math.round(P.modes[k].f) + '';
+      b.setAttribute('aria-label', `Mode ${k + 1}, ${Math.round(P.modes[k].f)} hertz`);
+      b.classList.toggle('dark', Math.abs(couple(P, k, [0, 0])) < 0.15 * P.modes[k].peak);
+      drawThumb(c, P, k); b.dataset.k = k;
+      b.addEventListener('click', () => { st.zooK = k; if (st.scene !== 'zoo') return; useMode(k, 10); syncZoo(); });
+      zooGal.appendChild(b);
+    }
+  }
+  function syncZoo() { [...zooGal.children].forEach(b => b.classList.toggle('on', +b.dataset.k === st.zooK)); }
+
+  /* sweep control */
+  function syncSweep() { const b = $('#sweepBtn'), on = !!(st.sweep && st.sweep.on); b.textContent = on ? 'Sweeping' : 'Sweep'; b.setAttribute('aria-pressed', String(on)); b.classList.toggle('on', on); }
+  $('#sweepBtn').addEventListener('click', () => { if (st.scene !== 'res' || !st.sweep) return; st.sweep.on = !st.sweep.on; syncSweep(); });
+  D.on('scrub', () => { if (st.sweep) { st.sweep.on = false; syncSweep(); } if (st.labSweep) { st.labSweep = false; syncLabSweep(); } });
+
+  /* air */
+  function syncAir() { const b = $('#airBtn'); b.textContent = st.vac ? 'Let the air back in' : 'Pump out the air'; b.setAttribute('aria-pressed', String(st.vac)); const l = $('#labAir'); l.setAttribute('aria-pressed', String(st.vac)); l.classList.toggle('on', st.vac); }
+  $('#airBtn').addEventListener('click', () => { st.vac = !st.vac; S.air = !st.vac; syncAir(); });
+  $('#labAir').addEventListener('click', () => { st.vac = !st.vac; S.air = !st.vac; syncAir(); });
+
+  /* per-frame scene logic */
+  D.on('tick', dt => {
+    if (st.sweep && st.sweep.on && st.scene === 'res') {
+      let f = D.f * Math.exp(st.sweep.dir * st.sweep.rate * dt);
+      if (f > st.sweep.hi) { f = st.sweep.hi; st.sweep.dir = -1; } if (f < st.sweep.lo) { f = st.sweep.lo; st.sweep.dir = 1; }
+      D.setF(f);
+    }
+    if (st.labSweep && st.scene === 'lab') {
+      let f = D.f * Math.exp(0.03 * dt); if (f > strip.fmax) f = strip.fmin; D.setF(f); syncLabF(true);
+    }
+    if (st.scene === 'gtr' && !RM) { st.gtrT += dt; if (st.gtrT > 7) { st.gtrT = 0; st.gtrI++; gtrMode(); } }
+  });
+
+  /* HUD + readouts */
+  D.on('field', fr => {
+    const P = D.P, k = D.nearest(), m = P.modes[k], off = (D.f / m.f - 1) * 100;
+    const h = S.hud || {};
+    if (h.f) h.f.textContent = FMT.hzBig(D.f) + ' Hz';
+    if (h.mode) h.mode.textContent = Math.abs(off) < 0.4 ? `mode ${k + 1} of ${P.modes.length}` : `${off > 0 ? 'above' : 'below'} mode ${k + 1} by ${Math.abs(off).toFixed(1)}%`;
+    if (h.g) h.g.textContent = `peak Γ ${FMT.g(fr.gpeak)}`;
+    if (h.amp) h.amp.textContent = `largest amplitude ${FMT.um(fr.peak)}`;
+    if (h.note) h.note.textContent = S.view === 'motion' && fr.peak > 0 ? `motion ×${FMT.n(0.12 * Math.max(P.hw, P.hh) / fr.peak)}, slowed ×${FMT.n(D.f / 0.9)}` : S.view === 'gamma' ? 'white line: Γ = 1' : '';
+    set('f', FMT.hz(D.f)); set('fi', FMT.n(D.f)); set('g', FMT.g(fr.gpeak)); set('amp', FMT.um(fr.peak));
+    set('q', String(Math.round(D.Q))); set('bw', FMT.hz(m.f / D.Q));
+    set('near', `${k + 1} · ${FMT.hz(m.f)}`); const bw = PLATE.bending(P, D.f); set('lam', (bw.lambda * 100).toFixed(1) + ' cm'); set('cb', Math.round(bw.c) + ' m/s');
+    set('nm', String(P.modes.length));
+    $('#gamFOut').textContent = (D.F * 1000 >= 100 ? Math.round(D.F * 1000) : (D.F * 1000).toFixed(1)) + ' mN';
+    if (S.loop.vis) Tone.set(D.f, fr.gpeak);
+  });
+
+  /* ---------------- card activation ---------------- */
+  const cards = $$('.card'), theatre = $('.theatre'), stageBox = $('#stage');
+  let active = -1;
+  function runScene(name) {
+    if (!S.ok) return;
+    if (name !== 'res') { if (st.sweep) st.sweep.on = false; }
+    if (name !== 'lab') { st.labSweep = false; syncLabSweep(); }
+    st.prev = st.scene; st.scene = name;
+    SC[name] && SC[name]();
+    S.loop.kick();
+  }
+  function pickCard() {
+    const tr = theatre.getBoundingClientRect(); if (tr.bottom < 0 || tr.top > innerHeight) return;
+    const mobile = matchMedia('(max-width: 900px)').matches;
+    let line = innerHeight * 0.5;
+    if (mobile) { const sb = stageBox.getBoundingClientRect().bottom; line = sb + (innerHeight - sb) * 0.35; }
+    let idx = 0; cards.forEach((c, i) => { if (c.getBoundingClientRect().top < line) idx = i; });
+    if (idx !== active) {
+      active = idx; cards.forEach((c, i) => c.classList.toggle('active', i === idx));
+      if (cards[idx].dataset.scene !== st.scene) runScene(cards[idx].dataset.scene);
+    }
+  }
+  let sTimer = 0;
+  addEventListener('scroll', () => { if (!sTimer) sTimer = setTimeout(() => { sTimer = 0; pickCard(); }, 60); }, { passive: true });
+  addEventListener('resize', () => { pickCard(); drawLaw(); });
+  cards.forEach(c => c.querySelectorAll('[data-replay]').forEach(b => b.addEventListener('click', () => { if (S.ok) S.sprinkle(); })));
+
+  /* ---------------- stage tools ---------------- */
+  $$('[data-view]').forEach(b => b.addEventListener('click', () => { setView(b.dataset.view); D.dirty = true; }));
+  $$('[data-tool]').forEach(b => b.addEventListener('click', () => setTool(S.tool === b.dataset.tool ? null : b.dataset.tool)));
+  $$('[data-sound]').forEach(b => b.addEventListener('click', () => { Tone.toggle(); if (Tone.on) { if (S.loop.vis && D.fr) Tone.set(D.f, D.fr.gpeak); else if (hero.fr) Tone.set(hero.f, hero.fr.gpeak); } }));
+  $('#pourAll').addEventListener('click', () => S.ok && S.sprinkle());
+  if (S.ok) S.on('drive', p => { D.setDrive(p); if (st.scene === 'lab') syncLabF(); });
+  setInterval(() => { if (Tone.on && !(S.ok && S.loop.vis) && !(HS.ok && HS.loop.vis)) Tone.mute(); }, 400);
+
+  /* ---------------- lab ---------------- */
+  const logMap = (v, a, b) => Math.exp(Math.log(a) + v * (Math.log(b) - Math.log(a)));
+  const logInv = (x, a, b) => Math.log(x / a) / Math.log(b / a);
+  function syncShape() {
+    const c = st.labCfg;
+    $$('[data-shape]').forEach(b => { const on = b.dataset.shape === c.shape; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+    $('#aspCtrl').style.display = c.shape === 'rect' ? '' : 'none';
+    $('#labL').disabled = c.shape === 'guitar'; $('#labMat').disabled = c.shape === 'guitar';
+    $('#labMat').querySelector('[value="spruce"]').disabled = c.shape === 'circle';
+    $('#labMat').value = c.shape === 'guitar' ? 'spruce' : c.mat;
+    $('#labLOut').textContent = c.shape === 'guitar' ? '48.5 cm body' : Math.round(c.L * 100) + ' cm' + (c.shape === 'circle' ? ' across' : '');
+  }
+  let rebuildT = 0;
+  function rebuild(delay) {
+    clearTimeout(rebuildT);
+    rebuildT = setTimeout(() => {
+      if (st.scene !== 'lab') return;
+      const c = Object.assign({}, st.labCfg); if (c.shape === 'guitar') { c.mat = 'spruce'; } if (c.shape === 'circle' && c.mat === 'spruce') c.mat = 'steel';
+      const fOld = D.f, P = plate(c), changedShape = !D.P || D.P.kind !== P.kind;
+      D.setPlate(P, !changedShape);
+      if (changedShape) D.setDrive(P.kind === 'guitar' ? [0, -0.085] : P.kind === 'circle' ? [0.25 * P.hw, 0.1 * P.hw] : [0, 0]);
+      else D.setDrive([Math.max(-P.hw, Math.min(P.hw, D.drive[0])), Math.max(-P.hh, Math.min(P.hh, D.drive[1]))]);
+      /* stay on the mode nearest to the old frequency */
+      const k = chooseMode(P, fOld, D.drive);
+      useMode(k, null, { moveDrive: true }); D.setQF(D.Q, labForce());
+      buildLabGallery(); syncLabF();
+      if (S.hud.note) S.hud.note.textContent = `${P.modes.length} modes solved in ${Math.round(P.ms)} ms`;
+    }, delay || 0);
+  }
+  const labForceRef = () => D.P ? 0.06 * D.P.mass / 0.362 : 0.06;
+  function labForce() { return labForceRef() * logMap(+$('#labDrive').value, 1 / 20, 20); }
+  function syncLabF(fromSweep) {
+    if (!D.P) return; const v = logInv(D.f, strip.fmin, strip.fmax);
+    if (!fromSweep || document.activeElement !== $('#labF')) $('#labF').value = Math.max(0, Math.min(1, v));
+    $('#labFOut').textContent = FMT.hz(D.f);
+    $('#labDriveOut').textContent = (D.F >= 0.1 ? D.F.toFixed(2) + ' N' : (D.F * 1000).toFixed(1) + ' mN');
+    $('#labQOut').textContent = String(Math.round(D.Q));
+  }
+  function syncLabSweep() { const b = $('#labSweep'); b.setAttribute('aria-pressed', String(st.labSweep)); b.classList.toggle('on', st.labSweep); b.textContent = st.labSweep ? 'Sweeping' : 'Sweep'; }
+  $$('[data-shape]').forEach(b => b.addEventListener('click', () => { st.labCfg.shape = b.dataset.shape; syncShape(); rebuild(30); }));
+  $('#labMat').addEventListener('change', e => { st.labCfg.mat = e.target.value; rebuild(30); });
+  $('#labH').addEventListener('input', e => { st.labCfg.h = +e.target.value * 1e-3; $('#labHOut').textContent = (+e.target.value).toFixed(2).replace(/0$/, '') + ' mm'; rebuild(160); });
+  $('#labL').addEventListener('input', e => { st.labCfg.L = +e.target.value / 100; syncShape(); rebuild(160); });
+  $('#labA').addEventListener('input', e => { st.labCfg.aspect = +e.target.value; $('#labAOut').textContent = (+e.target.value).toFixed(2); rebuild(200); });
+  $('#labF').addEventListener('input', e => { if (st.scene !== 'lab') return; st.labSweep = false; syncLabSweep(); D.setF(logMap(+e.target.value, strip.fmin, strip.fmax)); $('#labFOut').textContent = FMT.hz(D.f); });
+  const jump = dir => {
+    if (st.scene !== 'lab' || !D.P) return; st.labSweep = false; syncLabSweep();
+    const ms = D.P.modes; let k = dir > 0 ? ms.findIndex(m => m.f > D.f * 1.0005) : (() => { let r = -1; ms.forEach((m, i) => { if (m.f < D.f * 0.9995) r = i; }); return r; })();
+    if (k < 0) return; while (k > 0 && k < ms.length - 1 && Math.abs(ms[k].f / ms[k - 1].f - 1) < 1e-6 && dir < 0) k--;
+    D.setF(ms[k].f); syncLabF();
+  };
+  $('#prevRes').addEventListener('click', () => jump(-1)); $('#nextRes').addEventListener('click', () => jump(1));
+  $('#labSweep').addEventListener('click', () => { if (st.scene !== 'lab') return; st.labSweep = !st.labSweep; syncLabSweep(); });
+  $('#labDrive').addEventListener('input', () => { if (st.scene !== 'lab') return; D.setQF(null, labForce()); syncLabF(); });
+  $('#labQ').addEventListener('input', e => { if (st.scene !== 'lab') return; D.setQF(logMap(+e.target.value, 20, 1000), null); syncLabF(); });
+  $$('[data-grain]').forEach(b => b.addEventListener('click', () => {
+    S.pfrac = +b.dataset.grain; $$('[data-grain]').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); });
+    if (S.ok) S.sprinkle();
+  }));
+  $('#labPour').addEventListener('click', () => S.ok && S.sprinkle());
+  $('#labClear').addEventListener('click', () => S.ok && S.clear());
+  $('#labQ').value = logInv(150, 20, 1000);
+  const labGal = $('#labGal');
+  function buildLabGallery() {
+    if (!D.P) return; const P = D.P; labGal.innerHTML = '';
+    const n = Math.min(P.modes.length, IS_SMALL ? 36 : 60);
+    for (let k = 0; k < n; k++) {
+      const b = document.createElement('button'), c = document.createElement('canvas'), s = document.createElement('span');
+      b.appendChild(c); b.appendChild(s); s.textContent = FMT.n(P.modes[k].f);
+      b.setAttribute('aria-label', `Mode ${k + 1}, ${Math.round(P.modes[k].f)} hertz`);
+      drawThumb(c, P, k);
+      b.addEventListener('click', () => { if (st.scene !== 'lab') return; st.labSweep = false; syncLabSweep(); useMode(k, null, { moveDrive: true }); D.setQF(D.Q, labForce()); syncLabF(); });
+      labGal.appendChild(b);
+    }
+  }
+
+  /* ---------------- Chladni's law figure ---------------- */
+  function drawLaw() {
+    const cv = $('#lawFig'); const s = sizeCv(cv); if (!s) return; const [W, H, d] = s, c = cv.getContext('2d');
+    const P = plate(CIRC, true), pts = [];
+    const seen = new Set(); P.modes.forEach(m => { const key = m.nd + ',' + m.nc; if (seen.has(key)) return; seen.add(key); pts.push([m.nd + 2 * m.nc, m.f, m.nc, m.nd]); });
+    c.clearRect(0, 0, W, H);
+    const L = 44 * d, R = 14 * d, T = 16 * d, B = 34 * d, x0 = 1.6, x1 = 16, y0 = P.modes[0].f * 0.7, y1 = 4200;
+    const X = x => L + Math.log(x / x0) / Math.log(x1 / x0) * (W - L - R), Y = y => H - B - Math.log(y / y0) / Math.log(y1 / y0) * (H - T - B);
+    c.font = `500 ${10 * d}px "IBM Plex Mono", monospace`; c.fillStyle = '#5d5953'; c.textAlign = 'center';
+    [2, 3, 4, 6, 8, 12, 16].forEach(x => { c.fillStyle = 'rgba(255,255,255,0.05)'; c.fillRect(X(x), T, 1, H - T - B); c.fillStyle = '#5d5953'; c.fillText(String(x), X(x), H - B + 14 * d); });
+    c.textAlign = 'right'; [100, 300, 1000, 3000].forEach(y => { if (y < y0) return; c.fillStyle = 'rgba(255,255,255,0.05)'; c.fillRect(L, Y(y), W - L - R, 1); c.fillStyle = '#5d5953'; c.fillText(y >= 1000 ? y / 1000 + 'k' : String(y), L - 6 * d, Y(y) + 3 * d); });
+    c.textAlign = 'center'; c.fillStyle = '#9a9388'; c.fillText('m + 2n', (L + W - R) / 2, H - 6 * d);
+    c.save(); c.translate(12 * d, (T + H - B) / 2); c.rotate(-Math.PI / 2); c.fillText('frequency, Hz', 0, 0); c.restore();
+    /* least-squares fit of log f against log(m + 2n) */
+    const fitPts = pts.filter(p => p[0] >= 3);
+    let sx = 0, sy = 0, sxx = 0, sxy = 0; fitPts.forEach(p => { const a = Math.log(p[0]), b = Math.log(p[1]); sx += a; sy += b; sxx += a * a; sxy += a * b; });
+    const n = fitPts.length, pw = (n * sxy - sx * sy) / (n * sxx - sx * sx), cst = (sy - pw * sx) / n;
+    LAW.p = pw;
+    c.strokeStyle = 'rgba(201,165,90,0.7)'; c.setLineDash([4 * d, 4 * d]); c.lineWidth = 1.2 * d; c.beginPath();
+    c.moveTo(X(x0), Y(Math.exp(cst) * Math.pow(x0, pw))); c.lineTo(X(x1), Y(Math.exp(cst) * Math.pow(x1, pw))); c.stroke(); c.setLineDash([]);
+    const cols = ['#ece2cc', '#e08a4f', '#4fb3c9', '#c9a55a', '#9a9388'];
+    pts.forEach(p => { if (p[1] > y1 || p[0] > x1) return; c.fillStyle = cols[Math.min(4, p[2])]; c.beginPath(); c.arc(X(p[0]), Y(p[1]), 3.4 * d, 0, 7); c.fill(); });
+    c.textAlign = 'left'; c.fillStyle = '#c9a55a'; c.fillText(`fit: f ∝ (m + 2n)^${pw.toFixed(2)}`, L + 8 * d, T + 8 * d);
+    ['n = 0', '1', '2', '3'].forEach((t, i) => { c.fillStyle = cols[i]; c.fillText((i ? '' : '') + t, L + 8 * d + i * 46 * d + (i ? 18 * d : 0), T + 24 * d); });
+  }
+  const LAW = { p: NaN };
+
+  /* ---------------- checks (computed live) ---------------- */
+  function checks() {
+    const rows = [], tb = $('#checks tbody');
+    const add = (q, a, b, ok) => rows.push(`<tr><td>${q}</td><td${ok ? ' class="ok"' : ''}>${a}</td><td>${b}</td></tr>`);
+    /* 1. free square plate frequency parameters, ν = 0.3 */
+    const rz = PLATE.rectRitz(24, 1, 1, 1, 1, 0.3, 0.35).filter(m => m.ev > 1e-6), lam = rz.map(m => 4 * Math.sqrt(m.ev));
+    const ref = [13.468, 19.596, 24.270, 34.801, 34.801, 61.093, 61.093, 63.686];
+    const mine = [0, 1, 2, 3, 5, 7].map(i => lam[i].toFixed(3)).join(', ');
+    const err = Math.max(...[0, 1, 2, 3, 5, 7].map(i => Math.abs(lam[i] / ref[i] - 1)));
+    add('Free square plate, ν = 0.30: ωL²√(ρh/D), first six distinct', mine, '13.468, 19.596, 24.270, 34.801, 61.093, 63.686 (Leissa 1969)', err < 2e-4);
+    /* 2. convergence */
+    const rz2 = PLATE.rectRitz(20, 1, 1, 1, 1, 0.3, 0.35).filter(m => m.ev > 1e-6), l2 = rz2.map(m => 4 * Math.sqrt(m.ev));
+    const dconv = Math.abs(l2[59] / lam[59] - 1);
+    add('Ritz convergence, mode 60: 20 vs 24 polynomials per side', `${lam[59].toFixed(3)} (change ${dconv.toExponential(1)})`, 'should shrink as the basis grows', dconv < 1e-3);
+    /* 3. orthogonality on the display grid */
+    const P = plate(SQ, true); let worst = 0; const n30 = Math.min(30, P.modes.length);
+    for (let a = 0; a < n30; a++) for (let b = 0; b < a; b++) { let s = 0; const A = P.modes[a].phi, B = P.modes[b].phi; for (let q = 0; q < A.length; q++) s += A[q] * B[q]; worst = Math.max(worst, Math.abs(s / A.length)); }
+    add('Mode orthogonality on the 128² display grid, first 30', worst.toExponential(1), '0 (exact); grid quadrature error only', worst < 5e-3);
+    /* 4. circle */
+    const cr = PLATE.circRoots(0.33, 30), cref = [5.262, 9.069, 12.244, 20.513];
+    add('Free circular plate, ν = 0.33: ωa²√(ρh/D) for (2,0), (0,1), (3,0), (1,1)', cr.slice(0, 4).map(r => r.lam.toFixed(3)).join(', '), cref.join(', ') + ' (energy method, offline)', cr.slice(0, 4).every((r, i) => Math.abs(r.lam / cref[i] - 1) < 2e-4));
+    /* 5. Chladni's law */
+    if (isFinite(LAW.p)) add('Chladni’s law exponent, round plate, m + 2n ≥ 3', LAW.p.toFixed(2), '≈ 2 for flat plates (Chladni; Rossing & Fletcher)', Math.abs(LAW.p - 2) < 0.25);
+    /* 6. half-power bandwidth of an isolated resonance against f/Q */
+    {
+      const Q = 150, d0 = [0.3 * P.hw, 0.2 * P.hh], pk = coupling(P, d0[0], d0[1]), f0 = P.modes[0].f, g0 = grmsFast(P, pk, f0, Q, 0.05);
+      const find = (dir) => { let lo = f0, hi = f0 * (1 + dir * 0.05); for (let i = 0; i < 60; i++) { const mid = 0.5 * (lo + hi); if (grmsFast(P, pk, mid, Q, 0.05) > g0 / Math.SQRT2) lo = mid; else hi = mid; } return 0.5 * (lo + hi); };
+      const bw = find(1) - find(-1);
+      add('Half-power width of the first resonance, Q = 150', FMT.hz(bw), FMT.hz(f0 / Q) + ' (f/Q)', Math.abs(bw / (f0 / Q) - 1) < 0.02);
+    }
+    /* 7. threshold amplitude at 1 kHz */
+    add('Amplitude for Γ = 1 at 1 kHz', FMT.um(9.81 / Math.pow(2 * Math.PI * 1000, 2)), 'g/ω² = 0.248 µm', true);
+    tb.innerHTML = rows.join('');
+  }
+
+  /* ---------------- history ---------------- */
+  (function () {
+    const svg = $('#history'), NS = 'http://www.w3.org/2000/svg';
+    const el = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); svg.appendChild(e); return e; };
+    const y0 = 1660, y1 = 2030, Lx = 30, Rx = 970, X = y => Lx + (y - y0) / (y1 - y0) * (Rx - Lx), base = 128;
+    el('line', { x1: Lx, y1: base, x2: Rx, y2: base, stroke: '#222226', 'stroke-width': 2 });
+    for (let y = 1700; y <= 2000; y += 50) { el('line', { x1: X(y), y1: base - 5, x2: X(y), y2: base + 5, stroke: '#5d5953' }); el('text', { x: X(y), y: base + 22, fill: '#5d5953', 'font-size': 11, 'text-anchor': 'middle' }).textContent = y; }
+    const ev = [
+      [1680, -1, 'Hooke: flour on a', 'bowed glass plate'],
+      [1787, 1, 'Chladni: Entdeckungen', 'über die Theorie des Klanges'],
+      [1808, -2, 'Chladni shows Napoleon;', 'a prize is set'],
+      [1816, 3, 'Germain wins', 'the prize'],
+      [1831, -1, 'Faraday: powder rides', 'air currents'],
+      [1850, 1, 'Kirchhoff: the', 'free-edge conditions'],
+      [1909, -1, 'Ritz: the free', 'square plate, solved'],
+      [1961, 1, 'Waller: Chladni', 'Figures'],
+      [1967, -2, 'Jenny: Kymatik', '(“cymatics”)'],
+      [1981, 2, 'Hutchins: tuning', 'violin plates'],
+      [2016, -1, 'Zhou et al.: steering', 'objects by tone']
+    ];
+    const cols = ['#ece2cc', '#c9a55a', '#e08a4f', '#4fb3c9'];
+    ev.forEach(([yr, lv, a, b], i) => {
+      const x = X(yr), up = lv < 0, ly = up ? base - 26 - (Math.abs(lv) - 1) * 40 : base + 50 + (lv - 1) * 30;
+      el('line', { x1: x, y1: base, x2: x, y2: up ? ly + 6 : ly - 14, stroke: '#222226' });
+      el('circle', { cx: x, cy: base, r: 5, fill: '#060607', stroke: cols[i % 4], 'stroke-width': 2 });
+      const anc = yr > 1990 ? 'end' : 'start', tx = anc === 'end' ? x - 6 : x + 6;
+      el('text', { x: tx, y: up ? ly - 10 : ly, fill: '#ece2cc', 'font-size': 11.5, 'text-anchor': anc }).textContent = `${yr}  ${a}`;
+      el('text', { x: tx, y: (up ? ly - 10 : ly) + 14, fill: '#9a9388', 'font-size': 10.5, 'text-anchor': anc }).textContent = b;
+    });
+  })();
+
+  /* ---------------- start ---------------- */
+  Tone.sync();
+  try {
+    const P = plate(SQ, true);
+    set('ms', Math.round(P.ms) + ' ms');
+    if (HS.ok) startHero();
+    buildZoo();
+    if (S.ok) { D.setPlate(P); setTool(null); syncShape(); syncLabSweep(); pickCard(); }
+    setTimeout(() => { try { plate(CIRC, true); drawLaw(); } catch (e) { console.error(e); } }, 900);
+    setTimeout(() => { try { plate(GTR, true); checks(); } catch (e) { console.error(e); } }, 1800);
+  } catch (e) { console.error(e); }
+  window.__ch = { HS, hero, S, D, strip, st, SC, plate, PC, tour, runScene, useMode, bestDrive, Fstar };
+})();
+
+</script>
+
+</body></html>

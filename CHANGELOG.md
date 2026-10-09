@@ -5,10 +5,12 @@ All notable changes to this project are documented here. Versions follow [semant
 ## [Unreleased]
 
 ### Site
+- Artifact pages for pieces that draw with WebGL or WebGL2 check the browser for that context and, when it is missing, show a paper label by the stage saying the piece runs on the graphics card and is best seen in a current browser or on another device. `detect.mjs` now records which context a piece needs.
 - The home display window rotates through every featured artifact; it was capped at seven.
 - `stage: tall` in an artifact's front matter gives it the tall stage on any shelf (documented in docs/WRITEUPS.md). The Navier–Stokes page's figures now work only while on screen.
 
 ### Artifacts
+- Kármán's Street, A Great Variety of Colours and Klangfiguren, on the Simulations shelf with tall stages and in the display case: vortex shedding in a lattice-Boltzmann wind tunnel, thin-film colours on a draining soap film, and Chladni figures with GPU sand. The shelf copies keep time on slow GPUs, and Kármán's Street keeps running without WebGL2; each about.md lists its fixes.
 - Belousov's Clock, on the Simulations shelf and in the home display case: the Belousov–Zhabotinsky reaction run live from the Oregonator equations in WebGL2, from a stirred chemical clock to spiral waves and the heart. The shelf copy fixes slow-GPU timing and draws the non-dish figures when WebGL2 is missing.
 - Forced Blowup for Navier–Stokes, on the Explainers shelf: the mathematics of the September 2026 forced blowup preprints, with figures for Burgers' equation, the Beale–Kato–Majda criterion, the Burgers vortex, the self-similar core and the multiscale ladder, and a filterable timeline of results from 1757 to 2026. It is the oldest piece on the shelf, so every other item number moves up by one.
 
