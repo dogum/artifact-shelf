@@ -13,7 +13,7 @@ const LIBS = [
   ['Pyodide', /pyodide/i],
   ['KaTeX', /katex(?:\.min)?\.(?:js|css)|katex@\d/],
   // A script URL or Chart.register, not `new Chart(`: pages often have a Chart class of their own.
-  ['Chart.js', /chart\.js@\d|\/Chart\.js\/\d|\/chart(?:\.umd)?(?:\.min)?\.js|Chart\.register\(/],
+  ['Chart.js', /chart\.js@\d|\/Chart\.js\/\d|["'\/]chart(?:\.umd)?(?:\.min)?\.js\b|["']chart\.js(?:\/auto)?["']|Chart\.register\(/],
   ['Plotly', /plotly(?:-[\w.]+)?(?:\.min)?\.js|Plotly\.newPlot/],
   ['Matter.js', /matter(?:\.min)?\.js|Matter\.Engine/],
   ['Leaflet', /leaflet(?:\.min)?\.js|leaflet@\d|\bL\.map\(\s*['"]/],
