@@ -5,11 +5,15 @@ All notable changes to this project are documented here. Versions follow [semant
 ## [Unreleased]
 
 ### Site
+- `detect.mjs` no longer counts a page's own `Chart` class as Chart.js (it now looks for a Chart.js script URL or `Chart.register`), and treats three.js r163 and later as needing WebGL2, so the stage note checks for the right context.
 - Artifact pages for pieces that draw with WebGL or WebGL2 check the browser for that context and, when it is missing, show a paper label by the stage saying the piece runs on the graphics card and is best seen in a current browser or on another device. `detect.mjs` now records which context a piece needs.
 - The home display window rotates through every featured artifact; it was capped at seven.
 - `stage: tall` in an artifact's front matter gives it the tall stage on any shelf (documented in docs/WRITEUPS.md). The Navier–Stokes page's figures now work only while on screen.
 
 ### Artifacts
+- The GPU simulations (Belousov's Clock, Kármán's Street, A Great Variety of Colours, Klangfiguren, Letters from the Sky) no longer take a long or negative time step when a tab or section comes back into view, which in Letters had been shrinking the step budget on every return.
+- Letters from the Sky, on the Simulations shelf with a tall stage and in the display case: snow crystals grown on the GPU from the Gravner–Griffeath lattice model and steered through Nakaya's diagram. The shelf copy fixes the frame clock that kept its step budget from adapting.
+- Grand Complication Atlas, on the Explainers shelf with a wide stage and in the display case: a working 3D grand complication pocket watch in three.js that keeps real time from its own escapement, with a twelve-plate tour of how it works. The shelf copy makes live mode run from the escapement (set to the clock on open and on return) and keeps fixed-rate plates at their rate.
 - Kármán's Street, A Great Variety of Colours and Klangfiguren, on the Simulations shelf with tall stages and in the display case: vortex shedding in a lattice-Boltzmann wind tunnel, thin-film colours on a draining soap film, and Chladni figures with GPU sand. The shelf copies keep time on slow GPUs, and Kármán's Street keeps running without WebGL2; each about.md lists its fixes.
 - Belousov's Clock, on the Simulations shelf and in the home display case: the Belousov–Zhabotinsky reaction run live from the Oregonator equations in WebGL2, from a stirred chemical clock to spiral waves and the heart. The shelf copy fixes slow-GPU timing and draws the non-dish figures when WebGL2 is missing.
 - Forced Blowup for Navier–Stokes, on the Explainers shelf: the mathematics of the September 2026 forced blowup preprints, with figures for Burgers' equation, the Beale–Kato–Majda criterion, the Burgers vortex, the self-similar core and the multiscale ladder, and a filterable timeline of results from 1757 to 2026. It is the oldest piece on the shelf, so every other item number moves up by one.

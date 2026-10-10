@@ -870,7 +870,7 @@ class Loop {
   constructor(el, fn) { this.fn = fn; this.vis = false; new IntersectionObserver(es => { this.vis = es[0].isIntersecting; this.kick(); }, { rootMargin: '60px' }).observe(el); document.addEventListener('visibilitychange', () => this.kick()); }
   /* Reset the clock only when the loop starts from idle; resetting it every frame dropped each frame's own work from dt. */
   kick() { if (this.raf) return; if (this.vis && !document.hidden) { if (!this.looping) this.last = performance.now(); this.looping = true; this.raf = requestAnimationFrame(t => this.tick(t)); } else this.looping = false; }
-  tick(t) { this.raf = 0; if (!this.vis || document.hidden) return; const dt = Math.min(0.05, (t - this.last) / 1000); this.last = t; this.fn(dt, t); this.kick(); }
+  tick(t) { this.raf = 0; if (!this.vis || document.hidden) { this.looping = false; return; } const dt = Math.min(0.05, Math.max(0, (t - this.last) / 1000)); this.last = t; this.fn(dt, t); this.kick(); }
 }
 function fitCanvas(cv) { const r = cv.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2); const w = Math.max(2, Math.round(r.width * d)), h = Math.max(2, Math.round(r.height * d)); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; } return [w, h, d]; }
 

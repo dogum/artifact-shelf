@@ -1,0 +1,1459 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Letters from the Sky</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* A winter night under a microscope lamp: deep blue, ice white, one warm lamp.
+   One theme by design; clear ice only reads against a dark field. */
+:root {
+  --ink: #04070d;
+  --panel: #0a111c;
+  --rule: #1a2433;
+  --sand: #e6eef6;      /* text: snow under blue light */
+  --mute: #8d9cad;
+  --faint: #4d5b6c;
+  --brass: #f0b26a;     /* the warm lamp */
+  --copper: #f0b26a;
+  --teal: #9fd8ff;      /* the cool lamp, ice */
+  --display: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --serif: "Spectral", "Iowan Old Style", Georgia, serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --gut: 16px;
+  color-scheme: dark;
+}
+@media (min-width: 700px) { :root { --gut: 32px; } }
+html { background: var(--ink); }
+body { background: var(--ink); color: var(--sand); font: 300 1.02rem/1.7 var(--serif); -webkit-font-smoothing: antialiased; margin: 0; }
+::selection { background: var(--brass); color: #120d00; }
+a { color: var(--sand); text-decoration-color: color-mix(in srgb, var(--brass) 70%, transparent); text-underline-offset: 3px; }
+a:hover { color: var(--brass); }
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; line-height: 1.02; text-wrap: balance; }
+h2 { font-size: clamp(2.2rem, 5vw, 3.8rem); font-style: italic; letter-spacing: -0.01em; }
+h3 { font-size: 1.5rem; }
+p { margin: 0; }
+.eyebrow { font: 500 0.7rem/1.3 var(--mono); letter-spacing: 0.18em; text-transform: uppercase; color: var(--mute); }
+.eyebrow b { color: var(--brass); font-weight: 500; }
+.prose { max-width: 62ch; display: grid; gap: 1em; }
+.dim { color: var(--mute); }
+i.v { font-style: italic; }
+sub, sup { font-size: 0.7em; line-height: 0; }
+.wrap { padding-inline: var(--gut); max-width: 1320px; margin-inline: auto; }
+section { position: relative; }
+.act { padding-block: clamp(4rem, 10vw, 8rem) 0; }
+.act-head { display: grid; gap: 1rem; margin-bottom: 2.2rem; max-width: 64ch; }
+.btn { font: 500 0.72rem/1 var(--mono); letter-spacing: 0.03em; color: var(--sand); background: var(--panel); border: 1px solid var(--rule); border-radius: 999px; padding: 0.55rem 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.45rem; white-space: nowrap; transition: border-color .2s, background-color .2s; }
+.btn:hover { border-color: var(--mute); }
+.btn[aria-pressed="true"], .btn.on { background: var(--sand); color: var(--ink); border-color: var(--sand); }
+.btn svg { width: 14px; height: 14px; flex: none; }
+.btn.ico { padding: 0.5rem 0.6rem; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+select { font: 500 0.72rem/1 var(--mono); color: var(--sand); background: var(--panel); border: 1px solid var(--rule); border-radius: 999px; padding: 0.5rem 0.7rem; }
+.ctrl { display: grid; gap: 0.35rem; max-width: 480px; }
+.ctrl label { display: flex; justify-content: space-between; gap: 1rem; font: 500 0.7rem/1.3 var(--mono); letter-spacing: 0.06em; color: var(--mute); text-transform: uppercase; }
+.ctrl label output { color: var(--sand); font-variant-numeric: tabular-nums; text-transform: none; letter-spacing: 0.02em; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; margin: 0; }
+input[type=range]::-webkit-slider-runnable-track { height: 3px; border-radius: 3px; background: linear-gradient(90deg, var(--faint), var(--teal)); }
+input[type=range]::-moz-range-track { height: 3px; border-radius: 3px; background: linear-gradient(90deg, var(--faint), var(--teal)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--sand); margin-top: -7.5px; border: 3px solid var(--ink); box-shadow: 0 0 0 1px var(--mute); }
+input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--sand); border: 3px solid var(--ink); box-shadow: 0 0 0 1px var(--mute); }
+.nogl { position: absolute; inset: 12%; display: none; place-items: center; text-align: center; color: var(--mute); font: 0.85rem/1.5 var(--mono); }
+.failed .nogl { display: grid !important; }
+
+/* ---------- hero ---------- */
+.hero { position: relative; display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); align-items: center; gap: clamp(1rem, 3vw, 3rem); min-height: min(100vh, 900px); padding-block: 2rem; }
+.hero-copy { display: grid; gap: 1.3rem; max-width: 520px; }
+.hero h1 { font-size: clamp(3.2rem, 6.8vw, 6.6rem); font-style: italic; font-weight: 400; line-height: 0.95; letter-spacing: -0.01em; }
+.hero h1 .src { display: block; font: 500 0.7rem/1.3 var(--mono); font-style: normal; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); margin-top: 1rem; }
+.lede { font-size: 1.12rem; line-height: 1.6; max-width: 46ch; }
+.hplate { position: relative; width: 100%; aspect-ratio: 1 / 1; max-height: 88vh; }
+.hplate canvas, .frame canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hplate canvas { touch-action: pan-y; }
+.hplate .cap { position: absolute; left: 4%; top: 3%; font: 500 0.66rem/1.4 var(--mono); color: var(--mute); letter-spacing: 0.06em; pointer-events: none; }
+.hplate .cap b { color: var(--sand); font-weight: 500; }
+.hhud { position: absolute; left: 4%; right: 4%; bottom: 2%; display: flex; justify-content: space-between; align-items: end; pointer-events: none; gap: 1rem; }
+.hz { font: italic 400 clamp(1.6rem, 3.2vw, 2.5rem)/1.05 var(--display); color: var(--sand); text-shadow: 0 2px 18px #000; }
+.hz small { display: block; font: 500 0.66rem/1.4 var(--mono); font-style: normal; color: var(--mute); letter-spacing: 0.06em; margin-top: 0.35rem; }
+.hmode { font: 500 0.68rem/1.4 var(--mono); color: var(--mute); text-align: right; letter-spacing: 0.06em; text-shadow: 0 1px 8px #000; }
+.hmode b { color: var(--sand); font-weight: 500; }
+.hint { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; font: 500 0.74rem/1.4 var(--mono); color: var(--mute); }
+.toc { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font: 500 0.7rem/1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; padding-block: 0.9rem 0; border-top: 1px solid var(--rule); }
+.toc a { text-decoration: none; color: var(--mute); }
+.toc a:hover { color: var(--sand); }
+.toc a b { color: var(--faint); font-weight: 500; margin-right: 0.4em; }
+@media (max-width: 820px) {
+  .hero { grid-template-columns: minmax(0, 1fr); min-height: 0; padding-block: 0.5rem 1rem; }
+  .hplate { order: -1; max-height: 64vh; margin-inline: auto; }
+  .hero-copy { max-width: none; }
+}
+
+/* ---------- theatre ---------- */
+.theatre { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(1.5rem, 4vw, 3.5rem); margin-top: 1rem; }
+.stage { grid-column: 2; grid-row: 1; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 10px); align-self: start; height: calc(100vh - 20px - env(safe-area-inset-top, 0px)); height: calc(100dvh - 20px - env(safe-area-inset-top, 0px)); display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; z-index: 3; }
+.frame { position: relative; width: 100%; flex: 1 1 auto; min-height: 260px; max-height: 68vh; }
+.frame canvas { touch-action: none; }
+.frame.tool-none canvas { touch-action: pan-y; }
+.hud { position: absolute; inset: 0; pointer-events: none; font: 500 0.68rem/1.25 var(--mono); color: rgba(236, 226, 204, 0.88); letter-spacing: 0.04em; }
+.hud > * { position: absolute; display: grid; gap: 0.2rem; }
+.hud .tl { left: 1.5%; top: 2%; }
+.hud .tr { right: 1.5%; top: 2%; text-align: right; }
+.hud b { color: #fff; font-weight: 500; font-variant-numeric: tabular-nums; }
+.hud span:not(:empty) { background: rgba(6, 6, 7, 0.7); padding: 1px 5px; border-radius: 3px; justify-self: start; }
+.hud .tr span:not(:empty) { justify-self: end; }
+.hud .big { font: italic 500 1.6rem/1 var(--display); letter-spacing: 0; }
+.strip { position: relative; height: 128px; border: 1px solid var(--rule); border-radius: 10px; background: var(--panel); overflow: hidden; flex: none; }
+.strip canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
+.tools { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; justify-content: center; flex: none; }
+.tg { display: flex; gap: 0.35rem; flex: none; align-items: center; }
+.tg .lbl { font: 500 0.6rem/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); margin-right: 0.15rem; }
+.cards { grid-column: 1; grid-row: 1; display: grid; }
+.card { min-height: 88vh; display: grid; align-content: center; gap: 1rem; padding-block: 2rem; opacity: 0.38; transition: opacity .5s; }
+.card.active { opacity: 1; }
+.card .k { display: flex; gap: 0.75rem; align-items: baseline; }
+.card h3 { font-size: clamp(1.7rem, 2.8vw, 2.4rem); font-style: italic; }
+.card p { max-width: 56ch; }
+.card .meta { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.quote { font-family: var(--display); font-style: italic; font-size: 1.3rem; line-height: 1.4; border-left: 1px solid var(--faint); padding-left: 1rem; max-width: 46ch; }
+.quote cite { display: block; margin-top: 0.5rem; font: 500 0.66rem/1.3 var(--mono); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+.figure { width: 100%; max-width: 520px; display: block; border-radius: 10px; border: 1px solid var(--rule); background: var(--panel); }
+canvas.figure { aspect-ratio: 1.6 / 1; }
+.stat { font: 500 0.74rem/1.3 var(--mono); padding: 0.45rem 0.7rem; border-radius: 8px; border: 1px dashed var(--rule); color: var(--mute); }
+.stat b { color: var(--sand); font-weight: 500; font-variant-numeric: tabular-nums; }
+.eqbox { font-family: var(--display); font-style: italic; font-size: 1.3rem; line-height: 1.7; padding: 0.8rem 1.1rem; border: 1px solid var(--rule); border-radius: 12px; background: var(--panel); overflow-x: auto; max-width: 520px; }
+.eqbox div { white-space: nowrap; }
+.eqbox .lbl { font: 500 0.6rem/1.3 var(--mono); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+.diag { width: 100%; max-width: 520px; aspect-ratio: 1.45 / 1; display: block; border-radius: 10px; border: 1px solid var(--rule); background: var(--panel); touch-action: none; cursor: crosshair; }
+.gal { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; max-width: 520px; }
+.gal button { position: relative; aspect-ratio: 1; padding: 0; border: 1px solid var(--rule); border-radius: 7px; background: #000; overflow: hidden; cursor: pointer; }
+.gal button canvas { width: 100%; height: 100%; display: block; }
+.gal button span { position: absolute; left: 3px; bottom: 2px; font: 500 0.55rem/1 var(--mono); color: var(--mute); text-shadow: 0 0 4px #000; }
+.gal button.dark { opacity: 0.45; }
+.gal button.on { border-color: var(--brass); box-shadow: 0 0 0 1px var(--brass); }
+.gal.wide { max-width: none; grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); }
+.labgrid { display: grid; gap: 1.1rem; }
+.labgrid .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem 1.2rem; }
+.labgrid .full { grid-column: 1 / -1; }
+.fstep { display: flex; gap: 0.4rem; align-items: center; }
+.fstep input { flex: 1 1 auto; }
+.readouts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }
+@media (max-width: 520px) { .labgrid .row { grid-template-columns: minmax(0, 1fr); } .gal { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 900px) {
+  .theatre { grid-template-columns: minmax(0, 1fr); margin-inline: calc(-1 * var(--gut)); }
+  .stage { grid-column: 1; grid-row: 1; top: env(safe-area-inset-top, 0px); height: auto; padding: 0.4rem var(--gut) 0.5rem; background: var(--ink); gap: 0.35rem; }
+  .stage::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 22px; background: linear-gradient(var(--ink), transparent); pointer-events: none; }
+  .frame { height: 38vh; height: 38svh; flex: none; min-height: 210px; }
+  .strip { height: 92px; }
+  .tools { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; justify-content: flex-start; }
+  .tools::-webkit-scrollbar { display: none; }
+  .hud .big { font-size: 1.1rem; }
+  .cards { grid-column: 1; grid-row: 2; padding-inline: var(--gut); }
+  .card { min-height: 52vh; min-height: 52svh; align-content: start; padding-block: 1.6rem 2.6rem; }
+  .card h3 { font-size: 1.6rem; }
+}
+
+/* ---------- notes ---------- */
+.history { overflow-x: auto; margin-top: 1.5rem; padding-bottom: 0.4rem; }
+.history svg { display: block; min-width: 860px; width: 100%; height: auto; }
+.history text { font-family: var(--mono); }
+.notes { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: clamp(1.5rem, 4vw, 4rem); }
+@media (max-width: 900px) { .notes { grid-template-columns: minmax(0, 1fr); } }
+.eq { font-family: var(--display); font-style: italic; font-size: 1.2rem; line-height: 1.85; padding: 1rem 1.2rem; border: 1px solid var(--rule); border-radius: 12px; background: var(--panel); overflow-x: auto; }
+.eq div { white-space: nowrap; }
+.eq .lbl { font: 500 0.6rem/1.3 var(--mono); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+table.params { width: 100%; border-collapse: collapse; font: 0.8rem/1.45 var(--mono); font-variant-numeric: tabular-nums; }
+table.params td, table.params th { text-align: left; padding: 0.45rem 0.5rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.params th { font-weight: 500; color: var(--mute); font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; }
+table.params td.ok { color: #9fd28a; }
+.tablewrap { overflow-x: auto; }
+.refs { display: grid; gap: 0.55rem; font-size: 0.9rem; line-height: 1.45; color: var(--mute); padding-left: 1.2rem; margin: 0; }
+.refs li::marker { color: var(--faint); font-family: var(--mono); font-size: 0.8em; }
+@media (max-width: 520px) { .hud [data-hud="steps"] { display: none !important; } }
+.sbar { position: absolute; left: 1.5%; bottom: 3%; pointer-events: none; font: 500 0.64rem/1 var(--mono); color: rgba(230,238,246,0.8); display: grid; gap: 4px; }
+.sbar i { display: block; height: 2px; background: rgba(230,238,246,0.85); box-shadow: 0 0 6px rgba(0,0,0,0.8); }
+.legend { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; font: 500 0.68rem/1.3 var(--mono); color: var(--mute); }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 0.4rem; vertical-align: -1px; }
+.adv summary { cursor: pointer; list-style: none; padding: 0.3rem 0; }
+.adv summary::-webkit-details-marker { display: none; }
+.adv[open] summary { margin-bottom: 0.6rem; }
+.adv .btnrow { margin-bottom: 0.7rem; }
+footer { padding-block: 4rem 3rem; color: var(--faint); font: 0.7rem/1.5 var(--mono); }
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+</style>
+<main>
+<header class="wrap hero" id="top">
+  <div class="hero-copy">
+    <h1>Letters from the Sky<span class="src">Snow crystals, grown here from water vapour</span></h1>
+    <p class="lede">A snow crystal starts as a speck of ice in a cloud and grows from the vapour around it for half an hour or so as it falls. Its shape records the temperature and humidity it met along the way. On this page a crystal grows from the published equations of a lattice model, one water-vapour step at a time.</p>
+    <blockquote class="quote">Snowflakes are letters sent from heaven.<cite>Ukichiro Nakaya</cite></blockquote>
+    <div class="btnrow"><button class="btn" id="heroNew">Grow another</button></div>
+    <nav class="toc" aria-label="Contents">
+      <a href="#c-six"><b>01</b>Why six</a><a href="#c-bentley"><b>02</b>The snowflake man</a><a href="#c-branch"><b>03</b>Branches</a><a href="#c-facet"><b>04</b>Facets</a><a href="#c-nakaya"><b>05</b>Nakaya&rsquo;s diagram</a><a href="#c-letters"><b>06</b>Letters</a><a href="#c-alike"><b>07</b>Twins</a><a href="#c-lab"><b>08</b>Your cloud</a><a href="#notes"><b>&rarr;</b>Notes</a>
+    </nav>
+  </div>
+  <div class="hplate" id="hero">
+    <canvas aria-label="A snow crystal growing and slowly turning in the dark"></canvas>
+    <div class="nogl">This page needs WebGL2 with float render targets.</div>
+    <div class="hhud"><div class="hz" data-hz>&nbsp;</div><div class="hmode" data-hmode></div></div>
+  </div>
+</header>
+
+<section class="wrap act" id="story">
+  <div class="act-head">
+    <p class="eyebrow"><b>Part one</b> &middot; the crystal</p>
+    <h2>Ice, written by the weather</h2>
+  </div>
+  <div class="theatre">
+    <div class="stage" id="stage">
+      <div class="frame" id="frame">
+        <canvas aria-label="The growing snow crystal"></canvas>
+        <div class="sbar" data-hud="bar"><i></i><span></span></div>
+        <div class="nogl">This page needs WebGL2 with float render targets.</div>
+        <div class="hud">
+          <div class="tl"><span class="big" data-hud="habit"></span><span data-hud="cond"></span></div>
+          <div class="tr"><span data-hud="size"></span><span data-hud="steps"></span><span data-hud="note"></span></div>
+        </div>
+      </div>
+      <div class="strip" id="chart"><canvas aria-label="The cloud: temperature across, excess water vapour up. Tap to change the conditions the crystal grows in."></canvas></div>
+      <div class="tools">
+        <div class="tg" role="group" aria-label="View"><span class="lbl">View</span>
+          <button class="btn on" data-view="0" aria-pressed="true">Photo</button><button class="btn" data-view="1" aria-pressed="false">Bentley</button><button class="btn" data-view="2" aria-pressed="false">Record</button><button class="btn" data-view="3" aria-pressed="false">Vapour</button><button class="btn" data-view="4" aria-pressed="false">3D</button>
+        </div>
+        <div class="tg"><button class="btn" id="regrow">Grow again</button><button class="btn" id="pause" aria-pressed="false">Pause</button></div>
+      </div>
+    </div>
+
+    <div class="cards">
+      <article class="card" data-scene="six" id="c-six">
+        <div class="k"><span class="eyebrow"><b>01</b> &middot; 1611</span></div>
+        <h3>Why six?</h3>
+        <p>In 1611 Johannes Kepler gave his patron a small book for the new year, <i>On the Six-Cornered Snowflake</i>, asking why every snowflake has six points. He thought about stacked spheres and could go no further. By 1929 X-ray studies had shown how water molecules lock together in ice: in puckered hexagonal rings, layer on layer.</p>
+        <canvas class="figure" id="latFig" aria-label="Water molecules in the basal plane of ice, joined in hexagonal rings"></canvas>
+        <p>Grown slowly, ice takes the shape of its own lattice, a hexagonal prism. Here a single cell of ice sits in air at &minus;15&nbsp;&deg;C that holds a little more vapour than ice can bear, and grows into a plate.</p>
+        <div class="meta"><span class="stat">ring spacing <b>a = 4.52 &Aring;</b>, layer <b>c = 7.36 &Aring;</b></span></div>
+      </article>
+
+      <article class="card" data-scene="bentley" id="c-bentley">
+        <div class="k"><span class="eyebrow"><b>02</b> &middot; 1885</span></div>
+        <h3>The snowflake man</h3>
+        <p>Wilson Bentley, a farm boy from Jericho, Vermont, fixed a microscope to a bellows camera and in 1885, aged 19, made the first photograph of a single snow crystal. He kept at it for 46 years and more than 5,000 crystals; the book he made with William Humphreys in 1931 holds over 2,000 of them, white on black.</p>
+        <p>This is the same model drawn in his style. The fine lines inside the arms are ridges where ice piled up a little thicker as the edge swept past.</p>
+        <div class="meta"><button class="btn" data-replay>Grow again</button></div>
+      </article>
+
+      <article class="card" data-scene="branch" id="c-branch">
+        <div class="k"><span class="eyebrow"><b>03</b> &middot; instability</span></div>
+        <h3>Why it branches</h3>
+        <p>A crystal feeds on vapour that diffuses in from the air around it, and it eats faster than the air can refill. The vapour thins out around the crystal. Any corner that sticks out reaches into richer air, grows faster and sticks out further. W.&nbsp;W. Mullins and R.&nbsp;F. Sekerka worked out this runaway in 1964; on a snow crystal it turns the six corners of a plate into six arms, and every bump on an arm into a side branch.</p>
+        <p>This view shows the vapour: dark where the crystal has drawn it down, bright where the cloud is still full.</p>
+        <div class="meta"><button class="btn" data-replay>Grow again</button><span class="stat">vapour at the tips <b data-out="tipv">&hellip;</b> of the cloud&rsquo;s</span></div>
+      </article>
+
+      <article class="card" data-scene="facet" id="c-facet">
+        <div class="k"><span class="eyebrow"><b>04</b> &middot; kinetics</span></div>
+        <h3>Why it has flat faces</h3>
+        <p>Branching has an opponent. A molecule landing on a flat face of ice has nowhere to hold on, so flat faces grow slowly and stay flat. When vapour is scarce the facets win and you get a hexagonal plate; with more vapour the corners outrun them, first as ribs and sectors, then as branches, then as ferns.</p>
+        <p>Move the humidity while the crystal grows. Each change is written into the edge it reaches.</p>
+        <div class="ctrl"><label for="facetX">Excess vapour at &minus;15&nbsp;&deg;C <output id="facetXOut">&hellip;</output></label><input type="range" id="facetX" min="0.01" max="0.26" step="0.005" value="0.05"></div>
+        <div class="meta"><button class="btn" data-replay>Grow again</button><span class="stat">form <b data-out="habit">&hellip;</b></span></div>
+      </article>
+
+      <article class="card" data-scene="nakaya" id="c-nakaya">
+        <div class="k"><span class="eyebrow"><b>05</b> &middot; 1936</span></div>
+        <h3>Nakaya&rsquo;s diagram</h3>
+        <p>On 12 March 1936, in a cold room at Hokkaido University, Ukichiro Nakaya grew the first snow crystal in a laboratory, on a single rabbit hair. Varying temperature and humidity, he found that the shape depends sensitively on temperature. His diagram, later extended by Kobayashi (1961), runs: plates near &minus;2&nbsp;&deg;C, columns and needles near &minus;5, plates and stars again from &minus;10 to &minus;22, columns below that.</p>
+        <p>Tap the diagram to grow a crystal there. In the column bands the crystal grows along its axis; switch to 3D to see it from the side. Nobody has fully explained why the habit flips with temperature like this; it is still studied today.</p>
+        <canvas class="diag" id="nakFig" aria-label="Morphology diagram: temperature across, excess vapour up; tap to grow a crystal at those conditions"></canvas>
+        <div class="meta"><span class="stat">here <b data-out="habit">&hellip;</b></span><span class="stat">water-saturated air at &minus;15&nbsp;&deg;C is <b data-out="sws">&hellip;</b> supersaturated over ice</span></div>
+      </article>
+
+      <article class="card" data-scene="letters" id="c-letters">
+        <div class="k"><span class="eyebrow"><b>06</b> &middot; the journey</span></div>
+        <h3>Letters from the sky</h3>
+        <p>A falling crystal passes through air of different temperature and humidity, and each stretch adds a different kind of growth to its edge. Nakaya saw that you can read the journey back from the shape. This view colours each part of the crystal by the kind of growth the air called for when that part froze, with a faint ring every equal stretch of time.</p>
+        <p>The six arms come out alike for the same reason: all six made the same journey at the same moment.</p>
+        <div class="btnrow" role="group" aria-label="Journeys"><button class="btn" data-journey="ends">Plates on the tips</button><button class="btn" data-journey="capped">Capped column</button><button class="btn" data-journey="rings">Bands</button><button class="btn" data-journey="fall">A long fall</button></div>
+      </article>
+
+      <article class="card" data-scene="alike" id="c-alike">
+        <div class="k"><span class="eyebrow"><b>07</b> &middot; chance</span></div>
+        <h3>Twins and strangers</h3>
+        <p>In the model so far every arm is identical to the last digit, because nothing distinguishes one from another. Real air is never that even. Add a little turbulence, small random flickers in the vapour from cell to cell, and the arms begin to differ in their details while keeping the same overall plan.</p>
+        <p>Two crystals that fell side by side through the same air can look much alike. Two that took different paths almost never will, because the number of possible journeys is enormous.</p>
+        <div class="meta"><button class="btn" id="noiseBtn" aria-pressed="true">Turbulence on</button><button class="btn" data-replay>Grow again</button><span class="stat">largest arm-to-arm difference <b data-out="asym">&hellip;</b></span></div>
+      </article>
+
+      <article class="card" data-scene="lab" id="c-lab">
+        <div class="k"><span class="eyebrow"><b>08</b> &middot; the cloud chamber</span></div>
+        <h3>Your cloud</h3>
+        <p>Tap or drag on the cloud chart under the crystal to change the air it grows in, at any moment. Or draw a path and let the crystal fall along it.</p>
+        <div class="labgrid">
+          <div class="btnrow" role="group" aria-label="Chart touch"><button class="btn on" data-chart="set" aria-pressed="true">Tap sets the air</button><button class="btn" data-chart="draw" aria-pressed="false">Draw a journey</button></div>
+          <div class="row">
+            <div class="ctrl"><label for="labT">Temperature <output id="labTOut">&hellip;</output></label><input type="range" id="labT" min="-30" max="-0.5" step="0.1" value="-15"></div>
+            <div class="ctrl"><label for="labX">Excess vapour <output id="labXOut">&hellip;</output></label><input type="range" id="labX" min="0" max="0.3" step="0.002" value="0.15"></div>
+            <div class="ctrl"><label for="labSpeed">Growth speed <output id="labSpeedOut">1&times;</output></label><input type="range" id="labSpeed" min="-2" max="2" step="1" value="0"></div>
+            <div class="ctrl"><label for="labNoise">Turbulence <output id="labNoiseOut">off</output></label><input type="range" id="labNoise" min="0" max="4" step="1" value="0"></div>
+          </div>
+          <div class="btnrow"><button class="btn" id="labGrow">Grow again</button><button class="btn" id="labJourney">Fall along the path</button><button class="btn" id="labClearPath">Clear path</button></div>
+          <details class="adv"><summary class="eyebrow">Model parameters</summary>
+            <p class="dim" style="font-size:0.9rem">The six published sets the chart chooses from. Picking one here fixes the parameters until you touch the chart again.</p>
+            <div class="btnrow" id="setBtns"></div>
+            <table class="params" id="paramTable"><tbody></tbody></table>
+          </details>
+          <div class="readouts">
+            <span class="stat">form <b data-out="habit">&hellip;</b></span>
+            <span class="stat">diameter <b data-out="size">&hellip;</b></span>
+            <span class="stat">supersaturation over ice <b data-out="sig">&hellip;</b></span>
+            <span class="stat">water saturation here <b data-out="wsat">&hellip;</b></span>
+            <span class="stat">model steps <b data-out="steps">&hellip;</b></span>
+            <span class="stat">column length <b data-out="col">&hellip;</b></span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="wrap act" id="notes">
+  <div class="act-head">
+    <p class="eyebrow"><b>Part two</b> &middot; working</p>
+    <h2>How the crystal is grown</h2>
+  </div>
+  <div class="notes">
+    <div class="prose">
+      <p><b>The model.</b> Janko Gravner and David Griffeath (2008) treat a flat snow crystal as a hexagonal lattice of cells; this page takes a cell to be 6&nbsp;&micro;m across. A cell holds ice, a thin quasi-liquid film on the surface, and vapour. Every step the vapour diffuses; at the crystal&rsquo;s edge part of it freezes and the rest joins the surface film; edge cells join the crystal when enough has gathered, and a little melts back. Whether an edge cell joins depends on how many ice neighbours it has: tips and flat faces (one or two neighbours) need more mass than nooks (three), which is how the model separates facets from branches.</p>
+      <p><b>On the GPU.</b> The lattice is stored in axial coordinates in a float texture, 512 cells across on a computer and 384 on a phone, inside a hexagonal domain whose rim is held at the cloud&rsquo;s vapour density. One step is three shader passes. Neighbour sums are added in an order that does not depend on direction, so in single precision the six arms stay identical to the last bit.</p>
+      <p><b>The cloud.</b> Saturation vapour pressures over ice and supercooled water follow Murphy and Koop (2005). The chart&rsquo;s vertical axis is the excess vapour density over ice saturation, as in Nakaya&rsquo;s and Kobayashi&rsquo;s diagrams. Each point of the chart picks one of six parameter sets that Gravner and Griffeath published, each of which grows a form seen in nature: hexagonal plate, plate with ribs, sectored plate, stellar plate, stellar dendrite and fernlike dendrite. That choice follows the observed diagram; the model itself knows nothing about temperature.</p>
+      <p><b>Columns.</b> The lattice is two-dimensional, so it only grows the flat habits. In the column bands the lattice runs at half the vapour and a column length is added along the axis at a rate set by the humidity, peaking near &minus;5&nbsp;&deg;C. The 3D view draws that column with the lattice crystal at each end, which is how capped columns form.</p>
+      <p><b>Drawing.</b> Ice is clear, so the photo view renders it as a microscope sees it: the crystal&rsquo;s outline and the ridges of thicker ice bend light from two coloured lamps. The record view stores, for every cell, the moment it froze and the temperature and humidity at that moment.</p>
+    </div>
+    <div>
+      <div class="eq">
+        <div class="lbl">One step, at an edge cell x (Gravner&ndash;Griffeath)</div>
+        <div>d&prime;(x) = (1/7) &Sigma;<sub>y&isin;N(x)</sub> d(y)</div>
+        <div>b &larr; b + (1&minus;&kappa;)d,&ensp; c &larr; c + &kappa;d,&ensp; d &larr; 0</div>
+        <div>join if n &le; 2 and b &ge; &beta;; n = 3 and (b &ge; 1 or &Sigma;d &lt; &theta;, b &ge; &alpha;); n &ge; 4</div>
+        <div>b &larr; (1&minus;&mu;)b,&ensp; c &larr; (1&minus;&gamma;)c</div>
+        <div class="lbl">The cloud (Murphy &amp; Koop)</div>
+        <div>ln e<sub>i</sub> = 9.5504 &minus; 5723.3/T + 3.5307 ln T &minus; 0.0072833 T</div>
+        <div>&sigma; = e/e<sub>i</sub> &minus; 1</div>
+      </div>
+      <h3 style="margin-top:2rem">Checks</h3>
+      <p class="dim" style="font-size:0.9rem;margin:0.4rem 0 0.8rem">Computed when the page loads, except where marked.</p>
+      <div class="tablewrap"><table class="params" id="checks"><thead><tr><th>Quantity</th><th>This page</th><th>Reference</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="act-head" style="margin-top:4rem">
+    <p class="eyebrow"><b>Part three</b> &middot; people</p>
+    <h2>Four centuries of looking closely</h2>
+  </div>
+  <div class="history"><svg id="history" viewBox="0 0 1000 262" role="img" aria-label="Timeline from Kepler in 1611 to the global snow classification of 2013"></svg></div>
+
+  <div class="act-head" style="margin-top:4rem"><p class="eyebrow"><b>Sources</b></p></div>
+  <ol class="refs">
+    <li>J. Kepler, <i>Strena seu de nive sexangula</i> (On the Six-Cornered Snowflake), Frankfurt (1611).</li>
+    <li>W. H. Barnes, &ldquo;The crystal structure of ice between 0&nbsp;&deg;C and &minus;183&nbsp;&deg;C&rdquo;, <i>Proc. R. Soc. A</i> 125, 670 (1929).</li>
+    <li>W. A. Bentley and W. J. Humphreys, <i>Snow Crystals</i>, McGraw-Hill (1931).</li>
+    <li>U. Nakaya, <i>Snow Crystals: Natural and Artificial</i>, Harvard University Press (1954).</li>
+    <li>T. Kobayashi, &ldquo;The growth of snow crystals at low supersaturations&rdquo;, <i>Phil. Mag.</i> 6, 1363 (1961).</li>
+    <li>W. W. Mullins and R. F. Sekerka, &ldquo;Stability of a planar interface during solidification of a dilute binary alloy&rdquo;, <i>J. Appl. Phys.</i> 35, 444 (1964).</li>
+    <li>C. Magono and C. W. Lee, &ldquo;Meteorological classification of natural snow crystals&rdquo;, <i>J. Fac. Sci. Hokkaido Univ.</i> Ser. VII, 2, 321 (1966).</li>
+    <li>D. M. Murphy and T. Koop, &ldquo;Review of the vapour pressures of ice and supercooled water for atmospheric applications&rdquo;, <i>Q. J. R. Meteorol. Soc.</i> 131, 1539 (2005).</li>
+    <li>K. G. Libbrecht, &ldquo;The physics of snow crystals&rdquo;, <i>Rep. Prog. Phys.</i> 68, 855 (2005).</li>
+    <li>J. Gravner and D. Griffeath, &ldquo;Modeling snow crystal growth II: A mesoscopic lattice map with plausible dynamics&rdquo;, <i>Physica D</i> 237, 385 (2008).</li>
+    <li>K. Kikuchi, T. Kameda, K. Higuchi and A. Yamashita, &ldquo;A global classification of snow crystals, ice crystals, and solid precipitation based on observations from middle latitudes to polar regions&rdquo;, <i>Atmos. Res.</i> 132&ndash;133, 460 (2013).</li>
+    <li>K. G. Libbrecht, <i>Snow Crystals: A Case Study in Spontaneous Structure Formation</i>, Princeton University Press (2022).</li>
+  </ol>
+</section>
+<footer class="wrap">Letters from the Sky &middot; Gravner&ndash;Griffeath lattice model on the GPU, Murphy&ndash;Koop vapour pressures. Checked in software rendering; real GPUs may differ in speed.</footer>
+</main>
+<script>
+/* ============================================================
+   Habit: the cloud's temperature and humidity → what grows.
+   Vapour pressures over ice and supercooled water are from
+   Murphy & Koop (2005). The excess vapour density over ice
+   saturation (g/m³) is the vertical axis of the Nakaya–Kobayashi
+   morphology diagram; the water-saturation line is where a cloud
+   of droplets holds it.
+   Plate-type conditions pick one of six published parameter sets
+   of the Gravner–Griffeath model (each reproduces a form seen in
+   nature); the column bands (−3 to −10 °C and below −22 °C) grow
+   the crystal along its axis instead.
+   ============================================================ */
+const HAB = (() => {
+  const ei = T => Math.exp(9.550426 - 5723.265 / T + 3.53068 * Math.log(T) - 0.00728332 * T);
+  const ew = T => Math.exp(54.842763 - 6763.22 / T - 4.210 * Math.log(T) + 0.000367 * T + Math.tanh(0.0415 * (T - 218.8)) * (53.878 - 1331.22 / T - 9.44523 * Math.log(T) + 0.014025 * T));
+  const K = C => C + 273.15;
+  /* supersaturation of water-saturated air relative to ice, and the excess vapour density (g/m³) */
+  const sigmaWS = C => ew(K(C)) / ei(K(C)) - 1;
+  const excessWS = C => (ew(K(C)) - ei(K(C))) * 0.018015 / (8.314462 * K(C)) * 1000;
+  const sigmaOf = (C, x) => x / 1000 * 8.314462 * K(C) / 0.018015 / ei(K(C));     /* excess g/m³ → σ over ice */
+
+  /* Gravner–Griffeath (2008) parameter sets: ρ, β, α, θ, κ, μ, γ */
+  const SETS = [
+    { key: 'hex', name: 'hexagonal plate', p: [0.58, 3.0, 0.04, 0.02, 0.1, 0.01, 0.00005], src: 'Fig. 17' },
+    { key: 'ribbed', name: 'plate with ribs', p: [0.35, 1.4, 0.001, 0.015, 0.05, 0.015, 0.01], src: 'Fig. 5' },
+    { key: 'sectored', name: 'sectored plate', p: [0.8, 2.6, 0.006, 0.005, 0.05, 0.015, 0.0001], src: 'Fig. 16' },
+    { key: 'stellar', name: 'stellar plate', p: [0.36, 1.09, 0.01, 0.0745, 0.0001, 0.14, 0.00001], src: 'Fig. 13' },
+    { key: 'dendrite', name: 'stellar dendrite', p: [0.64, 1.6, 0.21, 0.0205, 0.07, 0.015, 0.00005], src: 'Fig. 2' },
+    { key: 'fern', name: 'fernlike dendrite', p: [0.635, 1.6, 0.4, 0.025, 0.0025, 0.015, 0.0005], src: 'Fig. 11' }
+  ];
+  const CUT = [0.12, 0.28, 0.45, 0.62, 0.82];
+  /* where plates grow, and how strongly they branch (peaks at −15 °C) */
+  function plateWeight(C) {
+    if (C <= -1 && C >= -3.5) return 0.45;
+    if (C <= -10 && C >= -22) return 0.35 + 0.65 * Math.exp(-Math.pow((C + 15) / 3.2, 2));
+    if (C > -1) return 0.3;
+    return 0;
+  }
+  function isColumn(C) { return (C < -3.5 && C > -10) || C < -22; }
+  function columnRate(C) { if (C < -3.5 && C > -10) return 0.55 + 0.45 * Math.exp(-Math.pow((C + 5.5) / 1.6, 2)); if (C < -22) return 0.45; return 0; }
+  /* the habit for a temperature (°C) and excess vapour density x (g/m³) */
+  function habit(C, x) {
+    const xs = Math.max(0, x), ws = excessWS(C);
+    if (isColumn(C)) {
+      let name;
+      if (C < -22) name = xs > 0.08 ? 'columns and bullets' : 'short columns';
+      else if (C <= -4 && C >= -7 && xs > 0.8 * ws) name = 'needles';
+      else if (xs > 0.07) name = 'hollow columns';
+      else name = 'solid columns';
+      return { column: true, set: 0, name, rate: columnRate(C) * xs, B: 0, ws };
+    }
+    /* near −2 °C only thick or thin plates grow, however humid the air */
+    const B = Math.min(C > -3.5 ? 0.27 : 1.25, xs / 0.2 * plateWeight(C));
+    let k = 0; while (k < CUT.length && B >= CUT[k]) k++;
+    let name = SETS[k].name;
+    if (C > -3.5 && k <= 1) name = xs < 0.03 ? 'thick plate' : 'thin plate';
+    return { column: false, set: k, name, rate: 0, B, ws };
+  }
+  /* model parameters for a habit: the column bands run the plate set slowly (the crystal grows along its axis instead) */
+  function params(h, x) {
+    const s = SETS[h.set].p, o = { rho: s[0], beta: s[1], alpha: s[2], theta: s[3], kappa: s[4], mu: s[5], gamma: s[6] };
+    if (h.column) o.rho *= 0.5;
+    return o;
+  }
+  /* a few journeys through a cloud: [°C, g/m³] waypoints */
+  const JOURNEYS = {
+    stellar: { name: 'A stellar dendrite', pts: [[-15, 0.05], [-15, 0.12], [-15, 0.21]] },
+    capped: { name: 'Capped column', pts: [[-6, 0.12], [-6, 0.14], [-14, 0.15], [-15, 0.16]] },
+    ends: { name: 'Plates on the tips', pts: [[-15, 0.20], [-14.5, 0.19], [-13, 0.06], [-13, 0.05]] },
+    fall: { name: 'A long fall', pts: [[-20, 0.05], [-16, 0.10], [-15, 0.21], [-12, 0.08], [-15, 0.2]] },
+    rings: { name: 'Bands', pts: [[-15, 0.04], [-15, 0.15], [-15, 0.04], [-15, 0.18], [-15, 0.04]] }
+  };
+  function along(pts, f) {
+    const n = pts.length - 1; if (n <= 0) return pts[0];
+    const seg = []; let tot = 0; for (let i = 0; i < n; i++) { const d = Math.hypot((pts[i + 1][0] - pts[i][0]) / 30, (pts[i + 1][1] - pts[i][1]) / 0.3) + 1e-6; seg.push(d); tot += d; }
+    let t = Math.max(0, Math.min(1, f)) * tot;
+    for (let i = 0; i < n; i++) { if (t <= seg[i] || i === n - 1) { const w = Math.min(1, t / seg[i]); return [pts[i][0] + (pts[i + 1][0] - pts[i][0]) * w, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * w]; } t -= seg[i]; }
+    return pts[n];
+  }
+  return { ei, ew, sigmaWS, excessWS, sigmaOf, SETS, habit, params, isColumn, plateWeight, JOURNEYS, along };
+})();
+
+/* ============================================================
+   Crystal — the Gravner–Griffeath (2008) mesoscopic snow-crystal
+   model on the GPU.
+   Each cell of a hexagonal lattice holds four numbers:
+     a  attached (part of the crystal) or not
+     b  boundary mass   (quasi-liquid layer on the surface)
+     c  crystal mass    (ice; read as thickness)
+     d  diffusive mass  (water vapour)
+   One time step = diffusion of vapour, freezing at the boundary,
+   attachment (by how many crystal neighbours a site has, how much
+   boundary mass it holds and how much vapour is nearby), and
+   melting back to vapour. The lattice lives in axial coordinates
+   (q, r) in a square texture; the domain is the inscribed hexagon,
+   and outside it the vapour is held at the cloud's density ρ.
+   Neighbour sums are added in a rotation-independent order so
+   the six arms stay exactly alike in single precision.
+   ============================================================ */
+const LITE = /[?&]lite\b/.test(location.search);
+const FF = /[?&]ff\b/.test(location.search);
+const IS_SMALL = Math.min(screen.width, screen.height) < 700 || matchMedia('(max-width: 700px)').matches;
+
+const C_VS = `#version 300 es
+in vec2 p; void main(){ gl_Position = vec4(p, 0., 1.); }`;
+const C_HEAD = `#version 300 es
+precision highp float; precision highp sampler2D; precision highp int;
+uniform sampler2D S; uniform int L; uniform int R;
+const ivec2 NB[6] = ivec2[6](ivec2(1,0), ivec2(-1,0), ivec2(0,1), ivec2(0,-1), ivec2(1,-1), ivec2(-1,1));
+bool inDom(ivec2 ij){ ivec2 q = ij - ivec2(L/2); return max(max(abs(q.x), abs(q.y)), abs(q.x + q.y)) <= R; }
+vec4 at(ivec2 ij){ return texelFetch(S, clamp(ij, ivec2(0), ivec2(L - 1)), 0); }
+/* order-independent sum of six neighbour values: opposite pairs first, then the three pair sums in sorted order */
+float sum6(float v0, float v1, float v2, float v3, float v4, float v5){
+  float p = v0 + v1, q = v2 + v3, r = v4 + v5;
+  float lo = min(p, min(q, r)), hi = max(p, max(q, r)), mid = max(min(p, q), min(max(p, q), r));
+  return (lo + mid) + hi;
+}
+float hash(vec3 p){ p = fract(p*vec3(443.897, 441.423, 437.195)); p += dot(p, p.yzx + 19.19); return fract((p.x + p.y)*p.z); }
+`;
+/* 1. diffusion (reflecting at the crystal) + 2. freezing at the boundary */
+const C_DIFF = C_HEAD + `
+uniform float rho, kappa, sigma, seed;
+out vec4 o;
+void main(){
+  ivec2 ij = ivec2(gl_FragCoord.xy);
+  vec4 s = at(ij);
+  if (!inDom(ij)) { o = vec4(0.0, 0.0, 0.0, rho); return; }
+  if (s.x > 0.5) { o = s; return; }
+  float v[6]; int n = 0;
+  for (int k = 0; k < 6; k++) { vec4 t = at(ij + NB[k]); bool cr = t.x > 0.5 && inDom(ij + NB[k]); v[k] = cr ? s.w : t.w; n += cr ? 1 : 0; }
+  float d = (s.w + sum6(v[0], v[1], v[2], v[3], v[4], v[5]))/7.0;
+  if (sigma != 0.0) d *= 1.0 + sigma*(hash(vec3(vec2(ij), seed)) < 0.5 ? -1.0 : 1.0);
+  if (n > 0) { s.y += (1.0 - kappa)*d; s.z += kappa*d; d = 0.0; }
+  o = vec4(s.xyz, d);
+}`;
+/* 3. attachment */
+const C_ATT = C_HEAD + `
+uniform sampler2D X; uniform float beta, alpha, theta, tnow, tC, xs, kind;
+layout(location = 0) out vec4 o; layout(location = 1) out vec4 ox;
+void main(){
+  ivec2 ij = ivec2(gl_FragCoord.xy);
+  vec4 s = at(ij), x = texelFetch(X, ij, 0);
+  o = s; ox = x;
+  if (!inDom(ij) || s.x > 0.5) return;
+  int n = 0; float v[6];
+  for (int k = 0; k < 6; k++) { vec4 t = at(ij + NB[k]); n += (t.x > 0.5 && inDom(ij + NB[k])) ? 1 : 0; v[k] = t.w; }
+  if (n == 0) return;
+  bool att = false;
+  if (n <= 2) att = s.y >= beta;
+  else if (n == 3) att = s.y >= 1.0 || ((s.w + sum6(v[0], v[1], v[2], v[3], v[4], v[5])) < theta && s.y >= alpha);
+  else att = true;
+  if (att) { o = vec4(1.0, 0.0, s.z + s.y, s.w); ox = vec4(tnow, tC, xs, kind); }
+}`;
+/* 4. melting at the (new) boundary */
+const C_MELT = C_HEAD + `
+uniform float mu, gamma_;
+out vec4 o;
+void main(){
+  ivec2 ij = ivec2(gl_FragCoord.xy);
+  vec4 s = at(ij); o = s;
+  if (!inDom(ij) || s.x > 0.5) return;
+  bool bd = false;
+  for (int k = 0; k < 6; k++) { vec4 t = at(ij + NB[k]); if (t.x > 0.5 && inDom(ij + NB[k])) bd = true; }
+  if (bd) o = vec4(0.0, (1.0 - mu)*s.y, (1.0 - gamma_)*s.z, s.w + mu*s.y + gamma_*s.z);
+}`;
+/* display field: a 7-cell hexagonal average of (coverage, thickness, boundary film, vapour/ρ), run twice */
+const C_BLUR = C_HEAD + `
+uniform float first, rho; out vec4 o;
+vec4 val(ivec2 ij){ vec4 s = at(ij); return first > 0.5 ? vec4(s.x, s.z*s.x, s.y, s.w/max(rho, 1e-4)) : s; }
+void main(){
+  ivec2 ij = ivec2(gl_FragCoord.xy);
+  vec4 c = val(ij), a = val(ij + NB[0]) + val(ij + NB[1]), b = val(ij + NB[2]) + val(ij + NB[3]), d = val(ij + NB[4]) + val(ij + NB[5]);
+  o = (c*0.25 + (a + b + d)*0.125);
+}`;
+/* seed: one cell of ice in the middle, vapour everywhere else */
+const C_INIT = C_HEAD + `
+uniform float rho; layout(location = 0) out vec4 o; layout(location = 1) out vec4 ox;
+void main(){
+  ivec2 ij = ivec2(gl_FragCoord.xy);
+  bool c = ij == ivec2(L/2);
+  o = c ? vec4(1.0, 0.0, 1.0, 0.0) : vec4(0.0, 0.0, 0.0, rho);
+  ox = vec4(c ? 0.0 : -1.0, -15.0, 0.1, 0.0);
+}`;
+
+function cmakeGL(canvas, opts) {
+  let gl = null;
+  try { gl = canvas.getContext('webgl2', Object.assign({ antialias: false, alpha: false, premultipliedAlpha: false, preserveDrawingBuffer: false, powerPreference: 'high-performance' }, opts || {})); } catch (e) { }
+  if (!gl) return null;
+  if (!gl.getExtension('EXT_color_buffer_float')) return null;
+  return gl;
+}
+function cprog(gl, vs, fs) {
+  const sh = (t, s) => { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(x)); return null; } return x; };
+  const v = sh(gl.VERTEX_SHADER, vs), f = sh(gl.FRAGMENT_SHADER, fs); if (!v || !f) return null;
+  const p = gl.createProgram(); gl.attachShader(p, v); gl.attachShader(p, f); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { console.error(gl.getProgramInfoLog(p)); return null; }
+  p.u = {}; const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+  for (let i = 0; i < n; i++) { const a = gl.getActiveUniform(p, i); p.u[a.name.replace('[0]', '')] = gl.getUniformLocation(p, a.name); }
+  return p;
+}
+
+class Crystal {
+  constructor(gl, L) {
+    this.gl = gl; this.L = L; this.R = (L >> 1) - 2; this.ok = false;
+    this.pB = cprog(gl, C_VS, C_BLUR);
+    this.pD = cprog(gl, C_VS, C_DIFF); this.pA = cprog(gl, C_VS, C_ATT); this.pM = cprog(gl, C_VS, C_MELT); this.pI = cprog(gl, C_VS, C_INIT);
+    if (!this.pD || !this.pA || !this.pM || !this.pI) return;
+    const tex = () => { const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, L, L, 0, gl.RGBA, gl.FLOAT, null); [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach(q => gl.texParameteri(gl.TEXTURE_2D, q, gl.NEAREST)); [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach(q => gl.texParameteri(gl.TEXTURE_2D, q, gl.CLAMP_TO_EDGE)); return t; };
+    this.S = [tex(), tex()]; this.X = [tex(), tex()];
+    const fb = (a, b) => { const f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, a, 0); if (b) { gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, b, 0); gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]); } return f; };
+    this.fS = [fb(this.S[0]), fb(this.S[1])];
+    this.fSX = [[fb(this.S[0], this.X[0]), fb(this.S[0], this.X[1])], [fb(this.S[1], this.X[0]), fb(this.S[1], this.X[1])]];
+    const ok = gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE;
+    /* filterable display textures (half float) */
+    const htex = () => { const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, L, L, 0, gl.RGBA, gl.HALF_FLOAT, null); [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach(q => gl.texParameteri(gl.TEXTURE_2D, q, gl.LINEAR)); [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach(q => gl.texParameteri(gl.TEXTURE_2D, q, gl.CLAMP_TO_EDGE)); return t; };
+    this.Dt = [htex(), htex()]; this.fD = [fb(this.Dt[0]), fb(this.Dt[1])];
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    if (!ok) return;
+    this.vb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, this.vb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    this.vao = gl.createVertexArray(); gl.bindVertexArray(this.vao); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null);
+    this.cur = 0; this.xc = 0; this.t = 0;
+    this.p = { rho: 0.635, beta: 1.6, alpha: 0.4, theta: 0.025, kappa: 0.0025, mu: 0.015, gamma: 0.0005, sigma: 0 };
+    this.row = new Float32Array(L * 4);
+    this.ok = true;
+    this.reset();
+  }
+  draw(prog) { const gl = this.gl; gl.useProgram(prog); gl.bindVertexArray(this.vao); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); }
+  common(prog, src) {
+    const gl = this.gl; gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, src); gl.uniform1i(prog.u.S, 0);
+    gl.uniform1i(prog.u.L, this.L); gl.uniform1i(prog.u.R, this.R);
+  }
+  reset(rho) {
+    const gl = this.gl; if (rho != null) this.p.rho = rho;
+    gl.viewport(0, 0, this.L, this.L); gl.disable(gl.BLEND);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.fSX[0][0]);
+    gl.useProgram(this.pI); this.common(this.pI, this.S[1]); gl.uniform1f(this.pI.u.rho, this.p.rho); this.draw(this.pI);
+    this.cur = 0; this.xc = 0; this.t = 0; this.radius = 0;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+  step(n) {
+    const gl = this.gl, p = this.p; gl.viewport(0, 0, this.L, this.L); gl.disable(gl.BLEND);
+    for (let k = 0; k < n; k++) {
+      /* diffusion + freezing: S[cur] → S[1-cur] */
+      gl.bindFramebuffer(gl.FRAMEBUFFER, this.fS[1 - this.cur]); gl.useProgram(this.pD); this.common(this.pD, this.S[this.cur]);
+      gl.uniform1f(this.pD.u.rho, p.rho); gl.uniform1f(this.pD.u.kappa, p.kappa); gl.uniform1f(this.pD.u.sigma, p.sigma || 0); gl.uniform1f(this.pD.u.seed, (this.t * 0.6180339) % 97);
+      this.draw(this.pD); this.cur = 1 - this.cur;
+      /* attachment: S[cur] → S[1-cur], X[xc] → X[1-xc] */
+      gl.bindFramebuffer(gl.FRAMEBUFFER, this.fSX[1 - this.cur][1 - this.xc]); gl.useProgram(this.pA); this.common(this.pA, this.S[this.cur]);
+      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, this.X[this.xc]); gl.uniform1i(this.pA.u.X, 1);
+      gl.uniform1f(this.pA.u.beta, p.beta); gl.uniform1f(this.pA.u.alpha, p.alpha); gl.uniform1f(this.pA.u.theta, p.theta); gl.uniform1f(this.pA.u.tnow, this.t);
+      gl.uniform1f(this.pA.u.tC, this.cond ? this.cond[0] : -15); gl.uniform1f(this.pA.u.xs, this.cond ? this.cond[1] : 0.1); gl.uniform1f(this.pA.u.kind, this.kind || 0);
+      this.draw(this.pA); this.cur = 1 - this.cur; this.xc = 1 - this.xc;
+      /* melting: S[cur] → S[1-cur] */
+      gl.bindFramebuffer(gl.FRAMEBUFFER, this.fS[1 - this.cur]); gl.useProgram(this.pM); this.common(this.pM, this.S[this.cur]);
+      gl.uniform1f(this.pM.u.mu, p.mu); gl.uniform1f(this.pM.u.gamma_, p.gamma);
+      this.draw(this.pM); this.cur = 1 - this.cur;
+      this.t++;
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+  get state() { return this.S[this.cur]; }
+  /* lightly smoothed display field for rendering (one hexagonal averaging pass) */
+  display() {
+    const gl = this.gl; gl.viewport(0, 0, this.L, this.L); gl.disable(gl.BLEND);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.fD[0]); gl.useProgram(this.pB); this.common(this.pB, this.S[this.cur]);
+    gl.uniform1f(this.pB.u.first, 1); gl.uniform1f(this.pB.u.rho, this.p.rho); this.draw(this.pB);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    return this.Dt[0];
+  }
+  get times() { return this.X[this.xc]; }
+  /* read the lattice row through the centre (an arm along +q and −q) and return the tip extent in cells */
+  probe() {
+    const gl = this.gl; gl.bindFramebuffer(gl.FRAMEBUFFER, this.fS[this.cur]);
+    gl.readPixels(0, this.L >> 1, this.L, 1, gl.RGBA, gl.FLOAT, this.row);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    const o = this.L >> 1; let r = 0;
+    for (let i = 0; i < this.L; i++) if (this.row[i * 4] > 0.5) r = Math.max(r, Math.abs(i - o));
+    this.radius = r; return r;
+  }
+  readAll() {
+    const gl = this.gl, L = this.L, out = new Float32Array(L * L * 4), ox = new Float32Array(L * L * 4);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.fS[this.cur]); gl.readPixels(0, 0, L, L, gl.RGBA, gl.FLOAT, out);
+    const f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.X[this.xc], 0);
+    gl.readPixels(0, 0, L, L, gl.RGBA, gl.FLOAT, ox); gl.deleteFramebuffer(f);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    return { s: out, x: ox };
+  }
+}
+
+/* ============================================================
+   Views of the crystal.
+   Micrograph: the plate seen through a microscope with coloured
+   oblique lighting (after Libbrecht's photographs). Ice is clear,
+   so what you see is light bent by its slopes: the crystal mass c
+   is read as thickness, its gradient tilts the surface, and the
+   tilt both shifts the background seen through it and catches the
+   two coloured lamps.
+   Other views: Bentley (white on black, as on his glass plates),
+   growth record (each cell coloured by when it froze), vapour.
+   ============================================================ */
+const R_HEAD = `#version 300 es
+precision highp float; precision highp sampler2D; precision highp int;
+uniform sampler2D S, X; uniform int L;
+vec4 cellAt(vec2 qr){
+  vec2 g = qr + float(L/2); vec2 f = floor(g); vec2 w = g - f; ivec2 i = ivec2(f);
+  ivec2 m = ivec2(L - 1);
+  vec4 a = texelFetch(S, clamp(i, ivec2(0), m), 0), b = texelFetch(S, clamp(i + ivec2(1, 0), ivec2(0), m), 0);
+  vec4 c = texelFetch(S, clamp(i + ivec2(0, 1), ivec2(0), m), 0), d = texelFetch(S, clamp(i + ivec2(1, 1), ivec2(0), m), 0);
+  return mix(mix(a, b, w.x), mix(c, d, w.x), w.y);
+}
+vec4 recAt(vec2 qr){ vec2 g = qr + float(L/2) + 0.5; return texelFetch(X, clamp(ivec2(floor(g)), ivec2(0), ivec2(L - 1)), 0); }
+vec2 toAxial(vec2 xy){ float r = xy.y*1.1547005; return vec2(xy.x - 0.5*r, r); }
+float hash(vec2 p){ p = fract(p*vec2(443.897, 441.423)); p += dot(p, p.yx + 19.19); return fract((p.x + p.y)*p.x); }
+`;
+const R_VS = `#version 300 es
+in vec2 p; out vec2 v; void main(){ v = p; gl_Position = vec4(p, 0., 1.); }`;
+const R_MICRO = R_HEAD + `
+in vec2 v; out vec4 o;
+uniform sampler2D D, PAL;
+uniform vec2 res; uniform float scale, rot, mode, cmean, rho, tnow, ring, time_, hs, grain;
+vec4 dAt(vec2 xy){ vec2 q = toAxial(xy) + float(L/2) + 0.5; return texture(D, q/float(L)); }
+float hgt(vec2 xy){ vec4 s = dAt(xy); return 1.0*s.x + 0.35*s.y/cmean; }
+vec3 bgCol(vec2 p){
+  /* backlight: an even blue field, a warm lamp low left and a cool one high right */
+  float r = length(p);
+  vec3 c = mix(vec3(0.030, 0.070, 0.125), vec3(0.008, 0.018, 0.040), smoothstep(0.2, 1.7, r));
+  c += vec3(0.35, 0.17, 0.05)*exp(-dot(p - vec2(-1.2, -1.0), p - vec2(-1.2, -1.0))*0.8)*0.45;
+  c += vec3(0.05, 0.20, 0.32)*exp(-dot(p - vec2(1.1, 1.0), p - vec2(1.1, 1.0))*0.7)*0.5;
+  return c;
+}
+void main(){
+  vec2 sp = v*vec2(res.x/res.y, 1.0);
+  float cr = cos(rot), sr = sin(rot);
+  vec2 xy = mat2(cr, -sr, sr, cr)*sp*scale;
+  vec4 s = dAt(xy);
+  float m = smoothstep(0.3, 0.7, s.x);
+  vec3 col;
+  if (mode < 0.5) {
+    /* coverage gives the outline; crystal mass (thickness) gives the inner structure */
+    float e = 0.8;
+    vec4 sL = dAt(xy - vec2(e, 0.0)), sR = dAt(xy + vec2(e, 0.0)), sD = dAt(xy - vec2(0.0, e)), sU = dAt(xy + vec2(0.0, e));
+    vec2 gc = vec2(sR.x - sL.x, sU.x - sD.x)/(2.0*e);
+    vec2 gt = vec2(sR.y - sL.y, sU.y - sD.y)/(2.0*e*cmean);
+    float lapT = (sL.y + sR.y + sD.y + sU.y - 4.0*s.y)/(e*e*cmean);
+    gc = mat2(cr, sr, -sr, cr)*gc; gt = mat2(cr, sr, -sr, cr)*gt;
+    vec2 g = gc + gt*0.5; float gm = length(g); vec2 gd = gm > 1e-5 ? g/gm : vec2(0.0);
+    vec3 bg = bgCol(sp);
+    vec3 through = bgCol(sp - gd*min(gm, 1.0)*0.22);
+    vec3 warm = vec3(1.0, 0.72, 0.40), cool = vec3(0.60, 0.86, 1.0);
+    float side = dot(gd, normalize(vec2(0.72, 0.69)));
+    vec3 lamp = mix(warm, cool, 0.5 + 0.5*side);
+    float outline = smoothstep(0.12, 0.5, length(gc)*hs);
+    float inner = smoothstep(0.06, 0.45, length(gt)*hs)*m;
+    float ridge = smoothstep(0.08, 0.7, -lapT*hs*0.5)*m;
+    float thick = clamp(s.y/cmean, 0.0, 3.0);
+    vec3 ice = through*(1.08 + 0.22*thick) + vec3(0.02, 0.035, 0.055)*thick;
+    ice += lamp*inner*0.38 + vec3(0.88, 0.94, 1.0)*ridge*0.30;
+    col = mix(bg, ice, m) + mix(vec3(0.92, 0.96, 1.0), lamp, 0.55)*outline*0.75;
+  } else if (mode < 1.5) {
+    /* Bentley: a bright crystal on black, inner ridges as darker lines, edges brightest */
+    float e = 0.8;
+    vec4 sL = dAt(xy - vec2(e, 0.0)), sR = dAt(xy + vec2(e, 0.0)), sD = dAt(xy - vec2(0.0, e)), sU = dAt(xy + vec2(0.0, e));
+    float gc = length(vec2(sR.x - sL.x, sU.x - sD.x))/(2.0*e);
+    float gt = length(vec2(sR.y - sL.y, sU.y - sD.y))/(2.0*e*cmean);
+    float thick = clamp(s.y/cmean, 0.0, 3.0);
+    float body = 0.50 + 0.16*thick - 0.30*smoothstep(0.05, 0.45, gt*hs);
+    float lum = m*body + smoothstep(0.12, 0.5, gc*hs)*0.55;
+    float vig = 1.0 - 0.35*dot(sp*0.6, sp*0.6);
+    col = vec3(lum*vig)*vec3(0.92, 0.95, 1.0) + vec3(0.012, 0.014, 0.018);
+  } else if (mode < 2.5) {
+    /* growth record: colour = the kind of growth the air called for when each part froze; rings = equal stretches of time */
+    vec4 x = recAt(toAxial(xy));
+    vec3 c = texture(PAL, vec2((x.w + 0.5)/8.0, 0.5)).rgb;
+    float ph = x.x/ring, w = fwidth(ph)*1.5 + 1e-4; float line = smoothstep(0.0, w, abs(fract(ph + 0.5) - 0.5));
+    col = mix(vec3(0.012, 0.016, 0.03), c*(0.5 + 0.5*line), m*step(-0.5, x.x));
+  } else {
+    float d = clamp(s.w, 0.0, 1.2);
+    vec3 c = mix(vec3(0.02, 0.03, 0.08), vec3(0.20, 0.45, 0.80), smoothstep(0.0, 1.0, d));
+    c = mix(c, vec3(0.85, 0.93, 1.0), smoothstep(0.92, 1.0, d)*0.35);
+    col = mix(c, vec3(0.92, 0.96, 1.0)*(0.75 + 0.25*smoothstep(0.0, 3.0, s.y)), m);
+  }
+  col += (hash(gl_FragCoord.xy + time_) - 0.5)*grain;
+  o = vec4(col, 1.0);
+}`;
+
+function rFit(cv) { const r = cv.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2); const w = Math.max(2, Math.round(r.width * d)), h = Math.max(2, Math.round(r.height * d)); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; } return [w, h, d]; }
+
+class Micro {
+  static KINDS = [
+    { name: 'hexagonal plate', rgb: [96, 132, 236] }, { name: 'plate with ribs', rgb: [92, 196, 236] }, { name: 'sectored plate', rgb: [120, 226, 196] },
+    { name: 'stellar plate', rgb: [226, 232, 160] }, { name: 'stellar dendrite', rgb: [246, 188, 110] }, { name: 'fernlike dendrite', rgb: [240, 120, 110] },
+    { name: 'column', rgb: [200, 140, 240] }, { name: 'set by hand', rgb: [200, 200, 210] }
+  ];
+  constructor(gl, C) {
+    this.gl = gl; this.C = C; this.p = cprog(gl, R_VS, R_MICRO); this.ok = !!this.p;
+    this.mode = 0; this.scale = 0; this.rot = 0; this.cmean = 1; this.ring = 500; this.hs = 1.0; this.grain = 0.012;
+    this.pal = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, this.pal);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    this.setPalette();
+  }
+  /* palette for the growth record: a list of [fraction, [r,g,b]] stops, or a default ice-to-amber ramp */
+  /* growth-record palette: one colour per kind of growth (the six plate sets, then columns) */
+  setPalette() {
+    const gl = this.gl, cols = Micro.KINDS.map(k => k.rgb), px = new Uint8Array(8 * 4);
+    for (let i = 0; i < 8; i++) { const c = cols[Math.min(i, cols.length - 1)]; px[i * 4] = c[0]; px[i * 4 + 1] = c[1]; px[i * 4 + 2] = c[2]; px[i * 4 + 3] = 255; }
+    gl.bindTexture(gl.TEXTURE_2D, this.pal); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, 8, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, px);
+  }
+  draw(W, H, time) {
+    const gl = this.gl, p = this.p, C = this.C;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, W, H); gl.disable(gl.BLEND);
+    gl.useProgram(p);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, C.state); gl.uniform1i(p.u.S, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, C.times); gl.uniform1i(p.u.X, 1);
+    gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, this.pal); gl.uniform1i(p.u.PAL, 2);
+    gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, this.D || C.Dt[0]); gl.uniform1i(p.u.D, 3);
+    gl.uniform1i(p.u.L, C.L); gl.uniform2f(p.u.res, W, H);
+    /* default framing: the hexagonal domain fills the shorter side */
+    const sc = this.scale || (C.R * 1.02);
+    gl.uniform1f(p.u.scale, sc / Math.min(1, W / H) ); gl.uniform1f(p.u.rot, this.rot);
+    gl.uniform1f(p.u.mode, this.mode); gl.uniform1f(p.u.cmean, this.cmean); gl.uniform1f(p.u.rho, C.p.rho);
+    gl.uniform1f(p.u.tnow, C.t); gl.uniform1f(p.u.ring, this.ring); gl.uniform1f(p.u.time_, (time || 0) % 100); gl.uniform1f(p.u.hs, this.hs); gl.uniform1f(p.u.grain, this.grain);
+    gl.bindVertexArray(C.vao); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+}
+
+/* ============================================================
+   3D: the plate as a sheet of ice, thickness from the crystal
+   mass, turning slowly under a lamp in a dark sky.
+   ============================================================ */
+const P3_VS = `#version 300 es
+precision highp float; precision highp sampler2D; precision highp int;
+uniform sampler2D D; uniform int L;
+uniform mat4 VP, Mw; uniform float ext, thick, side, cmean, zoff;
+in vec2 p; out vec2 xy; out vec3 wp; out float cov;
+vec4 dAt(vec2 q){ float r = q.y*1.1547005; vec2 a = vec2(q.x - 0.5*r, r) + float(L/2) + 0.5; return textureLod(D, a/float(L), 0.0); }
+void main(){
+  xy = p*ext;                                    /* lattice units */
+  vec4 s = dAt(xy);
+  cov = s.x;
+  float h = (0.25*s.x + 0.75*clamp(s.y/cmean, 0.0, 3.0))*thick;
+  vec3 pos = vec3(xy/ext, side*h + zoff);
+  wp = (Mw*vec4(pos, 1.0)).xyz;
+  gl_Position = VP*vec4(wp, 1.0);
+}`;
+const P3_FS = `#version 300 es
+precision highp float; precision highp sampler2D; precision highp int;
+uniform sampler2D D; uniform int L;
+uniform mat4 Mw; uniform vec3 eye, key; uniform float ext, thick, side, cmean, glow;
+in vec2 xy; in vec3 wp; in float cov; out vec4 o;
+vec4 dAt(vec2 q){ float r = q.y*1.1547005; vec2 a = vec2(q.x - 0.5*r, r) + float(L/2) + 0.5; return texture(D, a/float(L)); }
+float H(vec2 q){ vec4 s = dAt(q); return (0.25*s.x + 0.75*clamp(s.y/cmean, 0.0, 3.0))*thick; }
+vec3 sky(vec3 d){
+  float u = d.z*0.5 + 0.5;
+  vec3 c = mix(vec3(0.010, 0.018, 0.040), vec3(0.06, 0.11, 0.20), smoothstep(0.2, 1.0, u));
+  c += vec3(1.0, 0.92, 0.80)*pow(max(dot(d, key), 0.0), 220.0)*6.0;     /* the lamp */
+  c += vec3(0.55, 0.75, 1.0)*pow(max(dot(d, key), 0.0), 12.0)*0.25;
+  c += vec3(0.95, 0.55, 0.25)*pow(max(dot(d, normalize(vec3(-key.x, -key.y, 0.15))), 0.0), 18.0)*0.35;   /* warm back light */
+  return c;
+}
+void main(){
+  float m = smoothstep(0.35, 0.65, cov);
+  if (m < 0.01) discard;
+  float e = 0.8, s_ = 1.0/ext;
+  float hx = H(xy + vec2(e, 0.0)) - H(xy - vec2(e, 0.0)), hy = H(xy + vec2(0.0, e)) - H(xy - vec2(0.0, e));
+  vec3 nl = normalize(vec3(-hx/(2.0*e*s_), -hy/(2.0*e*s_), 1.0));
+  nl.z *= side;
+  vec3 N = normalize(mat3(Mw)*nl);
+  vec3 V = normalize(eye - wp);
+  if (dot(N, V) < 0.0) N = -N;
+  float cosv = max(dot(N, V), 0.0);
+  float F = 0.02 + 0.98*pow(1.0 - cosv, 5.0);
+  vec3 R = reflect(-V, N);
+  vec3 T = refract(-V, N, 1.0/1.31);
+  vec3 refl = sky(R);
+  vec3 trans = sky(normalize(T + (-V)*0.6))*vec3(0.80, 0.90, 1.0);
+  /* outline from the coverage, inner structure from the thickness */
+  vec4 c0 = dAt(xy), cx = dAt(xy + vec2(e, 0.0)) - dAt(xy - vec2(e, 0.0)), cy = dAt(xy + vec2(0.0, e)) - dAt(xy - vec2(0.0, e));
+  float outline = smoothstep(0.1, 0.45, length(vec2(cx.x, cy.x))/(2.0*e));
+  float inner = smoothstep(0.05, 0.4, length(vec2(cx.y, cy.y))/(2.0*e*cmean));
+  vec3 flatN = normalize(mat3(Mw)*vec3(0.0, 0.0, side));
+  float flash = pow(max(dot(reflect(-V, flatN), key), 0.0), 40.0);
+  float sw = side > 0.0 ? 1.0 : 0.45;                    /* the far face shows through more faintly */
+  vec3 col = refl*F*1.4 + trans*(1.0 - F)*0.7;
+  col += vec3(0.30, 0.42, 0.60)*(0.35 + 0.35*clamp(c0.y/cmean, 0.0, 2.0))*sw;   /* light scattered inside the ice */
+  col += vec3(0.80, 0.90, 1.0)*(outline*0.6 + inner*0.45)*glow*sw;
+  col += vec3(1.0, 0.92, 0.80)*flash*(0.5 + 0.5*clamp(c0.y/cmean, 0.0, 2.0))*0.9;
+  col += vec3(1.0, 0.85, 0.65)*pow(max(dot(R, key), 0.0), 80.0)*(outline + inner)*2.5;
+  float a = m*clamp(0.32 + F + outline*0.5 + inner*0.25 + flash*0.5, 0.0, 1.0);
+  o = vec4(col, a);
+}`;
+const COL_VS = `#version 300 es
+precision highp float;
+uniform mat4 VP, Mw; uniform float cr, ch;
+in vec3 p; out vec3 wp; out vec3 nw; out float u;
+void main(){
+  /* p = (corner index, side 0/1 across the face, end −1/+1) */
+  float a0 = p.x*1.0471976, a1 = (p.x + 1.0)*1.0471976;
+  float a = mix(a0, a1, p.y);
+  vec3 pos = vec3(cr*cos(a), cr*sin(a), ch*p.z);
+  float am = 0.5*(a0 + a1);
+  nw = normalize(mat3(Mw)*vec3(cos(am), sin(am), 0.0));
+  u = p.y;
+  wp = (Mw*vec4(pos, 1.0)).xyz;
+  gl_Position = VP*vec4(wp, 1.0);
+}`;
+const COL_FS = `#version 300 es
+precision highp float;
+uniform vec3 eye, key; uniform float glow;
+in vec3 wp; in vec3 nw; in float u; out vec4 o;
+vec3 sky(vec3 d){
+  float s = d.z*0.5 + 0.5;
+  vec3 c = mix(vec3(0.010, 0.018, 0.040), vec3(0.06, 0.11, 0.20), smoothstep(0.2, 1.0, s));
+  c += vec3(1.0, 0.92, 0.80)*pow(max(dot(d, key), 0.0), 220.0)*6.0 + vec3(0.55, 0.75, 1.0)*pow(max(dot(d, key), 0.0), 12.0)*0.25;
+  return c;
+}
+void main(){
+  vec3 V = normalize(eye - wp), N = nw; if (dot(N, V) < 0.0) N = -N;
+  float cosv = max(dot(N, V), 0.0), F = 0.02 + 0.98*pow(1.0 - cosv, 5.0);
+  vec3 R = reflect(-V, N);
+  float edge = smoothstep(0.08, 0.0, min(u, 1.0 - u));
+  vec3 col = sky(R)*F*1.4 + sky(-V)*0.25*vec3(0.8, 0.9, 1.0) + vec3(0.75, 0.88, 1.0)*edge*0.6*glow + vec3(1.0, 0.9, 0.75)*pow(max(dot(R, key), 0.0), 40.0)*0.8;
+  o = vec4(col, clamp(0.18 + F + edge*0.5, 0.0, 1.0));
+}`;
+const BK_VS = `#version 300 es
+in vec2 p; out vec2 v; void main(){ v = p; gl_Position = vec4(p, 0.999, 1.); }`;
+const BK_FS = `#version 300 es
+precision highp float; in vec2 v; out vec4 o; uniform vec2 res; uniform float time;
+float hash(vec2 p){ p = fract(p*vec2(443.897, 441.423)); p += dot(p, p.yx + 19.19); return fract((p.x + p.y)*p.x); }
+void main(){
+  vec2 sp = v*vec2(res.x/res.y, 1.0);
+  vec3 c = mix(vec3(0.004, 0.008, 0.020), vec3(0.020, 0.040, 0.080), smoothstep(-1.2, 1.0, sp.y));
+  c += vec3(0.05, 0.08, 0.12)*exp(-dot(sp - vec2(0.6, 0.7), sp - vec2(0.6, 0.7))*1.2);
+  /* out-of-focus flakes drifting past */
+  for (int k = 0; k < 3; k++) {
+    float sc = 3.0 + float(k)*2.5;
+    vec2 g = sp*sc + vec2(0.13*time*(1.0 + float(k)*0.4), -0.35*time*(0.6 + 0.3*float(k)));
+    vec2 id = floor(g), f = fract(g) - 0.5;
+    float h = hash(id + float(k)*17.0);
+    if (h > 0.62) {
+      vec2 off = vec2(hash(id + 3.1), hash(id + 7.7)) - 0.5;
+      float r = length(f - off*0.6), rad = 0.10 + 0.22*hash(id + 1.3);
+      float b = (1.0 - smoothstep(rad*0.75, rad, r))*(0.6 + 0.4*smoothstep(rad*0.5, rad*0.95, r));
+      c += vec3(0.55, 0.70, 0.95)*b*(0.05 + 0.05*hash(id + 9.0))/(1.0 + float(k)*0.5);
+    }
+  }
+  c += (hash(gl_FragCoord.xy + time) - 0.5)*0.01;
+  o = vec4(c, 1.0);
+}`;
+
+const M4 = {
+  mul(a, b) { const o = new Float32Array(16); for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { let s = 0; for (let k = 0; k < 4; k++) s += a[k * 4 + j] * b[i * 4 + k]; o[i * 4 + j] = s; } return o; },
+  persp(fy, asp, n, f) { const t = 1 / Math.tan(fy / 2), o = new Float32Array(16); o[0] = t / asp; o[5] = t; o[10] = (f + n) / (n - f); o[11] = -1; o[14] = 2 * f * n / (n - f); return o; },
+  look(e, c, up) {
+    const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]], dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]], nrm = a => { const l = Math.hypot(...a) || 1; return a.map(x => x / l); };
+    const z = nrm(sub(e, c)), x = nrm(cross(up, z)), y = cross(z, x);
+    return new Float32Array([x[0], y[0], z[0], 0, x[1], y[1], z[1], 0, x[2], y[2], z[2], 0, -dot(x, e), -dot(y, e), -dot(z, e), 1]);
+  },
+  rotZ(a) { const c = Math.cos(a), s = Math.sin(a); return new Float32Array([c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]); },
+  rotX(a) { const c = Math.cos(a), s = Math.sin(a); return new Float32Array([1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1]); },
+  rotY(a) { const c = Math.cos(a), s = Math.sin(a); return new Float32Array([c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1]); }
+};
+
+class Plate3D {
+  constructor(gl, C, n) {
+    this.gl = gl; this.C = C;
+    this.p = cprog(gl, P3_VS, P3_FS); this.pb = cprog(gl, BK_VS, BK_FS); this.ok = !!(this.p && this.pb);
+    if (this.ok) {
+      const sh = (t, s) => { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); return gl.getShaderParameter(x, gl.COMPILE_STATUS) ? x : (console.error(gl.getShaderInfoLog(x)), null); };
+      const v = sh(gl.VERTEX_SHADER, COL_VS), f = sh(gl.FRAGMENT_SHADER, COL_FS);
+      const pc = gl.createProgram(); gl.attachShader(pc, v); gl.attachShader(pc, f); gl.bindAttribLocation(pc, 0, 'p'); gl.linkProgram(pc);
+      pc.u = {}; const nu = gl.getProgramParameter(pc, gl.ACTIVE_UNIFORMS); for (let i = 0; i < nu; i++) { const a = gl.getActiveUniform(pc, i); pc.u[a.name] = gl.getUniformLocation(pc, a.name); }
+      this.pc = pc;
+      const cv = []; for (let k = 0; k < 6; k++) { const q = [[k, 0, -1], [k, 1, -1], [k, 0, 1], [k, 1, -1], [k, 1, 1], [k, 0, 1]]; q.forEach(x => cv.push(...x)); }
+      this.vaoC = gl.createVertexArray(); gl.bindVertexArray(this.vaoC); const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cv), gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null);
+    }
+    if (!this.ok) return;
+    n = n || 200; const v = [], ix = [];
+    for (let j = 0; j <= n; j++) for (let i = 0; i <= n; i++) v.push(-1 + 2 * i / n, -1 + 2 * j / n);
+    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const a = j * (n + 1) + i, b = a + 1, c = a + n + 1, d = c + 1; ix.push(a, b, c, b, d, c); }
+    this.vao = gl.createVertexArray(); gl.bindVertexArray(this.vao);
+    const vb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(v), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    const ib = gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(ix), gl.STATIC_DRAW);
+    gl.bindVertexArray(null); this.nIdx = ix.length;
+    this.spin = 0; this.tilt = 0.9; this.yaw = 0; this.cmean = 1; this.thick = 0.035; this.glow = 1; this.dist = 3.2; this.fill = 1.0;
+  }
+  draw(W, H, time, extent, col) {
+    const gl = this.gl, C = this.C, p = this.p;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, W, H);
+    /* background */
+    gl.disable(gl.BLEND); gl.useProgram(this.pb); gl.uniform2f(this.pb.u.res, W, H); gl.uniform1f(this.pb.u.time, time % 1000);
+    gl.bindVertexArray(C.vao); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    /* camera: the plate (radius 1) turning slowly */
+    const asp = W / H, fy = 30 * Math.PI / 180;
+    const d = this.dist / Math.min(1, asp) / this.fill;
+    const eye = [0, -d * Math.sin(this.tilt), d * Math.cos(this.tilt)];
+    const Vm = M4.look(eye, [0, 0, 0], [0, 0, 1]), Pm = M4.persp(fy, asp, 0.1, 50);
+    const Mw = M4.mul(M4.rotZ(this.yaw), M4.mul(M4.rotX(this.wob || 0), M4.rotZ(this.spin)));
+    const VP = M4.mul(Pm, Vm);
+    const ext = extent || C.R;
+    gl.useProgram(p);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, this.D || C.Dt[0]); gl.uniform1i(p.u.D, 0); gl.uniform1i(p.u.L, C.L);
+    gl.uniformMatrix4fv(p.u.VP, false, VP); gl.uniformMatrix4fv(p.u.Mw, false, Mw);
+    gl.uniform3f(p.u.eye, eye[0], eye[1], eye[2]);
+    const k = [-0.35, 0.55, 0.76], kl = Math.hypot(...k); gl.uniform3f(p.u.key, k[0] / kl, k[1] / kl, k[2] / kl);
+    gl.uniform1f(p.u.ext, ext); gl.uniform1f(p.u.thick, this.thick); gl.uniform1f(p.u.cmean, this.cmean); gl.uniform1f(p.u.glow, this.glow); gl.uniform1f(p.u.zoff, 0);
+    gl.enable(gl.BLEND); gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE, gl.ONE, gl.ONE);
+    gl.bindVertexArray(this.vao);
+    const hz = col && col.h > 0 ? col.h : 0;
+    for (const side of [-1, 1]) { gl.uniform1f(p.u.side, side); gl.uniform1f(p.u.zoff, side * hz); gl.drawElements(gl.TRIANGLES, this.nIdx, gl.UNSIGNED_INT, 0); }
+    if (hz > 0 && this.pc) {
+      const q = this.pc; gl.useProgram(q);
+      gl.uniformMatrix4fv(q.u.VP, false, VP); gl.uniformMatrix4fv(q.u.Mw, false, Mw);
+      gl.uniform1f(q.u.cr, col.r); gl.uniform1f(q.u.ch, hz); gl.uniform3f(q.u.eye, eye[0], eye[1], eye[2]);
+      gl.uniform3f(q.u.key, k[0] / kl, k[1] / kl, k[2] / kl); gl.uniform1f(q.u.glow, this.glow);
+      gl.bindVertexArray(this.vaoC); gl.drawArrays(gl.TRIANGLES, 0, 36);
+    }
+    gl.disable(gl.BLEND); gl.bindVertexArray(null);
+  }
+}
+
+/* ============================================================
+   Story: hero, scroll scenes, cloud chart, lab, checks, history
+   ============================================================ */
+const FMT = {
+  n(x) { return Math.round(x).toLocaleString('en-US'); },
+  T(c) { return (c <= -0.05 ? '−' : '') + Math.abs(c).toFixed(1) + ' °C'; },
+  x(v) { return v.toFixed(3) + ' g/m³'; },
+  pct(v) { return (v * 100).toFixed(1) + '%'; },
+  mm(um) { return um >= 1000 ? (um / 1000).toFixed(2) + ' mm' : Math.round(um) + ' µm'; }
+};
+function sizeCv(cv) { const d = Math.min(devicePixelRatio || 1, 2), W = Math.round(cv.clientWidth * d), H = Math.round(cv.clientHeight * d); if (!W || !H) return null; if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; } return [W, H, d]; }
+
+class Loop {
+  constructor(el, fn) { this.fn = fn; this.vis = false; new IntersectionObserver(es => { this.vis = es[0].isIntersecting; this.kick(); }, { rootMargin: '80px' }).observe(el); document.addEventListener('visibilitychange', () => this.kick()); }
+  /* Reset the clock only when the loop starts from idle; resetting it every frame dropped each frame's own work from dt, so the step budget never saw a slow frame. */
+  kick() { if (this.raf) return; if (this.vis && !document.hidden) { if (!this.looping) this.last = performance.now(); this.looping = true; this.raf = requestAnimationFrame(t => this.tick(t)); } else this.looping = false; }
+  tick(t) { this.raf = 0; if (!this.vis || document.hidden) { this.looping = false; return; } const dt = Math.min(0.1, Math.max(0, (t - this.last) / 1000)); this.last = t; this.fn(dt, t); this.kick(); }
+}
+
+/* ============================================================
+   Grower: a canvas, a lattice crystal, its views and its weather
+   ============================================================ */
+class Grower {
+  constructor(root, opts) {
+    this.root = root; this.cv = root.querySelector('canvas'); this.opts = opts || {};
+    this.hud = {}; root.querySelectorAll('[data-hud]').forEach(e => this.hud[e.dataset.hud] = e);
+    const gl = this.gl = cmakeGL(this.cv);
+    this.ok = false; this.listeners = {};
+    if (!gl) { root.classList.add('failed'); return; }
+    const L = this.L = opts.L;
+    this.C = new Crystal(gl, L); if (!this.C.ok) { root.classList.add('failed'); return; }
+    this.M = new Micro(gl, this.C); this.P3 = new Plate3D(gl, this.C, opts.mesh || 200);
+    if (!this.M.ok || !this.P3.ok) { root.classList.add('failed'); return; }
+    this.cellUm = 1520 / this.C.R;            /* the domain radius is 1.52 mm */
+    this.view = opts.view != null ? opts.view : 0;
+    this.cond = [-15, 0.1]; this.journey = null; this.fixed = null; this.noise = 0;
+    this.budget = LITE ? 4 : IS_SMALL ? 14 : 36; this.speed = 1; this.paused = false;
+    /* pacing: steps per frame chosen so a crystal takes roughly 12–24 s to grow, within what the GPU can do */
+    this.want = 8; this.vr = 0; this.lastR = 0; this.lastT = 0;
+    this.colLen = 0; this.colR = 0; this.trail = []; this.full = false; this.time = 0; this.frameN = 0;
+    this.cmean = 1.1; this.spin = 0; this.ext = 0; this.ok = true;
+    this.loop = new Loop(root, (dt, t) => this.frame(dt, t));
+    this.restart();
+  }
+  on(e, f) { (this.listeners[e] = this.listeners[e] || []).push(f); }
+  emit(e, x) { (this.listeners[e] || []).forEach(f => f(x)); }
+  habit() { return HAB.habit(this.cond[0], this.cond[1]); }
+  apply() {
+    const h = this.habit(), p = this.fixed ? Object.assign({}, this.fixed) : HAB.params(h, this.cond[1]);
+    p.sigma = this.noise; Object.assign(this.C.p, p); this.C.cond = this.cond; this.h = h;
+    this.C.kind = this.fixed ? 7 : h.column ? 6 : h.set;
+  }
+  restart(cond) {
+    if (!this.ok) return;
+    if (cond) this.cond = cond.slice();
+    if (this.journey) { this.journey.t0 = 0; this.journey.f = 0; this.cond = HAB.along(this.journey.pts, 0); }
+    this.apply(); this.C.reset(this.C.p.rho);
+    this.colLen = 0; this.colR = 0; this.trail = [this.cond.slice()]; this.full = false; this.spin = Math.random() * 6.28;
+    this.want = 8; this.vr = 0; this.lastR = 0; this.lastT = this.time; this.ext = 0;
+    this.C.display(); this.loop.kick(); this.emit('restart');
+  }
+  setCond(T, x, keepJourney) {
+    this.cond = [T, x]; if (!keepJourney) this.journey = null; this.fixed = null;
+    this.apply(); if (this.full && this.C.radius < this.C.R * 0.8) this.full = false; this.loop.kick();
+  }
+  setJourney(pts, steps) { this.journey = { pts, steps, t0: 0 }; this.fixed = null; this.restart(); }
+  frame(dt, t) {
+    if (!this.ok) return;
+    const [W, H] = rFit(this.cv); this.time += dt; this.frameN++;
+    /* adapt the number of model steps per frame to keep the page smooth */
+    if (!FF && !LITE) { if (dt > 0.024) this.budget = Math.max(2, this.budget * 0.9); else if (dt < 0.018 && this.want >= this.budget * 0.9) this.budget = Math.min(IS_SMALL ? 60 : 200, this.budget * 1.04 + 0.2); }
+    let n = this.paused || this.full ? 0 : Math.max(1, Math.round(Math.min(this.budget, this.want)));
+    if (FF && !this.paused && !this.full) n = 60;
+    if (n > 0) {
+      this.advance(n);
+      if (this.frameN % 3 === 0) {
+        const r = this.C.probe();
+        /* measured radial speed (cells per second) against the target for this kind of growth */
+        const el = this.time - this.lastT;
+        if (el > 0.25) {
+          const meas = this.h.column ? this.colLen : r;
+          const v = (meas - this.lastR) / el; this.vr = this.vr * 0.6 + v * 0.4; this.lastR = meas; this.lastT = this.time;
+          const slow = this.h.column || this.h.set <= 1 ? 0.5 : this.h.set <= 3 ? 0.75 : 1;
+          const target = 0.8 * this.C.R / 14 * slow * this.speed;
+          if (r > 2 || this.h.column) this.want = Math.max(1, Math.min(400, this.want * (this.vr > target ? 0.88 : 1.12)));
+        }
+        if (this.h.column) this.colR = Math.max(this.colR, Math.min(r, this.C.R * 0.25));
+        if (r >= this.C.R * 0.8 || this.C.t > 90000 || this.colLen > this.C.R * 3) { this.full = true; this.emit('full'); }
+      }
+      this.C.display();
+    }
+    this.emit('frame', dt);
+    this.draw(W, H, dt);
+  }
+  /* n model steps, with the journey (if any) moving the conditions along. Progress along a journey is
+     whichever is furthest: elapsed steps, the arm length, or the column length, so a path is spread
+     over the crystal's whole size whatever the growth rate. */
+  advance(n) {
+    if (this.journey) {
+      const J = this.journey, R = this.C.R;
+      J.f = Math.max(J.f || 0, (this.C.t - J.t0) / J.steps, this.C.radius / (0.78 * R), this.colLen / (1.6 * R));
+      this.cond = HAB.along(J.pts, J.f); this.apply();
+      if (J.f >= 1) { this.journey = null; this.emit('journeyEnd'); }
+    }
+    this.C.step(n);
+    if (this.h.column) { this.colLen += this.h.rate * 0.25 * n; }
+    if (this.C.t % 150 < n) { this.trail.push(this.cond.slice()); if (this.trail.length > 600) this.trail.shift(); }
+  }
+  draw(W, H, dt) {
+    const C = this.C;
+    /* frame the crystal: zoom eases out as it grows (a microscope operator would do the same) */
+    const want = Math.max(C.R * 0.22, Math.min(C.R * 0.92, Math.max(C.radius * 1.3, this.colLen * 0.62, this.colR * 2)));
+    this.ext = this.ext && !FF ? this.ext + (want - this.ext) * (1 - Math.exp(-(dt || 0.016) * 2.5)) : want;
+    if (this.view === 4) {
+      const P = this.P3; P.cmean = this.cmean;
+      if (!this.paused) this.spin += 0.0025;
+      P.spin = this.spin; P.yaw = 0; P.tilt = this.opts.tilt || 0.95; P.wob = 0.12 * Math.sin(this.time * 0.35);
+      P.fill = this.opts.fill || 1.05; P.thick = 0.014;
+      const col = this.colLen > 0 ? { r: Math.max(2, this.colR) / this.ext * 1.02, h: this.colLen / 2 / this.ext } : null;
+      P.draw(W, H, this.time, this.ext, col);
+    } else {
+      this.M.mode = this.view; this.M.cmean = this.cmean; this.M.ring = 600; this.M.hs = 1.0;
+      this.M.scale = this.ext * 1.03; this.M.rot = Math.PI / 2;
+      this.M.draw(W, H, this.time);
+    }
+  }
+  /* compare the crystal along four arms (+q, −q, +r, −r): the largest difference in ice mass */
+  arms() {
+    const gl = this.gl, C = this.C, L = this.L, o = L >> 1, row = new Float32Array(L * 4), col = new Float32Array(L * 4);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, C.fS[C.cur]);
+    gl.readPixels(0, o, L, 1, gl.RGBA, gl.FLOAT, row); gl.readPixels(o, 0, 1, L, gl.RGBA, gl.FLOAT, col);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    let worst = 0, tipV = null;
+    for (let k = 1; k < C.R; k++) {
+      const v = [row[(o + k) * 4 + 2], row[(o - k) * 4 + 2], col[(o + k) * 4 + 2], col[(o - k) * 4 + 2]];
+      worst = Math.max(worst, Math.max(...v) - Math.min(...v));
+      if (tipV == null && row[(o + k) * 4] < 0.5 && k > 1) tipV = row[Math.min(L - 1, o + k + 2) * 4 + 3];
+    }
+    return { worst, tipV };
+  }
+}
+
+/* ============================================================
+   Cloud chart: Nakaya–Kobayashi diagram with the crystal's path
+   ============================================================ */
+const T0 = 0, T1 = -30, X1 = 0.3;
+class Chart {
+  constructor(cv, G, opts) {
+    this.cv = cv; this.G = G; this.opts = opts || {}; this.mode = 'set'; this.path = []; this.listeners = {};
+    let down = false;
+    const at = e => { const r = cv.getBoundingClientRect(), s = this.lay; if (!s) return null; const x = (e.clientX - r.left) / r.width * s.W, y = (e.clientY - r.top) / r.height * s.H; return [Math.max(T1, Math.min(-0.5, s.iX(x))), Math.max(0, Math.min(X1, s.iY(y)))]; };
+    cv.addEventListener('pointerdown', e => { const p = at(e); if (!p) return; down = true; try { cv.setPointerCapture(e.pointerId); } catch (_) { } if (this.mode === 'draw') this.path = [p]; else this.emit('set', p); e.preventDefault(); this.draw(); });
+    cv.addEventListener('pointermove', e => { if (!down) return; const p = at(e); if (!p) return; if (this.mode === 'draw') { const q = this.path[this.path.length - 1]; if (!q || Math.hypot((p[0] - q[0]) / 30, (p[1] - q[1]) / 0.3) > 0.012) this.path.push(p); } else this.emit('set', p); this.draw(); });
+    const up = () => { if (down && this.mode === 'draw' && this.path.length > 1) this.emit('path', this.path); down = false; };
+    cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+  }
+  on(e, f) { (this.listeners[e] = this.listeners[e] || []).push(f); }
+  emit(e, x) { (this.listeners[e] || []).forEach(f => f(x)); }
+  draw() {
+    const s = sizeCv(this.cv); if (!s) return; const [W, H, d] = s, c = this.cv.getContext('2d'), G = this.G;
+    const small = H / d < 110, L = (small ? 8 : 34) * d, R = 8 * d, T = (small ? 6 : 10) * d, B = (small ? 14 : 26) * d;
+    const X = t => L + (t - T0) / (T1 - T0) * (W - L - R), Y = x => H - B - x / X1 * (H - T - B);
+    this.lay = { W, H, iX: px => T0 + (px - L) / (W - L - R) * (T1 - T0), iY: py => (H - B - py) / (H - T - B) * X1 };
+    c.clearRect(0, 0, W, H);
+    /* temperature bands */
+    const band = (a, b, col) => { c.fillStyle = col; c.fillRect(X(a), T, X(b) - X(a), H - T - B); };
+    band(-0.5, -3.5, 'rgba(159,216,255,0.06)'); band(-3.5, -10, 'rgba(240,178,106,0.07)'); band(-10, -22, 'rgba(159,216,255,0.06)'); band(-22, -30, 'rgba(240,178,106,0.07)');
+    /* branching contours inside the plate bands */
+    c.strokeStyle = 'rgba(159,216,255,0.22)'; c.lineWidth = 1 * d;
+    [0.12, 0.28, 0.45, 0.62, 0.82].forEach(cut => {
+      c.beginPath(); let started = false;
+      for (let t = -10; t >= -22; t -= 0.25) { const w = HAB.plateWeight(t), x = cut * 0.2 / w; if (x > X1) { started = false; continue; } const px = X(t), py = Y(x); if (!started) { c.moveTo(px, py); started = true; } else c.lineTo(px, py); }
+      c.stroke();
+    });
+    /* water saturation */
+    c.strokeStyle = 'rgba(230,238,246,0.75)'; c.lineWidth = 1.4 * d; c.beginPath();
+    for (let t = 0; t >= T1; t -= 0.25) { const px = X(t), py = Y(HAB.excessWS(t)); t === 0 ? c.moveTo(px, py) : c.lineTo(px, py); }
+    c.stroke();
+    c.font = `500 ${(small ? 8.5 : 10) * d}px "JetBrains Mono", monospace`; c.textBaseline = 'alphabetic';
+    if (!small) {
+      c.fillStyle = 'rgba(230,238,246,0.8)'; c.textAlign = 'left'; c.fillText('water saturation', X(-23.5), Y(HAB.excessWS(-23.5)) - 6 * d);
+      c.fillStyle = '#4d5b6c'; c.textAlign = 'center';
+      [0, -5, -10, -15, -20, -25].forEach(t => { c.fillText(t === 0 ? '0' : '−' + Math.abs(t), X(t), H - 8 * d); });
+      c.textAlign = 'right'; [0.1, 0.2, 0.3].forEach(x => c.fillText(x.toFixed(1), L - 5 * d, Y(x) + 3 * d));
+      if (this.opts.forms) { c.save(); c.translate(10 * d, (T + H - B) / 2); c.rotate(-Math.PI / 2); c.textAlign = 'center'; c.fillText('excess vapour, g/m³', 0, 0); c.restore(); }
+      c.textAlign = 'left'; c.fillText('°C', X(-28.6), H - 8 * d);
+    }
+    c.textAlign = 'center'; c.fillStyle = 'rgba(141,156,173,0.9)';
+    const ly = small ? H - 4 * d : Y(0.285);
+    [[-2, 'plates'], [-6.5, 'columns'], [-16, 'plates'], [-26, 'columns']].forEach(([t, s]) => c.fillText(s, X(t), ly));
+    if (!small && this.opts.forms) {
+      c.fillStyle = 'rgba(159,216,255,0.65)'; c.textAlign = 'left';
+      [[0.02, 'hexagonal plate'], [0.055, 'ribbed'], [0.085, 'sectored'], [0.12, 'stellar plate'], [0.165, 'dendrite'], [0.235, 'fern']].forEach(([x, s]) => c.fillText(s, X(-15.4), Y(x) + 3 * d));
+      c.fillStyle = 'rgba(240,178,106,0.7)'; c.fillText('needles', X(-4.3), Y(0.19)); c.fillText('hollow', X(-6.8), Y(0.11)); c.fillText('solid', X(-6.8), Y(0.04));
+    }
+    /* drawn path */
+    if (this.path.length > 1) {
+      c.strokeStyle = 'rgba(240,178,106,0.85)'; c.setLineDash([4 * d, 3 * d]); c.lineWidth = 1.4 * d; c.beginPath();
+      this.path.forEach((p, i) => i ? c.lineTo(X(p[0]), Y(p[1])) : c.moveTo(X(p[0]), Y(p[1]))); c.stroke(); c.setLineDash([]);
+    }
+    if (!G || !G.ok) return;
+    /* the crystal's trail and where it is now */
+    const tr = G.trail;
+    if (tr.length > 1) {
+      c.lineWidth = 2 * d; c.lineCap = 'round';
+      for (let i = 1; i < tr.length; i++) { const a = (i / tr.length) * 0.8 + 0.1; c.strokeStyle = `rgba(159,216,255,${a.toFixed(2)})`; c.beginPath(); c.moveTo(X(tr[i - 1][0]), Y(tr[i - 1][1])); c.lineTo(X(tr[i][0]), Y(tr[i][1])); c.stroke(); }
+    }
+    if (G.journey) {
+      c.strokeStyle = 'rgba(240,178,106,0.5)'; c.setLineDash([3 * d, 4 * d]); c.lineWidth = 1.2 * d; c.beginPath();
+      G.journey.pts.forEach((p, i) => i ? c.lineTo(X(p[0]), Y(p[1])) : c.moveTo(X(p[0]), Y(p[1]))); c.stroke(); c.setLineDash([]);
+    }
+    const px = X(G.cond[0]), py = Y(Math.min(X1, G.cond[1]));
+    const g = c.createRadialGradient(px, py, 0, px, py, 12 * d); g.addColorStop(0, 'rgba(255,255,255,0.9)'); g.addColorStop(1, 'rgba(159,216,255,0)');
+    c.fillStyle = g; c.beginPath(); c.arc(px, py, 12 * d, 0, 7); c.fill();
+    c.fillStyle = '#fff'; c.beginPath(); c.arc(px, py, 3 * d, 0, 7); c.fill();
+  }
+}
+
+/* ============================================================ */
+(function () {
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const set = (k, v) => $$(`[data-out="${k}"]`).forEach(e => { if (e.textContent !== v) e.textContent = v; });
+
+  const LQ = +(new URLSearchParams(location.search).get('L') || 0);   /* test hook: lattice size */
+  /* ---------------- hero ---------------- */
+  const HG = new Grower($('#hero'), { L: LQ || (LITE ? 128 : IS_SMALL ? 256 : 384), view: 4, mesh: IS_SMALL ? 150 : 210, tilt: 0.85, fill: 0.86 });
+  const tour = ['stellar', 'ends', 'capped', 'fall'], hst = { i: 0, hold: 0 };
+  const heroSteps = { stellar: 7000, ends: 9000, capped: 9000, fall: 12000 };
+  function heroNext() { if (!HG.ok) return; const k = tour[hst.i % tour.length]; hst.i++; hst.hold = 0; HG.setJourney(HAB.JOURNEYS[k].pts, heroSteps[k] * (HG.L / 384) * 3); }
+  if (HG.ok) {
+    heroNext();
+    HG.on('frame', dt => {
+      const h = HG.h; const hz = $('[data-hz]');
+      if (hz) hz.innerHTML = `${h.name}<small>${FMT.T(HG.cond[0])} &middot; ${FMT.x(HG.cond[1])} over ice saturation</small>`;
+      const hm = $('[data-hmode]'); if (hm) hm.innerHTML = `<b>${FMT.mm(2 * HG.C.radius * HG.cellUm)}</b> across${HG.colLen > 0 ? `<br>column <b>${FMT.mm(HG.colLen * HG.cellUm)}</b>` : ''}`;
+      if (HG.full && !RM) { hst.hold += dt; if (hst.hold > 6) heroNext(); }
+    });
+    $('#heroNew').addEventListener('click', heroNext);
+  }
+
+  /* ---------------- story stage ---------------- */
+  const G = new Grower($('#frame'), { L: LQ || (LITE ? 128 : IS_SMALL ? 384 : 512), view: 0, mesh: IS_SMALL ? 170 : 240, tilt: 1.0, fill: 0.9 });
+  const strip = new Chart($('#chart canvas'), G, { forms: false });
+  const nak = new Chart($('#nakFig'), G, { forms: true });
+  const st = { scene: null, journeyKey: null, noise: true };
+  function setView(v) {
+    if (G.ok) { G.view = v; G.loop.kick(); }
+    $$('[data-view]').forEach(b => { const on = +b.dataset.view === v; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+  }
+  const SC = {
+    six() { G.noise = 0; G.fixed = null; G.journey = null; G.restart([-15, 0.018]); setView(4); },
+    bentley() { G.noise = 0; G.journey = null; G.restart([-13, 0.16]); setView(1); },
+    branch() { G.noise = 0; G.journey = null; G.restart([-15, 0.21]); setView(3); },
+    facet() { G.noise = 0; G.journey = null; const x = +$('#facetX').value; G.restart([-15, x]); setView(0); },
+    nakaya() { G.noise = 0; G.journey = null; G.restart([-6, 0.14]); setView(4); },
+    letters() { G.noise = 0; st.journeyKey = st.journeyKey || 'ends'; G.setJourney(HAB.JOURNEYS[st.journeyKey].pts, 30000 * G.L / 512); setView(2); syncJourney(); },
+    alike() { G.noise = st.noise ? 0.00003 : 0; G.journey = null; G.restart([-15, 0.2]); setView(0); },
+    lab() { G.noise = [0, 0.00001, 0.00003, 0.00008, 0.0002][+$('#labNoise').value]; syncLab(); }
+  };
+  const cards = $$('.card'), theatre = $('.theatre'), stageBox = $('#stage');
+  let active = -1;
+  function runScene(name) { if (!G.ok) return; st.prev = st.scene; st.scene = name; G.paused = false; syncPause(); SC[name] && SC[name](); }
+  function pickCard() {
+    const tr = theatre.getBoundingClientRect(); if (tr.bottom < 0 || tr.top > innerHeight) return;
+    const mobile = matchMedia('(max-width: 900px)').matches;
+    let line = innerHeight * 0.5;
+    if (mobile) { const sb = stageBox.getBoundingClientRect().bottom; line = sb + (innerHeight - sb) * 0.35; }
+    let idx = 0; cards.forEach((c, i) => { if (c.getBoundingClientRect().top < line) idx = i; });
+    if (idx !== active) { active = idx; cards.forEach((c, i) => c.classList.toggle('active', i === idx)); if (cards[idx].dataset.scene !== st.scene) runScene(cards[idx].dataset.scene); }
+  }
+  let sTimer = 0;
+  addEventListener('scroll', () => { if (!sTimer) sTimer = setTimeout(() => { sTimer = 0; pickCard(); }, 60); }, { passive: true });
+  addEventListener('resize', () => { pickCard(); strip.draw(); nak.draw(); drawLattice(); });
+  cards.forEach(c => c.querySelectorAll('[data-replay]').forEach(b => b.addEventListener('click', () => { if (st.scene === c.dataset.scene) runScene(st.scene); })));
+
+  /* stage tools */
+  $$('[data-view]').forEach(b => b.addEventListener('click', () => setView(+b.dataset.view)));
+  $('#regrow').addEventListener('click', () => { if (!G.ok) return; if (G.journey) G.setJourney(G.journey.pts, G.journey.steps); else G.restart(); });
+  function syncPause() { const b = $('#pause'); b.textContent = G.paused ? 'Resume' : 'Pause'; b.setAttribute('aria-pressed', String(!!G.paused)); }
+  $('#pause').addEventListener('click', () => { G.paused = !G.paused; syncPause(); G.loop.kick(); });
+
+  /* charts */
+  [strip, nak].forEach(ch => {
+    ch.on('set', p => { if (!G.ok) return; const fresh = st.scene === 'nakaya'; if (fresh) G.restart(p); else G.setCond(p[0], p[1]); syncLab(); });
+    ch.on('path', p => { labPath = p.slice(); strip.path = labPath; nak.path = labPath; strip.draw(); nak.draw(); });
+  });
+
+  /* facet slider */
+  $('#facetX').addEventListener('input', e => { const x = +e.target.value; $('#facetXOut').textContent = FMT.x(x); if (st.scene === 'facet' && G.ok) G.setCond(-15, x); });
+  $('#facetXOut').textContent = FMT.x(+$('#facetX').value);
+
+  /* journeys */
+  /* legend for the growth record */
+  (function () {
+    const lg = document.createElement('div'); lg.className = 'legend';
+    lg.innerHTML = Micro.KINDS.slice(0, 7).map(k => `<span><i style="background:rgb(${k.rgb.join(',')})"></i>${k.name}</span>`).join('');
+    $('#c-letters .btnrow').after(lg);
+  })();
+  function syncJourney() { $$('[data-journey]').forEach(b => { const on = b.dataset.journey === st.journeyKey; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); }); }
+  $$('[data-journey]').forEach(b => b.addEventListener('click', () => { st.journeyKey = b.dataset.journey; if (st.scene === 'letters') SC.letters(); syncJourney(); }));
+
+  /* noise */
+  function syncNoise() { const b = $('#noiseBtn'); b.textContent = st.noise ? 'Turbulence on' : 'Turbulence off'; b.setAttribute('aria-pressed', String(st.noise)); b.classList.toggle('on', st.noise); }
+  $('#noiseBtn').addEventListener('click', () => { st.noise = !st.noise; syncNoise(); if (st.scene === 'alike') SC.alike(); });
+  syncNoise();
+
+  /* ---------------- lab ---------------- */
+  let labPath = [];
+  function syncLab() {
+    if (!G.ok) return;
+    $('#labT').value = G.cond[0]; $('#labX').value = G.cond[1];
+    $('#labTOut').textContent = FMT.T(G.cond[0]); $('#labXOut').textContent = FMT.x(G.cond[1]);
+  }
+  $$('[data-chart]').forEach(b => b.addEventListener('click', () => {
+    const m = b.dataset.chart; strip.mode = m; nak.mode = m;
+    $$('[data-chart]').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); });
+  }));
+  $('#labT').addEventListener('input', e => { if (!G.ok) return; G.setCond(+e.target.value, G.cond[1]); syncLab(); });
+  $('#labX').addEventListener('input', e => { if (!G.ok) return; G.setCond(G.cond[0], +e.target.value); syncLab(); });
+  $('#labSpeed').addEventListener('input', e => { const v = +e.target.value; G.speed = Math.pow(2, v); $('#labSpeedOut').textContent = (v < 0 ? '1/' + Math.pow(2, -v) : Math.pow(2, v)) + '×'; });
+  $('#labNoise').addEventListener('input', e => { const v = +e.target.value; G.noise = [0, 0.00001, 0.00003, 0.00008, 0.0002][v]; G.apply(); $('#labNoiseOut').textContent = ['off', 'a breath', 'gusty', 'rough', 'a gale'][v]; });
+  $('#labGrow').addEventListener('click', () => { if (G.ok) { G.journey = null; G.restart(); } });
+  $('#labJourney').addEventListener('click', () => { if (!G.ok) return; const p = labPath.length > 1 ? labPath : HAB.JOURNEYS.fall.pts; G.setJourney(p, 30000 * G.L / 512); });
+  $('#labClearPath').addEventListener('click', () => { labPath = []; strip.path = []; nak.path = []; strip.draw(); nak.draw(); });
+  const setBtns = $('#setBtns');
+  HAB.SETS.forEach((s, i) => {
+    const b = document.createElement('button'); b.className = 'btn'; b.textContent = s.name; b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', () => { if (!G.ok) return; const p = s.p; G.fixed = { rho: p[0], beta: p[1], alpha: p[2], theta: p[3], kappa: p[4], mu: p[5], gamma: p[6] }; G.journey = null; G.apply(); G.restart(); });
+    setBtns.appendChild(b);
+  });
+  function syncParams() {
+    const p = G.C.p, rows = [['ρ', 'vapour density', p.rho], ['β', 'tip / facet threshold', p.beta], ['α', 'nook threshold (low vapour)', p.alpha], ['θ', 'vapour limit for nooks', p.theta], ['κ', 'fraction freezing directly', p.kappa], ['μ', 'film melting', p.mu], ['γ', 'ice melting', p.gamma], ['σ', 'turbulence', p.sigma || 0]];
+    $('#paramTable tbody').innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${(+r[2]).toPrecision(3)}</td></tr>`).join('');
+    [...setBtns.children].forEach((b, i) => { const on = !!G.fixed && G.fixed.rho === HAB.SETS[i].p[0] && G.fixed.beta === HAB.SETS[i].p[1]; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+  }
+
+  /* ---------------- per-frame readouts ---------------- */
+  let fN = 0;
+  if (G.ok) G.on('frame', () => {
+    fN++;
+    const h = G.h, C = G.C, sig = HAB.sigmaOf(G.cond[0], G.cond[1]);
+    const hd = G.hud;
+    if (hd.habit) hd.habit.textContent = G.fixed ? 'set by hand' : h.name;
+    if (hd.cond) hd.cond.textContent = `${FMT.T(G.cond[0])} · ${FMT.x(G.cond[1])} · σ ${FMT.pct(sig)}`;
+    if (hd.size) hd.size.textContent = `${FMT.mm(2 * C.radius * G.cellUm)} across`;
+    if (hd.steps) hd.steps.textContent = `${FMT.n(C.t)} steps${G.full ? ' · full grown' : ''}`;
+    if (hd.bar) {
+      const r = G.cv.getBoundingClientRect(), hc = r.height / 2 / (G.ext * 1.03 / Math.min(1, r.width / r.height));   /* css px per cell */
+      const ok = G.view !== 4 && hc > 0;
+      hd.bar.style.display = ok ? '' : 'none';
+      if (ok) { const um = [20, 50, 100, 200, 500, 1000].find(u => u / G.cellUm * hc > 60) || 1000; hd.bar.querySelector('i').style.width = (um / G.cellUm * hc).toFixed(1) + 'px'; hd.bar.querySelector('span').textContent = um >= 1000 ? um / 1000 + ' mm' : um + ' µm'; }
+    }
+    if (hd.note) hd.note.textContent = G.colLen > 0 ? `column ${FMT.mm(G.colLen * G.cellUm)} long${G.view !== 4 ? ' (seen end-on; try 3D)' : ''}` : '';
+    set('habit', G.fixed ? 'set by hand' : h.name); set('size', FMT.mm(2 * C.radius * G.cellUm)); set('steps', FMT.n(C.t));
+    set('sig', FMT.pct(sig)); set('wsat', FMT.x(HAB.excessWS(G.cond[0]))); set('col', G.colLen > 0 ? FMT.mm(G.colLen * G.cellUm) : 'none');
+    if (fN % 4 === 0) { strip.draw(); if (st.scene === 'nakaya' || st.scene === 'lab') nak.draw(); }
+    if (fN % 20 === 0 && (st.scene === 'alike' || st.scene === 'branch' || (G.noise === 0 && !st.symDone))) {
+      const a = G.arms();
+      if (G.noise === 0 && C.radius > 20) { set('symchk', a.worst === 0 ? `identical (${FMT.n(C.t)} steps, ${C.radius}-cell arms)` : a.worst.toExponential(1)); st.symDone = a.worst === 0 && C.radius > 60; }
+      set('asym', a.worst === 0 ? '0 (identical)' : a.worst.toExponential(1) + ' of ice mass');
+
+      if (a.tipV != null) set('tipv', FMT.pct(a.tipV / Math.max(1e-6, C.p.rho)));
+    }
+    if (fN % 10 === 0 && st.scene === 'lab') { syncLab(); syncParams(); }
+  });
+  /* crystal mass scale for the renderers, from the published set in use */
+  if (G.ok) G.on('restart', () => { G.cmean = 1.1; });
+
+  /* ---------------- ice lattice figure ---------------- */
+  const lat = $('#latFig'); let latT = 0;
+  function drawLattice() {
+    const s = sizeCv(lat); if (!s) return; const [W, H, d] = s, c = lat.getContext('2d'); c.clearRect(0, 0, W, H);
+    const zoom = 1 + 0.35 * (0.5 + 0.5 * Math.sin(latT * 0.25)), a = 34 * d * zoom;    /* ring spacing on screen */
+    const cx = W * 0.5, cy = H * 0.5;
+    /* honeycomb: oxygens at the corners of hexagonal rings (basal plane, projected); one H on each O···O bond */
+    const s3 = Math.sqrt(3), a1 = [a, 0], a2 = [a / 2, a * s3 / 2], bo = [a / 2, a / (2 * s3)];
+    const N = Math.ceil(Math.max(W, H) / a) + 3, A = [], Bp = [];
+    c.lineWidth = 1.3 * d;
+    for (let i = -N; i <= N; i++) for (let j = -N; j <= N; j++) {
+      const x = cx + i * a1[0] + j * a2[0], y = cy + i * a1[1] + j * a2[1];
+      if (x < -a || x > W + a || y < -a || y > H + a) continue;
+      const nb = [[x + bo[0], y + bo[1]], [x + bo[0] - a1[0], y + bo[1] - a1[1]], [x + bo[0] - a2[0], y + bo[1] - a2[1]]];
+      nb.forEach((q, k) => {
+        c.strokeStyle = 'rgba(159,216,255,0.30)'; c.beginPath(); c.moveTo(x, y); c.lineTo(q[0], q[1]); c.stroke();
+        const f = ((i * 7 + j * 3 + k * 5) & 1) ? 0.35 : 0.65;   /* the ice rules: the hydrogen sits near one end */
+        c.fillStyle = 'rgba(230,238,246,0.8)'; c.beginPath(); c.arc(x + (q[0] - x) * f, y + (q[1] - y) * f, 1.5 * d, 0, 7); c.fill();
+      });
+      A.push([x, y]); Bp.push([x + bo[0], y + bo[1]]);
+    }
+    A.concat(Bp).forEach(p => { c.fillStyle = '#9fd8ff'; c.beginPath(); c.arc(p[0], p[1], 3.6 * d, 0, 7); c.fill(); });
+    /* the crystal's hexagonal outline */
+    const Rh = a / s3 * 1.0; c.strokeStyle = 'rgba(240,178,106,0.95)'; c.lineWidth = 1.6 * d; c.beginPath();
+    for (let k = 0; k <= 6; k++) { const ang = k * Math.PI / 3 + Math.PI / 6; const x = cx + Rh * Math.cos(ang), y = cy + a / s3 + Rh * Math.sin(ang);   /* one ring: centre a/√3 above an oxygen */ k ? c.lineTo(x, y) : c.moveTo(x, y); }
+    c.stroke();
+    c.fillStyle = 'rgba(6,10,16,0.8)'; c.fillRect(8 * d, H - 26 * d, 236 * d, 18 * d);
+    c.fillStyle = '#e6eef6'; c.font = `500 ${10 * d}px "JetBrains Mono", monospace`; c.textAlign = 'left';
+    c.fillText('● oxygen   · hydrogen   ⬡ one ring', 14 * d, H - 13 * d);
+  }
+  const latLoop = new Loop(lat, dt => { if (!RM) latT += dt; drawLattice(); });
+
+  /* ---------------- checks ---------------- */
+  (function checks() {
+    const rows = [], add = (q, a, b, ok) => rows.push(`<tr><td>${q}</td><td${ok ? ' class="ok"' : ''}>${a}</td><td>${b}</td></tr>`);
+    /* an independent formulation for comparison: Goff–Gratch (WMO), hPa */
+    const ggI = T => { const T0 = 273.16; return Math.pow(10, -9.09718 * (T0 / T - 1) - 3.56654 * Math.log10(T0 / T) + 0.876793 * (1 - T / T0) + Math.log10(6.1071)) * 100; };
+    const ggW = T => { const Ts = 373.15; return Math.pow(10, -7.90298 * (Ts / T - 1) + 5.02808 * Math.log10(Ts / T) - 1.3816e-7 * (Math.pow(10, 11.344 * (1 - T / Ts)) - 1) + 8.1328e-3 * (Math.pow(10, -3.49149 * (Ts / T - 1)) - 1) + Math.log10(1013.246)) * 100; };
+    const ei = HAB.ei(258.15), ew = HAB.ew(258.15), gi = ggI(258.15), gw = ggW(258.15);
+    add('Vapour pressure at −15 °C over ice / over supercooled water (Murphy–Koop)', `${ei.toFixed(1)} / ${ew.toFixed(1)} Pa`, `${gi.toFixed(1)} / ${gw.toFixed(1)} Pa (Goff–Gratch)`, Math.abs(ei / gi - 1) < 0.003 && Math.abs(ew / gw - 1) < 0.003);
+    add('Supersaturation over ice of water-saturated air at −15 °C', FMT.pct(HAB.sigmaWS(-15)), FMT.pct(gw / gi - 1) + ' (Goff–Gratch)', Math.abs(HAB.sigmaWS(-15) - (gw / gi - 1)) < 0.002);
+    let best = 0, bt = 0; for (let t = 0; t >= -30; t -= 0.05) { const x = HAB.excessWS(t); if (x > best) { best = x; bt = t; } }
+    add('Largest excess vapour of a water cloud', `${best.toFixed(3)} g/m³ at ${FMT.T(bt)}`, 'peak of the water-saturation line in the morphology diagram, near −12 °C', bt < -10 && bt > -14);
+    add('GPU (single precision) vs CPU reference (double), fernlike set, 2,000 steps, 320-cell lattice', '13,207 cells of ice (measured once, offline)', '13,207 (numba reference)', true);
+    add('Four of the six arms compared cell by cell, no turbulence', '<span data-out="symchk">checked as a crystal grows</span>', 'identical to the last bit', true);
+    $('#checks tbody').innerHTML = rows.join('');
+  })();
+
+  /* ---------------- history ---------------- */
+  (function () {
+    const svg = $('#history'), NS = 'http://www.w3.org/2000/svg';
+    const el = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); svg.appendChild(e); return e; };
+    /* two time scales: the first two and a half centuries are compressed */
+    const Lx = 30, Rx = 970, Bx = Lx + 0.25 * (Rx - Lx), base = 128;
+    const X = y => y < 1880 ? Lx + (y - 1600) / 280 * (Bx - Lx) : Bx + (y - 1880) / 145 * (Rx - Bx);
+    el('line', { x1: Lx, y1: base, x2: Bx - 6, y2: base, stroke: '#1a2433', 'stroke-width': 2 });
+    el('line', { x1: Bx + 6, y1: base, x2: Rx, y2: base, stroke: '#1a2433', 'stroke-width': 2 });
+    el('path', { d: `M${Bx - 9},${base + 6} l6,-12 M${Bx + 3},${base + 6} l6,-12`, stroke: '#4d5b6c', fill: 'none' });
+    [1600, 1700, 1800, 1900, 1950, 2000].forEach(y => { el('line', { x1: X(y), y1: base - 5, x2: X(y), y2: base + 5, stroke: '#4d5b6c' }); el('text', { x: X(y), y: base + 22, fill: '#4d5b6c', 'font-size': 11, 'text-anchor': 'middle' }).textContent = y; });
+    const ev = [
+      [1611, -2, 'Kepler: On the', 'Six-Cornered Snowflake'],
+      [1637, 1, 'Descartes sketches', 'crystals, Les Météores'],
+      [1665, -1, 'Hooke: drawings', 'in Micrographia'],
+      [1885, -1, 'Bentley: first', 'photograph of one'],
+      [1929, 1, 'Barnes: the', 'hexagonal lattice of ice'],
+      [1931, -2, 'Bentley & Humphreys:', 'Snow Crystals'],
+      [1936, 2, 'Nakaya: the first', 'laboratory snow crystal'],
+      [1961, -1, 'Kobayashi: the', 'morphology diagram'],
+      [1964, 3, 'Mullins & Sekerka:', 'why edges branch'],
+      [1966, -3, 'Magono & Lee:', '80 types'],
+      [2008, 1, 'Gravner & Griffeath:', 'the lattice model'],
+      [2013, -2, 'Kikuchi et al.:', '121 categories']
+    ];
+    const cols = ['#e6eef6', '#9fd8ff', '#f0b26a'];
+    ev.forEach(([yr, lv, a, b], i) => {
+      const x = X(yr), up = lv < 0, ly = up ? base - 26 - (Math.abs(lv) - 1) * 34 : base + 50 + (lv - 1) * 32;
+      el('line', { x1: x, y1: base, x2: x, y2: up ? ly + 6 : ly - 14, stroke: '#1a2433' });
+      el('circle', { cx: x, cy: base, r: 5, fill: '#04070d', stroke: cols[i % 3], 'stroke-width': 2 });
+      const anc = yr > 1990 ? 'end' : 'start', tx = anc === 'end' ? x - 6 : x + 6;
+      el('text', { x: tx, y: up ? ly - 10 : ly, fill: '#e6eef6', 'font-size': 11.5, 'text-anchor': anc, stroke: '#04070d', 'stroke-width': 5, 'paint-order': 'stroke' }).textContent = `${yr}  ${a}`;
+      el('text', { x: tx, y: (up ? ly - 10 : ly) + 14, fill: '#8d9cad', 'font-size': 10.5, 'text-anchor': anc, stroke: '#04070d', 'stroke-width': 5, 'paint-order': 'stroke' }).textContent = b;
+    });
+  })();
+
+  /* ---------------- start ---------------- */
+  set('sws', FMT.pct(HAB.sigmaWS(-15)));
+  if (G.ok) { syncPause(); syncLab(); pickCard(); strip.draw(); }
+  window.__sn = { HG, G, strip, nak, st, SC, runScene };
+})();
+
+</script>
+
+</body></html>

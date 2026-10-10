@@ -12,7 +12,8 @@ const LIBS = [
   ['React', /react(?:-dom)?(?:\.production)?(?:\.min)?\.js|react@\d|React\.createElement|ReactDOM\.|createRoot\(/],
   ['Pyodide', /pyodide/i],
   ['KaTeX', /katex(?:\.min)?\.(?:js|css)|katex@\d/],
-  ['Chart.js', /chart(?:\.umd)?(?:\.min)?\.js|chart\.js@\d|new Chart\(/],
+  // A script URL or Chart.register, not `new Chart(`: pages often have a Chart class of their own.
+  ['Chart.js', /chart\.js@\d|\/Chart\.js\/\d|["'\/]chart(?:\.umd)?(?:\.min)?\.js\b|["']chart\.js(?:\/auto)?["']|Chart\.register\(/],
   ['Plotly', /plotly(?:-[\w.]+)?(?:\.min)?\.js|Plotly\.newPlot/],
   ['Matter.js', /matter(?:\.min)?\.js|Matter\.Engine/],
   ['Leaflet', /leaflet(?:\.min)?\.js|leaflet@\d|\bL\.map\(\s*['"]/],
@@ -78,11 +79,18 @@ export function detect(source) {
     privateLinks,
     localStorage: /localStorage/.test(source),
     // Which GPU context the piece needs, so its page can say when the browser has none.
-    gl: /getContext\(\s*['"`]webgl2['"`]|WebGL2RenderingContext/.test(source)
+    gl: /getContext\(\s*['"`]webgl2['"`]|WebGL2RenderingContext/.test(source) || (libraries.includes('three.js') && threeRevision(source) >= 163)
       ? 'webgl2'
       : apis.includes('WebGL') || libraries.includes('three.js') ? 'webgl' : null,
     animated: /requestAnimationFrame/.test(source),
   };
+}
+
+// three.js revision from a CDN URL (three@0.170.0, three.js/0.170.0, three.js/r128) or an inlined
+// REVISION constant. From r163 on, three.js runs on WebGL2 only.
+function threeRevision(source) {
+  const m = source.match(/three(?:\.js)?(?:@|\/)(?:0\.|r)(\d{2,3})\b/) || source.match(/REVISION\s*=\s*["'](\d{2,3})/);
+  return m ? Number(m[1]) : 0;
 }
 
 // The one-line "medium" shown on tags: what it is made of.
