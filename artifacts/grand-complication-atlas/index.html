@@ -1,0 +1,2488 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Grand Complication Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: full-bleed WebGL bench. UI reads like a horological drawing: a title block,
+   a plate caption panel (right on desktop, bottom sheet on phones), balloon callouts
+   numbered to the parts list, and a transport dock for time. Dark-first. */
+:root {
+  --bg: #0c0f14;
+  --stage-hi: #1d2430;
+  --stage-lo: #07090c;
+  --panel: rgba(16, 20, 27, 0.86);
+  --panel-solid: #12161d;
+  --ink: #ece6da;
+  --ink-2: #a3a9b4;
+  --ink-3: #6f7682;
+  --rule: rgba(236, 230, 218, 0.13);
+  --rule-2: rgba(236, 230, 218, 0.24);
+  --brass: #d9b06a;
+  --brass-ink: #1a1307;
+  --brass-tint: rgba(217, 176, 106, 0.14);
+  --ruby: #e2566d;
+  --blued: #8fa6ff;
+  --axis: #9aa4b2;
+  --shadow: 0.85;
+  --grid: rgba(236, 230, 218, 0.035);
+  --display: "Bodoni Moda", "Bodoni 72", Didot, "Times New Roman", serif;
+  --ui: Barlow, "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #e4e8ec; --stage-hi: #f7f8f9; --stage-lo: #c9d0d7; --panel: rgba(248, 249, 250, 0.9); --panel-solid: #f6f7f8;
+    --ink: #141922; --ink-2: #4a5361; --ink-3: #7a8390; --rule: rgba(20, 25, 34, 0.13); --rule-2: rgba(20, 25, 34, 0.26);
+    --brass: #8a5f12; --brass-ink: #fff9ec; --brass-tint: rgba(138, 95, 18, 0.1); --ruby: #b0233c; --blued: #2c48b0;
+    --axis: #5d6775; --shadow: 0.42; --grid: rgba(20, 25, 34, 0.045); color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #e4e8ec; --stage-hi: #f7f8f9; --stage-lo: #c9d0d7; --panel: rgba(248, 249, 250, 0.9); --panel-solid: #f6f7f8;
+  --ink: #141922; --ink-2: #4a5361; --ink-3: #7a8390; --rule: rgba(20, 25, 34, 0.13); --rule-2: rgba(20, 25, 34, 0.26);
+  --brass: #8a5f12; --brass-ink: #fff9ec; --brass-tint: rgba(138, 95, 18, 0.1); --ruby: #b0233c; --blued: #2c48b0;
+  --axis: #5d6775; --shadow: 0.42; --grid: rgba(20, 25, 34, 0.045); color-scheme: light;
+}
+html, body { height: 100%; }
+body {
+  margin: 0; overflow: hidden; color: var(--ink); font: 400 15px/1.5 var(--ui);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent;
+}
+#app { position: fixed; inset: 0; overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 60% at 38% 42%, var(--stage-hi), transparent 72%),
+    repeating-linear-gradient(0deg, var(--grid) 0 1px, transparent 1px 40px),
+    repeating-linear-gradient(90deg, var(--grid) 0 1px, transparent 1px 40px),
+    linear-gradient(var(--stage-lo), var(--stage-lo));
+}
+#stage { position: absolute; inset: 0; touch-action: none; }
+#stage canvas { display: block; touch-action: none; cursor: grab; }
+#stage canvas:active { cursor: grabbing; }
+#leaders { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+#leaders line { stroke: var(--brass); stroke-width: 1; transition: opacity .25s; }
+#balloons { position: absolute; inset: 0; pointer-events: none; }
+.balloon {
+  position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 7px; white-space: nowrap;
+  padding: 3px 10px 3px 3px; border-radius: 999px; background: var(--panel); border: 1px solid var(--rule-2);
+  font: 500 12.5px/1 var(--ui); color: var(--ink); pointer-events: auto; cursor: pointer; transition: opacity .25s;
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+.balloon .bn { display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 4px; box-sizing: border-box; border-radius: 999px;
+  border: 1px solid var(--brass); color: var(--brass); font: 500 10.5px/1 var(--mono); font-variant-numeric: tabular-nums; }
+
+/* ---------- title block + clock */
+#topbar { position: fixed; top: 0; left: 0; right: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) 20px 0; pointer-events: none; z-index: 5; }
+#topbar > * { pointer-events: auto; }
+.tb { display: grid; gap: 4px; }
+.tb-name { font: 500 23px/1.05 var(--display); letter-spacing: 0.01em; text-wrap: balance; }
+.tb-name i { font-style: italic; color: var(--brass); }
+.tb-sub { font: 600 10.5px/1.3 var(--ui); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); }
+#clock { display: grid; justify-items: start; gap: 4px; border-left: 1px solid var(--rule-2); padding-left: 16px; }
+.ck-time { font: 500 26px/1 var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.ck-date { font: 500 12.5px/1.2 var(--ui); color: var(--ink-2); }
+.ck-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.status { font: 600 11px/1 var(--ui); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); padding: 5px 8px 5px 18px; border-radius: 999px; border: 1px solid var(--rule); position: relative; }
+.status::before { content: ""; position: absolute; left: 7px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--ink-3); }
+.status[data-state="live"]::before { background: var(--ruby); animation: beat 0.4s steps(2) infinite; }
+.status[data-state="slow"]::before { background: var(--blued); }
+.status[data-state="fast"]::before, .status[data-state="busy"]::before { background: var(--brass); }
+.status[data-state="warn"] { color: var(--ruby); border-color: var(--ruby); }
+@keyframes beat { 50% { opacity: .35; } }
+.leftcol { display: flex; gap: 18px; align-items: flex-start; }
+
+/* ---------- buttons */
+button { font: inherit; color: inherit; }
+.act, .rate, .chip, #dock button, .sh-nav button, #plIndex button {
+  appearance: none; border: 1px solid var(--rule-2); background: transparent; color: var(--ink); border-radius: 6px;
+  font: 500 13px/1 var(--ui); padding: 9px 12px; cursor: pointer; transition: background .15s, border-color .15s, color .15s; white-space: nowrap;
+}
+.act:hover, #dock button:hover, .sh-nav button:hover:not(:disabled) { border-color: var(--brass); }
+.act.primary { background: var(--brass); color: var(--brass-ink); border-color: var(--brass); font-weight: 600; }
+.act.primary.down { filter: brightness(1.12); transform: translateY(1px); }
+[aria-pressed="true"].act, [aria-pressed="true"].rate, #dock [aria-pressed="true"] { background: var(--brass-tint); border-color: var(--brass); color: var(--brass); }
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+button:disabled { opacity: .35; cursor: default; }
+
+/* ---------- plate panel */
+#sheet { position: fixed; top: 16px; right: 16px; bottom: 16px; width: 392px; display: flex; flex-direction: column; z-index: 6;
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+.sh-head { display: flex; align-items: flex-start; gap: 12px; padding: 18px 18px 12px 22px; border-bottom: 1px solid var(--rule); }
+.sh-handle { all: unset; flex: 1; min-width: 0; display: grid; gap: 6px; cursor: default; }
+.sh-handle:focus-visible { outline: 2px solid var(--brass); outline-offset: 4px; border-radius: 4px; }
+#plKicker { font: 600 11px/1 var(--ui); letter-spacing: 0.16em; text-transform: uppercase; color: var(--brass); }
+#plTitle { font: 500 30px/1.08 var(--display); text-wrap: balance; }
+.sh-nav { display: flex; gap: 6px; padding-top: 2px; }
+.sh-nav button { width: 38px; height: 38px; padding: 0; font: 400 20px/1 var(--display); }
+.sh-scroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 4px 22px 18px; display: grid; gap: 14px; align-content: start; }
+#plBody { font-size: 15.5px; line-height: 1.58; color: var(--ink); max-width: 62ch; }
+#plBody p { margin: 12px 0 0; }
+#plBody b { font-weight: 600; color: var(--brass); font-variant-numeric: tabular-nums; }
+#plBody a { color: var(--brass); }
+#plBody .sources { font-size: 12.5px; color: var(--ink-2); }
+table.ratio, table.facts { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; font-variant-numeric: tabular-nums; }
+table.ratio th, table.facts th { text-align: left; font: 600 10.5px/1.3 var(--ui); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); padding: 6px 6px 6px 0; border-bottom: 1px solid var(--rule-2); }
+table.ratio td, table.facts td { padding: 7px 6px 7px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.ratio td:nth-child(2) { font-family: var(--mono); color: var(--brass); white-space: nowrap; }
+table.facts td:first-child { color: var(--ink-2); white-space: nowrap; }
+table.facts td:last-child { color: var(--brass); }
+#plActions { display: flex; flex-wrap: wrap; gap: 8px; }
+.seg { display: grid; gap: 6px; width: 100%; }
+.seg-l { font: 600 10.5px/1 var(--ui); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+.seg-row { display: flex; gap: 6px; flex-wrap: wrap; }
+#plNote { font-size: 13.5px; line-height: 1.5; color: var(--ink); border-left: 2px solid var(--brass); padding: 2px 0 2px 12px; margin: 0; }
+#plReadouts { display: grid; grid-template-columns: 1fr; margin: 0; border-top: 1px solid var(--rule-2); }
+.ro { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--rule); }
+.ro dt { font: 600 10.5px/1.2 var(--ui); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
+.ro dd { margin: 0; font: 500 13px/1.25 var(--mono); font-variant-numeric: tabular-nums; text-align: right; color: var(--ink); min-width: 0; }
+.phases { display: inline-flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.phases i { font-style: normal; font: 500 11px/1 var(--ui); padding: 4px 6px; border-radius: 4px; color: var(--ink-3); border: 1px solid var(--rule); }
+.phases i.on { color: var(--brass-ink); background: var(--brass); border-color: var(--brass); }
+#plIndex { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 3px; padding: 12px 18px 16px 22px; border-top: 1px solid var(--rule); }
+#plIndex button { padding: 7px 0; min-width: 0; font: 500 12px/1 var(--display); color: var(--ink-2); border-color: transparent; }
+#plIndex button[aria-current="step"] { color: var(--brass); border-color: var(--brass); }
+
+/* ---------- dock */
+#dock { position: fixed; left: 16px; right: 432px; bottom: 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; z-index: 5;
+  padding: 8px; background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+#rates { display: flex; gap: 2px; padding: 2px; border: 1px solid var(--rule); border-radius: 8px; }
+#rates .rate { border-color: transparent; padding: 8px 10px; font-variant-numeric: tabular-nums; }
+#dock #btnNow { color: var(--ruby); border-color: var(--ruby); }
+.explode { display: flex; align-items: center; gap: 8px; font: 600 10.5px/1 var(--ui); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); flex: 1; min-width: 150px; }
+.explode input { flex: 1; min-width: 80px; accent-color: var(--brass); }
+#btnSound span, #btnLayers span { pointer-events: none; }
+
+/* ---------- layers + part card */
+#layersPanel, #partCard { position: fixed; left: 16px; bottom: 84px; z-index: 7; background: var(--panel-solid); border: 1px solid var(--rule-2); border-radius: 10px; box-shadow: 0 18px 50px rgba(0,0,0,.3); }
+#layersPanel { width: 290px; padding: 12px; left: auto; right: 432px; }
+#layersPanel h3, #partCard h3 { margin: 0; }
+.lp-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.lp-head h3 { font: 600 11px/1 var(--ui); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); }
+#layerList { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.lrow { display: grid; grid-template-columns: 30px 28px 1fr; align-items: center; gap: 4px; }
+.lrow .lk { font: 500 11px/1 var(--mono); color: var(--ink-3); text-align: right; font-variant-numeric: tabular-nums; }
+.lrow .lname { all: unset; cursor: pointer; padding: 7px 6px; border-radius: 5px; font: 500 13.5px/1.1 var(--ui); }
+.lrow .lname:hover, .lrow .lname:focus-visible { background: var(--brass-tint); color: var(--brass); }
+.lrow .eye { width: 26px; height: 26px; padding: 0; border-radius: 50%; border: 1px solid var(--rule-2); background: transparent; cursor: pointer; position: relative; }
+.lrow .eye[aria-pressed="true"]::after { content: ""; position: absolute; inset: 7px; border-radius: 50%; background: var(--brass); }
+#partCard { width: 340px; padding: 16px 18px; display: grid; gap: 10px; }
+.pc-top { display: flex; gap: 10px; align-items: flex-start; }
+#pcNum { flex: none; display: grid; place-items: center; min-width: 30px; height: 30px; border-radius: 999px; border: 1px solid var(--brass); color: var(--brass); font: 500 12px/1 var(--mono); }
+.pc-t { flex: 1; min-width: 0; display: grid; gap: 4px; }
+#pcKind { font: 600 10.5px/1 var(--ui); letter-spacing: 0.14em; text-transform: uppercase; color: var(--brass); }
+#pcName { font: 500 21px/1.1 var(--display); }
+#pcDesc { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink); }
+.pc-specs { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: 12.5px; }
+.pc-specs dt { font: 600 10.5px/1.5 var(--ui); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
+.pc-specs dd { margin: 0; font: 500 12.5px/1.5 var(--mono); color: var(--ink); min-width: 0; }
+.pc-btns { display: flex; gap: 8px; }
+#pcClose { margin-left: auto; }
+
+#loading { position: fixed; inset: 0; display: grid; place-items: center; z-index: 20; background: var(--bg); transition: opacity .6s; text-align: center; padding: 0 24px; }
+#loading.done { opacity: 0; pointer-events: none; }
+#loading p { font: 500 italic 20px/1.4 var(--display); color: var(--ink-2); max-width: 30ch; }
+
+/* ---------- phones and small tablets */
+@media (max-width: 899px) {
+  #topbar { padding: calc(env(safe-area-inset-top, 0px) + 10px) 14px 10px; background: linear-gradient(var(--bg), transparent); }
+  .tb-name { font-size: 18px; }
+  .tb-sub { display: none; }
+  #clock { border-left: 0; padding-left: 0; justify-items: end; }
+  .ck-time { font-size: 19px; }
+  .ck-date { font-size: 11.5px; }
+  .ck-row { justify-content: flex-end; }
+  .status { font-size: 10px; padding: 4px 7px 4px 16px; }
+  .status .more { display: none; }
+  #sheet { top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: min(40vh, 380px); border-radius: 14px 14px 0 0; border-bottom: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .sh-head { padding: 12px 12px 10px 16px; }
+  .sh-handle { cursor: pointer; }
+  .sh-handle::before { content: ""; justify-self: center; width: 36px; height: 4px; border-radius: 2px; background: var(--rule-2); margin: -4px 0 4px; grid-column: 1; }
+  #plTitle { font-size: 23px; }
+  .sh-scroll { padding: 0 16px 12px; }
+  #plBody { font-size: 15px; }
+  #plIndex { padding: 8px 12px 10px 16px; gap: 2px; }
+  #plIndex button { font-size: 11px; }
+  #sheet.collapsed .sh-scroll, #sheet.collapsed #plIndex { display: none; }
+  #dock { left: 8px; right: 8px; bottom: calc(var(--sheet-h, 260px) + 8px); flex-wrap: nowrap; overflow-x: auto; padding: 6px; gap: 6px; scrollbar-width: none; }
+  #dock::-webkit-scrollbar { display: none; }
+  #rates .rate { padding: 8px 8px; font-size: 12.5px; }
+  .explode { min-width: 120px; flex: none; }
+  .explode input { width: 90px; }
+  #layersPanel, #partCard { left: 8px; right: 8px; width: auto; bottom: calc(var(--sheet-h, 260px) + 62px); max-height: 50vh; overflow-y: auto; }
+  .balloon { font-size: 11px; padding: 2px 8px 2px 2px; gap: 5px; }
+  .balloon .bn { min-width: 17px; height: 17px; font-size: 9.5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .status[data-state="live"]::before { animation: none; }
+  #loading, .balloon, #leaders line { transition: none; }
+}
+</style>
+
+<div id="app">
+  <div id="stage"></div>
+  <svg id="leaders" aria-hidden="true"></svg>
+  <div id="balloons"></div>
+
+  <header id="topbar">
+    <div class="leftcol">
+      <div class="tb">
+        <div class="tb-name">Grand Complication <i>Atlas</i></div>
+        <div class="tb-sub">Calibre A-1 · working model after the Berkley</div>
+      </div>
+      <section id="clock" aria-label="Time shown by the watch">
+        <div class="ck-time" id="ckTime">--:--:--</div>
+        <div class="ck-date" id="ckDate">&nbsp;</div>
+        <div class="ck-row"><span id="ckStatus" class="status" data-state="live">Live</span></div>
+      </section>
+    </div>
+  </header>
+
+  <aside id="sheet" aria-label="Plates">
+    <div class="sh-head">
+      <button id="shToggle" class="sh-handle" aria-expanded="true" aria-controls="shScroll">
+        <span id="plKicker">Plate I of XII</span>
+        <span id="plTitle">The watch</span>
+      </button>
+      <div class="sh-nav">
+        <button id="prev" aria-label="Previous plate">‹</button>
+        <button id="next" aria-label="Next plate">›</button>
+      </div>
+    </div>
+    <div class="sh-scroll" id="shScroll">
+      <div id="plBody"></div>
+      <p id="plNote" hidden></p>
+      <div id="plActions"></div>
+      <dl id="plReadouts"></dl>
+    </div>
+    <nav id="plIndex" aria-label="All plates"></nav>
+  </aside>
+
+  <div id="dock">
+    <div id="rates" role="group" aria-label="Speed"></div>
+    <button id="btnNow" hidden>Back to now</button>
+    <label class="explode"><span>Explode</span><input type="range" id="explode" min="0" max="100" value="0" aria-label="Explode the movement"></label>
+    <button id="btnLayers" aria-expanded="false" aria-controls="layersPanel"><span>Layers</span></button>
+    <button id="btnSound" aria-pressed="false"><span>Sound off</span></button>
+  </div>
+
+  <div id="layersPanel" hidden>
+    <div class="lp-head"><h3>Layers, front to back</h3><button id="showAll" class="act">Show all</button></div>
+    <ul id="layerList"></ul>
+  </div>
+
+  <div id="partCard" hidden role="dialog" aria-labelledby="pcName">
+    <div class="pc-top">
+      <span id="pcNum">0</span>
+      <div class="pc-t"><span id="pcKind"></span><h3 id="pcName"></h3></div>
+    </div>
+    <p id="pcDesc"></p>
+    <dl class="pc-specs">
+      <dt>Teeth</dt><dd id="pcTeeth"></dd>
+      <dt>Speed</dt><dd id="pcRate"></dd>
+      <dt>Layer</dt><dd id="pcLayer"></dd>
+    </dl>
+    <div class="pc-btns"><button id="pcIsolate" class="act">Isolate</button><button id="pcClose" class="act">Close</button></div>
+  </div>
+
+  <div id="loading"><p>Cutting gear teeth…</p></div>
+</div>
+
+<script type="module">
+// ============================================================================
+// CORE — math helpers, tooth profiles, outlines, procedural textures
+// Units: millimetres. Watch frame: x right, y toward 12 o'clock, z out of the dial.
+// ============================================================================
+import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.170.0/three.module.min.js';
+
+const TAU = Math.PI * 2, D2R = Math.PI / 180;
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const smooth = t => { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); };
+const easeInOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const V2 = (x, y) => new THREE.Vector2(x, y);
+const P = (r, a) => V2(r * Math.cos(a), r * Math.sin(a));
+const fmod = (a, n) => ((a % n) + n) % n;
+
+function circleIntersect(c1, r1, c2, r2, side = 1) {
+  const dx = c2[0] - c1[0], dy = c2[1] - c1[1];
+  const d = Math.hypot(dx, dy);
+  const a = (r1 * r1 - r2 * r2 + d * d) / (2 * d);
+  const h = Math.sqrt(Math.max(0, r1 * r1 - a * a));
+  const px = c1[0] + a * dx / d, py = c1[1] + a * dy / d;
+  return [px - side * h * dy / d, py + side * h * dx / d];
+}
+const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+
+// ---------------------------------------------------------------- outlines
+// Cycloidal-style wheel: radial flanks below the pitch circle, ogival addendum.
+function wheelOutline(z, m, o = {}) {
+  const rp = m * z / 2, ra = rp + (o.add ?? 1.3) * m, rf = rp - (o.ded ?? 1.6) * m;
+  const pa = TAU / z, beta = (o.thick ?? 0.44) * pa / 2;
+  const nT = o.nTip ?? (z > 60 ? 3 : 4), nR = o.nRoot ?? 2;
+  const pts = [];
+  for (let i = 0; i < z; i++) {
+    const c = i * pa;
+    pts.push(P(rf, c - beta), P(rp, c - beta));
+    for (let j = 1; j < nT; j++) { const f = j / nT * Math.PI / 2; pts.push(P(rp + (ra - rp) * Math.sin(f), c - beta * Math.pow(Math.cos(f), 1.25))); }
+    pts.push(P(ra, c));
+    for (let j = nT - 1; j >= 1; j--) { const f = j / nT * Math.PI / 2; pts.push(P(rp + (ra - rp) * Math.sin(f), c + beta * Math.pow(Math.cos(f), 1.25))); }
+    pts.push(P(rp, c + beta), P(rf, c + beta));
+    const a0 = c + beta, a1 = c + pa - beta;
+    for (let j = 1; j < nR; j++) pts.push(P(rf, a0 + (a1 - a0) * j / nR));
+  }
+  return pts;
+}
+
+// Pinion: parallel-sided leaves with semicircular tips, deep spaces.
+function pinionOutline(z, m) {
+  const rp = m * z / 2, rf = rp - 1.55 * m, w = 0.55 * m;
+  const pts = [];
+  for (let i = 0; i < z; i++) {
+    const c = i * TAU / z, u = V2(Math.cos(c), Math.sin(c)), t = V2(-Math.sin(c), Math.cos(c));
+    const at = (r, s) => V2(u.x * r + t.x * s, u.y * r + t.y * s);
+    const rb = Math.sqrt(Math.max(rf * rf - w * w, 0.01));
+    pts.push(at(rb, -w), at(rp, -w));
+    for (let j = 1; j < 6; j++) { const f = j / 6 * Math.PI; pts.push(at(rp + w * Math.sin(f), -w * Math.cos(f))); }
+    pts.push(at(rp, w), at(rb, w));
+    const a0 = Math.atan2(at(rb, w).y, at(rb, w).x);
+    const cn = (i + 1) * TAU / z, un = V2(Math.cos(cn), Math.sin(cn)), tn = V2(-Math.sin(cn), Math.cos(cn));
+    const nb = V2(un.x * rb - tn.x * w, un.y * rb - tn.y * w);
+    let a1 = Math.atan2(nb.y, nb.x); while (a1 < a0) a1 += TAU;
+    for (let j = 1; j < 4; j++) pts.push(P(rf * 0.98, a0 + (a1 - a0) * j / 4));
+  }
+  return pts;
+}
+
+// Calendar star: triangular teeth with rounded tips.
+function starOutline(z, rTip, rRoot) {
+  const pts = [], pa = TAU / z;
+  for (let i = 0; i < z; i++) {
+    const c = i * pa;
+    pts.push(P(rTip - (rTip - rRoot) * 0.12, c - pa * 0.06), P(rTip, c), P(rTip - (rTip - rRoot) * 0.12, c + pa * 0.06));
+    pts.push(P(rRoot, c + pa * 0.5));
+  }
+  return pts;
+}
+
+// Ratchet: sawtooth, drives clockwise (from the back) when wound.
+function ratchetOutline(z, rTip, rRoot) {
+  const pts = [], pa = TAU / z;
+  for (let i = 0; i < z; i++) {
+    const c = i * pa;
+    pts.push(P(rRoot, c), P(rTip, c + pa * 0.78), P(rTip * 0.995, c + pa * 0.86), P(rRoot, c + pa * 0.98));
+  }
+  return pts;
+}
+
+// Swiss lever escape wheel, club teeth pointing in the clockwise (−angle) direction.
+function escapeOutline(z, R) {
+  const pts = [], p = TAU / z, rr = R * 0.62;
+  for (let i = 0; i < z; i++) {
+    const c = i * p;
+    pts.push(P(rr, c + 0.2 * p));             // locking-face base (behind the tip: draw angle)
+    pts.push(P(R * 0.82, c + 0.1 * p));
+    pts.push(P(R, c));                        // locking corner
+    pts.push(P(R * 0.99, c + 0.1 * p));       // impulse face of the club
+    pts.push(P(R * 0.955, c + 0.24 * p));
+    pts.push(P(R * 0.92, c + 0.3 * p));       // heel
+    pts.push(P(R * 0.84, c + 0.34 * p));      // back of tooth
+    pts.push(P(R * 0.74, c + 0.42 * p));
+    pts.push(P(rr, c + 0.56 * p));
+    for (let j = 1; j < 3; j++) pts.push(P(rr * 0.995, c + 0.56 * p + 0.64 * p * j / 3));
+  }
+  return pts;
+}
+
+// Stepped cam: radii[i] spans equal angular sectors, counter-clockwise.
+function snailOutline(radii, start = 0) {
+  const n = radii.length, pts = [], s = TAU / n;
+  for (let i = 0; i < n; i++) {
+    const a0 = start + i * s, a1 = a0 + s, r = radii[i];
+    for (let j = 0; j <= 6; j++) pts.push(P(r, a0 + (a1 - a0) * j / 6));
+  }
+  return pts;
+}
+
+const circlePts = (r, n = 48, cx = 0, cy = 0, a0 = 0) => Array.from({ length: n }, (_, i) => V2(cx + r * Math.cos(a0 + i * TAU / n), cy + r * Math.sin(a0 + i * TAU / n)));
+
+function chaikin(pts, it = 2) {
+  for (let k = 0; k < it; k++) {
+    const out = [], n = pts.length;
+    for (let i = 0; i < n; i++) {
+      const p = pts[i], q = pts[(i + 1) % n];
+      out.push(V2(p.x * .75 + q.x * .25, p.y * .75 + q.y * .25), V2(p.x * .25 + q.x * .75, p.y * .25 + q.y * .75));
+    }
+    pts = out;
+  }
+  return pts;
+}
+
+// Windows between spokes ("crossings"). curve > 0 sweeps the spokes.
+function spokeHoles(n, rh, rr, w, curve = 0, phase = 0) {
+  if (rr - rh < 0.12) return [];
+  const holes = [], seg = 10, span = rr - rh;
+  const half = r => { const s = (r - rh) / span; return Math.asin(Math.min(0.95, w * (1.25 - 0.45 * s) / r)); };
+  const cen = (i, r) => phase + i * TAU / n + curve * Math.pow((r - rh) / span, 1.4);
+  for (let i = 0; i < n; i++) {
+    const pts = [];
+    const aIn0 = cen(i, rh) + half(rh), aIn1 = cen(i + 1, rh) - half(rh);
+    if (aIn1 <= aIn0) continue;
+    for (let j = 0; j <= seg; j++) pts.push(P(rh, aIn0 + (aIn1 - aIn0) * j / seg));
+    for (let j = 1; j < seg; j++) { const r = rh + span * j / seg; pts.push(P(r, cen(i + 1, r) - half(r))); }
+    const aOut1 = cen(i + 1, rr) - half(rr), aOut0 = cen(i, rr) + half(rr);
+    for (let j = 0; j <= seg * 2; j++) pts.push(P(rr, aOut1 + (aOut0 - aOut1) * j / (seg * 2)));
+    for (let j = seg - 1; j >= 1; j--) { const r = rh + span * j / seg; pts.push(P(r, cen(i, r) + half(r))); }
+    holes.push(chaikin(pts, 2));
+  }
+  return holes;
+}
+
+function convexHull(points) {
+  const p = points.map(v => [v.x, v.y]).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lo = [], up = [];
+  for (const q of p) { while (lo.length >= 2 && cross(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+  for (let i = p.length - 1; i >= 0; i--) { const q = p[i]; while (up.length >= 2 && cross(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+  up.pop(); lo.pop();
+  return lo.concat(up).map(a => V2(a[0], a[1]));
+}
+const hullOfCircles = circles => convexHull(circles.flatMap(c => circlePts(c[2], 40, c[0], c[1])));
+
+function extrude(outline, holes = [], depth = 0.2, bevel = 0) {
+  const shape = new THREE.Shape(outline);
+  for (const h of holes) shape.holes.push(new THREE.Path(h));
+  const g = new THREE.ExtrudeGeometry(shape, {
+    depth, steps: 1, curveSegments: 6,
+    bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel, bevelOffset: -bevel, bevelSegments: 1
+  });
+  g.translate(0, 0, -depth / 2);
+  return g;
+}
+const boreHole = (r, n = 20) => circlePts(r, n).reverse();
+
+// Rectangular-section sweep (hairspring, mainspring). Rewritten in place each update.
+class Strip {
+  constructor(maxPts, material) {
+    this.max = maxPts;
+    const g = new THREE.BufferGeometry();
+    this.pos = new Float32Array(maxPts * 4 * 3);
+    g.setAttribute('position', new THREE.BufferAttribute(this.pos, 3));
+    const idx = [];
+    for (let i = 0; i < maxPts - 1; i++) {
+      for (let f = 0; f < 4; f++) {
+        const a = i * 4 + f, b = i * 4 + (f + 1) % 4, c = a + 4, d = b + 4;
+        idx.push(a, c, b, b, c, d);
+      }
+    }
+    g.setIndex(idx);
+    this.geo = g;
+    this.mesh = new THREE.Mesh(g, material);
+    this.mesh.frustumCulled = false;
+  }
+  // pts: array of [x,y,z]; w = radial thickness, h = height
+  set(pts, w, h) {
+    const n = Math.min(pts.length, this.max), pos = this.pos;
+    for (let i = 0; i < this.max; i++) {
+      const k = Math.min(i, n - 1);
+      const p = pts[k], q = pts[Math.min(k + 1, n - 1)], o = pts[Math.max(k - 1, 0)];
+      let tx = q[0] - o[0], ty = q[1] - o[1]; const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
+      const nx = -ty * w / 2, ny = tx * w / 2;
+      const cs = [[nx, ny, h / 2], [-nx, -ny, h / 2], [-nx, -ny, -h / 2], [nx, ny, -h / 2]];
+      for (let f = 0; f < 4; f++) {
+        const j = (i * 4 + f) * 3;
+        pos[j] = p[0] + cs[f][0]; pos[j + 1] = p[1] + cs[f][1]; pos[j + 2] = p[2] + cs[f][2];
+      }
+    }
+    this.geo.attributes.position.needsUpdate = true;
+    this.geo.computeVertexNormals();
+  }
+}
+
+// ---------------------------------------------------------------- textures
+function canvasTex(size, draw, srgb = true) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const g = c.getContext('2d'); draw(g, size);
+  const t = new THREE.CanvasTexture(c);
+  if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  t.userData.canvas = c; t.userData.draw = draw;
+  return t;
+}
+
+// Côtes de Genève — continuous across all bridges (mapped in movement coordinates)
+function genevaStripes() {
+  const t = canvasTex(1024, (g, s) => {
+    g.fillStyle = '#c9ccd0'; g.fillRect(0, 0, s, s);
+    g.save(); g.translate(s / 2, s / 2); g.rotate(-28 * D2R); g.translate(-s, -s);
+    const band = s / 15;
+    for (let x = 0; x < s * 2; x += band) {
+      const gr = g.createLinearGradient(x, 0, x + band, 0);
+      gr.addColorStop(0, '#9fa4ab'); gr.addColorStop(0.18, '#e9ebee'); gr.addColorStop(0.42, '#ffffff');
+      gr.addColorStop(0.7, '#c3c7cc'); gr.addColorStop(1, '#a3a8ae');
+      g.fillStyle = gr; g.fillRect(x, 0, band + 1, s * 2);
+    }
+    g.restore();
+    const id = g.getImageData(0, 0, s, s), d = id.data;
+    for (let i = 0; i < d.length; i += 4) { const n = (Math.random() - .5) * 10; d[i] += n; d[i + 1] += n; d[i + 2] += n; }
+    g.putImageData(id, 0, 0);
+  });
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(1 / 44, 1 / 44); t.offset.set(0.5, 0.5);
+  return t;
+}
+
+// Perlage — overlapping circular graining on the main plate
+function perlage() {
+  const t = canvasTex(1024, (g, s) => {
+    g.fillStyle = '#b9bcc1'; g.fillRect(0, 0, s, s);
+    const step = s / 34, r = step * 0.92;
+    for (let row = -1; row < 36; row++) for (let col = -1; col < 36; col++) {
+      const x = col * step + (row % 2) * step * 0.5, y = row * step * 0.86;
+      let gr;
+      if (g.createConicGradient) {
+        gr = g.createConicGradient((row * 7 + col * 3) % 6, x, y);
+        for (let k = 0; k <= 8; k++) gr.addColorStop(k / 8, k % 2 ? '#e8eaed' : '#a7abb1');
+      } else { gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, '#eceef0'); gr.addColorStop(1, '#a3a7ad'); }
+      g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+      g.strokeStyle = 'rgba(80,84,92,0.25)'; g.lineWidth = 1; g.stroke();
+    }
+  });
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(1 / 30, 1 / 30);
+  return t;
+}
+
+// Circular graining (snailing) for barrel cover & ratchet wheel — centered, local coords
+function snailing(rMax) {
+  const t = canvasTex(512, (g, s) => {
+    g.fillStyle = '#c6c9ce'; g.fillRect(0, 0, s, s);
+    if (g.createConicGradient) {
+      for (let r = s / 2; r > 4; r -= 3) {
+        const gr = g.createConicGradient(r * 0.05, s / 2, s / 2);
+        for (let k = 0; k <= 12; k++) gr.addColorStop(k / 12, k % 2 ? '#f2f3f5' : '#a8acb3');
+        g.strokeStyle = gr; g.lineWidth = 2.2; g.beginPath(); g.arc(s / 2, s / 2, r, 0, TAU); g.stroke();
+      }
+    }
+  });
+  t.repeat.set(1 / (2 * rMax), 1 / (2 * rMax)); t.offset.set(0.5, 0.5);
+  return t;
+}
+
+// ============================================================================
+// DIAL & MOON — painted to canvas in movement millimetres
+// ============================================================================
+const DIAL = {
+  R: 20,
+  date: [0, 9.5], dateR: 4.4,
+  day: [-9.5, 0], dayR: 4.0,
+  month: [9.5, 0.6], monthR: 4.0,
+  leap: [6.6, 6.9], leapR: 2.0,
+  reserve: [-6.6, 6.9], reserveR: 2.0,
+  tb: [0, -9.2], tbR: 4.6,
+  moonWin: { cx: 0, y0: 10.3, R: 1.5 },
+};
+const FONT_DISPLAY = '"Bodoni Moda", "Bodoni 72", Didot, Georgia, serif';
+const FONT_UI = 'Barlow, "Helvetica Neue", Arial, sans-serif';
+
+function drawDial(g, S) {
+  const k = S / 40, X = x => (x + 20) * k, Y = y => (20 - y) * k, Rk = r => r * k;
+  g.clearRect(0, 0, S, S);
+  // silvered opaline base
+  let gr = g.createRadialGradient(X(-5), Y(8), 0, X(0), Y(0), Rk(21));
+  gr.addColorStop(0, '#f4f2ec'); gr.addColorStop(0.6, '#e6e3dc'); gr.addColorStop(1, '#d3d0c8');
+  g.fillStyle = gr; g.fillRect(0, 0, S, S);
+
+  // rose-engine guilloché in the centre field
+  g.save(); g.beginPath(); g.arc(X(0), Y(0), Rk(15.3), 0, TAU); g.clip();
+  g.lineWidth = Math.max(1, k * 0.035);
+  for (let r = 0.5, i = 0; r < 15.4; r += 0.13, i++) {
+    g.beginPath();
+    for (let s = 0; s <= 720; s++) {
+      const a = s / 720 * TAU;
+      const rr = r + 0.07 * Math.sin(24 * a + r * 0.9) + 0.03 * Math.sin(72 * a);
+      const x = X(rr * Math.cos(a)), y = Y(rr * Math.sin(a));
+      s ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.strokeStyle = i % 2 ? 'rgba(255,255,255,0.55)' : 'rgba(120,112,98,0.20)';
+    g.stroke();
+  }
+  g.restore();
+
+  // chapter ring
+  g.save(); g.beginPath(); g.arc(X(0), Y(0), Rk(19.6), 0, TAU); g.arc(X(0), Y(0), Rk(15.4), 0, TAU, true); g.clip();
+  gr = g.createLinearGradient(0, 0, S, S);
+  gr.addColorStop(0, '#f6f4ef'); gr.addColorStop(0.5, '#e4e1da'); gr.addColorStop(1, '#efede8');
+  g.fillStyle = gr; g.fillRect(0, 0, S, S); g.restore();
+  g.strokeStyle = 'rgba(40,36,30,0.5)'; g.lineWidth = k * 0.05;
+  for (const r of [15.4, 18.1, 18.9]) { g.beginPath(); g.arc(X(0), Y(0), Rk(r), 0, TAU); g.stroke(); }
+  // minute track (railroad)
+  g.fillStyle = '#1d1a16';
+  for (let m = 0; m < 60; m++) {
+    const a = Math.PI / 2 - m * TAU / 60;
+    const r0 = m % 5 ? 18.1 : 17.8, r1 = 18.9;
+    g.save(); g.translate(X(r0 * Math.cos(a)), Y(r0 * Math.sin(a))); g.rotate(-a + Math.PI / 2);
+    const w = Rk(m % 5 ? 0.06 : 0.12); g.fillRect(-w / 2, -Rk(r1 - r0), w, Rk(r1 - r0)); g.restore();
+  }
+  // Roman numerals, radial
+  const roman = ['XII', 'I', 'II', 'III', 'IIII', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI'];
+  g.fillStyle = '#16130f'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  for (let h = 0; h < 12; h++) {
+    const a = Math.PI / 2 - h * TAU / 12, r = 16.65;
+    g.save(); g.translate(X(r * Math.cos(a)), Y(r * Math.sin(a))); g.rotate(-a + Math.PI / 2);
+    g.font = `500 ${Rk(1.75)}px ${FONT_DISPLAY}`; g.fillText(roman[h], 0, Rk(0.05)); g.restore();
+  }
+
+  const sub = (c, R, fill = true) => {
+    g.save(); g.beginPath(); g.arc(X(c[0]), Y(c[1]), Rk(R), 0, TAU); g.clip();
+    if (fill) {
+      g.fillStyle = '#dcd8cf'; g.fillRect(X(c[0] - R), Y(c[1] + R), Rk(2 * R), Rk(2 * R));
+      g.lineWidth = Math.max(1, k * 0.03);
+      for (let r = 0.1; r < R; r += 0.075) {
+        g.strokeStyle = (r / 0.075 | 0) % 2 ? 'rgba(255,255,255,0.6)' : 'rgba(90,84,74,0.16)';
+        g.beginPath(); g.arc(X(c[0]), Y(c[1]), Rk(r), 0, TAU); g.stroke();
+      }
+    }
+    g.restore();
+    g.strokeStyle = 'rgba(30,26,22,0.55)'; g.lineWidth = k * 0.045;
+    g.beginPath(); g.arc(X(c[0]), Y(c[1]), Rk(R), 0, TAU); g.stroke();
+    // engraved shadow edge
+    g.strokeStyle = 'rgba(255,255,255,0.7)'; g.lineWidth = k * 0.04;
+    g.beginPath(); g.arc(X(c[0]), Y(c[1]) + k * 0.05, Rk(R), 0.2, Math.PI - 0.2); g.stroke();
+  };
+  const ticks = (c, r0, r1, n, every = 1, w = 0.05, a0 = 0, span = TAU) => {
+    g.fillStyle = '#1d1a16';
+    for (let i = 0; i < n; i++) {
+      if (i % every) continue;
+      const a = Math.PI / 2 - a0 - i * span / n;
+      g.save(); g.translate(X(c[0] + r1 * Math.cos(a)), Y(c[1] + r1 * Math.sin(a))); g.rotate(-a + Math.PI / 2);
+      g.fillRect(-Rk(w) / 2, 0, Rk(w), Rk(r1 - r0)); g.restore();
+    }
+  };
+  const label = (c, r, a, txt, size, font = FONT_UI, weight = 600, rotate = true) => {
+    const ang = Math.PI / 2 - a;
+    g.save(); g.translate(X(c[0] + r * Math.cos(ang)), Y(c[1] + r * Math.sin(ang)));
+    if (rotate) g.rotate(-ang + Math.PI / 2);
+    g.font = `${weight} ${Rk(size)}px ${font}`; g.fillStyle = '#1d1a16'; g.fillText(txt, 0, 0); g.restore();
+  };
+
+  // date + moon at 12
+  sub(DIAL.date, DIAL.dateR);
+  ticks(DIAL.date, 3.85, 4.25, 31, 1, 0.045);
+  for (let d = 1; d <= 31; d++) if (d === 1 || d % 5 === 0) label(DIAL.date, 3.35, (d - 1) * TAU / 31, String(d), 0.62, FONT_DISPLAY, 600);
+  // moon window bezel
+  const mw = DIAL.moonWin;
+  g.strokeStyle = 'rgba(30,26,22,0.6)'; g.lineWidth = k * 0.05;
+  g.beginPath(); g.arc(X(mw.cx), Y(mw.y0), Rk(mw.R + 0.12), Math.PI, 0); g.stroke();
+  label(DIAL.date, 1.15, Math.PI, 'DATE', 0.36, FONT_UI, 600, false);
+
+  // day at 9
+  sub(DIAL.day, DIAL.dayR);
+  const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+  ticks(DIAL.day, 3.55, 3.85, 7, 1, 0.08);
+  days.forEach((d, i) => label(DIAL.day, 2.85, i * TAU / 7, d, 0.5));
+  // month at 3
+  sub(DIAL.month, DIAL.monthR);
+  const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  ticks(DIAL.month, 3.55, 3.85, 12, 1, 0.06);
+  months.forEach((m, i) => label(DIAL.month, 2.95, i * TAU / 12, m, 0.42));
+  // leap-year cycle (top right)
+  sub(DIAL.leap, DIAL.leapR);
+  ['L', 'I', 'II', 'III'].forEach((t, i) => label(DIAL.leap, 1.35, i * TAU / 4, t, 0.5, FONT_DISPLAY, 600));
+  ticks(DIAL.leap, 1.75, 1.95, 48, 12, 0.06);
+  label(DIAL.leap, 0.75, Math.PI, 'LEAP', 0.26, FONT_UI, 600, false);
+  // power reserve (top left), 0–60 h over 240°
+  sub(DIAL.reserve, DIAL.reserveR);
+  for (let h = 0; h <= 60; h += 5) {
+    const a = -120 * D2R + h / 60 * 240 * D2R;
+    ticks([DIAL.reserve[0], DIAL.reserve[1]], h % 10 ? 1.72 : 1.55, 1.95, 1, 1, h % 10 ? 0.05 : 0.08, a, 1);
+  }
+  [0, 20, 40, 60].forEach(h => label(DIAL.reserve, 1.18, -120 * D2R + h / 60 * 240 * D2R, String(h), 0.36, FONT_UI, 600));
+  label(DIAL.reserve, 0.55, Math.PI, 'HOURS', 0.22, FONT_UI, 600, false);
+  // tourbillon seconds ring
+  g.strokeStyle = 'rgba(30,26,22,0.6)'; g.lineWidth = k * 0.05;
+  g.beginPath(); g.arc(X(DIAL.tb[0]), Y(DIAL.tb[1]), Rk(DIAL.tbR + 0.12), 0, TAU); g.stroke();
+  ticks(DIAL.tb, DIAL.tbR + 0.25, DIAL.tbR + 0.6, 60, 1, 0.04);
+  ticks(DIAL.tb, DIAL.tbR + 0.25, DIAL.tbR + 0.85, 60, 5, 0.07);
+  [15, 30, 45, 60].forEach(s => label(DIAL.tb, DIAL.tbR + 1.35, (s % 60) * TAU / 60, String(s), 0.6, FONT_DISPLAY, 600));
+  // signature lines
+  g.fillStyle = '#2a2520'; g.textAlign = 'center';
+  g.font = `italic 500 ${Rk(0.9)}px ${FONT_DISPLAY}`; g.fillText('Atlas', X(0), Y(-2.7));
+  g.font = `600 ${Rk(0.34)}px ${FONT_UI}`; g.fillText('GRANDE COMPLICATION  ·  18 000 A/H', X(0), Y(-3.55));
+}
+
+function drawMoon(g, S) {
+  // disc radius 3.1 mm mapped to the whole canvas
+  const k = S / 6.4, X = x => (x + 3.2) * k, Y = y => (3.2 - y) * k;
+  let gr = g.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2);
+  gr.addColorStop(0, '#1d2f7a'); gr.addColorStop(1, '#0f1a4a');
+  g.fillStyle = gr; g.fillRect(0, 0, S, S);
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 260; i++) {
+    const r = 0.4 + rnd() * 2.7, a = rnd() * TAU, s = (0.015 + rnd() * 0.035) * k;
+    g.fillStyle = `rgba(232,204,140,${0.5 + rnd() * 0.5})`;
+    g.beginPath(); g.arc(X(r * Math.cos(a)), Y(r * Math.sin(a)), s, 0, TAU); g.fill();
+  }
+  for (const a of [Math.PI / 2, -Math.PI / 2]) {
+    const cx = X(1.75 * Math.cos(a)), cy = Y(1.75 * Math.sin(a)), r = 0.45 * k;
+    gr = g.createRadialGradient(cx - r * .3, cy - r * .3, r * .1, cx, cy, r);
+    gr.addColorStop(0, '#fbe7b0'); gr.addColorStop(0.7, '#dcb466'); gr.addColorStop(1, '#a9813c');
+    g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, r, 0, TAU); g.fill();
+    g.fillStyle = 'rgba(150,110,50,0.28)';
+    for (const [dx, dy, rr] of [[-.25, -.15, .18], [.2, .1, .12], [-.05, .3, .1], [.25, -.28, .08]]) {
+      g.beginPath(); g.arc(cx + dx * r, cy + dy * r, rr * r, 0, TAU); g.fill();
+    }
+  }
+}
+
+// moon window: semicircle with two "bosoms" along the bottom edge
+function moonWindowPath() {
+  const { cx, y0, R } = DIAL.moonWin, pts = [];
+  for (let i = 0; i <= 40; i++) { const a = i / 40 * Math.PI; pts.push(V2(cx + R * Math.cos(a), y0 + R * Math.sin(a))); }
+  // left bosom (from x=-R to 0), right bosom (0 to R): arcs bulging upward, traced right-to-left
+  const h = R / 2;
+  for (let i = 1; i <= 16; i++) { const a = Math.PI - i / 16 * Math.PI; pts.push(V2(cx - h + h * Math.cos(a), y0 + h * Math.sin(a))); }
+  for (let i = 1; i < 16; i++) { const a = Math.PI - i / 16 * Math.PI; pts.push(V2(cx + h + h * Math.cos(a), y0 + h * Math.sin(a))); }
+  return pts;
+}
+
+// ============================================================================
+// MODEL — layout, materials, every part of Calibre A-1
+// ============================================================================
+const LAY = (() => {
+  const L = {};
+  L.B = [0, 7.2]; L.C = [0, 0]; L.K = [0, -9.2];
+  L.T = circleIntersect(L.C, 0.105 * 45, L.K, 0.11 * 42.5, 1);      // third wheel
+  L.MW = [2.8 * Math.cos(135 * D2R), 2.8 * Math.sin(135 * D2R)];     // minute wheel
+  L.I1 = [0, 3.0]; L.DS = [0, 9.5];
+  L.W24 = circleIntersect(L.I1, 4.2, L.DS, 3.9, 1);                   // 24-hour wheel
+  L.MI = circleIntersect(L.W24, 2.56, L.DS, 0.045 * 75.5, 1);         // moon intermediate
+  L.DY = [-9.5, 0]; L.MS = [9.5, 0.6]; L.PW = [6.6, 6.9]; L.RW = [-6.6, 6.9];
+  L.I2 = circleIntersect(L.MS, 2.6, L.PW, 4.4, -1);                   // month idler
+  L.I3 = circleIntersect(L.B, 3.2, L.RW, 3.6, 1);                     // reserve idler
+  L.HS = [-2.2, -1.6];                                                // hour star + snail
+  L.CW = [0, 7.2 + 0.12 * (75 + 32) / 2];                             // crown wheel
+  return L;
+})();
+const ang = (a, b) => Math.atan2(b[1] - a[1], b[0] - a[0]);
+// phase of driven toothing (zB at b) so it meshes with toothing (zA at a, phase pA)
+const meshPhase = (pA, zA, zB, a, b) => { const c = ang(a, b); return c + Math.PI + (c - pA) * zA / zB - Math.PI / zB; };
+
+const LAYERS = [
+  { id: 'hands', name: 'Hands', k: 6 },
+  { id: 'dial', name: 'Dial', k: 5 },
+  { id: 'moon', name: 'Moon disc', k: 4 },
+  { id: 'calendar', name: 'Calendar works', k: 3 },
+  { id: 'motion', name: 'Motion & repeater works', k: 2 },
+  { id: 'tourbillon', name: 'Tourbillon', k: 1 },
+  { id: 'plate', name: 'Main plate', k: 0 },
+  { id: 'train', name: 'Going train', k: -1 },
+  { id: 'strike', name: 'Hammers & gongs', k: -2 },
+  { id: 'bridges', name: 'Bridges', k: -3 },
+  { id: 'keyless', name: 'Winding works', k: -4 },
+  { id: 'case', name: 'Case', k: 0 },
+];
+const LAYER = Object.fromEntries(LAYERS.map(l => [l.id, l]));
+
+let MAT, TEX;
+function makeMaterials() {
+  TEX = { stripes: genevaStripes(), perlage: perlage(), snail: snailing(6.1), ratchetSnail: snailing(4.6) };
+  TEX.dial = canvasTex(2048, drawDial);
+  TEX.dial.repeat.set(1 / 40, 1 / 40); TEX.dial.offset.set(0.5, 0.5);
+  TEX.moon = canvasTex(1024, drawMoon);
+  TEX.moon.repeat.set(1 / 6.4, 1 / 6.4); TEX.moon.offset.set(0.5, 0.5);
+  const std = (o) => new THREE.MeshStandardMaterial(o);
+  MAT = {
+    gold: std({ color: 0xe0b66c, metalness: 1, roughness: 0.27 }),
+    goldPale: std({ color: 0xead2a0, metalness: 1, roughness: 0.22 }),
+    steel: std({ color: 0xe6e9ee, metalness: 1, roughness: 0.14 }),
+    steelSatin: std({ color: 0xc9ced6, metalness: 1, roughness: 0.32 }),
+    plate: std({ color: 0xf2f3f5, metalness: 1, roughness: 0.36, map: TEX.perlage }),
+    bridge: std({ color: 0xf6f7f9, metalness: 1, roughness: 0.24, map: TEX.stripes }),
+    barrelCover: std({ color: 0xf0f1f3, metalness: 1, roughness: 0.25, map: TEX.snail }),
+    ratchet: std({ color: 0xf0f1f3, metalness: 1, roughness: 0.22, map: TEX.ratchetSnail }),
+    blued: std({ color: 0x2b40a8, metalness: 0.9, roughness: 0.26 }),
+    bluedHand: std({ color: 0x23379b, metalness: 0.85, roughness: 0.22 }),
+    ruby: new THREE.MeshPhysicalMaterial({ color: 0xc8143a, metalness: 0, roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.04, emissive: 0x3a0010 }),
+    jewelHole: std({ color: 0x1a0308, roughness: 0.6 }),
+    dial: std({ map: TEX.dial, metalness: 0.15, roughness: 0.48 }),
+    moon: std({ map: TEX.moon, metalness: 0.35, roughness: 0.35 }),
+    case: std({ color: 0xe8e8e4, metalness: 1, roughness: 0.1 }),
+    gong: std({ color: 0xaab2bc, metalness: 1, roughness: 0.22 }),
+    spring: std({ color: 0xb8bec8, metalness: 1, roughness: 0.3 }),
+    hair: std({ color: 0x3a4fb6, metalness: 0.9, roughness: 0.25 }),
+  };
+}
+
+// ---------------------------------------------------------------- registry
+const PARTS = [], PART = {};
+let PART_SEQ = 0;
+function addPart(id, layer, obj, info) {
+  const p = { id, num: ++PART_SEQ, layer, obj, meshes: [], opacity: 1, target: 1, glow: 0, glowTarget: 0, ...info };
+  p.count = info.count ?? 1;
+  obj.traverse(o => {
+    if (o.isMesh && !o.userData.part) {
+      o.material = o.material.clone();
+      o.material.userData.baseEmissive = o.material.emissive ? o.material.emissive.clone() : null;
+      o.userData.part = p; p.meshes.push(o);
+    }
+  });
+  PARTS.push(p); PART[id] = p;
+  return p;
+}
+const M = (geo, mat) => new THREE.Mesh(geo, mat);
+function rod(r, z0, z1, mat = MAT.steel, x = 0, y = 0, seg = 14) {
+  const g = new THREE.CylinderGeometry(r, r, Math.abs(z1 - z0), seg);
+  g.rotateX(Math.PI / 2); g.translate(x, y, (z0 + z1) / 2);
+  return M(g, mat);
+}
+function disc(r, z, depth, mat, holeR = 0, seg = 64) {
+  const holes = holeR ? [boreHole(holeR, 32)] : [];
+  const g = extrude(circlePts(r, seg), holes, depth, 0); g.translate(0, 0, z);
+  return M(g, mat);
+}
+function toothed(outline, z, depth, mat, o = {}) {
+  const holes = (o.holes || []).slice();
+  if (o.bore) holes.push(boreHole(o.bore));
+  const g = extrude(outline, holes, depth, o.bevel || 0); g.translate(0, 0, z);
+  const m = M(g, mat); if (o.off) m.rotation.z = o.off; return m;
+}
+function wheelM(zt, m, z, depth, mat, o = {}) {
+  const rp = m * zt / 2, rf = rp - 1.6 * m;
+  const rim = o.rim ?? Math.max(0.16, rp * 0.1), hub = o.hub ?? Math.max(0.32, rp * 0.18);
+  const holes = o.spokes ? spokeHoles(o.spokes, hub, rf - rim, o.spokeW ?? Math.max(0.07, rp * 0.045), o.curve ?? 0, o.spokePhase ?? 0) : [];
+  return toothed(wheelOutline(zt, m, o.profile), z, depth, mat, { holes, bore: o.bore ?? 0.1, off: o.off, bevel: o.bevel });
+}
+const pinionM = (zt, m, z, depth, mat, off = 0, bore = 0) => toothed(pinionOutline(zt, m), z, depth, mat, { off, bore });
+let JEWELS = 3;   // pallet stones + impulse pin
+function jewel(x, y, z, r = 0.34, facing = 1) {
+  JEWELS++;
+  const g = new THREE.Group();
+  const j = new THREE.CylinderGeometry(r, r * 1.04, 0.1, 24); j.rotateX(Math.PI / 2);
+  const m = M(j, MAT.ruby); g.add(m);
+  const hole = new THREE.CylinderGeometry(r * 0.28, r * 0.28, 0.104, 12); hole.rotateX(Math.PI / 2);
+  g.add(M(hole, MAT.jewelHole));
+  // gold chaton ring
+  const ring = new THREE.TorusGeometry(r * 1.12, r * 0.14, 6, 28);
+  const rm = M(ring, MAT.goldPale); g.add(rm);
+  g.position.set(x, y, z + facing * 0.03);
+  return g;
+}
+function screw(x, y, z, r = 0.5, facing = -1, mat = MAT.blued) {
+  const g = new THREE.Group();
+  const h = new THREE.CylinderGeometry(r, r * 0.92, 0.26, 20); h.rotateX(Math.PI / 2);
+  g.add(M(h, mat));
+  const slot = new THREE.BoxGeometry(r * 2.05, r * 0.24, 0.12);
+  const s = M(slot, MAT.jewelHole); s.position.z = facing * 0.09; s.rotation.z = (x * 7 + y * 3) % 3; g.add(s);
+  g.position.set(x, y, z + facing * 0.13);
+  return g;
+}
+function lever(points, z, depth, mat, local = [0, 0]) {
+  // points: [[x,y,r], ...] in watch coords — chain of capsules hulled pairwise
+  const g = new THREE.Group();
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i], b = points[i + 1];
+    const out = hullOfCircles([[a[0] - local[0], a[1] - local[1], a[2]], [b[0] - local[0], b[1] - local[1], b[2]]]);
+    const geo = extrude(out, [], depth, 0); geo.translate(0, 0, z);
+    g.add(M(geo, mat));
+  }
+  return g;
+}
+const at = (p, r, a) => [p[0] + r * Math.cos(a), p[1] + r * Math.sin(a)];
+
+// ---------------------------------------------------------------- build
+const R = {};       // rig: everything that moves
+const AXES = [];    // dashed arbor lines for the exploded view
+let ROOT, LG = {};
+
+function buildModel(scene) {
+  makeMaterials();
+  ROOT = new THREE.Group(); ROOT.rotation.x = -Math.PI / 2; scene.add(ROOT);
+  for (const l of LAYERS) { const g = new THREE.Group(); g.userData.layer = l.id; ROOT.add(g); LG[l.id] = g; }
+  const { B, C, K, T, MW, I1, DS, W24, MI, DY, MS, PW, RW, I2, I3, HS, CW } = LAY;
+
+  // ======================= MAIN PLATE ==========================
+  {
+    const g = new THREE.Group();
+    const holes = [circlePts(4.65, 64, K[0], K[1]).reverse()];
+    const geo = extrude(circlePts(19.8, 160), holes, 1.0, 0.06); geo.translate(0, 0, -0.5);
+    g.add(M(geo, MAT.plate));
+    for (const p of [C, T, B, MW]) g.add(jewel(p[0], p[1], 0.04, 0.3, 1));
+    addPart('plate', 'plate', g, { name: 'Main plate', kind: 'Frame', desc: 'The foundation every other part is pivoted in or screwed to. Its surface is finished with perlage, overlapping circles of graining applied one at a time with a rotating peg.', count: 5 });
+    LG.plate.add(g);
+  }
+
+  // ======================= GOING TRAIN ==========================
+  {
+    // barrel
+    const g = new THREE.Group(); g.position.set(B[0], B[1], 0);
+    const ring = toothed(wheelOutline(80, 0.16, { nTip: 3 }), -1.725, 0.25, MAT.gold, { holes: [boreHole(5.75, 96)] });
+    g.add(ring);
+    const drumGeo = new THREE.CylinderGeometry(6.1, 6.1, 1.6, 96, 1, true); drumGeo.rotateX(Math.PI / 2); drumGeo.translate(0, 0, -2.4);
+    const drum = M(drumGeo, MAT.gold); drum.material.side = THREE.DoubleSide; g.add(drum);
+    g.add(disc(6.1, -1.66, 0.1, MAT.gold, 1.05, 96));
+    const cover = disc(6.05, -3.18, 0.1, MAT.barrelCover, 0.95, 96); g.add(cover); R.barrelCover = cover;
+    R.mainspring = new Strip(560, MAT.spring); g.add(R.mainspring.mesh);
+    const arbor = new THREE.Group();
+    arbor.add(rod(0.95, -3.1, -1.75, MAT.steel, 0, 0, 24));
+    arbor.add(rod(0.35, -4.3, -0.95, MAT.steel));
+    const hook = new THREE.BoxGeometry(0.3, 0.25, 1.2); hook.translate(0.95, 0, -2.42); arbor.add(M(hook, MAT.steel));
+    g.add(arbor); R.barrelArbor = arbor;
+    LG.train.add(g); R.barrel = g;
+    addPart('barrel', 'train', g, { name: 'Barrel & mainspring', kind: 'Power', teeth: '80 teeth', desc: 'A toothed drum holding the coiled mainspring. The spring\'s inner end hooks to the arbor (wound by the crown); its outer end pushes the drum, and the drum\'s 80 teeth drive the train.', rate: 'drum: 1 turn / 8 h', count: 4 });
+
+    // center wheel (+ center pinion meshing barrel)
+    const cg = new THREE.Group();
+    const cpOff = meshPhase(0, 80, 10, B, C);
+    cg.add(wheelM(80, 0.105, -1.3, 0.18, MAT.gold, { spokes: 5, curve: 0.7, bevel: 0.012 }));
+    cg.add(pinionM(10, 0.16, -1.725, 0.25, MAT.steel, cpOff));
+    cg.add(rod(0.2, -3.6, -0.95));
+    LG.train.add(cg); R.center = cg;
+    addPart('center', 'train', cg, { name: 'Center wheel', kind: 'Going train', teeth: '80 teeth · pinion 10', desc: 'Sits at the exact center of the movement and turns once an hour. Its arbor passes through the plate to carry the cannon pinion and the minute hand.', rate: '1 turn / hour' });
+
+    const tg = new THREE.Group(); tg.position.set(T[0], T[1], 0);
+    const tpOff = meshPhase(0, 80, 10, C, T) ;
+    tg.add(wheelM(75, 0.11, -2.0, 0.16, MAT.gold, { spokes: 4, curve: 0.5, bevel: 0.012 }));
+    tg.add(pinionM(10, 0.105, -1.3, 0.2, MAT.steel, tpOff));
+    tg.add(rod(0.15, -3.6, -0.95));
+    LG.train.add(tg); R.third = tg; R.thirdOff = tpOff;
+    addPart('third', 'train', tg, { name: 'Third wheel', kind: 'Going train', teeth: '75 teeth · pinion 10', desc: 'The intermediate wheel between the center wheel and the tourbillon. It turns eight times an hour and drives the tourbillon cage\'s pinion.', rate: '1 turn / 7.5 min' });
+  }
+
+  // ======================= TOURBILLON ==========================
+  {
+    const lay = LG.tourbillon;
+    // fixed (fourth) wheel with a three-armed spider screwed to the plate
+    const fg = new THREE.Group(); fg.position.set(K[0], K[1], 0);
+    fg.add(wheelM(80, 0.065, -1.18, 0.12, MAT.steel, { spokes: 5, hub: 0.55, bore: 0.4, profile: { nTip: 3 } }));
+    for (const a of [30, 150, 270]) {
+      const e = at([0, 0], 5.35, a * D2R);
+      fg.add(lever([[...at([0, 0], 2.2, a * D2R), 0.22], [e[0], e[1], 0.42]], -1.18, 0.12, MAT.steel));
+      fg.add(screw(e[0], e[1], -1.18, 0.32, -1));
+    }
+    lay.add(fg); R.fixedWheel = fg;
+    addPart('fixed', 'tourbillon', fg, { name: 'Fixed fourth wheel', kind: 'Tourbillon', teeth: '80 teeth', desc: 'This wheel never moves: it is screwed to the plate. The escape pinion rolls around it as the cage turns, and that rolling is what spins the escape wheel.', rate: 'stationary', count: 4 });
+
+    const cage = new THREE.Group(); cage.position.set(K[0], K[1], 0); lay.add(cage); R.cage = cage;
+
+    // escape wheel + pinion
+    const E = [0, 2.86];
+    const eg = new THREE.Group(); eg.position.set(E[0], E[1], 0);
+    eg.add(toothed(escapeOutline(15, 1.25), -0.5, 0.1, MAT.steel, { holes: spokeHoles(5, 0.22, 0.66, 0.04, 0.9), bore: 0.05 }));
+    R.escPinion = pinionM(8, 0.065, -1.18, 0.14, MAT.steel);
+    eg.add(R.escPinion);
+    eg.add(rod(0.05, -1.32, -0.05, MAT.steel, 0, 0, 8));
+    cage.add(eg); R.escape = eg; R.E = E;
+    addPart('escape', 'tourbillon', eg, { name: 'Escape wheel', kind: 'Escapement', teeth: '15 club teeth · pinion 8', desc: 'Fifteen club-shaped teeth, each with a slanted tip that pushes the pallet stones. It may advance only half a tooth (12°) each time the pallet fork lets go.', rate: '10 turns / min in the cage' });
+
+    // pallet fork
+    const PP = [0, 1.417];
+    const pg = new THREE.Group(); pg.position.set(PP[0], PP[1], 0);
+    const L0 = [0, 0, 0.17];
+    pg.add(lever([[-0.6, 0.36, 0.12], [-0.25, 0.12, 0.17], L0], -0.5, 0.1, MAT.steelSatin));
+    pg.add(lever([L0, [0.25, 0.12, 0.17], [0.6, 0.36, 0.12]], -0.5, 0.1, MAT.steelSatin));
+    pg.add(lever([L0, [0, -0.8, 0.07]], -0.5, 0.1, MAT.steelSatin));
+    // horns of the fork + slot
+    pg.add(lever([[0, -0.8, 0.07], [-0.13, -0.98, 0.06], [-0.2, -1.1, 0.05]], -0.5, 0.1, MAT.steelSatin));
+    pg.add(lever([[0, -0.8, 0.07], [0.13, -0.98, 0.06], [0.2, -1.1, 0.05]], -0.5, 0.1, MAT.steelSatin));
+    // pallet stones: radial to the escape-wheel centre
+    for (const s of [-1, 1]) {
+      const cpt = [s * 0.625, 0.36];
+      const dirE = Math.atan2(1.443 - cpt[1], 0 - cpt[0]);      // toward escape centre
+      const sg = new THREE.BoxGeometry(0.42, 0.13, 0.12);
+      const st = M(sg, MAT.ruby);
+      st.position.set(cpt[0] - Math.cos(dirE) * 0.24, cpt[1] - Math.sin(dirE) * 0.24, -0.5);
+      st.rotation.z = dirE;
+      pg.add(st);
+    }
+    pg.add(rod(0.05, -0.75, 0.0, MAT.steel, 0, 0, 8));
+    pg.add(rod(0.025, -0.62, -0.38, MAT.goldPale, 0, -0.62, 6)); // guard pin
+    cage.add(pg); R.pallet = pg;
+    addPart('pallet', 'tourbillon', pg, { name: 'Pallet fork', kind: 'Escapement', teeth: '2 ruby pallets', desc: 'The lever of the Swiss lever escapement. Its two ruby stones take turns locking the escape wheel; its forked end is flicked by the balance\'s impulse pin, and pushes the balance back in return.', rate: 'rocks ±8° five times a second', count: 4 });
+
+    // balance
+    const bg = new THREE.Group();
+    const rimHoles = spokeHoles(2, 0.42, 2.72, 0.13, 0, 0);
+    bg.add(toothed(circlePts(3.02, 96), 0.35, 0.3, MAT.gold, { holes: rimHoles, bore: 0.06, bevel: 0.02 }));
+    for (let i = 0; i < 8; i++) {
+      const a = (i + 0.5) * TAU / 8, sc = new THREE.CylinderGeometry(0.11, 0.11, 0.42, 10);
+      sc.rotateZ(Math.PI / 2); const s = M(sc, MAT.goldPale);
+      s.position.set(3.15 * Math.cos(a), 3.15 * Math.sin(a), 0.35); s.rotation.z = a; bg.add(s);
+    }
+    const rl = new THREE.Group();
+    rl.add(rod(0.06, -1.0, 1.42, MAT.steel, 0, 0, 10));
+    rl.add(disc(0.34, -0.55, 0.1, MAT.steel, 0.05, 24));       // roller
+    const ip = new THREE.CylinderGeometry(0.06, 0.06, 0.36, 10); ip.rotateX(Math.PI / 2);
+    const ipm = M(ip, MAT.ruby); ipm.position.set(0, 0.3, -0.62); rl.add(ipm);  // impulse pin
+    bg.add(rl);
+    addPart('roller', 'tourbillon', rl, { name: 'Roller & impulse pin', kind: 'Escapement', teeth: '1 ruby pin', desc: 'A small disc on the balance staff carrying a ruby pin. Each swing, the pin enters the slot of the pallet fork, flicks it across, and takes back a push.', rate: 'moves with the balance', count: 3 });
+    bg.add(disc(0.2, 0.86, 0.12, MAT.goldPale, 0.05, 20));     // collet
+    cage.add(bg); R.balance = bg;
+    addPart('balance', 'tourbillon', bg, { name: 'Balance wheel', kind: 'Oscillator', teeth: '8 timing weights', desc: 'The timekeeper. A rim on a staff, swinging back and forth under the pull of the hairspring at 2.5 swings a second. The weights on the rim are turned in or out to regulate it.', rate: '2.5 Hz · 18,000 vph', count: 11 });
+
+    R.hair = new Strip(470, MAT.hair); cage.add(R.hair.mesh);
+    const stud = rod(0.12, 0.82, 1.42, MAT.steelSatin, 2.2 * Math.cos(-30 * D2R), 2.2 * Math.sin(-30 * D2R), 10);
+    const hg = new THREE.Group(); hg.add(R.hair.mesh); hg.add(stud); cage.add(hg);
+    R.studAngle = -30 * D2R;
+    addPart('hairspring', 'tourbillon', hg, { name: 'Hairspring', kind: 'Oscillator', teeth: '12 coils, Breguet overcoil', desc: 'A spiral of blued alloy about a twentieth of a millimetre thick. Its inner end turns with the balance, its outer end is pinned to a stud. The coils open and close on every swing.', rate: 'breathes 5 times a second', count: 2 });
+
+    // cage frame
+    const fr = new THREE.Group();
+    const frame = (z, curve) => toothed(circlePts(4.3, 128), z, 0.12, MAT.steel, { holes: spokeHoles(3, 0.62, 3.92, 0.17, curve, 30 * D2R), bore: 0.06, bevel: 0.015 });
+    fr.add(frame(-0.89, 0.8));
+    fr.add(frame(1.41, -0.8));
+    for (const a of [30, 150, 270]) {
+      const p = at([0, 0], 4.11, a * D2R);
+      fr.add(rod(0.15, -0.83, 1.35, MAT.steel, p[0], p[1], 12));
+      fr.add(screw(p[0], p[1], 1.47, 0.22, 1, MAT.blued));
+    }
+    // seconds arrow on the upper frame (points to 12 at :00)
+    const arrow = new THREE.Shape([V2(-0.14, 0.4), V2(0.14, 0.4), V2(0.09, 3.9), V2(0.26, 3.95), V2(0, 4.55), V2(-0.26, 3.95), V2(-0.09, 3.9)]);
+    const ag = new THREE.ExtrudeGeometry(arrow, { depth: 0.06, bevelEnabled: false }); ag.translate(0, 0, 1.5);
+    fr.add(M(ag, MAT.bluedHand));
+    fr.add(jewel(0, 0, 1.47, 0.24, 1));
+    fr.add(pinionM(10, 0.11, -2.0, 0.2, MAT.steel, 0));
+    fr.add(rod(0.16, -3.55, -0.85));
+    R.cagePinion = fr.children[fr.children.length - 2];
+    cage.add(fr); R.cageFrame = fr;
+    addPart('cage', 'tourbillon', fr, { name: 'Tourbillon cage', kind: 'Tourbillon', teeth: 'pinion 10', desc: 'A carriage of polished steel that carries the escape wheel, pallet fork and balance and turns once a minute, driven at its pinion by the third wheel. The blued arrow on top is the seconds hand.', rate: '1 turn / minute', count: 9 });
+    AXES.push({ p: K, layers: ['tourbillon', 'bridges', 'dial'] });
+  }
+
+  // ======================= MOTION & REPEATER WORKS (dial side) ==========================
+  {
+    const lay = LG.motion;
+    const can = new THREE.Group();
+    can.add(pinionM(10, 0.14, 0.6, 0.3, MAT.steel));
+    can.add(rod(0.3, 0.1, 2.95, MAT.steel, 0, 0, 16));
+    // quarter snail + minute snail + hour-star pin
+    const fM = -30 * D2R;                         // minute-rack feeler direction from centre
+    const mR = []; for (let i = 0; i < 60; i++) mR.push(1.38 - (i % 15) * (0.52 / 14));
+    can.add(toothed(snailOutline(mR, fM - 3 * D2R), 0.35, 0.1, MAT.steelSatin, { bore: 0.3 }));
+    const fQ = -75 * D2R;
+    const qR = []; for (let i = 0; i < 4; i++) qR.push(0.98 - i * 0.1);
+    can.add(toothed(snailOutline(qR, fQ - 45 * D2R + 0.5 * D2R), 0.2, 0.1, MAT.steelSatin, { bore: 0.3 }));
+    const hsDir = ang(C, HS);
+    const pin = rod(0.07, 0.12, 0.26, MAT.steel, 1.5 * Math.cos(hsDir + 8 * D2R), 1.5 * Math.sin(hsDir + 8 * D2R), 8); can.add(pin);
+    lay.add(can); R.cannon = can;
+    addPart('cannon', 'motion', can, { name: 'Cannon pinion & snails', kind: 'Motion works', teeth: 'pinion 10 · minute snail 4×15 steps', desc: 'A tube that grips the center arbor by friction and carries the minute hand. It also carries the repeater\'s quarter snail and minute snail, stepped cams whose depth records the minutes for the chime.', rate: '1 turn / hour', count: 3 });
+
+    const mw = new THREE.Group(); mw.position.set(MW[0], MW[1], 0);
+    R.mwOff = meshPhase(0, 10, 30, C, MW);
+    mw.add(wheelM(30, 0.14, 0.6, 0.18, MAT.steel, { spokes: 4, off: R.mwOff }));
+    mw.add(pinionM(8, 0.14, 1.05, 0.2, MAT.steel, 0));
+    mw.add(rod(0.16, 0.0, 1.25));
+    lay.add(mw); R.minuteWheel = mw;
+    addPart('minutewheel', 'motion', mw, { name: 'Minute wheel', kind: 'Motion works', teeth: '30 teeth · pinion 8', desc: 'Takes the cannon pinion\'s once-an-hour turn and slows it by 3, then hands it to the hour wheel through its 8-leaf pinion, which slows it by 4 more.', rate: '1 turn / 3 h' });
+
+    const hw = new THREE.Group();
+    R.hwOff = meshPhase(0, 8, 32, MW, C);
+    hw.add(wheelM(32, 0.14, 1.05, 0.16, MAT.steel, { spokes: 4, off: R.hwOff, hub: 0.62, bore: 0.36 }));
+    hw.add(wheelM(20, 0.12, 1.26, 0.12, MAT.steel, { bore: 0.36 }));
+    hw.add(rod(0.48, 1.0, 2.75, MAT.steel, 0, 0, 20));
+    lay.add(hw); R.hourWheel = hw;
+    addPart('hourwheel', 'motion', hw, { name: 'Hour wheel', kind: 'Motion works', teeth: '32 teeth + 20-tooth calendar drive', desc: 'Rides on a pipe over the cannon pinion and carries the hour hand. Its second toothing feeds the calendar, so setting the hands also moves the date.', rate: '1 turn / 12 h' });
+
+    // hour star + hour snail
+    const hs = new THREE.Group(); hs.position.set(HS[0], HS[1], 0);
+    const fH = 210 * D2R;    // hour-rack feeler direction from star centre
+    R.fH = fH;
+    hs.add(toothed(starOutline(12, 1.42, 0.98), 0.18, 0.12, MAT.steel, { bore: 0.12 }));
+    const hR = []; for (let i = 0; i < 12; i++) { const h = i === 0 ? 12 : i; hR.push(1.3 - (h - 1) * 0.065); }
+    hs.add(toothed(snailOutline(hR, fH - 15 * D2R), 0.35, 0.1, MAT.steelSatin, { bore: 0.12 }));
+    hs.add(rod(0.12, 0.0, 0.5));
+    lay.add(hs); R.hourStar = hs;
+    addPart('hourstar', 'motion', hs, { name: 'Hour star & snail', kind: 'Minute repeater', teeth: '12 points · 12 steps', desc: 'Jumps one point every hour, nudged by a pin on the cannon pinion. Its snail has twelve steps; the hour rack falls onto one of them, and the depth sets how many times the low gong is struck.', rate: 'jumps once an hour', count: 2 });
+
+    // repeater racks — feeler tips move toward their snails when the rack falls
+    const mkRack = (pivot, tip, sectorR, sectorFrom, sectorSpan, teeth, mat) => {
+      const g = new THREE.Group(); g.position.set(pivot[0], pivot[1], 0);
+      const lt = [tip[0] - pivot[0], tip[1] - pivot[1]];
+      g.add(lever([[0, 0, 0.32], [lt[0] * 0.5, lt[1] * 0.5, 0.16], [lt[0], lt[1], 0.09]], 0.82, 0.1, mat));
+      g.add(rod(0.07, 0.3, 0.82, MAT.steel, lt[0], lt[1], 8));       // feeler pin, reaches down to the snail
+      const pts = [], n = teeth * 3;
+      for (let i = 0; i <= n; i++) {
+        const a = sectorFrom + sectorSpan * i / n, r = sectorR + (i % 3 === 1 ? 0.16 : 0);
+        pts.push(P(r, a));
+      }
+      for (let i = n; i >= 0; i--) pts.push(P(sectorR - 0.45, sectorFrom + sectorSpan * i / n));
+      const sg = extrude(pts, [], 0.1, 0); sg.translate(0, 0, 0.82); g.add(M(sg, mat));
+      const mid = sectorFrom + sectorSpan / 2;
+      g.add(lever([[0, 0, 0.3], [(sectorR - 0.25) * Math.cos(mid), (sectorR - 0.25) * Math.sin(mid), 0.2]], 0.82, 0.1, mat));
+      g.add(screw(0, 0, 0.92, 0.26, 1));
+      return g;
+    };
+    const hTip = at(HS, 1.75, R.fH), hPiv = at(hTip, 2.6, R.fH + Math.PI / 2 + Math.PI);
+    R.hourRack = mkRack(hPiv, hTip, 3.4, ang(hPiv, hTip) + Math.PI - 0.35, 0.7, 14, MAT.steelSatin);
+    lay.add(R.hourRack);
+    addPart('hourrack', 'motion', R.hourRack, { name: 'Hour rack', kind: 'Minute repeater', teeth: '14 teeth', desc: 'When the repeater slide is pushed, this rack swings until its feeler lands on the hour snail. The rack then winds back one tooth per hour struck.', rate: 'moves only when striking', count: 2 });
+    const mTip = at(C, 1.75, fM), mPiv = at(mTip, 2.6, fM + Math.PI / 2);
+    R.minRack = mkRack(mPiv, mTip, 3.2, ang(mPiv, mTip) + Math.PI - 0.38, 0.76, 16, MAT.steelSatin);
+    lay.add(R.minRack);
+    addPart('minrack', 'motion', R.minRack, { name: 'Minute rack', kind: 'Minute repeater', teeth: '16 teeth', desc: 'Falls onto the minute snail. Each of the snail\'s 14 steps is one minute past the quarter, so the depth it reaches is the number of high notes to strike.', rate: 'moves only when striking', count: 2 });
+    const qTip = at(C, 1.35, fQ), qPiv = at(qTip, 2.4, fQ - Math.PI / 2);
+    R.qRack = new THREE.Group(); R.qRack.position.set(qPiv[0], qPiv[1], 0);
+    const lq = [qTip[0] - qPiv[0], qTip[1] - qPiv[1]];
+    R.qRack.add(lever([[0, 0, 0.3], [lq[0], lq[1], 0.09]], 0.7, 0.1, MAT.steelSatin));
+    R.qRack.add(rod(0.07, 0.18, 0.7, MAT.steel, lq[0], lq[1], 8));
+    R.qRack.add(lever([[0, 0, 0.3], ...[[-lq[0] * 0.6, -lq[1] * 0.6, 0.22]]], 0.7, 0.1, MAT.steelSatin));
+    R.qRack.add(screw(0, 0, 0.8, 0.24, 1));
+    lay.add(R.qRack);
+    addPart('qrack', 'motion', R.qRack, { name: 'Quarter rack', kind: 'Minute repeater', teeth: '3 steps', desc: 'Reads the quarter snail on the cannon pinion: none, one, two or three quarters past the hour.', rate: 'moves only when striking', count: 2 });
+
+    // power-reserve differential and gears
+    const rg = new THREE.Group();
+    const dg = new THREE.Group(); dg.position.set(B[0], B[1], 0); dg.add(wheelM(40, 0.08, 0.2, 0.12, MAT.gold, { spokes: 4, bore: 0.3 }));
+    dg.add(disc(0.9, 0.32, 0.12, MAT.steel, 0.3, 32));
+    const ig = new THREE.Group(); ig.position.set(I3[0], I3[1], 0); R.i3Off = meshPhase(0, 40, 40, B, I3);
+    ig.add(wheelM(40, 0.08, 0.2, 0.12, MAT.gold, { spokes: 4, off: R.i3Off })); ig.add(rod(0.1, 0, 0.35));
+    const rw = new THREE.Group(); rw.position.set(RW[0], RW[1], 0); R.rwOff = meshPhase(R.i3Off, 40, 50, I3, RW);
+    rw.add(wheelM(50, 0.08, 0.2, 0.12, MAT.gold, { spokes: 4, off: R.rwOff })); rw.add(rod(0.1, 0, 2.6));
+    rg.add(dg, ig, rw); lay.add(rg);
+    R.diff = dg; R.i3 = ig; R.rw = rw;
+    addPart('reserve', 'motion', rg, { name: 'Power-reserve works', kind: 'Indication', teeth: '40 · 40 · 50 teeth', desc: 'A differential on the barrel arbor compares how far the spring has been wound with how far it has run down, and turns the reserve hand by the difference.', rate: 'follows the mainspring', count: 4 });
+    AXES.push({ p: C, layers: ['train', 'plate', 'motion', 'dial', 'hands'] });
+    AXES.push({ p: MW, layers: ['plate', 'motion'] });
+  }
+
+  // ======================= CALENDAR WORKS ==========================
+  {
+    const lay = LG.calendar;
+    const zA = 1.26, zB = 1.44, zC = 1.62, zD = 1.8, d = 0.12;
+    // intermediate (from hour wheel 20T)
+    const i1 = new THREE.Group(); i1.position.set(I1[0], I1[1], 0); R.i1Off = meshPhase(0, 20, 30, C, I1);
+    i1.add(wheelM(30, 0.12, zA, d, MAT.steel, { spokes: 4, off: R.i1Off })); i1.add(rod(0.1, 0.9, 1.5)); lay.add(i1); R.i1 = i1;
+    addPart('i1', 'calendar', i1, { name: 'Calendar intermediate wheel', kind: 'Calendar', teeth: '30 teeth', desc: 'Carries motion from the hour wheel up to the 24-hour wheel without changing the ratio.', rate: '1 turn / 18 h' });
+    // 24-hour wheel with finger and moon pinion
+    const w = new THREE.Group(); w.position.set(W24[0], W24[1], 0); R.w24Off = meshPhase(R.i1Off, 30, 40, I1, W24);
+    w.add(wheelM(40, 0.12, zA, d, MAT.gold, { spokes: 5, curve: 0.5, off: R.w24Off }));
+    R.w24PinOff = 0;
+    const mp = pinionM(8, 0.08, zB, d, MAT.steel, 0); w.add(mp); R.w24Pinion = mp;
+    R.fingerA = ang(W24, DS);
+    w.add(lever([[0, 0, 0.32], [2.75 * Math.cos(R.fingerA), 2.75 * Math.sin(R.fingerA), 0.1]], zC, d, MAT.steelSatin));
+    const pinA = R.fingerA + Math.PI * 0.62;
+    w.add(rod(0.09, zC - 0.06, zC + 0.12, MAT.steel, 1.7 * Math.cos(pinA), 1.7 * Math.sin(pinA), 8));
+    w.add(rod(0.12, 0.9, 1.95));
+    lay.add(w); R.w24 = w;
+    addPart('w24', 'calendar', w, { name: '24-hour wheel', kind: 'Calendar', teeth: '40 teeth · pinion 8', desc: 'Turns once a day. At midnight its finger pushes the date star forward one tooth and its pin trips the day lever. Its pinion also drives the moon train continuously.', rate: '1 turn / day' });
+    // moon intermediate
+    const mi = new THREE.Group(); mi.position.set(MI[0], MI[1], 0);
+    mi.add(wheelM(56, 0.08, zB, d, MAT.gold, { spokes: 5, curve: 0.5 }));
+    R.miPin = pinionM(16, 0.045, zD, d, MAT.steel, 0); mi.add(R.miPin); mi.add(rod(0.09, 1.0, 2.0));
+    lay.add(mi); R.mi = mi;
+    addPart('mi', 'calendar', mi, { name: 'Moon intermediate wheel', kind: 'Moon phase', teeth: '56 teeth · pinion 16', desc: 'Part of the moon train: 8/56 then 16/135. Together the two stages make one turn of the moon disc take 59.0625 days, two lunations of 29.53125 days.', rate: '1 turn / 7 days' });
+    // date star + jumper
+    const ds = new THREE.Group(); ds.position.set(DS[0], DS[1], 0);
+    ds.add(toothed(starOutline(31, 2.25, 1.88), zC, d, MAT.steel, { bore: 0.15 }));
+    ds.add(lever([[0, 0, 0.3], [1.15, -1.1, 0.12]], zC + 0.12, 0.08, MAT.steelSatin));       // month finger
+    ds.add(rod(0.13, 0.9, 2.55));
+    lay.add(ds); R.dateStar = ds;
+    addPart('datestar', 'calendar', ds, { name: 'Date star', kind: 'Calendar', teeth: '31 teeth', desc: 'One tooth per day of the longest month. A spring jumper holds it between steps. At the end of a short month it is advanced several teeth in a single night.', rate: 'jumps at midnight' });
+    const jumper = (piv, target, starR) => {
+      const g = new THREE.Group(); g.position.set(piv[0], piv[1], 0);
+      const tip = [target[0] - piv[0], target[1] - piv[1]];
+      g.add(lever([[0, 0, 0.3], [tip[0] * 0.55, tip[1] * 0.55, 0.14], [tip[0], tip[1], 0.12]], zC, d, MAT.steelSatin));
+      g.add(screw(0, 0, zC + 0.06, 0.24, 1));
+      return g;
+    };
+    R.dateJumper = jumper([3.4, 12.6], at(DS, 2.05, 40 * D2R)); lay.add(R.dateJumper);
+    // day star + jumper + lever
+    const dy = new THREE.Group(); dy.position.set(DY[0], DY[1], 0);
+    dy.add(toothed(starOutline(7, 1.55, 1.05), zC, d, MAT.steel, { bore: 0.15 })); dy.add(rod(0.13, 0.9, 2.55));
+    lay.add(dy); R.dayStar = dy;
+    addPart('daystar', 'calendar', dy, { name: 'Day star', kind: 'Calendar', teeth: '7 teeth', desc: 'Seven teeth, one per weekday, advanced each midnight by the day lever. It needs no program: every week has seven days.', rate: 'jumps at midnight' });
+    R.dayJumper = jumper([-12.4, 2.4], at(DY, 1.25, 120 * D2R)); lay.add(R.dayJumper);
+    const dlPiv = [-6.0, 4.6];
+    R.dayLever = new THREE.Group(); R.dayLever.position.set(dlPiv[0], dlPiv[1], 0);
+    R.dayLever.add(lever([[W24[0] - 1.2 - dlPiv[0], W24[1] + 0.6 - dlPiv[1], 0.1], [0, 0, 0.3], [DY[0] + 1.6 - dlPiv[0], DY[1] + 0.9 - dlPiv[1], 0.1]], zC, 0.1, MAT.steelSatin));
+    R.dayLever.add(screw(0, 0, zC + 0.06, 0.24, 1));
+    lay.add(R.dayLever);
+    addPart('daylever', 'calendar', R.dayLever, { name: 'Day lever', kind: 'Calendar', teeth: '—', desc: 'A long rocking lever. The 24-hour wheel\'s pin lifts one end at midnight and the other end steps the day star.', rate: 'flicks at midnight', count: 2 });
+    addPart('jumpers', 'calendar', (() => { const g = new THREE.Group(); g.add(R.dateJumper); g.add(R.dayJumper); lay.add(g); return g; })(), { name: 'Jumper springs', kind: 'Calendar', teeth: '—', desc: 'Sprung levers whose noses sit in the stars\' valleys. They snap each star into place after every step so the indications never drift between days.', rate: 'snap once per step', count: 4 });
+    // month star + gear, idler, program wheel
+    const ms = new THREE.Group(); ms.position.set(MS[0], MS[1], 0);
+    ms.add(toothed(starOutline(12, 1.4, 1.02), zC, d, MAT.steel, { bore: 0.15 }));
+    ms.add(wheelM(12, 0.1, zA, d, MAT.steel, { bore: 0.12 }));
+    ms.add(rod(0.13, 0.9, 2.55)); lay.add(ms); R.monthStar = ms;
+    addPart('monthstar', 'calendar', ms, { name: 'Month star', kind: 'Calendar', teeth: '12 points · 12 teeth', desc: 'Advanced once a month by a finger on the date star (through the month lever). Its 12-tooth gear turns the program wheel four times slower.', rate: '1 turn / year' });
+    const i2 = new THREE.Group(); i2.position.set(I2[0], I2[1], 0); R.i2Off = meshPhase(0, 12, 40, MS, I2);
+    i2.add(wheelM(40, 0.1, zA, d, MAT.steel, { spokes: 4, off: R.i2Off })); i2.add(rod(0.1, 0.9, 1.5)); lay.add(i2); R.i2 = i2;
+    addPart('i2', 'calendar', i2, { name: 'Month idler', kind: 'Calendar', teeth: '40 teeth', desc: 'Reverses direction between the month star and the program wheel so the leap-year hand turns clockwise.', rate: '1 turn / 3.3 years' });
+    const pw = new THREE.Group(); pw.position.set(PW[0], PW[1], 0); R.pwOff = meshPhase(R.i2Off, 40, 48, I2, PW);
+    pw.add(wheelM(48, 0.1, zA, d, MAT.gold, { spokes: 5, curve: 0.4, off: R.pwOff }));
+    // 48-month program cam: notch depth = 31 − days in month
+    R.fG = ang(PW, [11.6, 10.2]) - 70 * D2R;
+    const camR = [];
+    for (let i = 0; i < 48; i++) { const y = Math.floor(i / 12), m = i % 12; camR.push(2.15 - 0.16 * (31 - monthLen(y === 0 ? 2028 : 2029, m + 1))); }
+    pw.add(toothed(snailOutline(camR, R.fG - 3.75 * D2R), zB, d, MAT.steelSatin, { bore: 0.15 }));
+    pw.add(rod(0.13, 0.9, 2.55)); lay.add(pw); R.program = pw;
+    addPart('program', 'calendar', pw, { name: '48-month program wheel', kind: 'Perpetual calendar', teeth: '48 teeth · 48 notches', desc: 'The memory of the perpetual calendar. Four years of month lengths are cut into its edge: no notch for 31-day months, shallow for 30, deeper for February, and deepest for February of a common year.', rate: '1 turn / 4 years' });
+    // grand lever: feeler on the cam, nose by the date star
+    const glPiv = [11.6, 10.2];
+    R.grandLever = new THREE.Group(); R.grandLever.position.set(glPiv[0], glPiv[1], 0);
+    const feel = at(PW, 2.3, R.fG);
+    R.grandLever.add(lever([[feel[0] - glPiv[0], feel[1] - glPiv[1], 0.12], [0, 0, 0.32], [3.6 - glPiv[0], 12.8 - glPiv[1], 0.14]], zD, 0.1, MAT.steelSatin));
+    R.grandLever.add(screw(0, 0, zD + 0.06, 0.26, 1));
+    lay.add(R.grandLever);
+    addPart('grandlever', 'calendar', R.grandLever, { name: 'Grand lever', kind: 'Perpetual calendar', teeth: '—', desc: 'Rests on the program wheel. On the last night of a short month it drops into that month\'s notch; the deeper the drop, the more extra teeth the date star is driven on.', rate: 'drops at month\'s end', count: 2 });
+    R.monthLever = new THREE.Group(); const mlPiv = [5.0, 7.9]; R.monthLever.position.set(mlPiv[0], mlPiv[1], 0);
+    R.monthLever.add(lever([[2.3 - mlPiv[0], 8.2 - mlPiv[1], 0.1], [0, 0, 0.28], [MS[0] - 0.6 - mlPiv[0], MS[1] + 1.6 - mlPiv[1], 0.1]], zC, 0.1, MAT.steelSatin));
+    R.monthLever.add(screw(0, 0, zC + 0.06, 0.22, 1));
+    lay.add(R.monthLever);
+    addPart('monthlever', 'calendar', R.monthLever, { name: 'Month lever', kind: 'Calendar', teeth: '—', desc: 'When the date star passes from its last day back to 1, its finger rocks this lever, which steps the month star forward.', rate: 'once a month', count: 2 });
+    AXES.push({ p: DS, layers: ['calendar', 'moon', 'dial', 'hands'] }, { p: DY, layers: ['calendar', 'dial', 'hands'] }, { p: MS, layers: ['calendar', 'dial', 'hands'] }, { p: PW, layers: ['calendar', 'dial', 'hands'] }, { p: RW, layers: ['motion', 'dial', 'hands'] }, { p: B, layers: ['motion', 'plate', 'train', 'bridges', 'keyless'] });
+  }
+
+  // ======================= MOON DISC ==========================
+  {
+    const g = new THREE.Group(); g.position.set(DS[0], DS[1], 0);
+    const geo = extrude(wheelOutline(135, 0.045, { nTip: 2, nRoot: 1 }), [boreHole(0.28)], 0.1, 0); geo.translate(0, 0, 1.86);
+    g.add(M(geo, MAT.moon));
+    LG.moon.add(g); R.moonDisc = g;
+    addPart('moondisc', 'moon', g, { name: 'Moon disc', kind: 'Moon phase', teeth: '135 teeth · 2 moons', desc: 'Two painted moons on a night-blue disc, seen through the window at 12. It turns once every two lunations, geared continuously from the 24-hour wheel.', rate: '1 turn / 59.0625 days' });
+  }
+
+  // ======================= DIAL ==========================
+  {
+    const holes = [circlePts(DIAL.tbR, 96, DIAL.tb[0], DIAL.tb[1]).reverse(), moonWindowPath().reverse()];
+    const geo = extrude(circlePts(19.9, 200), holes, 0.3, 0.04); geo.translate(0, 0, 2.25);
+    const g = new THREE.Group(); g.add(M(geo, MAT.dial));
+    LG.dial.add(g); R.dial = g;
+    addPart('dial', 'dial', g, { name: 'Dial', kind: 'Display', teeth: '—', desc: 'Silvered, with rose-engine guilloché in the center. Openings show the tourbillon at 6 and the moon at 12. Six subdials: date, day, month, leap year, power reserve and the tourbillon\'s seconds.', rate: '—' });
+  }
+
+  // ======================= HANDS ==========================
+  {
+    const lay = LG.hands;
+    const shp = pts => new THREE.Shape(pts.map(p => V2(p[0], p[1])));
+    const handGeo = (shapes, z, t = 0.07) => { const g = new THREE.Group(); for (const s of shapes) { const geo = new THREE.ExtrudeGeometry(s, { depth: t, bevelEnabled: false, curveSegments: 20 }); geo.translate(0, 0, z); g.add(M(geo, MAT.bluedHand)); } return g; };
+    const ringShape = (cy, ro, ri) => { const s = new THREE.Shape(); s.absarc(0, cy, ro, 0, TAU, false); const h = new THREE.Path(); h.absarc(0, cy, ri, 0, TAU, true); s.holes.push(h); return s; };
+    const circ = (cy, r) => { const s = new THREE.Shape(); s.absarc(0, cy, r, 0, TAU, false); return s; };
+    const breguet = (L, ringY, ro, ri, w0, z, tail) => handGeo([
+      circ(0, 0.85), shp([[-w0, 0], [w0, 0], [w0 * 0.45, ringY - ro + 0.05], [-w0 * 0.45, ringY - ro + 0.05]]),
+      ringShape(ringY, ro, ri), shp([[-w0 * 0.55, ringY + ro - 0.05], [w0 * 0.55, ringY + ro - 0.05], [0, L]]),
+      shp([[-0.18, 0], [0.18, 0], [0.1, -tail], [-0.1, -tail]]), circ(-tail, 0.38)], z);
+    R.hHour = breguet(9.6, 7.0, 0.92, 0.6, 0.34, 2.62, 1.6); lay.add(R.hHour);
+    R.hMin = breguet(15.6, 11.9, 0.78, 0.5, 0.28, 2.8, 2.3); lay.add(R.hMin);
+    addPart('hourhand', 'hands', R.hHour, { name: 'Hour hand', kind: 'Hands', teeth: '—', desc: 'Blued steel, in the hollow-moon style Breguet introduced around 1783. Mounted on the hour wheel pipe.', rate: '1 turn / 12 h' });
+    addPart('minutehand', 'hands', R.hMin, { name: 'Minute hand', kind: 'Hands', teeth: '—', desc: 'Pressed onto the cannon pinion. Because the cannon pinion grips by friction, you can turn this hand to set the time without forcing the train.', rate: '1 turn / hour' });
+    const lance = (c, L, z) => { const g = handGeo([circ(0, 0.36), shp([[-0.13, -0.9], [0.13, -0.9], [0.07, L - 0.55], [0, L], [-0.07, L - 0.55]])], z, 0.05); g.position.set(c[0], c[1], 0); return g; };
+    R.hDate = lance(DS, 3.6, 2.5); R.hDay = lance(DY, 3.1, 2.5); R.hMonth = lance(MS, 3.2, 2.5);
+    R.hLeap = lance(PW, 1.6, 2.5); R.hRes = lance(RW, 1.75, 2.5);
+    const sub = new THREE.Group(); sub.add(R.hDate, R.hDay, R.hMonth, R.hLeap, R.hRes); lay.add(sub);
+    addPart('subhands', 'hands', sub, { name: 'Subdial hands', kind: 'Hands', teeth: '—', desc: 'Five small hands for date, day, month, leap year and power reserve, each on the arbor of the wheel that drives it.', rate: 'varies', count: 5 });
+  }
+
+  // ======================= STRIKE WORK: hammers, gongs, governor ==========================
+  {
+    const lay = LG.strike;
+    R.gongs = []; R.hammers = [];
+    const footA = 228 * D2R;
+    const gg = new THREE.Group();
+    for (let i = 0; i < 5; i++) {
+      const r = 20.45 + i * 0.22, z = -1.55 - i * 0.32;
+      const tor = new THREE.TorusGeometry(r, 0.085, 8, 220, 332 * D2R);
+      const m = M(tor, MAT.gong); m.position.z = z; m.rotation.z = footA + 2 * D2R;
+      const holder = new THREE.Group(); holder.add(m); gg.add(holder); R.gongs.push(m);
+    }
+    const foot = new THREE.BoxGeometry(1.6, 1.0, 1.9); const fm = M(foot, MAT.steelSatin);
+    const fp = at([0, 0], 20.9, footA); fm.position.set(fp[0], fp[1], -2.2); fm.rotation.z = footA; gg.add(fm);
+    gg.add(screw(fp[0], fp[1], -3.15, 0.36, -1));
+    lay.add(gg);
+    addPart('gongs', 'strike', gg, { name: 'Gongs', kind: 'Chiming', teeth: '5 gongs', desc: 'Five hardened steel wires coiled around the movement, all fixed to one foot. Each is tuned to one note of the Westminster chime; the lowest strikes the hours.', rate: 'sound when struck', count: 6 });
+    const hg = new THREE.Group();
+    for (let i = 0; i < 5; i++) {
+      const a = footA + (6 + i * 4.2) * D2R, z = -1.55 - i * 0.32;
+      const piv = at([0, 0], 17.8 - i * 0.12, a + 2.5 * D2R);
+      const head = at([0, 0], 20.2 + i * 0.22 - 0.28, a);
+      const h = new THREE.Group(); h.position.set(piv[0], piv[1], 0);
+      h.add(lever([[0, 0, 0.3], [head[0] - piv[0], head[1] - piv[1], 0.2]], z, 0.22, MAT.steel));
+      const hb = new THREE.BoxGeometry(0.62, 0.7, 0.34); const hbm = M(hb, MAT.steel); hbm.position.set(head[0] - piv[0], head[1] - piv[1], z); hbm.rotation.z = a; h.add(hbm);
+      h.add(rod(0.13, z - 0.25, z + 0.35, MAT.steel, 0, 0, 10));
+      hg.add(h); R.hammers.push(h); (R.hammerPivots ||= []).push(piv);
+    }
+    lay.add(hg);
+    addPart('hammers', 'strike', hg, { name: 'Hammers', kind: 'Chiming', teeth: '5 hammers', desc: 'Each is lifted by the strike train and released to hit its gong near the foot, where the wire is stiffest and rings longest.', rate: 'strike on demand', count: 10 });
+    const gov = new THREE.Group(); const gp = [-13.4, -5.6]; gov.position.set(gp[0], gp[1], 0);
+    gov.add(rod(0.08, -3.2, -1.0));
+    for (const s of [-1, 1]) { const v = new THREE.BoxGeometry(1.5, 0.06, 0.9); const vm = M(v, MAT.steelSatin); vm.position.set(s * 0.85, 0, -2.4); gov.add(vm); }
+    gov.add(pinionM(8, 0.07, -1.5, 0.15, MAT.steel));
+    lay.add(gov); R.governor = gov;
+    addPart('governor', 'strike', gov, { name: 'Governor', kind: 'Chiming', teeth: 'pinion 8', desc: 'A small fly with two vanes that spins while the repeater runs. Air resistance and friction keep the strikes evenly spaced.', rate: 'spins while striking', count: 3 });
+  }
+
+  // ======================= BRIDGES ==========================
+  {
+    const lay = LG.bridges, z = -3.7, depth = 0.7;
+    const mk = (circles, holes, name, id, desc, jewels, screws) => {
+      const g = new THREE.Group();
+      const geo = extrude(hullOfCircles(circles), holes, depth, 0.09); geo.translate(0, 0, z);
+      g.add(M(geo, MAT.bridge));
+      for (const j of jewels) g.add(jewel(j[0], j[1], z - depth / 2 - 0.09, j[2] || 0.34, -1));
+      for (const s of screws) g.add(screw(s[0], s[1], z - depth / 2 - 0.09, 0.5, -1));
+      lay.add(g);
+      addPart(id, 'bridges', g, { name, kind: 'Frame', teeth: '—', desc, rate: 'fixed', count: 1 + jewels.length + screws.length });
+    };
+    mk([[0, 7.9, 5.6], [-7.0, 11.4, 1.5], [7.0, 11.4, 1.5], [0, 14.4, 1.6], [5.6, 4.9, 0.9]], [boreHole(0.6).map(v => V2(v.x + LAY.B[0], v.y + LAY.B[1]))],
+      'Barrel bridge', 'barrelbridge', 'Holds the barrel arbor and supports the ratchet wheel and crown wheel of the winding works. The stripes are Côtes de Genève, applied across all bridges in one pass so they line up.', [], [[-7.0, 11.4], [7.0, 11.4], [-3.0, 3.6], [3.4, 4.4]]);
+    mk([[0, 0, 1.25], [LAY.T[0], LAY.T[1], 1.25], [-6.4, -2.0, 1.3], [6.2, -2.8, 1.3]], [],
+      'Train bridge', 'trainbridge', 'A single bar holding the top pivots of the center and third wheels in ruby jewels.', [[0, 0], [LAY.T[0], LAY.T[1]]], [[-6.4, -2.0], [6.2, -2.8]]);
+    mk([[0, -9.2, 1.4], [-7.4, -11.4, 1.35], [7.4, -11.4, 1.35]], [],
+      'Tourbillon bridge', 'tbbridge', 'Carries the lower jewel of the tourbillon cage. The cage is otherwise free, with nothing over its dial side, so it can be seen through the dial.', [[0, -9.2]], [[-7.4, -11.4], [7.4, -11.4]]);
+    const hp = R.hammerPivots;
+    mk([...hp.map(p => [p[0], p[1], 0.75]), [-13.4, -5.6, 1.0], [-13.2, -9.6, 0.9]], [],
+      'Strike-work cock', 'strikecock', 'Holds the hammer pivots and the governor in line with the gong foot.', [[-13.4, -5.6, 0.26], ...hp.map(p => [p[0], p[1], 0.2])], [[-13.2, -9.6], [hp[4][0] + 0.9, hp[4][1] + 0.6]]);
+    AXES.push({ p: LAY.T, layers: ['train', 'plate', 'bridges'] });
+  }
+
+  // ======================= WINDING WORKS ==========================
+  {
+    const lay = LG.keyless, zr = -4.25;
+    const rt = new THREE.Group(); rt.position.set(B[0], B[1], 0);
+    rt.add(toothed(ratchetOutline(75, 4.6, 4.28), zr, 0.22, MAT.ratchet, { bore: 0.36, bevel: 0.02 }));
+    rt.add(screw(0, 0, zr - 0.11, 0.7, -1, MAT.blued));
+    lay.add(rt); R.ratchet = rt;
+    addPart('ratchet', 'keyless', rt, { name: 'Ratchet wheel', kind: 'Winding', teeth: '75 teeth', desc: 'Squared onto the barrel arbor. Turning it winds the mainspring; its sawtooth teeth let the click hold every bit of wind.', rate: 'turns only when wound', count: 2 });
+    const cw = new THREE.Group(); cw.position.set(CW[0], CW[1], 0);
+    R.cwOff = meshPhase(0, 75, 32, B, CW);
+    cw.add(wheelM(32, 0.12, zr, 0.22, MAT.ratchet, { off: R.cwOff, bore: 0.2 }));
+    cw.add(screw(0, 0, zr - 0.11, 0.42, -1, MAT.blued));
+    lay.add(cw); R.crownWheel = cw;
+    addPart('crownwheel', 'keyless', cw, { name: 'Crown wheel', kind: 'Winding', teeth: '32 teeth', desc: 'Turns the ratchet wheel when the crown is wound. Its teeth are cut to mesh with the winding pinion on the stem at a right angle.', rate: 'turns only when wound', count: 2 });
+    const clickPiv = at(B, 6.05, -22 * D2R);
+    R.click = new THREE.Group(); R.click.position.set(clickPiv[0], clickPiv[1], 0);
+    const ct = at(B, 4.55, -9 * D2R);
+    R.click.add(lever([[0, 0, 0.42], [ct[0] - clickPiv[0], ct[1] - clickPiv[1], 0.14]], zr, 0.22, MAT.steel));
+    R.click.add(screw(0, 0, zr - 0.11, 0.32, -1));
+    lay.add(R.click);
+    const cs = lever([[clickPiv[0] + 1.6, clickPiv[1] - 1.5, 0.08], [clickPiv[0] + 0.4, clickPiv[1] - 0.5, 0.06]], zr, 0.22, MAT.steelSatin);
+    lay.add(cs);
+    addPart('click', 'keyless', (() => { const g = new THREE.Group(); g.add(R.click); g.add(cs); lay.add(g); return g; })(), { name: 'Click & spring', kind: 'Winding', teeth: '—', desc: 'A sprung pawl resting in the ratchet teeth. It is the clicking sound you hear when winding, and the only thing stopping the mainspring from unwinding through the crown.', rate: 'one click per tooth', count: 3 });
+    // stem, winding pinion (contrate), crown
+    const st = new THREE.Group(); st.position.z = -2.65;
+    const stem = new THREE.CylinderGeometry(0.42, 0.42, 9.0, 16); stem.translate(0, 20.0, 0); st.add(M(stem, MAT.steel));
+    const wpGeo = extrude(wheelOutline(18, 0.17, { nTip: 3 }), [boreHole(0.4)], 0.35, 0); wpGeo.rotateX(-Math.PI / 2); wpGeo.translate(0, 15.75, 0);
+    st.add(M(wpGeo, MAT.steel));
+    const crown = extrude(wheelOutline(30, 0.16, { add: 0.6, ded: 0.7, thick: 0.55, nTip: 3 }), [], 2.6, 0.06); crown.rotateX(-Math.PI / 2); crown.translate(0, 26.4, 0);
+    st.add(M(crown, MAT.case));
+    const cap = new THREE.CylinderGeometry(2.3, 2.3, 0.3, 40); cap.translate(0, 27.85, 0); st.add(M(cap, MAT.case));
+    lay.add(st); R.stem = st;
+    addPart('crown', 'keyless', st, { name: 'Crown, stem & winding pinion', kind: 'Winding', teeth: 'pinion 18', desc: 'The only part you touch. Turning the crown spins the stem and its winding pinion, which turns the crown wheel and then the ratchet.', rate: 'by hand', count: 3 });
+  }
+
+  // ======================= CASE ==========================
+  {
+    const g = new THREE.Group();
+    const prof = [];
+    for (let i = 0; i <= 24; i++) { const a = -Math.PI / 2 + i / 24 * Math.PI; prof.push(V2(22.4 + 1.25 * Math.cos(a), -0.8 + 4.3 * Math.sin(a))); }
+    prof.push(V2(21.7, 3.5), V2(21.62, 3.5)); prof.unshift(V2(21.62, -5.1), V2(21.7, -5.1));
+    prof.push(prof[0].clone());
+    const lathe = new THREE.LatheGeometry(prof, 160); lathe.rotateX(Math.PI / 2);
+    const cm = MAT.case.clone(); cm.side = THREE.DoubleSide; g.add(M(lathe, cm));
+    const flange = extrude(circlePts(21.75, 160), [boreHole(19.82, 160)], 0.5, 0.03); flange.translate(0, 0, 2.62);
+    g.add(M(flange, new THREE.MeshStandardMaterial({ color: 0xdedfe0, metalness: 1, roughness: 0.38 })));
+    const bez = new THREE.TorusGeometry(21.6, 0.55, 16, 160); const bm = M(bez, MAT.case); bm.position.z = 3.35; g.add(bm);
+    const GR = 120, gth = Math.asin(21.3 / GR);
+    const glass = new THREE.SphereGeometry(GR, 64, 6, 0, TAU, 0, gth);
+    const gm = M(glass, new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0, roughness: 0, transparent: true, opacity: 0.07, envMapIntensity: 1.4, depthWrite: false }));
+    gm.rotation.x = Math.PI / 2; gm.position.z = 3.45 - GR * Math.cos(gth); g.add(gm); R.glass = gm;
+    const pend = new THREE.CylinderGeometry(1.5, 1.8, 2.8, 24); pend.translate(0, 24.3, 0); const pm = M(pend, MAT.case); pm.position.z = -2.65; g.add(pm);
+    const bow = new THREE.TorusGeometry(4.8, 0.62, 16, 64, Math.PI * 1.3); const bwm = M(bow, MAT.case);
+    bwm.rotation.z = -Math.PI * 0.15; bwm.position.set(0, 29.0, -2.65); g.add(bwm);
+    const slideA = 200 * D2R; const sp = at([0, 0], 23.5, slideA);
+    const slide = new THREE.BoxGeometry(0.9, 4.2, 1.1); R.slide = M(slide, MAT.case); R.slide.position.set(sp[0], sp[1], -0.8); R.slide.rotation.z = slideA; g.add(R.slide);
+    R.slideBase = slideA;
+    LG.case.add(g); R.case = g;
+    addPart('case', 'case', g, { name: 'Case', kind: 'Case', teeth: '—', desc: 'A polished pocket-watch case with pendant and bow at 12. The slide on the left side arms the minute repeater.', rate: '—', count: 5 });
+  }
+  return ROOT;
+}
+
+// Julian-rule month lengths: what the program wheel "knows" (every 4th year is a leap year)
+function monthLen(y, m) { return [31, (y % 4 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1]; }
+
+// ============================================================================
+// SIMULATION — the balance swings in real time; everything else follows the beats
+// ============================================================================
+const F_HZ = 2.5;                 // balance frequency: 18,000 vph
+const LIFT = 26 * D2R;            // half lift angle of the balance
+const BANK = 12 * D2R;            // pallet fork banking angle
+const FORK_K = 0.46;              // impulse-pin radius / fork length
+const E0 = -105 * D2R;            // escape wheel phase so a tooth sits on a stone
+const FULL_TURNS = 7.5;           // 60 h of reserve, 8 h per barrel turn
+
+// ----- epoch: local midnight today (the moment the watch was "set" from)
+const NOW0 = new Date();
+const EPOCH = new Date(NOW0.getFullYear(), NOW0.getMonth(), NOW0.getDate());
+const EPOCH_MS = EPOCH.getTime();
+const EPOCH_YMD = [EPOCH.getFullYear(), EPOCH.getMonth() + 1, EPOCH.getDate()];
+const EPOCH_WD = EPOCH.getDay();
+const wallSec = () => { const n = new Date(); return (n.getTime() - EPOCH_MS) / 1000 - (n.getTimezoneOffset() - EPOCH.getTimezoneOffset()) * 60; };
+
+// ----- calendars
+function jdnJulian(y, m, d) { const a = Math.floor((14 - m) / 12), yy = y + 4800 - a, mm = m + 12 * a - 3; return d + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy / 4) - 32083; }
+function fromJdnJulian(J) { const c = J + 32082, d = Math.floor((4 * c + 3) / 1461), e = c - Math.floor(1461 * d / 4), m = Math.floor((5 * e + 2) / 153); return [d - 4800 + Math.floor(m / 10), m + 3 - 12 * Math.floor(m / 10), e - Math.floor((153 * m + 2) / 5) + 1]; }
+const EPOCH_JJ = jdnJulian(...EPOCH_YMD);
+const mechDate = days => fromJdnJulian(EPOCH_JJ + days);                                // what the watch shows
+const realDate = days => { const d = new Date(EPOCH_YMD[0], EPOCH_YMD[1] - 1, EPOCH_YMD[2] + days); return [d.getFullYear(), d.getMonth() + 1, d.getDate()]; };
+const SYN = 29.530588853, MECH_LUNATION = 29.53125;
+const meanMoonAge = ms => fmod(ms / 86400000 + 2440587.5 - 2451550.26, SYN);
+const MOON_AGE0 = meanMoonAge(EPOCH_MS);
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const WDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+// ----- clock state
+const CLOCK = {
+  S: wallSec(), mode: 'live', rate: 1, travel: null,
+  windTurns: 0, held: false, stopped: false,
+};
+CLOCK.windTurns = CLOCK.S / 28800 + 44.5 / 8;
+
+function setRate(r) {
+  if (CLOCK.mode === 'travel') CLOCK.travel = null;
+  CLOCK.mode = 'run'; CLOCK.rate = r;
+}
+function goLive(dur = 1.6) {
+  const d = wallSec() - CLOCK.S;
+  if (Math.abs(d) < 0.3) { CLOCK.mode = 'live'; CLOCK.rate = 1; return; }
+  travelTo(null, Math.min(2.6, dur + Math.log10(1 + Math.abs(d)) * 0.15), { mode: 'live', rate: 1 });
+}
+function travelTo(S1, dur, then) {
+  CLOCK.travel = { from: CLOCK.S, to: S1, t0: performance.now(), dur: dur * 1000, then };
+  CLOCK.mode = 'travel';
+}
+function clockStep(dt) {
+  const c = CLOCK;
+  let traveled = false;
+  if (c.mode === 'live') c.S = wallSec();
+  else if (c.mode === 'run') { if (!c.stopped) c.S += dt * c.rate; }
+  else if (c.mode === 'travel') {
+    const tr = c.travel, t = clamp((performance.now() - tr.t0) / tr.dur, 0, 1);
+    const to = tr.to === null ? wallSec() : tr.to;
+    c.S = tr.from + (to - tr.from) * easeInOut(t);
+    traveled = true;
+    if (t >= 1) { c.mode = tr.then.mode; c.rate = tr.then.rate; c.travel = null; c.stopped = false; }
+  }
+  // the watchmaker keeps it wound during time-lapse and travel
+  c.held = traveled || (c.mode === 'run' && c.rate > 30);
+}
+
+// ----- escapement kinematics: from sim seconds S to beats, fork and balance
+function escapement(S, A) {
+  const psi = TAU * F_HZ * S;
+  const delta = Math.asin(Math.min(0.99, LIFT / A));
+  const n = Math.floor((psi + delta) / Math.PI);
+  const local = psi - n * Math.PI;
+  let frac = 1, phase = 'locked', u = 1;
+  if (local < delta) {
+    u = (local + delta) / (2 * delta);
+    if (u < 0.2) { frac = -0.05 * Math.sin(Math.PI * u / 0.2); phase = 'unlocking'; }
+    else if (u < 0.86) { frac = 0.85 * (u - 0.2) / 0.66; phase = 'impulse'; }
+    else { frac = 0.85 + 0.15 * smooth((u - 0.86) / 0.14); phase = 'drop'; }
+  }
+  const theta = A * Math.sin(psi);
+  return { theta, beats: n + frac, phase, n, fork: clamp(-FORK_K * theta, -BANK, BANK) };
+}
+
+// discrete indicators chase their targets one tooth at a time, with a snap
+class Chaser {
+  constructor() { this.v = null; this.t = 0; }
+  set(t) { if (this.v === null || Math.abs(t - this.v) > 40) this.v = t; this.t = t; }
+  step(dt, speed = 9) {
+    const d = this.t - this.v; if (!d) return 0;
+    const before = Math.floor(this.v + 1e-9);
+    this.v += Math.sign(d) * Math.min(Math.abs(d), speed * dt);
+    return Math.floor(this.v + 1e-9) - before;   // teeth crossed this frame
+  }
+  get disp() { const f = Math.floor(this.v), r = this.v - f; return f + smooth(Math.min(1, r * 1.6)); }
+}
+const CH = { date: new Chaser(), day: new Chaser(), month: new Chaser(), hour: new Chaser() };
+const FLICK = { day: -9, month: -9, grand: -9, grandDepth: 0 };
+
+let ST = {};      // last computed state, read by the UI
+let lastWD = null, lastMonthCount = null, lastQuarter = null, lastWind = 0, lastBeatN = null;
+
+function mech(dt) {
+  const c = CLOCK;
+  let drumTurns = c.S / 28800;
+  if (c.held) c.windTurns = Math.max(c.windTurns, drumTurns + 30 / 8);
+  c.windTurns = Math.min(c.windTurns, drumTurns + FULL_TURNS);
+  let reserveTurns = c.windTurns - drumTurns;
+  if (reserveTurns <= 0 && !c.held) {           // run down: the watch stops
+    if (c.mode === 'live') { c.mode = 'run'; c.rate = 1; }
+    c.stopped = true; reserveTurns = 0; c.S = (c.windTurns) * 28800; drumTurns = c.windTurns;
+  } else if (c.stopped && reserveTurns > 0.02) c.stopped = false;
+  const reserveH = clamp(reserveTurns * 8, 0, 60);
+  const A = c.stopped ? 0.0001 : (200 + 85 * smooth(reserveH / 40)) * D2R;
+  const esc = escapement(c.S, A);
+  const t = (esc.beats - 0.5) / 5;            // seconds the train has counted since midnight on the epoch day
+
+  const days = Math.floor(t / 86400);
+  const [Y, Mo, D] = mechDate(days);
+  const wd = fmod(EPOCH_WD + days, 7);
+  const monthCount = Y * 12 + (Mo - 1);
+  const daySec = t - days * 86400;
+  const moonAge = MOON_AGE0 * MECH_LUNATION / SYN + t / 86400;   // watch's moon age, in its own 29.53125-day months
+  ST = { t, S: c.S, days, Y, Mo, D, wd, monthCount, daySec, esc, A, reserveH, reserveTurns, drumTurns, moonAge };
+  return ST;
+}
+
+function pose(st, dt) {
+  const t = st.t, w = TAU;
+  const rz = (o, a) => { o.rotation.z = fmod(a, TAU); };
+  // going train (signs as seen from the dial: negative = clockwise)
+  rz(R.barrel, w * st.drumTurns);
+  rz(R.barrelArbor, w * st.reserveTurns);
+  rz(R.center, -w * t / 3600);
+  rz(R.third, w * t * 8 / 3600);
+  rz(R.cage, -w * t / 60);
+  rz(R.escape, E0 - 12 * D2R * st.esc.beats);
+  R.pallet.rotation.z = st.esc.fork;
+  R.balance.rotation.z = st.esc.theta;
+  hairspring(st.esc.theta);
+  // winding works
+  rz(R.ratchet, w * CLOCK.windTurns);
+  rz(R.crownWheel, -w * CLOCK.windTurns * 75 / 32);
+  R.click.rotation.z = -0.07 * Math.pow(fmod(CLOCK.windTurns * 75, 1), 2);
+  R.stem.rotation.y = fmod(w * CLOCK.windTurns * 75 / 18, TAU);
+  const wound = clamp(st.reserveTurns / FULL_TURNS, 0, 1);
+  if (Math.abs(wound - (R.mainspring.lastW ?? -1)) > 0.003) { mainspring(wound); R.mainspring.lastW = wound; }
+  // motion works & hands
+  rz(R.cannon, -w * t / 3600);
+  rz(R.minuteWheel, w * t / 10800);
+  rz(R.hourWheel, -w * t / 43200);
+  rz(R.hMin, -w * t / 3600);
+  rz(R.hHour, -w * t / 43200);
+  rz(R.i1, w * t / 43200 * 20 / 30);
+  rz(R.w24, -w * t / 86400);
+  rz(R.mi, w * t / 86400 * 8 / 56);
+  rz(R.moonDisc, R.moon0 - w * t / 86400 / 59.0625);
+  // calendar: discrete steps that chase their targets
+  CH.date.set((st.monthCount) * 31 + (st.D - 1));
+  CH.day.set(st.days + EPOCH_WD);
+  CH.month.set(st.monthCount);
+  const hourCount = Math.floor(t / 3600);
+  CH.hour.set(hourCount);
+  if (lastWD !== null && st.days !== lastWD && Math.abs(st.days - lastWD) < 3) FLICK.day = performance.now();
+  if (lastMonthCount !== null && st.monthCount !== lastMonthCount && Math.abs(st.monthCount - lastMonthCount) < 2) {
+    FLICK.month = performance.now(); FLICK.grand = performance.now();
+    const [py, pm] = mechDate(st.days - 1); FLICK.grandDepth = 31 - monthLen(py, pm);
+  }
+  lastWD = st.days; lastMonthCount = st.monthCount;
+  const fast = CLOCK.mode === 'travel' || CLOCK.rate > 4000;
+  const crossed = CH.date.step(dt, fast ? 40 : 12) + CH.day.step(dt, fast ? 40 : 10) + CH.month.step(dt, fast ? 40 : 8);
+  CH.hour.step(dt, 6);
+  if (crossed && !fast) AUDIO.click(0.5);
+  rz(R.dateStar, -w * CH.date.disp / 31); rz(R.hDate, -w * CH.date.disp / 31);
+  rz(R.dayStar, -w * CH.day.disp / 7); rz(R.hDay, -w * CH.day.disp / 7);
+  rz(R.monthStar, -w * CH.month.disp / 12); rz(R.hMonth, -w * CH.month.disp / 12);
+  rz(R.i2, w * CH.month.disp / 12 * 12 / 40);
+  rz(R.program, -w * CH.month.disp / 48); rz(R.hLeap, -w * CH.month.disp / 48);
+  rz(R.hourStar, -w * CH.hour.disp / 12);
+  const jb = v => 0.09 * Math.sin(Math.PI * fmod(v, 1));
+  R.dateJumper.rotation.z = jb(CH.date.v); R.dayJumper.rotation.z = -jb(CH.day.v);
+  const pulse = t0 => { const x = (performance.now() - t0) / 1000; return x < 0 || x > 0.6 ? 0 : x < 0.12 ? x / 0.12 : 1 - (x - 0.12) / 0.48; };
+  R.dayLever.rotation.z = -0.1 * pulse(FLICK.day);
+  R.monthLever.rotation.z = 0.12 * pulse(FLICK.month);
+  R.grandLever.rotation.z = -0.035 * (1 + FLICK.grandDepth) * pulse(FLICK.grand);
+  // power reserve
+  const resA = (-120 + st.reserveH / 60 * 240) * D2R;
+  R.hRes.rotation.z = -resA; R.rw.rotation.z = -resA;
+  R.i3.rotation.z = resA * 50 / 40; R.diff.rotation.z = -resA * 50 / 40;
+  // repeater, gongs, governor
+  repeaterPose();
+}
+
+// ----- springs
+function hairspring(theta) {
+  const pts = [], N = 12, rin = 0.36, rout = 2.02, n = N * 36, aS = R.studAngle - 0.9;
+  const amp = theta / 4.7;
+  for (let i = 0; i <= n; i++) {
+    const s = i / n;
+    const a = aS - TAU * N * (1 - s) + theta * (1 - s);
+    const r = (rin + (rout - rin) * s) * (1 + 0.025 * amp * Math.sin(Math.PI * s));
+    pts.push([r * Math.cos(a), r * Math.sin(a), 0.92]);
+  }
+  for (let i = 1; i <= 24; i++) {        // terminal curve rising to the stud
+    const f = i / 24, a = aS + 0.9 * f, r = rout + (2.2 - rout) * smooth(f);
+    pts.push([r * Math.cos(a), r * Math.sin(a), 0.92 + 0.16 * smooth(f)]);
+  }
+  R.hair.set(pts, 0.04, 0.12);
+}
+function mainspring(wf) {
+  const t = 0.13, rA = 1.02, rD = 5.94, ni = 1 + 9.5 * wf, no = 10.5 - 9.5 * wf, st = TAU / 40, pts = [];
+  let a = 0;
+  for (; a <= TAU * ni; a += st) pts.push(rA + t * a / TAU);
+  const ri = rA + t * ni, ro = rD - t * no, a1 = a;
+  for (; a <= a1 + TAU * 1.25; a += st) pts.push(ri + (ro - ri) * smooth((a - a1) / (TAU * 1.25)));
+  const a2 = a;
+  for (; a <= a2 + TAU * no; a += st) pts.push(ro + t * (a - a2) / TAU);
+  R.mainspring.set(pts.map((r, i) => [r * Math.cos(i * st), r * Math.sin(i * st), -2.42]), 0.075, 1.2);
+}
+
+// ----- winding by hand
+function wind(dt) {
+  const before = CLOCK.windTurns;
+  const maxW = ST.drumTurns + FULL_TURNS;
+  CLOCK.windTurns = Math.min(maxW, CLOCK.windTurns + dt * 0.55);
+  const teeth = Math.floor(CLOCK.windTurns * 75) - Math.floor(before * 75);
+  if (teeth > 0) AUDIO.ratchet();
+  return CLOCK.windTurns < maxW - 1e-6;
+}
+
+// ----- mesh phases that depend on the sim (set once after build)
+function initPhases() {
+  const { B, C, T, K, W24, MI, DS } = LAY;
+  R.cagePinion.rotation.z = meshPhase(0, 75, 10, T, K);
+  R.w24Pinion.rotation.z = meshPhase(0, 56, 8, MI, W24);
+  // moon disc: a moon is centred in the window (straight up) at full moon
+  R.moon0 = Math.PI * (0.5 - MOON_AGE0 / SYN);
+  R.miPin.rotation.z = meshPhase(R.moon0, 135, 16, DS, MI);
+  hairspring(0); mainspring(0.7);
+}
+
+// ============================================================================
+// SOUND & STRIKE WORK — synthesized gongs, minute repeater, Westminster chime
+// ============================================================================
+const GONG_HZ = [830.61, 739.99, 659.26, 493.88, 329.63];   // G#5 F#5 E5 B4 | E4 (hours)
+const AUDIO = {
+  ctx: null, on: false,
+  ensure() {
+    if (!this.ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
+      const c = this.ctx = new AC();
+      this.master = c.createGain(); this.master.gain.value = 0.9;
+      const comp = c.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 3;
+      this.master.connect(comp).connect(c.destination);
+      this.bus = c.createGain(); this.bus.connect(this.master);
+      // small case-cavity reverb
+      const len = c.sampleRate * 1.4, ir = c.createBuffer(2, len, c.sampleRate);
+      for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2); }
+      const conv = c.createConvolver(); conv.buffer = ir; const wet = c.createGain(); wet.gain.value = 0.22;
+      this.bus.connect(conv).connect(wet).connect(this.master);
+      const nb = c.createBuffer(1, c.sampleRate * 0.1, c.sampleRate); const nd = nb.getChannelData(0);
+      for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+      this.noise = nb;
+    }
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    return true;
+  },
+  burst(when, freq, q, gain, dur) {
+    const c = this.ctx, n = c.createBufferSource(); n.buffer = this.noise;
+    const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = freq; bp.Q.value = q;
+    const g = c.createGain(); g.gain.setValueAtTime(gain, when); g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+    n.connect(bp).connect(g).connect(this.bus); n.start(when); n.stop(when + dur + 0.01);
+  },
+  gong(i, when, vel = 1) {
+    if (!this.on || !this.ctx) return;
+    const c = this.ctx, f = GONG_HZ[i], out = c.createGain(); out.gain.value = 0.3 * vel; out.connect(this.bus);
+    const P = i === 4 ? [[1, 1, 3.4], [1.004, 0.6, 3.0], [2.756, 0.38, 1.9], [5.404, 0.16, 1.0], [8.933, 0.07, 0.5]]
+                      : [[1, 1, 2.6], [1.0035, 0.55, 2.2], [2.756, 0.42, 1.5], [5.404, 0.2, 0.8], [8.933, 0.09, 0.4]];
+    for (const [r, a, d] of P) {
+      const o = c.createOscillator(); o.frequency.value = f * r;
+      const g = c.createGain(); g.gain.setValueAtTime(0.0001, when); g.gain.exponentialRampToValueAtTime(a, when + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, when + d);
+      o.connect(g).connect(out); o.start(when); o.stop(when + d + 0.05);
+    }
+    this.burst(when, 3400, 0.9, 0.18 * vel, 0.03);
+  },
+  tick(par) { if (!this.on || !this.ctx) return; this.burst(this.ctx.currentTime + 0.005, par ? 3600 : 2900, 1.4, 0.05, 0.012); },
+  click(v = 1) { if (!this.on || !this.ctx) return; this.burst(this.ctx.currentTime + 0.005, 1900, 2.5, 0.08 * v, 0.025); },
+  ratchet() { if (!this.on || !this.ctx) return; this.burst(this.ctx.currentTime + 0.003, 4200, 2, 0.05, 0.01); },
+};
+
+// Westminster quarters: the five changes, on gongs 0..3
+const CHANGES = [[0, 1, 2, 3], [2, 0, 1, 3], [2, 1, 0, 2], [0, 2, 1, 3], [3, 1, 0, 2]];
+const QUARTER_CHANGES = { 1: [0], 2: [1, 2], 3: [3, 4, 0], 0: [1, 2, 3, 4] };
+const REP = { active: false, kind: '', t0: 0, ev: [], end: 0, h: 0, q: 0, m: 0, lastGong: [-9, -9, -9, -9, -9], chime: 'off', night: true };
+
+function repeaterCounts() {
+  const t = ST.t; let h = Math.floor(fmod(t, 43200) / 3600); if (h === 0) h = 12;
+  const mm = Math.floor(fmod(t, 3600) / 60);
+  return { h, q: Math.floor(mm / 15), m: mm % 15 };
+}
+function scheduleEvents(ev, end, kind, counts) {
+  AUDIO.ensure();
+  REP.active = true; REP.kind = kind; REP.t0 = performance.now() / 1000; REP.ev = ev; REP.end = end;
+  Object.assign(REP, counts || { h: 0, q: 0, m: 0 });
+  if (AUDIO.on && AUDIO.ctx) { const base = AUDIO.ctx.currentTime + 0.05; for (const e of ev) AUDIO.gong(e.g, base + e.t, e.v ?? 1); }
+}
+function startRepeater() {
+  if (REP.active) return;
+  const c = repeaterCounts(), ev = [];
+  let t = 0.75;
+  for (let i = 0; i < c.h; i++, t += 0.4) ev.push({ t, g: 4, k: 'h', i });
+  t += 0.35;
+  for (let i = 0; i < c.q; i++) { for (let j = 0; j < 3; j++) ev.push({ t: t + j * 0.17, g: j, k: j ? 'qx' : 'q', i, v: 0.85 }); t += 0.75; }
+  t += c.q ? 0.2 : 0;
+  for (let i = 0; i < c.m; i++, t += 0.3) ev.push({ t, g: 0, k: 'm', i });
+  scheduleEvents(ev, t + 1.2, 'repeater', c);
+}
+function startChime(quarter, hours) {
+  if (REP.active) return;
+  const ev = []; let t = 0.2;
+  if (REP.chime === 'westminster') {
+    for (const ci of QUARTER_CHANGES[quarter]) {
+      CHANGES[ci].forEach((g, j) => ev.push({ t: t + j * 0.62 + (j === 3 ? 0.25 : 0), g, k: 'w', v: 0.9 }));
+      t += 3.2;
+    }
+  }
+  if (quarter === 0 && hours) { t += 0.6; for (let i = 0; i < hours; i++, t += 1.15) ev.push({ t, g: 4, k: 'h', v: 1 }); }
+  if (ev.length) scheduleEvents(ev, t + 2.5, 'chime', null);
+}
+function checkPassingChime() {
+  const q = Math.floor(ST.t / 900);
+  if (lastQuarter !== null && q === lastQuarter + 1 && REP.chime !== 'off' && CLOCK.mode !== 'travel' && (CLOCK.mode === 'live' || CLOCK.rate <= 60)) {
+    const hod = fmod(ST.t, 86400) / 3600, night = REP.night && (hod >= 22 || hod < 8);
+    const quarter = fmod(q, 4);
+    let h = Math.floor(fmod(ST.t, 43200) / 3600); if (h === 0) h = 12;
+    if (!night && (REP.chime === 'westminster' || quarter === 0)) startChime(quarter, h);
+  }
+  lastQuarter = q;
+}
+function repeaterPose() {
+  const now = performance.now() / 1000, t = now - REP.t0;
+  const act = REP.active;
+  if (act && t > REP.end) REP.active = false;
+  // hammers
+  for (let i = 0; i < 5; i++) {
+    let a = 0;
+    if (act) for (const e of REP.ev) {
+      if (e.g !== i) continue;
+      const d = t - e.t;
+      if (d > -0.12 && d < 0) a = Math.max(a, 0.16 * (d + 0.12) / 0.12);
+      else if (d >= 0 && d < 0.02) { a = -0.02; if (REP.lastGong[i] < e.t) REP.lastGong[i] = e.t; }
+      else if (d >= 0.02 && d < 0.14) a = Math.max(a, -0.02 * (1 - (d - 0.02) / 0.12));
+    }
+    R.hammers[i].rotation.z = a;
+    const since = act ? t - REP.lastGong[i] : 9;
+    const holder = R.gongs[i].parent;
+    const s = since >= 0 && since < 2.4 ? 1 + 0.0045 * Math.exp(-since * 2.6) * Math.sin(since * TAU * 21) : 1;
+    holder.scale.set(s, 2 - s, 1);
+  }
+  if (!act) REP.lastGong.fill(-9);
+  if (act) R.governor.rotation.z = fmod(R.governor.rotation.z + 0.9, TAU);
+  // racks & slide (repeater only)
+  const rep = act && REP.kind === 'repeater';
+  const fall = rep ? smooth((t - 0.2) / 0.3) : 0;
+  const struck = k => REP.ev.filter(e => e.k === k && t >= e.t).length;
+  const back = (k, n) => (n ? (1 - Math.min(n, struck(k)) / n) : 0);
+  const hA = rep ? fall * (0.45 + (REP.h - 1) * 0.065) / 2.6 * back('h', REP.h) : 0;
+  const qA = rep ? fall * (0.37 + REP.q * 0.1) / 2.4 * (REP.q ? back('q', REP.q) : (t < REP.end - 1 ? 1 : 0)) : 0;
+  const mA = rep ? fall * (0.37 + REP.m * 0.037) / 2.6 * (REP.m ? back('m', REP.m) : (t < REP.end - 1 ? 1 : 0)) : 0;
+  const ease = (o, v) => o.rotation.z += (v - o.rotation.z) * 0.35;
+  ease(R.hourRack, hA); ease(R.qRack, qA); ease(R.minRack, -mA);
+  const push = rep ? (t < 0.25 ? smooth(t / 0.25) : t < 0.6 ? 1 : 1 - smooth((t - 0.6) / 0.3)) : 0;
+  const sa = R.slideBase - 0.1 * push, sp = at([0, 0], 23.5, sa);
+  R.slide.position.x = sp[0]; R.slide.position.y = sp[1]; R.slide.rotation.z = sa;
+}
+
+// ============================================================================
+// SCENE — renderer, studio light, camera rig, explode, ghosting, picking, arbors
+// ============================================================================
+const GAP = 6.8, GHOST = 0.045;
+const ZREF = { hands: 2.8, dial: 2.3, moon: 1.86, calendar: 1.5, motion: 0.6, tourbillon: 0.25, plate: -0.5, train: -1.8, strike: -2.2, bridges: -3.7, keyless: -4.25, case: 0 };
+let renderer, scene, camera, raycaster, shadow;
+const CAM = { yaw: 0, pitch: 1.2, dist: 120, target: new THREE.Vector3(), goal: { yaw: 0, pitch: 1.2, size: 26, target: new THREE.Vector3() }, zoom: 1, follow: null, dragging: false, auto: 0, panned: false };
+const EXP = { v: 0, goal: 0, sub: 0, subGoal: 0 };
+const VIS = { focusLayers: null, focusParts: null, hidden: new Set(), caseOn: true, selected: null };
+const axisLines = [];
+const _v = new THREE.Vector3();
+
+function studioEnv() {
+  const s = new THREE.Scene();
+  const mat = new THREE.ShaderMaterial({
+    side: THREE.BackSide, depthWrite: false,
+    vertexShader: 'varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: 'varying vec3 vP; void main(){ float y = vP.y; vec3 top = vec3(1.0, 0.99, 0.97); vec3 mid = vec3(0.30, 0.31, 0.34); vec3 bot = vec3(0.17, 0.165, 0.16); vec3 c = y > 0.0 ? mix(mid, top, pow(y, 0.8)) : mix(mid, bot, pow(-y, 0.45)); gl_FragColor = vec4(c, 1.0); }'
+  });
+  s.add(new THREE.Mesh(new THREE.SphereGeometry(100, 48, 24), mat));
+  const panel = (w, h, x, y, z, k) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(k, k * 0.98, k * 0.95), side: THREE.DoubleSide }));
+    m.position.set(x, y, z); m.lookAt(0, 0, 0); s.add(m);
+  };
+  panel(70, 50, 0, 92, 10, 4.5);
+  panel(90, 12, -72, 35, 38, 3.2);
+  panel(12, 90, 78, 28, -25, 2.4);
+  panel(60, 8, 15, 18, -88, 2.2);
+  panel(40, 6, 30, -20, 80, 1.2);
+  panel(80, 60, -10, -92, 0, 1.5);
+  panel(10, 70, -80, -30, -20, 1.4);
+  const pm = new THREE.PMREMGenerator(renderer);
+  const tex = pm.fromScene(s, 0.03).texture; pm.dispose();
+  return tex;
+}
+
+function initScene(container) {
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.75 : 2));
+  renderer.setClearColor(0x000000, 0);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
+  container.appendChild(renderer.domElement);
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(30, 1, 0.5, 3000);
+  scene.environment = studioEnv();
+  const key = new THREE.DirectionalLight(0xfff6e8, 1.1); key.position.set(30, 90, 50); scene.add(key);
+  const rim = new THREE.DirectionalLight(0xdfe8ff, 0.5); rim.position.set(-60, -30, -40); scene.add(rim);
+  scene.add(new THREE.HemisphereLight(0xe6ecff, 0x2a2219, 0.3));
+  // soft contact shadow under the watch
+  const st = canvasTex(256, (g, s) => { const gr = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2); gr.addColorStop(0, 'rgba(0,0,0,0.55)'); gr.addColorStop(0.55, 'rgba(0,0,0,0.22)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, s, s); });
+  shadow = new THREE.Mesh(new THREE.PlaneGeometry(70, 70), new THREE.MeshBasicMaterial({ map: st, transparent: true, depthWrite: false }));
+  shadow.rotation.x = -Math.PI / 2; shadow.renderOrder = -1; scene.add(shadow);
+  raycaster = new THREE.Raycaster();
+  bindControls(renderer.domElement);
+}
+
+function buildAxes() {
+  for (const a of AXES) {
+    const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, 1)]);
+    const m = new THREE.LineDashedMaterial({ color: 0x9aa3ae, dashSize: 0.9, gapSize: 0.6, transparent: true, opacity: 0, depthWrite: false });
+    const line = new THREE.Line(g, m); line.frustumCulled = false; ROOT.add(line); axisLines.push({ a, line });
+  }
+}
+function themeColors() {
+  const cs = getComputedStyle(document.documentElement);
+  const c = cs.getPropertyValue('--axis').trim() || '#9aa3ae';
+  for (const { line } of axisLines) line.material.color.set(c);
+  shadow.material.opacity = parseFloat(cs.getPropertyValue('--shadow')) || 0.7;
+  shadow.userData.base = shadow.material.opacity;
+}
+
+// ---------------------------------------------------------------- per frame
+function applyExplode(dt) {
+  const k = 1 - Math.exp(-dt * 3.0);
+  EXP.v += (EXP.goal - EXP.v) * k; if (Math.abs(EXP.goal - EXP.v) < 1e-4) EXP.v = EXP.goal;
+  EXP.sub += (EXP.subGoal - EXP.sub) * k;
+  for (const l of LAYERS) if (l.id !== 'case') LG[l.id].position.z = l.k * GAP * EXP.v;
+  R.barrelCover.position.z = -2.4 * EXP.sub;
+  R.barrelCover.visible = EXP.sub < 0.5;
+  for (const { a, line } of axisLines) {
+    let lo = 1e9, hi = -1e9;
+    for (const id of a.layers) { const z = ZREF[id] + LAYER[id].k * GAP * EXP.v; lo = Math.min(lo, z); hi = Math.max(hi, z); }
+    const p = line.geometry.attributes.position;
+    p.setXYZ(0, a.p[0], a.p[1], lo - 1.2); p.setXYZ(1, a.p[0], a.p[1], hi + 1.2); p.needsUpdate = true;
+    line.computeLineDistances();
+    line.material.opacity = 0.7 * smooth((EXP.v - 0.04) / 0.3);
+    line.visible = line.material.opacity > 0.01;
+  }
+  const low = -5.4 - 4 * GAP * EXP.v;
+  shadow.position.y = low - 0.5;
+  shadow.scale.setScalar(1 + EXP.v * 0.6);
+  shadow.material.opacity = (shadow.userData.base ?? 0.7) * (1 - 0.55 * EXP.v);
+}
+
+function computeTargets() {
+  for (const p of PARTS) {
+    let t = 1;
+    if (p.layer === 'case') t = VIS.caseOn && EXP.goal < 0.05 && !VIS.hidden.has('case') ? 1 : 0;
+    else if (VIS.hidden.has(p.layer)) t = 0;
+    else if (VIS.focusParts) t = VIS.focusParts.has(p.id) ? 1 : GHOST;
+    else if (VIS.focusLayers) t = VIS.focusLayers.has(p.layer) ? 1 : GHOST;
+    p.target = t;
+  }
+}
+const GLOW = new THREE.Color(0xffb84a);
+function applyOpacity(dt) {
+  const k = 1 - Math.exp(-dt * 6);
+  const pulse = 0.55 + 0.45 * Math.sin(performance.now() / 260);
+  for (const p of PARTS) {
+    p.opacity += (p.target - p.opacity) * k;
+    if (Math.abs(p.opacity - p.target) < 0.003) p.opacity = p.target;
+    const glow = VIS.selected === p ? 0.22 * pulse : 0;
+    if (p._op === p.opacity && p._glow === glow) continue;
+    p._op = p.opacity; p._glow = glow;
+    p.obj.visible = p.opacity > 0.01;
+    for (const m of p.meshes) {
+      const mt = m.material;
+      if (mt.userData.baseOpacity === undefined) mt.userData.baseOpacity = mt.opacity;
+      const o = mt.userData.baseOpacity * p.opacity, tr = o < 0.999;
+      if (mt.transparent !== tr) { mt.transparent = tr; mt.needsUpdate = true; }
+      mt.opacity = o; mt.depthWrite = o > 0.6;
+      if (mt.emissive && mt.userData.baseEmissive) mt.emissive.copy(mt.userData.baseEmissive).lerp(GLOW, glow);
+    }
+  }
+}
+
+// ---------------------------------------------------------------- camera
+function usableRect() {
+  const w = window.innerWidth, h = window.innerHeight, r = UI.reserved();
+  return { w, h, uw: Math.max(160, w - r.left - r.right), uh: Math.max(160, h - r.top - r.bottom), r };
+}
+function fitDist(size) {
+  const { w, h, uw, uh } = usableRect(), t = Math.tan(camera.fov * D2R / 2), asp = w / h;
+  return Math.max(size / t * (h / uh), size / (t * asp) * (w / uw)) * 1.04;
+}
+function resize() {
+  for (const b of BAL.values()) b.w = 0;
+  const { w, h, r } = usableRect();
+  renderer.setSize(w, h, false);
+  renderer.domElement.style.width = w + 'px'; renderer.domElement.style.height = h + 'px';
+  camera.aspect = w / h;
+  const offX = (r.right - r.left) / 2, offY = (r.bottom - r.top) / 2;
+  camera.setViewOffset(w, h, offX, offY, w, h);
+  camera.updateProjectionMatrix();
+}
+function camUpdate(dt) {
+  if (CAM.follow && !CAM.panned) CAM.goal.target.copy(CAM.follow());
+  if (CAM.auto && !CAM.dragging) CAM.goal.yaw += CAM.auto * dt;
+  const k = 1 - Math.exp(-dt * (CAM.dragging ? 20 : 2.6));
+  CAM.yaw += (CAM.goal.yaw - CAM.yaw) * k;
+  CAM.pitch += (CAM.goal.pitch - CAM.pitch) * k;
+  const gd = fitDist(CAM.goal.size) * CAM.zoom;
+  CAM.dist += (gd - CAM.dist) * k;
+  CAM.target.lerp(CAM.goal.target, CAM.follow && !CAM.panned ? 1 - Math.exp(-dt * 8) : k);
+  const cp = Math.cos(CAM.pitch);
+  camera.position.set(CAM.target.x + CAM.dist * cp * Math.sin(CAM.yaw), CAM.target.y + CAM.dist * Math.sin(CAM.pitch), CAM.target.z + CAM.dist * cp * Math.cos(CAM.yaw));
+  camera.lookAt(CAM.target);
+  camera.near = Math.max(0.2, CAM.dist * 0.02); camera.far = CAM.dist * 12 + 400; camera.updateProjectionMatrix();
+}
+function watchToWorld(x, y, z, layer) { return new THREE.Vector3(x, (z ?? 0) + (layer ? LAYER[layer].k * GAP * EXP.goal : 0), -y); }
+
+// ---------------------------------------------------------------- input
+function bindControls(el) {
+  const ptrs = new Map(); let down = null, pinch = null;
+  const pinchState = () => { const [a, b] = [...ptrs.values()]; return { d: Math.hypot(a.x - b.x, a.y - b.y), x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; };
+  const pan = (dx, dy) => {
+    const s = CAM.dist * 0.0013;
+    const right = _v.set(Math.cos(CAM.yaw), 0, -Math.sin(CAM.yaw));
+    CAM.goal.target.addScaledVector(right, -dx * s);
+    const up = new THREE.Vector3().crossVectors(new THREE.Vector3().subVectors(CAM.target, camera.position).normalize(), right).normalize();
+    CAM.goal.target.addScaledVector(up, -dy * s);
+    CAM.panned = true;
+  };
+  el.addEventListener('pointerdown', e => {
+    el.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    CAM.dragging = true; CAM.auto = 0;
+    if (ptrs.size === 1) down = { x: e.clientX, y: e.clientY, t: performance.now(), moved: 0, pan: e.button === 2 || e.shiftKey };
+    else { pinch = pinchState(); if (down) down.moved = 99; }
+  });
+  el.addEventListener('pointermove', e => {
+    const p = ptrs.get(e.pointerId); if (!p) return;
+    const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+    if (ptrs.size === 1 && down) {
+      down.moved += Math.abs(dx) + Math.abs(dy);
+      if (down.moved < 4) return;
+      if (down.pan) pan(dx, dy);
+      else { CAM.goal.yaw -= dx * 0.0065; CAM.goal.pitch = clamp(CAM.goal.pitch + dy * 0.0065, -1.5, 1.5); }
+    } else if (ptrs.size === 2 && pinch) {
+      const n = pinchState();
+      CAM.zoom = clamp(CAM.zoom * pinch.d / Math.max(10, n.d), 0.08, 3.5);
+      pan(n.x - pinch.x, n.y - pinch.y);
+      pinch = n;
+    }
+  });
+  const up = e => {
+    if (!ptrs.has(e.pointerId)) return;
+    ptrs.delete(e.pointerId);
+    if (ptrs.size === 0) {
+      CAM.dragging = false;
+      if (down && down.moved < 8 && performance.now() - down.t < 450 && e.type === 'pointerup') UI.tap(e.clientX, e.clientY);
+      down = null; pinch = null;
+    } else if (ptrs.size === 1) { pinch = null; const q = [...ptrs.values()][0]; down = { x: q.x, y: q.y, t: 0, moved: 99 }; }
+  };
+  el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+  el.addEventListener('wheel', e => { e.preventDefault(); CAM.zoom = clamp(CAM.zoom * Math.exp(e.deltaY * 0.0012), 0.08, 3.5); CAM.auto = 0; }, { passive: false });
+  el.addEventListener('contextmenu', e => e.preventDefault());
+}
+function pick(x, y) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  const ndc = new THREE.Vector2(((x - rect.left) / rect.width) * 2 - 1, -((y - rect.top) / rect.height) * 2 + 1);
+  raycaster.setFromCamera(ndc, camera);
+  const hits = raycaster.intersectObject(ROOT, true);
+  for (const h of hits) { const p = h.object.userData.part; if (p && p.opacity > 0.4 && p.obj.visible) return p; }
+  return null;
+}
+
+// ============================================================================
+// UI — plates (guided tour), dock, readouts, callouts, part cards, layers
+// ============================================================================
+const $ = s => document.querySelector(s);
+const fmtInt = n => Math.round(n).toLocaleString('en-US');
+const pad = n => String(n).padStart(2, '0');
+const fmtClock = t => { const s = fmod(t, 86400); return `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(Math.floor(s) % 60)}`; };
+const fmtSpan = s => {
+  s = Math.abs(s);
+  if (s < 60) return `${s.toFixed(1)} s`;
+  if (s < 3600) return `${Math.floor(s / 60)} min ${Math.floor(s % 60)} s`;
+  if (s < 86400 * 2) return `${Math.floor(s / 3600)} h ${Math.floor(s / 60) % 60} min`;
+  if (s < 86400 * 400) return `${Math.floor(s / 86400)} days`;
+  return `${(s / 86400 / 365.25).toFixed(1)} years`;
+};
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+const wp = (o, x, y, z) => o.localToWorld(new THREE.Vector3(x, y, z));
+
+const ANCHOR = {
+  plate: () => wp(LG.plate, 14, -11, 0),
+  barrel: () => wp(LG.train, 4.6, 10.6, -1.7),
+  center: () => wp(LG.train, -3.0, -2.6, -1.3),
+  third: () => wp(LG.train, 3.6, -6.5, -2.0),
+  cage: () => wp(LG.tourbillon, 3.1, -12.2, 1.4),
+  fixed: () => wp(LG.tourbillon, -2.3, -10.4, -1.2),
+  roller: () => wp(R.cage, 0.45, 0.2, -0.55),
+  escape: () => wp(R.escape, 0, 0, -0.5),
+  pallet: () => wp(R.pallet, 0, -0.45, -0.5),
+  balance: () => wp(R.cage, -2.15, -2.15, 0.35),
+  hairspring: () => wp(R.cage, 1.25, -0.9, 0.92),
+  cannon: () => wp(LG.motion, 0.9, -0.9, 0.6),
+  minutewheel: () => wp(LG.motion, LAY.MW[0] - 1.5, LAY.MW[1] + 1.0, 0.6),
+  hourwheel: () => wp(LG.motion, 1.7, 1.3, 1.05),
+  hourstar: () => wp(LG.motion, LAY.HS[0] - 0.8, LAY.HS[1] - 1.0, 0.3),
+  hourrack: () => wp(R.hourRack, 0, 0, 0.82),
+  minrack: () => wp(R.minRack, 0, 0, 0.82),
+  qrack: () => wp(R.qRack, 0, 0, 0.7),
+  reserve: () => wp(LG.motion, LAY.RW[0], LAY.RW[1], 0.2),
+  hammers: () => { const p = R.hammerPivots[2]; return wp(LG.strike, p[0] - 0.6, p[1] - 1.2, -2.2); },
+  gongs: () => { const p = at([0, 0], 20.7, 300 * D2R); return wp(LG.strike, p[0], p[1], -2.2); },
+  governor: () => wp(LG.strike, -13.4, -5.6, -2.4),
+  ratchet: () => wp(LG.keyless, -3.2, 9.7, -4.25),
+  crownwheel: () => wp(LG.keyless, LAY.CW[0] + 1.2, LAY.CW[1], -4.25),
+  click: () => wp(LG.keyless, 5.4, 4.6, -4.25),
+  crown: () => wp(LG.keyless, 0, 26.4, -2.65),
+  moondisc: () => wp(LG.moon, 0, 11.4, 1.9),
+  mi: () => wp(LG.calendar, LAY.MI[0], LAY.MI[1], 1.44),
+  w24: () => wp(LG.calendar, LAY.W24[0] - 0.8, LAY.W24[1] - 1.4, 1.26),
+  datestar: () => wp(LG.calendar, 1.9, 8.6, 1.62),
+  program: () => wp(LG.calendar, LAY.PW[0] + 1.3, LAY.PW[1] - 1.4, 1.44),
+  grandlever: () => wp(LG.calendar, 9.4, 10.9, 1.8),
+  monthstar: () => wp(LG.calendar, LAY.MS[0], LAY.MS[1] + 1.2, 1.62),
+  daystar: () => wp(LG.calendar, LAY.DY[0], LAY.DY[1] + 1.2, 1.62),
+  daylever: () => wp(R.dayLever, 0, 0, 1.62),
+  subhands: () => wp(LG.hands, LAY.DS[0], LAY.DS[1], 2.5),
+  dial: () => wp(LG.dial, -12, -12, 2.4),
+};
+const partAnchor = p => (ANCHOR[p.id] ? ANCHOR[p.id]() : p.obj.getWorldPosition(new THREE.Vector3()));
+
+// ---------------------------------------------------------------- plates
+const P_MAIN = ['minutehand', 'hourhand'];
+const PLATES = [
+  {
+    title: 'The watch', cam: { yaw: 0, pitch: 1.3, size: 29, t: [0, 4, 0] }, explode: 0, sub: 0, case: true, rate: 'live',
+    labels: ['cage', 'moondisc', 'reserve'],
+    body: `<p>This pocket watch is running. When the page opened, its hands were set to your local time, its calendar to today and its moon to tonight's phase. Since then every hand has been moved by gears, and the gears are released by the escapement five times a second. Nothing reads your device's clock to point the hands.</p>
+<p>It is a working model of a grand complication, built to the published specifications of the most complicated watch ever made. Drag to turn it over, pinch or scroll to zoom, and tap any part to see what it does.</p>`,
+    read: ['time', 'beats', 'amp', 'reserve'],
+  },
+  {
+    title: 'Eleven layers', cam: { yaw: -0.6, pitch: 0.3, size: 44, t: [0, 0, 6] }, explode: 1, sub: 0, case: false, rate: 'live',
+    labels: 'layers',
+    body: `<p>Spread out along its arbors, the movement comes apart in eleven layers. Above the main plate is everything you read: hands, dial, moon disc, calendar works, and the motion works that turn the hands. Below it is everything that stores and meters power: the going train, the bridges that hold it, the winding works, and the hammers and gongs that strike the time. The tourbillon passes through a hole in the plate.</p>
+<p>The dashed lines are arbors, the axles that tie the layers together. This model has <b data-n="parts"></b> parts. The watch it is modelled on has 2,877.</p>`,
+    read: ['parts', 'layers'],
+  },
+  {
+    title: 'The mainspring', cam: { yaw: 0.4, pitch: -0.72, size: 15, t: [0, 9], tz: ['train', 'keyless'] }, explode: 0.35, sub: 1, case: false, rate: 'live',
+    focusParts: ['barrel', 'ratchet', 'crownwheel', 'click', 'crown', 'barrelbridge', 'reserve'],
+    labels: ['barrel', 'ratchet', 'click', 'crownwheel', 'crown'],
+    body: `<p>All the watch's energy is stored in a coiled strip of alloy inside the barrel. Turning the crown turns the winding pinion, which turns the crown wheel, which turns the ratchet wheel on the barrel arbor and coils the spring tighter. The click drops into each ratchet tooth, so the spring can never unwind back through the crown.</p>
+<p>The spring's outer end pushes the barrel drum around, and the drum's 80 teeth drive everything else. Seven and a half turns of the arbor give 60 hours of running, the same reserve as the real watch's going train. Hold the button and watch the coils gather around the arbor.</p>`,
+    actions: ['wind'], read: ['reserve', 'wound', 'drum'],
+  },
+  {
+    title: 'The going train', cam: { yaw: -0.25, pitch: -0.95, size: 19, t: [0, -1], tz: ['train', 'tourbillon'] }, explode: 0.3, sub: 0, case: false, rate: 60,
+    focusParts: ['barrel', 'center', 'third', 'cage', 'fixed', 'escape', 'pallet', 'balance', 'hairspring'],
+    labels: ['barrel', 'center', 'third', 'cage'],
+    body: `<p>Four gear meshes turn the barrel's slow, strong pull into the escape wheel's fast, light one. Each wheel drives the next arbor through a small pinion, and each mesh multiplies the speed by the ratio of their teeth. Shown here at 60 times speed.</p>
+<table class="ratio"><thead><tr><th>Mesh</th><th>Ratio</th><th>Result</th></tr></thead><tbody>
+<tr><td>Barrel 80 → center pinion 10</td><td>×8</td><td>1 turn an hour</td></tr>
+<tr><td>Center 80 → third pinion 10</td><td>×8</td><td>1 turn in 7½ min</td></tr>
+<tr><td>Third 75 → cage pinion 10</td><td>×7.5</td><td>1 turn a minute</td></tr>
+<tr><td>Fixed 80 → escape pinion 8</td><td>×10</td><td>10 turns a minute</td></tr></tbody></table>
+<p>8 × 8 × 7.5 × 10 = 4,800 turns of the escape wheel for each turn of the barrel. At 30 beats per escape-wheel turn that is 144,000 beats, eight hours at 18,000 an hour.</p>`,
+    read: ['center', 'third', 'cage'],
+  },
+  {
+    title: 'The escapement', cam: { yaw: 0, pitch: 1.3, size: 2.6, follow: 'escape' }, explode: 0, sub: 0, case: false, rate: 0.01,
+    focusParts: ['escape', 'pallet', 'roller', 'fixed'],
+    labels: ['escape', 'pallet', 'roller', 'fixed'],
+    body: `<p>Left alone, the train would spin the mainspring down in seconds. The Swiss lever escapement holds it back and lets it move in exact steps.</p>
+<p>The pallet fork rocks between two positions. Its two ruby stones take turns blocking a tooth of the escape wheel. Each time the balance swings through the middle, its impulse pin flicks the fork across. One stone releases its tooth. The tooth slides along the stone's slanted face and pushes the fork as it goes, and that push is what keeps the balance swinging. Then the next tooth drops onto the other stone and stops. The escape wheel has moved 12°, half a tooth, and the whole train has moved with it.</p>
+<p>Slowed to 1/100. At full speed each release takes about 12 milliseconds.</p>`,
+    read: ['phase', 'beats', 'escstep'],
+  },
+  {
+    title: 'The balance', cam: { yaw: -0.3, pitch: 1.0, size: 5.0, follow: 'balance' }, explode: 0, sub: 0, case: false, rate: 0.05,
+    focusParts: ['balance', 'hairspring', 'roller', 'escape', 'pallet'],
+    labels: ['balance', 'hairspring'],
+    body: `<p>The balance and its hairspring are the watch's time standard. Turn the balance one way and the spring pulls it back; it overshoots, and the spring pulls it back again. How fast it swings depends on the rim's inertia and the spring's stiffness, and hardly at all on how far it swings. That is why the rate holds steady as the mainspring runs down and the swings get smaller.</p>
+<p>This balance swings back and forth 2.5 times a second: 5 beats a second, 18,000 an hour, the same frequency as the watch it is modelled on. Shown at 1/20 speed. That watch's hairspring is spherical, coiled in three dimensions so it breathes evenly around its center.</p>`,
+    read: ['amp', 'freq', 'beats'],
+  },
+  {
+    title: 'The tourbillon', cam: { yaw: 0.45, pitch: 0.8, size: 7.6, t: [0, -9.2], tz: ['tourbillon'] }, explode: 0.25, sub: 0, case: false, rate: 'live',
+    focusLayers: ['tourbillon'],
+    labels: ['cage', 'fixed', 'escape', 'balance'],
+    body: `<p>A balance runs at slightly different rates depending on how the watch is held, because gravity pulls on it from a different side. In 1801 Abraham-Louis Breguet patented a remedy: put the escapement and balance in a cage and keep the cage turning, so the errors cancel out over each turn.</p>
+<p>Here the cage takes the place of the fourth wheel and turns once a minute; the blue arrow on top is the seconds hand. The escape pinion meshes with a fixed wheel that never moves. As the cage carries the pinion around, the pinion is forced to spin, and that drives the escape wheel.</p>
+<p>The real watch goes further. Its armillary tourbillon has three nested cages on three axes; the outer one turns once a minute, and the two inner halves meet to form a Maltese cross every 15 seconds.</p>`,
+    read: ['cage', 'escturns'],
+  },
+  {
+    title: 'Motion works', cam: { yaw: 0.25, pitch: 1.0, size: 9.5, t: [0, 0.5], tz: ['motion', 'hands'] }, explode: 0.4, sub: 0, case: false, rate: 3600,
+    focusParts: ['cannon', 'minutewheel', 'hourwheel', 'minutehand', 'hourhand', 'center'],
+    labels: ['cannon', 'minutewheel', 'hourwheel'],
+    body: `<p>The center wheel turns once an hour, which suits the minute hand. The hour hand needs to go twelve times slower, and the motion works under the dial do that.</p>
+<p>The cannon pinion (10 leaves) carries the minute hand and turns the minute wheel (30 teeth). The minute wheel's own pinion (8 leaves) turns the hour wheel (32 teeth). 30/10 × 32/8 = 12. The cannon pinion grips its arbor by friction alone, so you can turn the hands to set the time while the train stays put. Shown at an hour per second.</p>`,
+    read: ['time', 'hourangle'],
+  },
+  {
+    title: 'Perpetual calendar', cam: { yaw: 0, pitch: 1.1, size: 14, t: [0, 3], tz: ['calendar', 'hands'] }, explode: 0.45, sub: 0, case: false, rate: 'live',
+    focusParts: ['datestar', 'daystar', 'monthstar', 'program', 'grandlever', 'monthlever', 'daylever', 'w24', 'i1', 'i2', 'jumpers', 'subhands', 'hourwheel'],
+    labels: ['w24', 'datestar', 'program', 'grandlever', 'monthstar'],
+    body: `<p>A plain date wheel counts to 31 every month and has to be corrected five times a year. A perpetual calendar carries four years of month lengths in its memory and corrects itself.</p>
+<p>Each midnight the 24-hour wheel pushes the date star on by one tooth. The program wheel turns one step a month, and its edge has 48 notches, one for every month in four years: none for 31-day months, shallow for 30, deeper for February, deepest for a 28-day February. On the last night of a short month the grand lever drops into that month's notch, and the deeper it drops, the more teeth the date star is driven on.</p>
+<p>Send the watch to the end of February and watch it decide.</p>`,
+    actions: ['feb27', 'feb28', 'feb2100', 'today'], read: ['mdate', 'rdate', 'program'],
+  },
+  {
+    title: 'Moon phase', cam: { yaw: -0.35, pitch: 0.78, size: 9, t: [-1.4, 8.4], tz: ['moon', 'calendar'] }, explode: 0.5, sub: 0, case: false, rate: 86400,
+    focusParts: ['moondisc', 'mi', 'w24', 'i1', 'hourwheel'],
+    labels: ['moondisc', 'mi', 'w24'],
+    body: `<p>The moon disc carries two moons and turns once every two lunations. From one new moon to the next averages 29.530589 days.</p>
+<p>Many watches push a 59-tooth disc once a day. That assumes 29.5 days and drifts a full day in under three years. This one is geared continuously from the 24-hour wheel through 8/56 and then 16/135: 7 × 135 ÷ 16 = 59.0625 days a turn, 29.53125 days a moon. It runs 57 seconds long each month, a day of error every 122 years. The real watch's moon gains one day in 1,027 years. Shown at a day per second.</p>`,
+    read: ['moon', 'moonReal', 'moonDrift'],
+  },
+  {
+    title: 'Minute repeater', cam: { yaw: -0.85, pitch: 0.62, size: 13, t: [-6.5, -6.5], tz: ['motion', 'strike'] }, explode: 0.25, sub: 0, case: false, rate: 'live',
+    focusParts: ['hourstar', 'hourrack', 'minrack', 'qrack', 'cannon', 'hammers', 'gongs', 'governor'],
+    labels: ['hourstar', 'hourrack', 'minrack', 'hammers', 'gongs', 'governor'],
+    body: `<p>Push the slide and the watch strikes the time, so it can be read in the dark. Three racks fall onto stepped cams called snails that turn with the hands. The hour snail has 12 steps, the quarter snail 4, and the minute snail 4 lobes of 15 steps. How far a rack falls sets how many teeth it must gather back, and every tooth gathered trips a hammer: hours on the low gong, then each quarter as a three-note phrase, then the minutes on the high gong. A spinning governor keeps the tempo even.</p>
+<p>The real watch has five gongs and five hammers and plays the Westminster chime, the Big Ben melody, as it passes each quarter. So does this one.</p>`,
+    actions: ['strike', 'chime', 'night'], read: ['strike', 'nextchime'],
+  },
+  {
+    title: 'The Berkley', cam: { yaw: 0.6, pitch: 1.05, size: 29, t: [0, 4, 0], auto: 0.05 }, explode: 0, sub: 0, case: true, rate: 'live',
+    labels: [],
+    body: `<p>Vacheron Constantin's Les Cabinotiers Berkley Grand Complication was shown in 2024. Three watchmakers spent eleven years on it, one of those years on assembly alone. It is a double-sided pocket watch, 98 mm across, with 63 complications in 2,877 components. This model follows its published figures; its layout is our own, since the Berkley's has not been published.</p>
+<table class="facts"><thead><tr><th></th><th>The Berkley</th><th>This model</th></tr></thead><tbody>
+<tr><td>Complications</td><td>63</td><td>11</td></tr>
+<tr><td>Components</td><td>2,877</td><td data-n="parts"></td></tr>
+<tr><td>Jewels</td><td>245</td><td data-n="jewels"></td></tr>
+<tr><td>Frequency</td><td>18,000 vph</td><td>18,000 vph</td></tr>
+<tr><td>Power reserve</td><td>60 h</td><td>60 h</td></tr>
+<tr><td>Tourbillon</td><td>Armillary, 3 axes</td><td>One axis</td></tr>
+<tr><td>Moon error</td><td>1 day in 1,027 yr</td><td>1 day in 122 yr</td></tr>
+<tr><td>Calendars</td><td>Gregorian perpetual, Chinese lunisolar to 2200</td><td>Perpetual, 4-year</td></tr>
+<tr><td>Chiming</td><td>Westminster on 5 gongs, grande &amp; petite sonnerie, repeater, alarm</td><td>Westminster on 5 gongs, repeater</td></tr>
+<tr><td>Case</td><td>18k white gold, 98 × 50.55 mm, 960 g</td><td>—</td></tr></tbody></table>
+<p>Left out of this model: the Chinese calendar with its 60-year cycle of heavenly stems and earthly branches, the Shanghai sky chart and sidereal time, sunrise and sunset, the equation of time, the split-seconds chronograph, the alarm and the sonnerie modes. Before the Berkley, the record belonged to Vacheron Constantin's Reference 57260 (2015, 57 complications, 2,826 parts). The most complicated wristwatch is the same maker's Solaria Ultra Grand Complication (2025, 41 complications, 1,521 parts).</p>
+<p class="sources">Sources: <a href="https://www.hautehorlogerie.org/en/watches-and-culture/watchmaking-scene/watches-and-novelties/les-cabinotiers-the-berkley-grand-complication" target="_blank" rel="noopener">FHH</a> · <a href="https://watchesbysjx.com/2024/04/vacheron-constantin-les-cabinotiers-the-berkley-grand-complication.html" target="_blank" rel="noopener">SJX</a> · <a href="https://revolutionwatch.com/the-vacheron-constantin-les-cabinotiers-the-berkley-grand-complication-the-worlds-most-complicated-watch/" target="_blank" rel="noopener">Revolution</a> · <a href="https://en.wikipedia.org/wiki/Complication_(horology)" target="_blank" rel="noopener">Wikipedia</a></p>`,
+    read: [],
+  },
+];
+
+// ---------------------------------------------------------------- readouts
+const phaseName = { locked: 'Locked', unlocking: 'Unlocking', impulse: 'Impulse', drop: 'Drop' };
+const RO = {
+  time: ['Watch time', () => fmtClock(ST.t)],
+  beats: ['Beats since midnight', () => fmtInt(Math.max(0, ST.esc.beats))],
+  amp: ['Balance amplitude', () => `${Math.round(ST.A / D2R)}°`],
+  reserve: ['Power reserve', () => `${ST.reserveH.toFixed(1)} h of 60`],
+  wound: ['Mainspring wound', () => `${Math.round(clamp(ST.reserveTurns / FULL_TURNS, 0, 1) * 100)}%`],
+  drum: ['Barrel drum', () => `1 turn per 8 h · ${fmod(ST.drumTurns * 360, 360).toFixed(1)}°`],
+  center: ['Center wheel', () => `${fmod(ST.t / 3600 * 360, 360).toFixed(1)}° · 1 turn/h`],
+  third: ['Third wheel', () => `${fmod(ST.t / 450 * 360, 360).toFixed(1)}° · 8 turns/h`],
+  cage: ['Tourbillon cage', () => `${fmod(ST.t, 60).toFixed(1)} s · ${fmod(ST.t * 6, 360).toFixed(0)}°`],
+  escturns: ['Escape wheel', () => '10 turns per cage turn'],
+  phase: ['Escapement', () => `<span class="phases">${['locked', 'unlocking', 'impulse', 'drop'].map(p => `<i class="${ST.esc.phase === p ? 'on' : ''}">${phaseName[p]}</i>`).join('')}</span>`],
+  escstep: ['Per release', () => '12° of escape wheel'],
+  freq: ['Frequency', () => '2.5 Hz · 18,000 vph'],
+  hourangle: ['Hour hand', () => `${fmod(ST.t / 43200 * 360, 360).toFixed(1)}°`],
+  mdate: ['The watch shows', () => `${WDAYS[ST.wd].slice(0, 3)} ${ST.D} ${MONTHS[ST.Mo - 1]} ${ST.Y}`],
+  rdate: ['Gregorian calendar', () => { const [y, m, d] = realDate(ST.days); const wd = new Date(y, m - 1, d).getDay(); return `${WDAYS[wd].slice(0, 3)} ${d} ${MONTHS[m - 1]} ${y}`; }],
+  program: ['Program wheel', () => { const i = fmod(ST.monthCount, 48); const y = Math.floor(i / 12); return `step ${i + 1} of 48 · ${y === 0 ? 'leap year' : `year ${y} after leap`}`; }],
+  moon: ['Moon age (watch)', () => `${fmod(ST.moonAge, MECH_LUNATION).toFixed(2)} days`],
+  moonReal: ['Moon age (mean)', () => `${meanMoonAge(EPOCH_MS + ST.t * 1000).toFixed(2)} days`],
+  moonDrift: ['Watch moon error', () => { const e = ST.t / 86400 * (SYN / MECH_LUNATION - 1) * 86400; return `${e >= 0 ? '+' : '−'}${fmtSpan(e)}`; }],
+  strike: ['Will strike', () => { const c = repeaterCounts(); return `${c.h} h · ${c.q} quarters · ${c.m} min`; }],
+  nextchime: ['Next chime', () => { if (REP.chime === 'off') return 'Chimes off'; const s = 900 - fmod(ST.t, 900); return `in ${fmtSpan(s)}`; }],
+  parts: ['Parts in this model', () => fmtInt(TOTAL_PARTS)],
+  layers: ['Exploded by', () => `${Math.round(EXP.v * 100)}%`],
+};
+let TOTAL_PARTS = 0, TOTAL_JEWELS = 0;
+
+// ---------------------------------------------------------------- actions
+const ACTIONS = {
+  wind: () => { const b = el('button', 'act primary', 'Hold to wind'); let raf = 0, last = 0;
+    const loop = t => { const dt = last ? Math.min(0.05, (t - last) / 1000) : 0; last = t; if (wind(dt)) raf = requestAnimationFrame(loop); else { b.textContent = 'Fully wound'; } };
+    const start = e => { e.preventDefault(); AUDIO.ensure(); last = 0; b.classList.add('down'); b.textContent = 'Winding…'; cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); };
+    const stop = () => { cancelAnimationFrame(raf); b.classList.remove('down'); if (b.textContent === 'Winding…') b.textContent = 'Hold to wind'; };
+    b.addEventListener('pointerdown', start); b.addEventListener('pointerup', stop); b.addEventListener('pointerleave', stop); b.addEventListener('pointercancel', stop);
+    b.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { if (!b.classList.contains('down')) start(e); } });
+    b.addEventListener('keyup', stop);
+    return b; },
+  strike: () => { const b = el('button', 'act primary', 'Strike the time'); b.onclick = () => { AUDIO.on = true; AUDIO.ensure(); syncSound(); startRepeater(); }; return b; },
+  chime: () => seg('Chimes in passing', [['off', 'Off'], ['hours', 'Hours'], ['westminster', 'Westminster']], () => REP.chime, v => { REP.chime = v; if (v !== 'off') { AUDIO.on = true; AUDIO.ensure(); syncSound(); } }),
+  night: () => { const b = el('button', 'act toggle', 'Night silence 22:00–08:00'); const s = () => b.setAttribute('aria-pressed', REP.night); s(); b.onclick = () => { REP.night = !REP.night; s(); }; return b; },
+  feb27: () => tm('28 Feb 2027 → 1 Mar', 2027, 2, 28),
+  feb28: () => tm('28 Feb 2028 → 29 Feb', 2028, 2, 28),
+  feb2100: () => tm('28 Feb 2100', 2100, 2, 28, true),
+  today: () => { const b = el('button', 'act', 'Back to today'); b.onclick = () => { goLive(); note(''); }; return b; },
+};
+function el(tag, cls, txt) { const e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; }
+function seg(label, opts, get, set) {
+  const w = el('div', 'seg'); w.setAttribute('role', 'group'); w.setAttribute('aria-label', label);
+  w.append(el('span', 'seg-l', label));
+  const row = el('div', 'seg-row'); w.append(row);
+  const sync = () => row.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === get()));
+  for (const [v, t] of opts) { const b = el('button', 'act', t); b.dataset.v = v; b.onclick = () => { set(v); sync(); }; row.append(b); }
+  sync(); return w;
+}
+function tm(label, y, m, d, century) {
+  const b = el('button', 'act', label);
+  b.onclick = () => {
+    const days = jdnJulian(y, m, d) - EPOCH_JJ;
+    travelTo(days * 86400 + 86400 - 6, 2.4, { mode: 'run', rate: 1 });
+    note(century ? 'The year 2100 is not a leap year in the Gregorian calendar, but this program wheel makes every fourth year one. In six seconds it will show 29 February 2100. A watchmaker will have to set it forward a day.' : 'Midnight in six seconds. Watch the date star and the grand lever.');
+  };
+  return b;
+}
+function note(t) { const n = $('#plNote'); n.textContent = t; n.hidden = !t; }
+
+// ---------------------------------------------------------------- UI object
+const UI = {
+  plate: 0,
+  reserved() {
+    const w = window.innerWidth, desk = w >= 900;
+    const sh = $('#sheet'), dock = $('#dock'), tb = $('#topbar');
+    if (desk) return { left: 0, right: sh.offsetWidth + 24, top: tb.offsetHeight + 8, bottom: dock.offsetHeight + 20 };
+    return { left: 0, right: 0, top: tb.offsetHeight + 4, bottom: sh.offsetHeight + dock.offsetHeight + 8 };
+  },
+  tap(x, y) {
+    const p = pick(x, y);
+    if (!p) { this.select(null); return; }
+    this.select(p);
+  },
+  select(p) {
+    VIS.selected = p;
+    const c = $('#partCard');
+    if (!p) { c.hidden = true; return; }
+    $('#pcNum').textContent = p.num; $('#pcKind').textContent = p.kind || '';
+    $('#pcName').textContent = p.name; $('#pcDesc').textContent = p.desc || '';
+    $('#pcTeeth').textContent = p.teeth || '—'; $('#pcRate').textContent = p.rate || '—';
+    $('#pcLayer').textContent = LAYER[p.layer].name;
+    c.hidden = false;
+  },
+  go(i, opts = {}) {
+    i = clamp(i, 0, PLATES.length - 1); this.plate = i;
+    const P = PLATES[i];
+    $('#plKicker').textContent = `Plate ${ROMAN[i]} of XII`;
+    $('#plTitle').textContent = P.title;
+    $('#plBody').innerHTML = P.body;
+    $('#plBody').querySelectorAll('[data-n]').forEach(n => { n.textContent = fmtInt(n.dataset.n === 'parts' ? TOTAL_PARTS : TOTAL_JEWELS); });
+    const acts = $('#plActions'); acts.innerHTML = '';
+    for (const a of P.actions || []) acts.append(ACTIONS[a]());
+    acts.hidden = !(P.actions || []).length;
+    note('');
+    const ro = $('#plReadouts'); ro.innerHTML = '';
+    for (const k of P.read || []) { const d = el('div', 'ro'); d.innerHTML = `<dt>${RO[k][0]}</dt><dd data-ro="${k}"></dd>`; ro.append(d); }
+    ro.hidden = !(P.read || []).length;
+    document.querySelectorAll('#plIndex button').forEach((b, j) => b.setAttribute('aria-current', j === i ? 'step' : 'false'));
+    $('#prev').disabled = i === 0; $('#next').disabled = i === PLATES.length - 1;
+    $('#sheet .sh-scroll').scrollTop = 0;
+    // stage
+    EXP.goal = P.explode; EXP.subGoal = P.sub; $('#explode').value = Math.round(P.explode * 100);
+    VIS.caseOn = P.case; VIS.focusLayers = P.focusLayers ? new Set(P.focusLayers) : null; VIS.focusParts = P.focusParts ? new Set(P.focusParts) : null;
+    VIS.hidden.clear(); syncLayerList();
+    computeTargets();
+    const c = P.cam; CAM.goal.yaw = c.yaw; CAM.goal.pitch = c.pitch; CAM.goal.size = c.size; CAM.zoom = 1; CAM.panned = false; CAM.auto = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : (c.auto || 0);
+    if (c.follow) { const off = c.follow === 'escape' ? [0, 2.05, -0.5] : [0, 0, 0.4]; CAM.follow = () => R.cage.localToWorld(new THREE.Vector3(...off)); }
+    else {
+      CAM.follow = null;
+      let z = c.t[2] ?? 0;
+      if (c.tz) z = c.tz.reduce((s, id) => s + ZREF[id] + LAYER[id].k * GAP * P.explode, 0) / c.tz.length;
+      CAM.goal.target.set(c.t[0], z, -c.t[1]);
+    }
+    // time
+    if (P.rate === 'live') { if (CLOCK.mode !== 'live') goLive(); }
+    else if (P.rate !== 'keep') { if (CLOCK.mode === 'live' || CLOCK.rate !== P.rate) setRate(P.rate); }
+    syncRates();
+    this.labels = P.labels;
+    this.select(null);
+    if (!opts.silent) try { history.replaceState(null, '', '#plate' + (i + 1)); } catch (e) { }
+    try { localStorage.setItem('gca-plate', String(i)); } catch (e) { }
+    requestAnimationFrame(() => resize());
+  },
+  labels: [],
+};
+
+// ---------------------------------------------------------------- balloons
+const BAL = new Map();
+function balloonFor(key, num, name) {
+  let b = BAL.get(key);
+  if (!b) {
+    b = { el: el('div', 'balloon'), line: document.createElementNS('http://www.w3.org/2000/svg', 'line') };
+    b.el.innerHTML = `<span class="bn"></span><span class="bt"></span>`;
+    $('#balloons').append(b.el); $('#leaders').append(b.line); BAL.set(key, b);
+  }
+  if (b.name !== name || b.num !== num) { b.el.querySelector('.bn').textContent = num; b.el.querySelector('.bt').textContent = name; b.name = name; b.num = num; b.w = 0; }
+  return b;
+}
+function updateBalloons() {
+  const items = [];
+  const W = window.innerWidth, H = window.innerHeight, r = UI.reserved();
+  const center = new THREE.Vector3().copy(CAM.target).project(camera);
+  const cx = (center.x + 1) / 2 * W, cy = (1 - center.y) / 2 * H;
+  if (UI.labels === 'layers') {
+    for (const l of LAYERS) { if (l.id === 'case') continue; items.push({ key: 'L' + l.id, num: l.k > 0 ? `+${l.k}` : String(l.k), name: l.name, world: wp(LG[l.id], 19.5, -3, ZREF[l.id]), side: 1, vis: !VIS.hidden.has(l.id) }); }
+  } else for (const id of UI.labels) { const p = PART[id]; items.push({ key: id, num: p.num, name: p.name, world: partAnchor(p), vis: p.opacity > 0.5 }); }
+  const keep = new Set(items.map(i => i.key));
+  for (const [k, b] of BAL) if (!keep.has(k)) { b.el.remove(); b.line.remove(); BAL.delete(k); }
+  const placed = [];
+  const narrow = W < 600;
+  for (const it of items) {
+    const b = balloonFor(it.key, it.num, it.name);
+    const v = it.world.clone().project(camera);
+    const ax = (v.x + 1) / 2 * W, ay = (1 - v.y) / 2 * H;
+    if (!it.vis || v.z > 1 || ax < -50 || ax > W + 50 || ay < -50 || ay > H + 50) { b.el.style.opacity = 0; b.line.style.opacity = 0; continue; }
+    let dx = it.side ? 1 : ax - cx, dy = it.side ? -0.15 : ay - cy; const dl = Math.hypot(dx, dy) || 1; dx /= dl; dy /= dl;
+    if (!b.w) { b.w = b.el.offsetWidth; b.h = b.el.offsetHeight; }
+    const bw = b.w, bh = b.h, d = narrow ? 34 : 48;
+    let bx = ax + dx * d + (dx < 0 ? -bw : 0), by = ay + dy * d - bh / 2;
+    bx = clamp(bx, r.left + 8, W - r.right - bw - 8); by = clamp(by, r.top + 8, H - r.bottom - bh - 8);
+    for (let k = 0; k < 6; k++) for (const q of placed) {
+      if (bx < q.x + q.w + 4 && bx + bw + 4 > q.x && by < q.y + q.h + 3 && by + bh + 3 > q.y) by = by < q.y ? q.y - bh - 4 : q.y + q.h + 4;
+    }
+    by = clamp(by, r.top + 8, H - r.bottom - bh - 8);
+    placed.push({ x: bx, y: by, w: bw, h: bh });
+    b.el.style.transform = `translate(${bx.toFixed(1)}px, ${by.toFixed(1)}px)`; b.el.style.opacity = 1;
+    const ex = clamp(ax, bx, bx + bw), ey = clamp(ay, by, by + bh);
+    b.line.setAttribute('x1', ax.toFixed(1)); b.line.setAttribute('y1', ay.toFixed(1));
+    b.line.setAttribute('x2', ex.toFixed(1)); b.line.setAttribute('y2', ey.toFixed(1)); b.line.style.opacity = 1;
+    b.el.onclick = () => { if (PART[it.key]) UI.select(PART[it.key]); };
+  }
+}
+
+// ---------------------------------------------------------------- dock & status
+const RATES = [[0.01, '1/100'], [0.1, '1/10'], [1, '1×'], [60, '1 min/s'], [3600, '1 h/s'], [86400, '1 day/s']];
+function buildDock() {
+  const r = $('#rates');
+  for (const [v, t] of RATES) { const b = el('button', 'rate', t); b.dataset.r = v; b.onclick = () => { if (v === 1 && CLOCK.mode === 'live') return; setRate(v); syncRates(); }; r.append(b); }
+  $('#btnNow').onclick = () => { goLive(); note(''); syncRates(); };
+  $('#explode').addEventListener('input', e => { EXP.goal = e.target.value / 100; computeTargets(); });
+  $('#btnSound').onclick = () => { AUDIO.on = !AUDIO.on; if (AUDIO.on) AUDIO.ensure(); syncSound(); };
+  $('#btnLayers').onclick = () => { const p = $('#layersPanel'); p.hidden = !p.hidden; $('#btnLayers').setAttribute('aria-expanded', !p.hidden); };
+  const lp = $('#layerList');
+  for (const l of LAYERS) {
+    const row = el('li', 'lrow');
+    const vis = el('button', 'eye'); vis.setAttribute('aria-label', `Show ${l.name}`); vis.dataset.l = l.id;
+    vis.onclick = () => { VIS.hidden.has(l.id) ? VIS.hidden.delete(l.id) : VIS.hidden.add(l.id); syncLayerList(); computeTargets(); };
+    const nm = el('button', 'lname', l.name); nm.onclick = () => {
+      if (l.id === 'case') { VIS.caseOn = true; EXP.goal = 0; $('#explode').value = 0; computeTargets(); return; }
+      VIS.focusParts = null; VIS.focusLayers = new Set([l.id]); if (EXP.goal < 0.3) { EXP.goal = 0.6; $('#explode').value = 60; }
+      CAM.follow = null; CAM.goal.target.set(0, ZREF[l.id] + l.k * GAP * EXP.goal, 0); CAM.goal.size = 24; CAM.zoom = 1; CAM.panned = false; computeTargets();
+    };
+    const k = el('span', 'lk', l.id === 'case' ? '' : (l.k > 0 ? `+${l.k}` : String(l.k)));
+    row.append(vis, k, nm); lp.append(row);
+  }
+  $('#showAll').onclick = () => { VIS.focusLayers = null; VIS.focusParts = null; VIS.hidden.clear(); syncLayerList(); computeTargets(); };
+  $('#pcClose').onclick = () => UI.select(null);
+  $('#pcIsolate').onclick = () => { const p = VIS.selected; if (!p) return; VIS.focusParts = new Set([p.id]); VIS.focusLayers = null; computeTargets(); };
+  $('#prev').onclick = () => UI.go(UI.plate - 1);
+  $('#next').onclick = () => UI.go(UI.plate + 1);
+  const idx = $('#plIndex');
+  PLATES.forEach((p, i) => { const b = el('button', '', ROMAN[i]); b.title = p.title; b.setAttribute('aria-label', `Plate ${ROMAN[i]}: ${p.title}`); b.onclick = () => UI.go(i); idx.append(b); });
+  $('#shToggle').onclick = () => { const s = $('#sheet'); const c = s.classList.toggle('collapsed'); $('#shToggle').setAttribute('aria-expanded', !c); requestAnimationFrame(resize); };
+  document.addEventListener('keydown', e => {
+    if (e.target.closest('input, textarea')) return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') UI.go(UI.plate + 1);
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') UI.go(UI.plate - 1);
+    else if (e.key === 'Escape') { UI.select(null); $('#layersPanel').hidden = true; }
+  });
+}
+function syncLayerList() { document.querySelectorAll('#layerList .eye').forEach(b => b.setAttribute('aria-pressed', !VIS.hidden.has(b.dataset.l))); }
+function syncSound() { const b = $('#btnSound'); b.setAttribute('aria-pressed', AUDIO.on); b.querySelector('span').textContent = AUDIO.on ? 'Sound on' : 'Sound off'; }
+function syncRates() {
+  const live = CLOCK.mode === 'live' || (CLOCK.mode === 'travel' && CLOCK.travel?.then.mode === 'live');
+  const cur = live ? 1 : CLOCK.mode === 'travel' ? CLOCK.travel.then.rate : CLOCK.rate;
+  document.querySelectorAll('#rates .rate').forEach(b => b.setAttribute('aria-pressed', +b.dataset.r === cur));
+}
+function updateStatus() {
+  const s = $('#ckStatus'), now = wallSec(), d = CLOCK.S - now;
+  let txt, more = '', cls;
+  if (CLOCK.stopped) { txt = 'Stopped'; more = ' · wind the crown'; cls = 'warn'; }
+  else if (CLOCK.mode === 'live') { txt = 'Live'; more = ' · set to your clock'; cls = 'live'; }
+  else if (CLOCK.mode === 'travel') { txt = 'Setting the hands…'; cls = 'busy'; }
+  else {
+    const r = CLOCK.rate, rl = r < 1 ? `1/${Math.round(1 / r)} speed` : r === 1 ? 'Running' : `×${fmtInt(r)}`;
+    txt = rl; more = ` · ${fmtSpan(d)} ${d < 0 ? 'behind' : 'ahead'}`; cls = r < 1 ? 'slow' : 'fast';
+  }
+  const html = `${txt}<span class="more">${more}</span>`;
+  if (s.innerHTML !== html) s.innerHTML = html;
+  s.dataset.state = cls;
+  $('#btnNow').hidden = CLOCK.mode === 'live' || (CLOCK.mode === 'travel' && CLOCK.travel?.then.mode === 'live');
+  $('#ckTime').textContent = fmtClock(ST.t);
+  $('#ckDate').textContent = `${WDAYS[ST.wd]}, ${ST.D} ${MONTHS[ST.Mo - 1]} ${ST.Y}`;
+}
+function updateReadouts() {
+  document.querySelectorAll('[data-ro]').forEach(n => { const v = RO[n.dataset.ro][1](); if (n.innerHTML !== v) n.innerHTML = v; });
+}
+
+// ============================================================================
+// MAIN — boot and frame loop
+// ============================================================================
+let lastT = 0, roTimer = 0, beatPrev = null;
+function frame(now) {
+  const dt = lastT ? Math.min(0.1, (now - lastT) / 1000) : 0.016; lastT = now;
+  clockStep(dt);
+  const st = mech(dt);
+  pose(st, dt);
+  if (AUDIO.on) {
+    const n = st.esc.n;
+    if (beatPrev !== null && n !== beatPrev && Math.abs(n - beatPrev) <= 2 && (CLOCK.mode === 'live' || CLOCK.rate <= 1)) AUDIO.tick(n & 1);
+    beatPrev = n;
+  }
+  checkPassingChime();
+  applyExplode(dt); applyOpacity(dt); camUpdate(dt);
+  renderer.render(scene, camera);
+  updateBalloons();
+  roTimer -= dt;
+  if (roTimer <= 0) { roTimer = 0.1; updateStatus(); updateReadouts(); syncRates(); }
+  requestAnimationFrame(frame);
+}
+
+function boot() {
+  try {
+    initScene($('#stage'));
+  } catch (e) {
+    $('#loading').innerHTML = '<p>This page needs WebGL to draw the watch. Try a current version of Chrome, Safari, Edge or Firefox with hardware acceleration turned on.</p>';
+    return;
+  }
+  buildModel(scene);
+  initPhases();
+  buildAxes();
+  TOTAL_PARTS = PARTS.reduce((s, p) => s + p.count, 0); TOTAL_JEWELS = JEWELS;
+  buildDock(); syncSound();
+  themeColors();
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', themeColors);
+  new MutationObserver(themeColors).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  const ro = new ResizeObserver(() => { document.documentElement.style.setProperty('--sheet-h', $('#sheet').offsetHeight + 'px'); resize(); });
+  ro.observe($('#sheet')); ro.observe($('#dock'));
+  window.addEventListener('resize', resize);
+  document.documentElement.style.setProperty('--sheet-h', $('#sheet').offsetHeight + 'px');
+  resize();
+  let start = 0;
+  const h = location.hash.match(/plate(\d+)/);
+  if (h) start = +h[1] - 1; else { try { start = +(localStorage.getItem('gca-plate') || 0); } catch (e) { } }
+  UI.go(start, { silent: true });
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) CAM.auto = 0;
+  // start already in place
+  CAM.yaw = CAM.goal.yaw; CAM.pitch = CAM.goal.pitch; CAM.target.copy(CAM.goal.target); CAM.dist = fitDist(CAM.goal.size);
+  EXP.v = EXP.goal; EXP.sub = EXP.subGoal;
+  for (const p of PARTS) p.opacity = p.target;
+  requestAnimationFrame(frame);
+  const L = $('#loading'); L.classList.add('done'); setTimeout(() => { L.hidden = true; }, 700);
+  if (document.fonts && document.fonts.load) {
+    Promise.all(['500 40px "Bodoni Moda"', '600 40px "Bodoni Moda"', 'italic 500 40px "Bodoni Moda"', '600 40px Barlow'].map(f => document.fonts.load(f).catch(() => null)))
+      .then(() => { const c = TEX.dial.userData.canvas; drawDial(c.getContext('2d'), c.width); TEX.dial.needsUpdate = true; resize(); });
+  }
+}
+boot();
+window.__atlas = { CLOCK, UI, CAM, EXP, VIS, R, PART, st: () => ST, setRate, goLive, travelTo, startRepeater, REP, AUDIO, jdnJulian, EPOCH_JJ, mechDate, realDate, escapement, repeaterCounts, meanMoonAge, EPOCH_MS };
+
+</script>
+
+</body></html>
