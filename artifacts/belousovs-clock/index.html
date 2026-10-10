@@ -1115,7 +1115,7 @@ class DishView {
   /* ---------------- per-frame ---------------- */
   frame(now) {
     this.raf = 0;
-    if (!this.visible || document.hidden) return;
+    if (!this.visible || document.hidden) { this.looping = false; return; }
     const dtw = Math.min(0.05, Math.max(0, (now - this.last) / 1000)); this.last = now;
     if (!this.paused) {
       if (this.pointer && this.pointer.light) this.sim.inhibit(this.pointer.p, this.pointer.p, 7, 0.12);
@@ -1401,8 +1401,8 @@ class ClockAct {
     return { x, z, stable: tr < 0 && det > 0 };
   }
   frame(now) {
-    this.raf = 0; if (!this.visible || document.hidden) return;
-    const dtw = Math.min(0.05, (now - this.last) / 1000); this.last = now;
+    this.raf = 0; if (!this.visible || document.hidden) { this.looping = false; return; }
+    const dtw = Math.min(0.05, Math.max(0, (now - this.last) / 1000)); this.last = now;
     if (this.playing) {
       const T = dtw * this.speeds[this.si];
       const n = Math.max(1, Math.ceil(T / 5e-4)), dt = T / n;
@@ -1786,7 +1786,7 @@ class Worlds {
     this.cv.forEach((c, i) => this.draw(i));
   }
   kick() { if (this.raf) return; if (this.visible && !document.hidden) { if (!this.looping) this.last = performance.now(); this.looping = true; this.raf = requestAnimationFrame(t => this.frame(t)); } else this.looping = false; }
-  frame(now) { this.raf = 0; if (!this.visible || document.hidden) return; this.t += Math.min(0.05, (now - this.last) / 1000); this.last = now; this.cv.forEach((c, i) => this.draw(i)); this.kick(); }
+  frame(now) { this.raf = 0; if (!this.visible || document.hidden) { this.looping = false; return; } this.t += Math.min(0.05, Math.max(0, (now - this.last) / 1000)); this.last = now; this.cv.forEach((c, i) => this.draw(i)); this.kick(); }
   render(c) {
     const kind = c.dataset.world, W = c.width, S = Math.ceil(W * 1.5), off = document.createElement('canvas');
     off.width = off.height = S;

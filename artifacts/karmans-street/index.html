@@ -885,7 +885,7 @@ class TunnelView {
   /* ---------------- frame ---------------- */
   frame(now) {
     this.raf = 0;
-    if (!this.visible || document.hidden) return;
+    if (!this.visible || document.hidden) { this.looping = false; return; }
     const dt = now - this.last; this.last = now;
     // adaptive budget: protect the frame rate on slow GPUs
     if (dt > 26) { if (++this.slowFrames > 8) { this.budget = Math.max(4, Math.floor(this.budget * 0.85)); this.slowFrames = 0; } }
