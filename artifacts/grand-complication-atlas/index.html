@@ -1458,7 +1458,7 @@ function travelTo(S1, dur, then) {
 function clockStep(dt) {
   const c = CLOCK;
   let traveled = false;
-  if (c.mode === 'live') c.S = wallSec();
+  if (c.mode === 'live') c.S += dt;            // the gears move the hands; the clock is read on open and on return
   else if (c.mode === 'run') { if (!c.stopped) c.S += dt * c.rate; }
   else if (c.mode === 'travel') {
     const tr = c.travel, t = clamp((performance.now() - tr.t0) / tr.dur, 0, 1);
@@ -2298,7 +2298,7 @@ const UI = {
     }
     // time
     if (P.rate === 'live') { if (CLOCK.mode !== 'live') goLive(); }
-    else if (P.rate !== 'keep') { if (CLOCK.mode === 'live' || CLOCK.rate !== P.rate) setRate(P.rate); }
+    else if (P.rate !== 'keep') { if (CLOCK.mode !== 'run' || CLOCK.rate !== P.rate) setRate(P.rate); }
     syncRates();
     this.labels = P.labels;
     this.select(null);
@@ -2425,6 +2425,9 @@ function updateReadouts() {
 // MAIN — boot and frame loop
 // ============================================================================
 let lastT = 0, roTimer = 0, beatPrev = null;
+// A hidden page can't run its escapement, so a live watch is set to your clock again when you come back,
+// as it was when the page opened.
+document.addEventListener('visibilitychange', () => { if (!document.hidden && CLOCK.mode === 'live') { CLOCK.S = wallSec(); lastT = 0; } });
 function frame(now) {
   const dt = lastT ? Math.min(0.1, (now - lastT) / 1000) : 0.016; lastT = now;
   clockStep(dt);

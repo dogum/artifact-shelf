@@ -38,3 +38,4 @@ The minute repeater reads the time from an hour snail with 12 steps, a quarter s
 - The closing plate compares the model with the Berkley and lists its sources. The movement layout, the parts and the name Calibre A-1 belong to this model, not to the Berkley.
 - The model needs WebGL. Without it the page says so and suggests a current browser with hardware acceleration on.
 - The page remembers the last plate you opened.
+- This copy fixes two things in the original. In live mode the hands were copied from the device clock on every frame, although the page says the gears move them; the watch now runs on its own escapement and is set to your clock only when the page opens and when you come back to a hidden tab. And returning to a plate with a fixed rate (such as the 60× going train) while the hands were still travelling back to now could leave it running live at 1×; a fixed-rate plate now always sets its rate.
