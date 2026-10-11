@@ -1371,9 +1371,10 @@ const AUDIO = {
     const g = ac.createGain(); g.gain.value = gain;
     const lo = ac.createBiquadFilter(); lo.type = 'lowshelf'; lo.frequency.value = 120; lo.gain.value = 5;
     s.connect(lo); lo.connect(g); g.connect(this.master);
-    const at = ac.currentTime + Math.max(0, delay); s.start(at);
+    const off = Math.max(0, -delay); if (off >= buf.duration) return null;
+    s.start(ac.currentTime + Math.max(0, delay), off);
     this.srcs.push(s); s.onended = () => { this.srcs = this.srcs.filter(x => x !== s); };
-    return at;
+    return s;
   },
   stopAll() { this.srcs.forEach(s => { try { s.stop(); } catch (e) { } }); this.srcs = []; },
   now() { return this.ac ? this.ac.currentTime : performance.now() / 1000; },
@@ -1451,8 +1452,9 @@ class Storm {
     this.emit('attach', this.B);
     this.requestThunder();
   }
-  requestThunder() {
+  requestThunder(replace) {
     const B = this.B; if (!B || !B.attached) return;
+    if (replace) { try { this.thunderSrc && this.thunderSrc.stop(); } catch (e) { } this.thunderSrc = null; this.thunderScheduled = false; }
     const obs = [B.groundPt[0], -(this.obsD || this.camGoal.D), 1.7], key = ++this.thunderKey || (this.thunderKey = 1);
     this.T = null;
     THWORK.synth(B, obs, { TC: this.p.TC, IkA: this.p.IkA, seed: this.seed }).then(T => {
@@ -1467,10 +1469,15 @@ class Storm {
     const since = (performance.now() - this.flashWall) / 1000;
     const delay = this.T.t0 - since;
     const gain = Math.max(0.12, Math.min(1.25, Math.pow(1000 / Math.max(300, this.T.t0 * this.T.c), 0.55)));
-    this.thunderScheduled = true;
+    this.thunderScheduled = true; this.thunderGain = gain;
     this.thunderAt = performance.now() + delay * 1000;
-    AUDIO.play(this.T, delay, gain);
+    this.thunderSrc = AUDIO.play(this.T, delay, gain);
     this.emit('thunderScheduled', { delay, T: this.T });
+  }
+  /* sound turned on after the flash: play the thunder still on its way, from where it has got to */
+  replayThunder() {
+    if (!this.T || this.thunderAt == null || this.thunderSrc) return;
+    this.thunderSrc = AUDIO.play(this.T, (this.thunderAt - performance.now()) / 1000, this.thunderGain);
   }
   frame(dt) {
     this.time += dt;
@@ -1804,14 +1811,16 @@ class Block {
   function labYF() { const d = $('#s-lab .deck'), H = innerHeight, dh = d ? d.getBoundingClientRect().height : H * 0.5; return Math.max(0.32, Math.min(0.84, (H - Math.min(dh, H * 0.55) - 28) / H)); }
   function labCamD(m, yF) { return Math.max(m, 0.8 * 1363 / yF); }
   function view(v) { Object.assign(S.view, { field: 0, iso: 0, kite: 0, fg: 1, rain: 1, charges: 0, sdist: 0, day: 0 }, v); }
+  /* with reduced motion, flashes start only from a button: Strike now, Again, or the lab */
+  const go = o => { if (!RM || st.asked) S.strike(o); };
   const SH = {
-    hero() { cam({ D: 7000, yF: 0.82 }); view({}); S.p.speed = 'real'; S.loopLeader = false; S.auto = 7; S.autoT = Math.min(S.autoT, 1.2); S.tapStrike = false; },
+    hero() { cam({ D: 7000, yF: 0.82 }); view({}); S.p.speed = 'real'; S.loopLeader = false; S.auto = RM ? 0 : 7; S.autoT = Math.min(S.autoT, 1.2); S.tapStrike = false; },
     charge() { cam({ D: 17000, yF: 0.88, cx: 1500 }); view({ charges: 1 }); S.p.speed = 'real'; S.loopLeader = false; S.auto = 0; S.charge = Math.min(S.charge, 0.15); S.tapStrike = false; },
-    leader() { cam({ D: 2200, yF: 0.84 }); view({ field: st.field ? 1 : 0 }); S.p.speed = 'leader'; S.loopLeader = true; S.auto = 0; S.tapStrike = false; S.strike({ speed: 'leader' }); },
-    attach() { cam({ D: 2200, zoom: 5.5, zf: 170, yF: 0.62, cx: (towerCol - GRID.NX / 2) * GRID.h }); view({ sdist: 1, rain: 0.6 }); S.p.speed = 'leader'; S.loopLeader = true; S.auto = 0; S.tapStrike = false; S.strike({ speed: 'leader', x0: towerCol + Math.round((Math.random() - 0.5) * 24) }); },
-    stroke() { cam({ D: 2200, yF: 0.84 }); view({}); S.p.speed = st.slow ? 'stroke' : 'real'; S.loopLeader = true; S.auto = 0; S.tapStrike = false; S.strike({ speed: S.p.speed }); },
-    thunder() { cam({ D: st.dist }); view({ iso: 1, rain: 0.6 }); S.p.D = st.dist; S.p.speed = 'real'; S.loopLeader = false; S.auto = 0; S.tapStrike = false; S.strike({ speed: 'real' }); },
-    kite() { cam({ D: 6000, yF: 0.8 }); view({ kite: 1, day: 1, rain: 0.5 }); S.p.speed = 'real'; S.loopLeader = false; S.auto = 9; S.autoT = 3; S.tapStrike = false; S.charge = 1; },
+    leader() { cam({ D: 2200, yF: 0.84 }); view({ field: st.field ? 1 : 0 }); S.p.speed = 'leader'; S.loopLeader = !RM; S.auto = 0; S.tapStrike = false; go({ speed: 'leader' }); },
+    attach() { cam({ D: 2200, zoom: 5.5, zf: 170, yF: 0.62, cx: (towerCol - GRID.NX / 2) * GRID.h }); view({ sdist: 1, rain: 0.6 }); S.p.speed = 'leader'; S.loopLeader = !RM; S.auto = 0; S.tapStrike = false; go({ speed: 'leader', x0: towerCol + Math.round((Math.random() - 0.5) * 24) }); },
+    stroke() { cam({ D: 2200, yF: 0.84 }); view({}); S.p.speed = st.slow ? 'stroke' : 'real'; S.loopLeader = !RM; S.auto = 0; S.tapStrike = false; go({ speed: S.p.speed }); },
+    thunder() { cam({ D: st.dist }); view({ iso: 1, rain: 0.6 }); S.p.D = st.dist; S.p.speed = 'real'; S.loopLeader = false; S.auto = 0; S.tapStrike = false; go({ speed: 'real' }); },
+    kite() { cam({ D: 6000, yF: 0.8 }); view({ kite: 1, day: 1, rain: 0.5 }); S.p.speed = 'real'; S.loopLeader = false; S.auto = RM ? 0 : 9; S.autoT = 3; S.tapStrike = false; S.charge = 1; },
     lab() { const yF = labYF(); cam({ D: labCamD(st.dist, yF), yF }); S.obsD = st.dist; S.liftBar = true; view({ field: st.ov.field ? 1 : 0, iso: st.ov.iso ? 1 : 0, sdist: st.ov.sdist ? 1 : 0 }); S.p.D = st.dist; S.p.speed = st.speedUser; S.loopLeader = false; S.auto = st.auto ? 8 : 0; S.tapStrike = true; }
   };
   st.ov = { field: false, iso: false, sdist: false };
@@ -1835,19 +1844,19 @@ class Block {
   addEventListener('resize', () => { pickShot(); if (st.shot === 'lab') { const yF = labYF(); S.camGoal.yF = yF; S.camGoal.D = labCamD(st.dist, yF); } });
 
   /* ---------------- buttons ---------------- */
-  $$('[data-sound]').forEach(b => b.addEventListener('click', () => { AUDIO.toggle(); }));
+  $$('[data-sound]').forEach(b => b.addEventListener('click', () => { if (AUDIO.toggle()) { if (S.ok) S.replayThunder(); } else S.thunderSrc = null; }));
   AUDIO.sync();
   $$('[data-strike]').forEach(b => b.addEventListener('click', () => { if (!S.ok) return; S.strike({ speed: S.p.speed }); }));
-  $$('[data-again]').forEach(b => b.addEventListener('click', () => { if (!S.ok) return; const sh = b.closest('.shot').dataset.shot; if (sh === st.shot) SH[sh](); }));
+  $$('[data-again]').forEach(b => b.addEventListener('click', () => { if (!S.ok) return; const sh = b.closest('.shot').dataset.shot; if (sh === st.shot) { st.asked = true; SH[sh](); st.asked = false; } }));
   $('#fieldBtn').addEventListener('click', e => { st.field = !st.field; const b = e.currentTarget; b.setAttribute('aria-pressed', String(st.field)); b.classList.toggle('on', st.field); b.textContent = st.field ? 'Hide the field' : 'Show the field'; S.view.field = st.field ? 1 : 0; if (S.L) S.sky.setPhi(S.L); });
-  $('#slowBtn').addEventListener('click', e => { st.slow = !st.slow; const b = e.currentTarget; b.setAttribute('aria-pressed', String(st.slow)); b.classList.toggle('on', st.slow); b.innerHTML = st.slow ? 'Back to real time' : 'Slow it down &times;160,000'; if (st.shot === 'stroke') SH.stroke(); });
+  $('#slowBtn').addEventListener('click', e => { st.slow = !st.slow; const b = e.currentTarget; b.setAttribute('aria-pressed', String(st.slow)); b.classList.toggle('on', st.slow); b.innerHTML = st.slow ? 'Back to real time' : 'Slow it down &times;160,000'; if (st.shot === 'stroke') { st.asked = true; SH.stroke(); st.asked = false; } });
   function setDist(m, from) {
     st.dist = m; S.p.D = m; if (st.shot === 'thunder') S.camGoal.D = m;
     if (st.shot === 'lab') { S.obsD = m; S.camGoal.D = labCamD(m, S.camGoal.yF); }
     const v = logInv(m, 500, 20000);
     ['#distS', '#labD'].forEach(id => { if (from !== id) $(id).value = v; });
     $('#distOut').textContent = fmtKm(m); $('#labDOut').textContent = fmtKm(m);
-    clearTimeout(st.dT); st.dT = setTimeout(() => { if (S.B && S.B.attached) S.requestThunder(); }, 250);
+    clearTimeout(st.dT); st.dT = setTimeout(() => { if (S.B && S.B.attached) S.requestThunder(true); }, 250);
   }
   ['#distS', '#labD'].forEach(id => $(id).addEventListener('input', e => setDist(logMap(+e.target.value, 500, 20000), id)));
   setDist(st.dist);
@@ -1855,7 +1864,7 @@ class Block {
   $('#labEta').addEventListener('input', e => { S.p.eta = +e.target.value; $('#labEtaOut').textContent = (+e.target.value).toFixed(2); });
   $('#labI').addEventListener('input', e => { S.p.IkA = logMap(+e.target.value, 5, 200); $('#labIOut').textContent = Math.round(S.p.IkA) + ' kA'; set('sd', Math.round(10 * Math.pow(S.p.IkA, 0.65)) + ' m'); });
   $('#labN').addEventListener('input', e => { S.p.strokes = +e.target.value; $('#labNOut').textContent = e.target.value; });
-  $('#labT').addEventListener('input', e => { S.p.TC = +e.target.value; $('#labTOut').textContent = e.target.value + ' °C'; clearTimeout(st.tT); st.tT = setTimeout(() => { if (S.B && S.B.attached) S.requestThunder(); }, 250); });
+  $('#labT').addEventListener('input', e => { S.p.TC = +e.target.value; $('#labTOut').textContent = e.target.value + ' °C'; clearTimeout(st.tT); st.tT = setTimeout(() => { if (S.B && S.B.attached) S.requestThunder(true); }, 250); });
   $$('[data-speed]').forEach(b => b.addEventListener('click', () => {
     st.speedUser = b.dataset.speed; if (st.shot === 'lab') S.p.speed = st.speedUser;
     $$('[data-speed]').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); });
@@ -1947,7 +1956,7 @@ class Block {
   $('#blkCharge').addEventListener('click', () => BK.reset());
   $('#blkClassic').addEventListener('click', e => { BK.classic = !BK.classic; const b = e.currentTarget; b.classList.toggle('on', BK.classic); b.setAttribute('aria-pressed', String(BK.classic)); BK.reset(); });
   /* strike the block once on its own, the first time it comes into view */
-  new IntersectionObserver(es => { if (es[0].isIntersecting && !BK.M.events.length && !BK.classic && !st.blockAuto) { st.blockAuto = true; setTimeout(() => { if (!BK.M.events.length) { BK.M.strike(2, Math.round(BK.NY * 0.5)); BK.growing = true; BK.loop.kick(); } }, 600); } }, { threshold: 0.4 }).observe($('#spec'));
+  new IntersectionObserver(es => { if (!RM && es[0].isIntersecting && !BK.M.events.length && !BK.classic && !st.blockAuto) { st.blockAuto = true; setTimeout(() => { if (!BK.M.events.length) { BK.M.strike(2, Math.round(BK.NY * 0.5)); BK.growing = true; BK.loop.kick(); } }, 600); } }, { threshold: 0.4 }).observe($('#spec'));
 
   /* ---------------- checks ---------------- */
   const rows = [];
@@ -1972,7 +1981,7 @@ class Block {
     if (checked) return; checked = true;
     const pf = THUNDER.peakFreq(t);
     set('chkpeak', `${pf} Hz`);
-    set('chkdelay', `${t.t0.toFixed(2)} s at ${fmtKm(S.p.D)} (D/c = ${(S.p.D / t.c).toFixed(2)} s)`);
+    set('chkdelay', `${t.t0.toFixed(2)} s at ${fmtKm(t.range)} (D/c = ${(t.range / t.c).toFixed(2)} s)`);
   }
 
   /* ---------------- history ---------------- */
