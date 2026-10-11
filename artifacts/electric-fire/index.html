@@ -263,7 +263,7 @@ footer { padding-block: 4rem 3rem; color: var(--faint); font: 0.7rem/1.5 var(--m
         <p class="dim" style="color:var(--mute);font-size:0.9rem">Tap the sky to start a leader there.</p>
         <div class="grid">
           <div class="ctrl"><label for="labEta"><span>Branching <span class="nc">&eta;</span></span> <output id="labEtaOut">1.9</output></label><input type="range" id="labEta" min="1" max="4" step="0.05" value="1.9"></div>
-          <div class="ctrl"><label for="labI">Peak current <output id="labIOut">30 kA</output></label><input type="range" id="labI" min="0" max="1" step="0.001" value="0.42"></div>
+          <div class="ctrl"><label for="labI">Peak current <output id="labIOut">30 kA</output></label><input type="range" id="labI" min="0" max="1" step="0.001" value="0.486"></div>
           <div class="ctrl"><label for="labN">Strokes <output id="labNOut">4</output></label><input type="range" id="labN" min="1" max="8" step="1" value="4"></div>
           <div class="ctrl"><label for="labD">Distance <output id="labDOut">&hellip;</output></label><input type="range" id="labD" min="0" max="1" step="0.001" value="0.35"></div>
           <div class="ctrl"><label for="labT">Air temperature <output id="labTOut">20 &deg;C</output></label><input type="range" id="labT" min="-10" max="35" step="1" value="20"></div>
@@ -1420,7 +1420,7 @@ class Storm {
     const x0 = o.x0 != null ? o.x0 : Math.round(GRID.NX * (0.3 + 0.4 * r()));
     this.L = new DBM.Leader({ NX: GRID.NX, NY: GRID.NY, h: GRID.h, cloudRow: GRID.cloudRow, x0, eta: this.p.eta, drop: 0.25, IkA: this.p.IkA, seed: this.seed, objects: this.objList() });
     this.tr = new BOLT.Track(this.L, { seed: this.seed });
-    this.B = null; this.T = null; this.thunderAt = null; this.t = 0; this.lastBuild = -1; this.hold = 0; this.finished = false;
+    this.B = null; this.T = null; this.thunderAt = null; this.thunderEv = null; this.t = 0; this.lastBuild = -1; this.hold = 0; this.finished = false;
     this.speed = o.speed || this.p.speed; this.state = 'grow';
     this.sky.setPieces(null);
     this.emit('start', this.L);
@@ -1454,7 +1454,7 @@ class Storm {
   }
   requestThunder(replace) {
     const B = this.B; if (!B || !B.attached) return;
-    if (replace) { try { this.thunderSrc && this.thunderSrc.stop(); } catch (e) { } this.thunderSrc = null; this.thunderScheduled = false; }
+    if (replace) { const e = this.thunderEv; if (e) { try { e.src && e.src.stop(); } catch (x) { } this.heard = this.heard.filter(h => h !== e); } this.thunderEv = null; this.thunderScheduled = false; }
     const obs = [B.groundPt[0], -(this.obsD || this.camGoal.D), 1.7], key = ++this.thunderKey || (this.thunderKey = 1);
     this.T = null;
     THWORK.synth(B, obs, { TC: this.p.TC, IkA: this.p.IkA, seed: this.seed }).then(T => {
@@ -1469,15 +1469,17 @@ class Storm {
     const since = (performance.now() - this.flashWall) / 1000;
     const delay = this.T.t0 - since;
     const gain = Math.max(0.12, Math.min(1.25, Math.pow(1000 / Math.max(300, this.T.t0 * this.T.c), 0.55)));
-    this.thunderScheduled = true; this.thunderGain = gain;
-    this.thunderAt = performance.now() + delay * 1000;
-    this.thunderSrc = AUDIO.play(this.T, delay, gain);
+    this.thunderScheduled = true;
+    const now = performance.now(); this.thunderAt = now + delay * 1000;
+    /* every thunder still on its way, so turning sound on can play all of them */
+    const ev = this.thunderEv = { T: this.T, at: this.thunderAt, gain, src: AUDIO.play(this.T, delay, gain) };
+    this.heard = (this.heard || []).filter(h => h.at + h.T.samples.length / h.T.sr * 1000 > now); this.heard.push(ev);
     this.emit('thunderScheduled', { delay, T: this.T });
   }
-  /* sound turned on after the flash: play the thunder still on its way, from where it has got to */
+  /* sound turned on after a flash: play the thunder still on its way, from where it has got to */
   replayThunder() {
-    if (!this.T || this.thunderAt == null || this.thunderSrc) return;
-    this.thunderSrc = AUDIO.play(this.T, (this.thunderAt - performance.now()) / 1000, this.thunderGain);
+    const now = performance.now();
+    (this.heard || []).forEach(h => { if (!h.src) h.src = AUDIO.play(h.T, (h.at - now) / 1000, h.gain); });
   }
   frame(dt) {
     this.time += dt;
@@ -1844,7 +1846,7 @@ class Block {
   addEventListener('resize', () => { pickShot(); if (st.shot === 'lab') { const yF = labYF(); S.camGoal.yF = yF; S.camGoal.D = labCamD(st.dist, yF); } });
 
   /* ---------------- buttons ---------------- */
-  $$('[data-sound]').forEach(b => b.addEventListener('click', () => { if (AUDIO.toggle()) { if (S.ok) S.replayThunder(); } else S.thunderSrc = null; }));
+  $$('[data-sound]').forEach(b => b.addEventListener('click', () => { if (AUDIO.toggle()) { if (S.ok) S.replayThunder(); } else (S.heard || []).forEach(h => h.src = null); }));
   AUDIO.sync();
   $$('[data-strike]').forEach(b => b.addEventListener('click', () => { if (!S.ok) return; S.strike({ speed: S.p.speed }); }));
   $$('[data-again]').forEach(b => b.addEventListener('click', () => { if (!S.ok) return; const sh = b.closest('.shot').dataset.shot; if (sh === st.shot) { st.asked = true; SH[sh](); st.asked = false; } }));
