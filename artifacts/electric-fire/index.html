@@ -1954,7 +1954,7 @@ class Block {
   const BK = new Block($('#spec'));
   BK.on('grow', g => { set('bn', String(g.n)); set('bd', isFinite(g.D) ? g.D.toFixed(2) + (g.done ? '' : '…') : '…'); if (g.done && BK.classic && Math.abs(BK.eta - 1) < 0.03) set('bdclassic', g.D.toFixed(2) + ' (this visit)'); });
   BK.on('reset', () => { set('bn', '0'); set('bd', '…'); });
-  $('#blkEta').addEventListener('input', e => { BK.eta = +e.target.value; $('#blkEtaOut').textContent = (+e.target.value).toFixed(2); });
+  $('#blkEta').addEventListener('input', e => { BK.eta = +e.target.value; if (BK.M && !BK.M.events.length) BK.M.eta = BK.eta; $('#blkEtaOut').textContent = (+e.target.value).toFixed(2); });
   $('#blkCharge').addEventListener('click', () => BK.reset());
   $('#blkClassic').addEventListener('click', e => { BK.classic = !BK.classic; const b = e.currentTarget; b.classList.toggle('on', BK.classic); b.setAttribute('aria-pressed', String(BK.classic)); BK.reset(); });
   /* strike the block once on its own, the first time it comes into view */
