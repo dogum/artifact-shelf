@@ -1,0 +1,2039 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Electric Fire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* A night storm seen through a long lens: near-black blue, flash white, one warm accent
+   for positive charge and town glow. One theme by design: lightning needs the dark. */
+:root {
+  --ink: #05070b;
+  --panel: rgba(9, 13, 20, 0.62);
+  --panel-solid: #0b111b;
+  --rule: rgba(190, 210, 240, 0.12);
+  --text: #e8ecf3;
+  --mute: #93a0b4;
+  --faint: #56627a;
+  --bolt: #b9c9ff;
+  --warm: #ffb36b;
+  --cool: #8fd1ff;
+  --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --gut: 16px;
+  color-scheme: dark;
+}
+@media (min-width: 700px) { :root { --gut: 36px; } }
+html { background: var(--ink); }
+body { background: var(--ink); color: var(--text); font: 300 1rem/1.62 var(--sans); -webkit-font-smoothing: antialiased; margin: 0; }
+::selection { background: var(--bolt); color: #05070b; }
+a { color: var(--text); text-decoration-color: color-mix(in srgb, var(--bolt) 60%, transparent); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--bolt); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; margin: 0; line-height: 1.02; text-wrap: balance; font-optical-sizing: auto; }
+h2 { font-size: clamp(2.2rem, 5vw, 3.8rem); letter-spacing: -0.015em; }
+h3 { font-size: clamp(1.6rem, 2.6vw, 2.2rem); letter-spacing: -0.01em; }
+p { margin: 0; }
+b, strong { font-weight: 500; }
+.eyebrow { font: 500 0.68rem/1.3 var(--mono); letter-spacing: 0.18em; text-transform: uppercase; color: var(--mute); }
+.eyebrow b { color: var(--bolt); font-weight: 500; }
+.btn { font: 500 0.72rem/1 var(--mono); letter-spacing: 0.03em; color: var(--text); background: rgba(12, 18, 28, 0.7); border: 1px solid var(--rule); border-radius: 999px; padding: 0.58rem 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.45rem; white-space: nowrap; transition: border-color .2s, background-color .2s; }
+.btn:hover { border-color: rgba(190, 210, 240, 0.35); }
+.btn[aria-pressed="true"], .btn.on { background: var(--text); color: var(--ink); border-color: var(--text); }
+.btn.hot { border-color: var(--bolt); box-shadow: 0 0 0 1px rgba(185, 201, 255, 0.25), 0 0 24px rgba(150, 170, 255, 0.25); }
+.btn svg { width: 14px; height: 14px; flex: none; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.ctrl { display: grid; gap: 0.25rem; }
+.nc { text-transform: none; }
+.ctrl label { display: flex; justify-content: space-between; gap: 1rem; font: 500 0.66rem/1.3 var(--mono); letter-spacing: 0.06em; color: var(--mute); text-transform: uppercase; }
+.ctrl label output { color: var(--text); font-variant-numeric: tabular-nums; text-transform: none; letter-spacing: 0.02em; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 26px; background: transparent; margin: 0; }
+input[type=range]::-webkit-slider-runnable-track { height: 3px; border-radius: 3px; background: linear-gradient(90deg, var(--faint), var(--bolt)); }
+input[type=range]::-moz-range-track { height: 3px; border-radius: 3px; background: linear-gradient(90deg, var(--faint), var(--bolt)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 17px; height: 17px; border-radius: 50%; background: var(--text); margin-top: -7px; border: 3px solid var(--ink); box-shadow: 0 0 0 1px var(--mute); }
+input[type=range]::-moz-range-thumb { width: 13px; height: 13px; border-radius: 50%; background: var(--text); border: 3px solid var(--ink); box-shadow: 0 0 0 1px var(--mute); }
+.nogl { position: absolute; inset: 20% 10%; display: none; place-items: center; text-align: center; color: var(--mute); font: 0.85rem/1.5 var(--mono); }
+.failed .nogl { display: grid !important; }
+
+/* ---------- the cinema: one sky behind the whole story ---------- */
+.cinema { position: relative; }
+.screen { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; z-index: 0; }
+.screen canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.screen canvas.ov { pointer-events: none; }
+.screen.tap canvas.sky { cursor: crosshair; }
+.hud { position: absolute; inset: 0; pointer-events: none; font: 500 0.68rem/1.3 var(--mono); color: rgba(232, 236, 243, 0.86); letter-spacing: 0.04em; }
+.hud > div { position: absolute; display: grid; gap: 0.25rem; }
+.hud .tl { left: var(--gut); top: max(14px, env(safe-area-inset-top)); }
+.hud .tr { right: var(--gut); top: max(14px, env(safe-area-inset-top)); text-align: right; justify-items: end; }
+.hud span:not(:empty) { background: rgba(5, 7, 11, 0.55); padding: 2px 6px; border-radius: 4px; }
+.hud b { color: #fff; font-weight: 500; font-variant-numeric: tabular-nums; }
+.hud .big { font: 500 1.05rem/1.1 var(--mono); }
+.hud .mill { display: grid; gap: 3px; background: rgba(5, 7, 11, 0.55); padding: 6px 8px; border-radius: 6px; border: 1px solid var(--rule); }
+.hud .mill canvas { position: static; width: 150px; height: 34px; }
+.hud .count { font: 400 1.6rem/1 var(--display); letter-spacing: 0; background: none !important; text-shadow: 0 2px 16px #000; }
+.reel { position: relative; margin-top: -100vh; margin-top: -100svh; z-index: 1; pointer-events: none; }
+.shot { min-height: 135svh; display: flex; align-items: flex-end; padding: 0 var(--gut) 10svh; box-sizing: border-box; }
+.shot:first-child { min-height: 100svh; align-items: center; padding-bottom: 0; }
+.cap { pointer-events: auto; max-width: 540px; background: var(--panel); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2); border: 1px solid var(--rule); border-radius: 16px; padding: 1.15rem 1.35rem 1.25rem; display: grid; gap: 0.75rem; opacity: 0.35; transform: translateY(14px); transition: opacity .6s, transform .6s; }
+.shot.active .cap { opacity: 1; transform: none; }
+.cap p { color: rgba(232, 236, 243, 0.92); }
+.cap .meta { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; }
+.stat { font: 500 0.7rem/1.3 var(--mono); padding: 0.4rem 0.6rem; border-radius: 8px; border: 1px dashed var(--rule); color: var(--mute); background: rgba(5, 7, 11, 0.3); }
+.stat b { color: var(--text); font-weight: 500; font-variant-numeric: tabular-nums; }
+.quote { font-family: var(--display); font-style: italic; font-weight: 300; font-size: 1.25rem; line-height: 1.4; border-left: 1px solid var(--faint); padding-left: 0.9rem; }
+.quote cite { display: block; margin-top: 0.35rem; font: 500 0.64rem/1.3 var(--mono); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+.title { pointer-events: auto; display: grid; gap: 1.1rem; max-width: 760px; }
+.title h1 { font-size: clamp(3.6rem, 10vw, 9rem); font-weight: 300; letter-spacing: -0.035em; line-height: 0.88; text-shadow: 0 4px 40px rgba(0, 0, 0, 0.6); }
+.title h1 em { font-style: italic; font-weight: 300; color: var(--bolt); }
+.title .lede { font-size: 1.12rem; line-height: 1.55; max-width: 42ch; color: rgba(232, 236, 243, 0.9); text-shadow: 0 2px 18px #000; }
+.title .cue { font: 500 0.68rem/1.3 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); }
+.wave { width: 100%; height: 64px; display: block; border-radius: 8px; background: rgba(5, 7, 11, 0.45); border: 1px solid var(--rule); }
+
+/* the instrument deck in the last shot */
+.shot.lab { min-height: 160svh; }
+.deck { pointer-events: auto; width: 100%; max-width: 1160px; margin: 0 auto; background: var(--panel); -webkit-backdrop-filter: blur(16px) saturate(1.2); backdrop-filter: blur(16px) saturate(1.2); border: 1px solid var(--rule); border-radius: 18px; padding: 1rem 1.2rem 1.2rem; display: grid; gap: 0.9rem; opacity: 0.35; transition: opacity .6s; }
+.shot.active .deck { opacity: 1; }
+.deck .top { display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem; align-items: center; justify-content: space-between; }
+.deck .top h3 { font-size: 1.6rem; }
+.deck .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem 1.2rem; }
+.deck .gauges { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.5rem; }
+.gauge { border: 1px solid var(--rule); border-radius: 10px; padding: 0.5rem 0.6rem; background: rgba(5, 7, 11, 0.35); display: grid; gap: 0.15rem; }
+.gauge span { font: 500 0.6rem/1.2 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+.gauge b { font: 500 0.95rem/1.2 var(--mono); font-variant-numeric: tabular-nums; color: var(--text); }
+.deck .traces { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.6rem; }
+.trace { display: grid; gap: 0.2rem; }
+.trace canvas { width: 100%; height: 70px; display: block; border-radius: 8px; background: rgba(5, 7, 11, 0.45); border: 1px solid var(--rule); }
+@media (max-width: 1000px) { .deck .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .deck .gauges { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 700px) {
+  .shot { padding-bottom: 5svh; min-height: 120svh; }
+  .cap { max-width: none; padding: 0.95rem 1rem 1.05rem; gap: 0.6rem; font-size: 0.95rem; }
+  .cap h3 { font-size: 1.5rem; }
+  .hud .mill canvas { width: 110px; height: 28px; }
+  .hud .count { font-size: 1.25rem; }
+  .deck { padding: 0.8rem 0.85rem 1rem; }
+  .deck .traces { grid-template-columns: minmax(0, 1fr); }
+  .deck .gauges { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; }
+  .deck .gauge { padding: 0.45rem 0.5rem; }
+  .deck .gauge span { font-size: 0.52rem; letter-spacing: 0.06em; }
+  .deck .gauge b { font-size: 0.9rem; }
+  .deck .ctrl.wide { grid-column: 1 / -1; }
+  .deck .ctrl.wide .btnrow { flex-wrap: wrap; }
+  .shot.lab { min-height: 220svh; }
+}
+
+/* ---------- the block ---------- */
+.wrap { padding-inline: var(--gut); max-width: 1280px; margin-inline: auto; }
+.act { padding-block: clamp(4rem, 10vw, 8rem) 0; }
+.act-head { display: grid; gap: 1rem; margin-bottom: 2rem; max-width: 66ch; }
+.prose { max-width: 64ch; display: grid; gap: 1em; }
+.prose p, .act-head p { color: rgba(232, 236, 243, 0.9); }
+.blockwrap { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: clamp(1.2rem, 3vw, 2.5rem); align-items: start; }
+.specimen { position: relative; aspect-ratio: 1.55 / 1; border-radius: 16px; overflow: hidden; border: 1px solid var(--rule); background: #03050a; }
+.specimen canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: manipulation; }
+.side { display: grid; gap: 1rem; }
+@media (max-width: 900px) { .blockwrap { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- notes ---------- */
+.notes { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: clamp(1.5rem, 4vw, 4rem); }
+@media (max-width: 900px) { .notes { grid-template-columns: minmax(0, 1fr); } }
+.eq { font-family: var(--display); font-style: italic; font-weight: 300; font-size: 1.12rem; line-height: 1.85; padding: 1rem 1.2rem; border: 1px solid var(--rule); border-radius: 12px; background: var(--panel-solid); overflow-x: auto; }
+.eq div { white-space: nowrap; }
+.eq .lbl { font: 500 0.6rem/1.3 var(--mono); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+table.params { width: 100%; border-collapse: collapse; font: 0.78rem/1.45 var(--mono); font-variant-numeric: tabular-nums; }
+table.params td, table.params th { text-align: left; padding: 0.45rem 0.5rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.params th { font-weight: 500; color: var(--mute); font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; }
+table.params td.ok { color: #9fd28a; }
+.tablewrap { overflow-x: auto; }
+.history { overflow-x: auto; margin-top: 1.5rem; padding-bottom: 0.4rem; }
+.history svg { display: block; min-width: 880px; width: 100%; height: auto; }
+.history text { font-family: var(--mono); }
+.hlist { display: none; list-style: none; margin: 1.4rem 0 0; padding: 0; position: relative; }
+.hlist::before { content: ""; position: absolute; left: 4.6rem; top: 0.5rem; bottom: 0.5rem; width: 1px; background: rgba(190, 210, 240, 0.15); }
+.hlist li { display: grid; grid-template-columns: 4.6rem 1fr; gap: 0 1rem; padding: 0.45rem 0; position: relative; }
+.hlist li::before { content: ""; position: absolute; left: calc(4.6rem - 4px); top: 0.78rem; width: 6px; height: 6px; border-radius: 50%; background: var(--ink); border: 2px solid var(--c, #e8ecf3); }
+.hlist .y { font: 500 0.78rem/1.5 var(--mono); color: var(--mute); padding-top: 0.08rem; }
+.hlist .t { font: 500 0.8rem/1.45 var(--mono); color: var(--text); padding-left: 0.4rem; }
+.hlist .t small { display: block; color: #93a0b4; font-size: 0.74rem; }
+.hlist li.gap { padding: 0.2rem 0; }
+.hlist li.gap::before { display: none; }
+.hlist li.gap .t { color: var(--mute); letter-spacing: 0.3em; }
+@media (max-width: 640px) { .history { display: none; } .hlist { display: block; } }
+.refs { display: grid; gap: 0.55rem; font-size: 0.9rem; line-height: 1.45; color: var(--mute); padding-left: 1.2rem; margin: 0; }
+.refs li::marker { color: var(--faint); font-family: var(--mono); font-size: 0.8em; }
+footer { padding-block: 4rem 3rem; color: var(--faint); font: 0.7rem/1.5 var(--mono); }
+@media (prefers-reduced-motion: reduce) { .cap, .deck { transition: none; } }
+</style>
+<main>
+<section class="cinema" id="cinema">
+  <div class="screen" id="screen">
+    <canvas class="sky" aria-label="A night thunderstorm with lightning, computed live"></canvas>
+    <canvas class="ov" aria-hidden="true"></canvas>
+    <div class="nogl">This page needs WebGL2 with float render targets.</div>
+    <div class="hud">
+      <div class="tl"><span class="big" data-hud="title"></span><span data-hud="note"></span><span data-hud="clock"></span></div>
+      <div class="tr">
+        <div class="mill" data-hud="millbox"><span style="background:none;padding:0">field mill <b data-hud="mill">…</b></span><canvas data-hud="millcv"></canvas></div>
+        <span class="count" data-hud="count"></span><span data-hud="count2"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="reel">
+    <div class="shot" data-shot="hero" id="s-hero">
+      <div class="title">
+        <p class="eyebrow"><b>Lightning</b> &middot; grown from the equations of electricity</p>
+        <h1>Electric <em>Fire</em></h1>
+        <p class="lede">Every flash on this page is computed: the leader feels its way down through the electric field one step at a time, the return stroke lights it from the ground up, and the thunder you hear is put together from that bolt&rsquo;s own shape.</p>
+        <div class="btnrow">
+          <button class="btn hot" data-sound aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 6h3l4-3v10l-4-3H2z"/><path d="M11 5.5c1 .8 1 4.2 0 5"/><path d="M12.8 3.8c2 1.8 2 6.6 0 8.4"/></svg><span data-on="Sound on" data-off="Turn on sound">Turn on sound</span></button>
+          <button class="btn" data-strike>Strike now</button>
+        </div>
+        <p class="cue">Scroll &darr; to walk through one flash</p>
+      </div>
+    </div>
+
+    <div class="shot" data-shot="charge" id="s-charge">
+      <div class="cap">
+        <p class="eyebrow"><b>01</b> &middot; charging</p>
+        <h3>A cloud charges itself</h3>
+        <p>Inside a thunderstorm, soft hail (graupel) falls through rising ice crystals. Where they collide they swap electric charge, and the updraft carries the light, positively charged crystals to the top. The main negative charge settles near the &minus;15&nbsp;&deg;C level, about six kilometres up.</p>
+        <p>On the ground a field mill feels it. In fair weather the air near the ground carries about +100 volts per metre; under the storm that reverses and grows to several thousand.</p>
+        <p>Air needs about three million volts per metre to break down. Balloons sent into storms rarely find more than a few hundred thousand, so how a flash gets started is still argued about.</p>
+        <div class="meta"><span class="stat">field at the ground <b data-out="pg">&hellip;</b></span></div>
+      </div>
+    </div>
+
+    <div class="shot" data-shot="leader" id="s-leader">
+      <div class="cap">
+        <p class="eyebrow"><b>02</b> &middot; the stepped leader &middot; slowed &times;700</p>
+        <h3>Feeling its way down</h3>
+        <p>A flash to ground begins with a faint channel of ionised air reaching down from the cloud in jumps of about 30&nbsp;metres, pausing a few tens of microseconds between them, at about 150&nbsp;km/s on average. It forks as it goes. In 1934 Basil Schonland and H. Collens caught it on film with a camera whose lenses spun, a design Charles Vernon Boys had described in 1926.</p>
+        <p>Here it is grown by the <i>dielectric breakdown model</i> (Niemeyer, Pietronero and Wiesmann, 1984). The page solves for the electric potential around the channel. Each step goes to a neighbouring cell at random, with odds that rise steeply with the local field, as field<sup>&eta;</sup>.</p>
+        <div class="meta"><button class="btn" id="fieldBtn" aria-pressed="false">Show the field</button><button class="btn" data-again>Grow another</button><span class="stat">steps so far <b data-out="steps">&hellip;</b></span></div>
+      </div>
+    </div>
+
+    <div class="shot" data-shot="attach" id="s-attach">
+      <div class="cap">
+        <p class="eyebrow"><b>03</b> &middot; attachment</p>
+        <h3>Who gets struck</h3>
+        <p>Nothing on the ground is chosen until the leader&rsquo;s tip is within the <i>striking distance</i>, about 10&nbsp;&times;&nbsp;I<sup>0.65</sup> metres for a peak current of I kiloamperes (91&nbsp;m at 30&nbsp;kA). Then the nearest grounded tip sends up a leader of its own, and the flash goes wherever the two meet.</p>
+        <p>That is why tall, pointed things get hit, and why Franklin&rsquo;s rod works. Engineers roll an imaginary 45&nbsp;m sphere over a building to see which parts it could touch.</p>
+        <div class="meta"><button class="btn" data-again>Again</button><span class="stat">struck <b data-out="struck">&hellip;</b></span></div>
+      </div>
+    </div>
+
+    <div class="shot" data-shot="stroke" id="s-stroke">
+      <div class="cap">
+        <p class="eyebrow"><b>04</b> &middot; the return stroke</p>
+        <h3>The flash runs upward</h3>
+        <p>Once connected, the channel discharges from the ground up. A wave of current climbs it at around a third of the speed of light, carrying typically 30,000 amperes and heating a core a few centimetres across to some 30,000&nbsp;&deg;C. That is the blinding flash; the faint leader before it is invisible to the eye.</p>
+        <p>Then, a few hundredths of a second apart, faster &ldquo;dart&rdquo; leaders run back down the same hot channel and set off more strokes, typically three or four in all. That is why lightning flickers.</p>
+        <div class="meta"><button class="btn" id="slowBtn" aria-pressed="false">Slow it down &times;160,000</button><button class="btn" data-again>Again</button></div>
+      </div>
+    </div>
+
+    <div class="shot" data-shot="thunder" id="s-thunder">
+      <div class="cap">
+        <p class="eyebrow"><b>05</b> &middot; thunder</p>
+        <h3>Thunder, read from the bolt</h3>
+        <p>Every few metres of channel heats explosively and sends out a pulse of sound, loudest at right angles to that stretch of channel. You hear each piece at its own distance divided by the speed of sound, about 3 seconds per kilometre. Here the bolt is coloured by when its sound reaches you, and lights up as you hear it.</p>
+        <p>Pieces that face you and lie at the same distance arrive together as a clap; the rest roll in as rumble. Air soaks up the high notes with distance. And because air cools with height, sound from low down bends upward and passes over a distant listener, so thunder is rarely heard beyond about 25&nbsp;km.</p>
+        <div class="ctrl"><label for="distS">How far away <output id="distOut">&hellip;</output></label><input type="range" id="distS" min="0" max="1" step="0.001" value="0.35"></div>
+        <canvas class="wave" id="waveS" aria-label="Waveform of the computed thunder"></canvas>
+        <div class="meta"><button class="btn" data-sound aria-pressed="false"><span data-on="Sound on" data-off="Sound off">Sound off</span></button><button class="btn" data-again>Strike</button><span class="stat">thunder lasts <b data-out="tdur">&hellip;</b></span></div>
+      </div>
+    </div>
+
+    <div class="shot" data-shot="kite" id="s-kite">
+      <div class="cap">
+        <p class="eyebrow"><b>06</b> &middot; 1752</p>
+        <h3>The kite and the key</h3>
+        <p>Benjamin Franklin proposed testing whether lightning was electricity by catching it on a tall pointed rod. In May 1752 Thomas-Fran&ccedil;ois Dalibard did so at Marly-la-Ville, near Paris. Franklin&rsquo;s own version, flown in Philadelphia that summer (June, according to Joseph Priestley&rsquo;s 1767 account), used a silk kite with a wire at its tip and a key at the end of the wet string.</p>
+        <blockquote class="quote">&hellip;the pointed wire will draw the electric fire from them&hellip;<cite>Franklin to Peter Collinson, 19 October 1752</cite></blockquote>
+        <p>The kite was never struck. The storm&rsquo;s field charged the wet string: its loose fibres stood apart, sparks jumped from the key to his knuckle, and he charged a Leyden jar from it. In August 1753 Georg Wilhelm Richmann was killed in St Petersburg trying a similar experiment.</p>
+      </div>
+    </div>
+
+    <div class="shot lab" data-shot="lab" id="s-lab">
+      <div class="deck">
+        <div class="top">
+          <div><p class="eyebrow"><b>07</b> &middot; the instrument deck</p><h3>Your storm</h3></div>
+          <div class="btnrow"><button class="btn hot" data-strike>Strike</button><button class="btn" id="autoBtn" aria-pressed="false">Storm on its own</button><button class="btn" data-sound aria-pressed="false"><span data-on="Sound on" data-off="Sound off">Sound off</span></button></div>
+        </div>
+        <p class="dim" style="color:var(--mute);font-size:0.9rem">Tap the sky to start a leader there.</p>
+        <div class="grid">
+          <div class="ctrl"><label for="labEta"><span>Branching <span class="nc">&eta;</span></span> <output id="labEtaOut">1.9</output></label><input type="range" id="labEta" min="1" max="4" step="0.05" value="1.9"></div>
+          <div class="ctrl"><label for="labI">Peak current <output id="labIOut">30 kA</output></label><input type="range" id="labI" min="0" max="1" step="0.001" value="0.486"></div>
+          <div class="ctrl"><label for="labN">Strokes <output id="labNOut">4</output></label><input type="range" id="labN" min="1" max="8" step="1" value="4"></div>
+          <div class="ctrl"><label for="labD">Distance <output id="labDOut">&hellip;</output></label><input type="range" id="labD" min="0" max="1" step="0.001" value="0.35"></div>
+          <div class="ctrl"><label for="labT">Air temperature <output id="labTOut">20 &deg;C</output></label><input type="range" id="labT" min="-10" max="35" step="1" value="20"></div>
+          <div class="ctrl wide"><label>Speed</label><div class="btnrow" role="group" aria-label="Playback speed"><button class="btn on" data-speed="real" aria-pressed="true">Real time</button><button class="btn" data-speed="leader" aria-pressed="false">&times;700</button><button class="btn" data-speed="stroke" aria-pressed="false">&times;160,000</button></div></div>
+          <div class="ctrl wide"><label>On the ground</label><div class="btnrow" role="group" aria-label="Objects"><button class="btn on" data-obj="tower" aria-pressed="true">Tower</button><button class="btn on" data-obj="house" aria-pressed="true">House</button><button class="btn on" data-obj="tree" aria-pressed="true">Tree</button></div></div>
+          <div class="ctrl wide"><label>Show</label><div class="btnrow" role="group" aria-label="Overlays"><button class="btn" data-ov="field" aria-pressed="false">Field</button><button class="btn" data-ov="iso" aria-pressed="false">Sound map</button><button class="btn" data-ov="sdist" aria-pressed="false">Striking distance</button></div></div>
+        </div>
+        <div class="gauges">
+          <div class="gauge"><span>struck</span><b data-out="struck">&hellip;</b></div>
+          <div class="gauge"><span>leader steps</span><b data-out="steps">&hellip;</b></div>
+          <div class="gauge"><span>main channel</span><b data-out="mainlen">&hellip;</b></div>
+          <div class="gauge"><span>striking distance</span><b data-out="sd">&hellip;</b></div>
+          <div class="gauge"><span>flash to thunder</span><b data-out="delay">&hellip;</b></div>
+          <div class="gauge"><span>thunder lasts</span><b data-out="tdur">&hellip;</b></div>
+        </div>
+        <div class="traces">
+          <div class="trace"><span class="eyebrow">field mill, last 30 s</span><canvas id="millBig" aria-label="Electric field at the ground over the last 30 seconds"></canvas></div>
+          <div class="trace"><span class="eyebrow">thunder, as computed</span><canvas id="waveL" aria-label="Waveform of the computed thunder"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap act" id="block">
+  <div class="act-head">
+    <p class="eyebrow"><b>Part two</b> &middot; 1777 and now</p>
+    <h2>Lightning in a block</h2>
+    <p>In 1777 Georg Christoph Lichtenberg sprinkled dust on a charged plate of resin and found it gathered into branching stars along the paths of tiny sparks. Today the same figures are made inside clear acrylic. An electron accelerator fires a beam into the block; the electrons come to rest a short way inside and stay trapped there as a sheet of charge. Strike the block with a sharp point and the charge rushes out through branching channels that crack the plastic as they go, frozen for good.</p>
+  </div>
+  <div class="blockwrap">
+    <div class="specimen" id="spec"><canvas aria-label="A charged acrylic block; tap to strike it and grow a Lichtenberg figure"></canvas></div>
+    <div class="side">
+      <p style="color:rgba(232,236,243,0.9)">The same model as the leader, with one change: the trapped electrons are the source of the field. Lower &eta; fills the block with fine fronds, higher &eta; makes fewer, longer channels.</p>
+      <div class="ctrl"><label for="blkEta"><span>Branching <span class="nc">&eta;</span></span> <output id="blkEtaOut">1.0</output></label><input type="range" id="blkEta" min="0.4" max="4" step="0.05" value="1"></div>
+      <div class="btnrow"><button class="btn" id="blkCharge">Charge a new block</button><button class="btn" id="blkClassic" aria-pressed="false">Classic model</button></div>
+      <div class="btnrow"><span class="stat">channels <b data-out="bn">0</b></span><span class="stat">fractal dimension <b data-out="bd">&hellip;</b></span></div>
+      <p style="color:var(--mute);font-size:0.9rem">&ldquo;Classic model&rdquo; is the 1984 set-up: a point held at one voltage inside a circle held at another, with no trapped charge. At &eta;&nbsp;=&nbsp;1 the pattern&rsquo;s fractal dimension comes out near 1.7, the value found in 1984 and the same as for diffusion-limited aggregation. At &eta;&nbsp;=&nbsp;2 it drops to about 1.4.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap act" id="notes">
+  <div class="act-head">
+    <p class="eyebrow"><b>Part three</b> &middot; working</p>
+    <h2>How the storm is computed</h2>
+  </div>
+  <div class="notes">
+    <div class="prose">
+      <p><b>The leader.</b> A vertical slice of air 2.4&nbsp;km wide and 1.8&nbsp;km tall is cut into 20&nbsp;m cells. The cloud&rsquo;s base, at 1.26&nbsp;km, is held at the cloud&rsquo;s potential and the ground at zero, together with the tower, house and tree. The potential is relaxed with over-relaxation (SOR) each time the channel grows. The channel counts as a conductor that loses a little potential along its length. Each step goes to one of the eight neighbouring cells with odds proportional to (potential drop / distance)<sup>&eta;</sup>.</p>
+      <p><b>Attachment.</b> When the lowest tip comes within the striking distance of the ground or a grounded object, that point grows an upward leader by the same rule, in reverse. The flash attaches where the two touch.</p>
+      <p><b>Drawing.</b> Each 20&nbsp;m step is split into eight pieces with small random kinks. The channel also wanders in depth, which matters for the thunder.</p>
+      <p><b>Timing and light.</b> The leader&rsquo;s front comes down at 1.5&nbsp;&times;&nbsp;10<sup>5</sup>&nbsp;m/s. Return strokes climb at 10<sup>8</sup>&nbsp;m/s. Branches light when the wave passes their junction, and each branch carries current in proportion to the root of its length. A stroke&rsquo;s light is a sum of decays (40&nbsp;&micro;s, 0.6&nbsp;ms, 6&nbsp;ms, 40&nbsp;ms), integrated over each video frame&rsquo;s exposure. In real time a stroke is therefore one blinding frame and an afterglow, and slowed down it is a wave. Later strokes follow only the main channel, each led by a dart leader at 2&nbsp;&times;&nbsp;10<sup>6</sup>&nbsp;m/s.</p>
+      <p><b>Inside the cloud.</b> The channel climbs to the negative charge near 6&nbsp;km and spreads sideways for several kilometres. This part is a random walk, not a field solution. It is seen only as glow through the cloud, but it supplies most of the thunder&rsquo;s length.</p>
+      <p><b>Thunder.</b> Following A. A. Few&rsquo;s description and A. Glassner&rsquo;s synthesis, every 2.5&nbsp;m piece sends out an N-shaped pressure pulse 4 to 8&nbsp;ms long, weighted toward directions within about 30&deg; of its normal and spread as 1/r. It arrives after r&nbsp;/&nbsp;c, with c&nbsp;=&nbsp;331.3&nbsp;&radic;(1&nbsp;+&nbsp;T/273.15)&nbsp;m/s. Pieces are grouped by distance and low-passed where air absorption reaches 6&nbsp;dB (absorption taken as about 5&nbsp;dB/km at 1&nbsp;kHz, rising as f<sup>1.7</sup>). Sound from a piece at height z is cut beyond about &radic;(2Rz), where R&nbsp;&asymp;&nbsp;88&nbsp;km is the curvature of sound rays in still air cooling by 6.5&nbsp;K per km. A few dozen softened echoes stand in for the land around you. Wind is ignored.</p>
+      <p><b>Field mill.</b> The ground field comes from three charges and their images in the ground: +40&nbsp;C at 10&nbsp;km, &minus;40&nbsp;C at 6&nbsp;km and +4&nbsp;C at 2&nbsp;km, on top of the fair-weather +100&nbsp;V/m. Each flash removes part of the negative charge, which then rebuilds over tens of seconds.</p>
+      <p><b>Lichtenberg block.</b> Poisson&rsquo;s equation with a uniform trapped charge, grounded rim and channels, with growth &prop;&nbsp;(potential)<sup>&eta;</sup>. In classic mode there is no charge, a circular boundary and four-neighbour growth, as in 1984.</p>
+    </div>
+    <div>
+      <div class="eq">
+        <div class="lbl">Leader (dielectric breakdown model)</div>
+        <div>&nabla;<sup>2</sup>&phi; = 0,&ensp; &phi;<sub>cloud</sub> = 1,&ensp; &phi;<sub>ground</sub> = 0</div>
+        <div>p(i&rarr;j) &prop; [(&phi;<sub>i</sub> &minus; &phi;<sub>j</sub>) / &#8467;<sub>ij</sub>]<sup>&eta;</sup></div>
+        <div class="lbl">Striking distance</div>
+        <div>r<sub>s</sub> = 10 I<sup>0.65</sup> m&ensp;(I in kA)</div>
+        <div class="lbl">Thunder</div>
+        <div>p(t) = &Sigma; A<sub>k</sub> D(&theta;<sub>k</sub>) N(t &minus; r<sub>k</sub>/c) / r<sub>k</sub></div>
+        <div>c = 331.3 &radic;(1 + T/273.15) m/s</div>
+      </div>
+      <h3 style="margin-top:2rem;font-size:1.5rem">Checks</h3>
+      <p style="color:var(--mute);font-size:0.9rem;margin:0.4rem 0 0.8rem">Computed in the page unless marked.</p>
+      <div class="tablewrap"><table class="params" id="checks"><thead><tr><th>Quantity</th><th>This page</th><th>Reference</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="act-head" style="margin-top:4rem">
+    <p class="eyebrow"><b>Part four</b> &middot; people</p>
+    <h2>Catching lightning</h2>
+  </div>
+  <div class="history"><svg id="history" viewBox="0 0 1000 262" role="img" aria-label="Timeline from Franklin's proposal to satellite flash counts"></svg></div>
+  <ol class="hlist" id="hlist"></ol>
+
+  <div class="act-head" style="margin-top:4rem"><p class="eyebrow"><b>Sources</b></p></div>
+  <ol class="refs">
+    <li>B. Franklin, letter to Peter Collinson, 19 October 1752 (the kite), printed in the <i>Pennsylvania Gazette</i> and read to the Royal Society that December.</li>
+    <li>J. Priestley, <i>The History and Present State of Electricity</i>, London (1767).</li>
+    <li>C. V. Boys, &ldquo;Progressive lightning&rdquo;, <i>Nature</i> 118, 749 (1926).</li>
+    <li>B. F. J. Schonland and H. Collens, &ldquo;Progressive lightning&rdquo;, <i>Proc. R. Soc. A</i> 143, 654 (1934).</li>
+    <li>A. A. Few, &ldquo;Power spectrum of thunder&rdquo;, <i>J. Geophys. Res.</i> 74, 6926 (1969).</li>
+    <li>L. Niemeyer, L. Pietronero and H. J. Wiesmann, &ldquo;Fractal dimension of dielectric breakdown&rdquo;, <i>Phys. Rev. Lett.</i> 52, 1033 (1984).</li>
+    <li>A. Glassner, &ldquo;The digital ceraunoscope: synthetic thunder and lightning&rdquo;, <i>IEEE Computer Graphics and Applications</i> 20 (2000).</li>
+    <li>M. B. Hastings, &ldquo;Fractal to nonfractal phase transition in the dielectric breakdown model&rdquo;, <i>Phys. Rev. Lett.</i> 87, 175502 (2001).</li>
+    <li>H. J. Christian et al., &ldquo;Global frequency and distribution of lightning as observed from space by the Optical Transient Detector&rdquo;, <i>J. Geophys. Res.</i> 108(D1), 4005 (2003).</li>
+    <li>V. A. Rakov and M. A. Uman, <i>Lightning: Physics and Effects</i>, Cambridge University Press (2003).</li>
+    <li>J. R. Dwyer and M. A. Uman, &ldquo;The physics of lightning&rdquo;, <i>Physics Reports</i> 534, 147 (2014).</li>
+    <li>IEEE Std 998 and NFPA 780: the electrogeometric model and the rolling-sphere method for lightning protection.</li>
+  </ol>
+</section>
+<footer class="wrap">Electric Fire &middot; dielectric breakdown leader, return strokes integrated per frame, thunder synthesised from the channel.</footer>
+</main>
+<script>
+/* ============================================================
+   Leader — a stepped leader grown by the dielectric breakdown
+   model (Niemeyer, Pietronero & Wiesmann 1984) in a vertical
+   slice of air between a charged cloud layer and the ground.
+
+   The electric potential φ obeys Laplace's equation ∇²φ = 0 in
+   the air. The cloud's charge layer and the leader channel (a
+   good conductor connected to it) sit at the cloud potential,
+   φ ≈ 1; the ground and anything standing on it are at φ = 0.
+   Each step adds one cell next to the channel, chosen at random
+   with probability ∝ (local field)^η, where the field is the
+   potential drop between the channel cell and the neighbour.
+   The channel loses a little potential along its length, like a
+   real leader carrying current through a resistive channel.
+
+   When the leader comes within the striking distance of a
+   grounded object (10·I^0.65 metres for a peak current I in kA)
+   that object sends up a connecting leader, grown the same way,
+   and the flash attaches where the two meet.
+   ============================================================ */
+const DBM = (() => {
+  function rng(seed) { let s = seed >>> 0 || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
+  const NB = [[1, 0, 1], [-1, 0, 1], [0, 1, 1], [0, -1, 1], [1, 1, Math.SQRT2], [-1, 1, Math.SQRT2], [1, -1, Math.SQRT2], [-1, -1, Math.SQRT2]];
+
+  /* opts: NX, NY, h (m), cloudRow, x0 (seed column), eta, drop, IkA, objects [{x, h (cells), kind}], seed */
+  class Leader {
+    constructor(o) {
+      Object.assign(this, { eta: 2.6, drop: 0.25, IkA: 30, objects: [], seed: 1 }, o);
+      const N = this.NX * this.NY;
+      this.phi = new Float64Array(N); this.st = new Uint8Array(N);   /* 0 air, 1 leader, 2 grounded, 3 cloud */
+      this.parent = new Int32Array(N).fill(-1); this.order = new Int32Array(N).fill(-1); this.dist = new Float32Array(N);
+      this.rand = rng(this.seed * 2654435761);
+      this.events = []; this.done = false; this.attach = -1; this.upFrom = null; this.minGap = 1e9;
+      const { NX, NY } = this;
+      for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) {
+        const q = j * NX + i;
+        if (j === 0) this.st[q] = 2;
+        else if (j >= this.cloudRow) this.st[q] = 3;
+        this.phi[q] = this.st[q] === 3 ? 1 : this.st[q] === 2 ? 0 : j / this.cloudRow;
+      }
+      /* grounded structures: columns of cells standing on the ground */
+      this.tops = [];
+      for (const ob of this.objects) {
+        for (let j = 1; j <= ob.h; j++) { const q = j * NX + ob.x; this.st[q] = 2; this.phi[q] = 0; }
+        this.tops.push({ q: ob.h * NX + ob.x, x: ob.x, z: ob.h, ob });
+      }
+      this.relax(400);
+      /* the leader starts just under the charge layer */
+      const s = (this.cloudRow - 1) * NX + this.x0;
+      this.st[s] = 1; this.phi[s] = 1; this.dist[s] = 0; this.order[s] = 0; this.root = s;
+      this.events.push({ q: s, p: -1, up: false });
+      this.frontier = new Set(); this.addFrontier(s);
+      this.upFrontier = new Set();
+      this.relax(30);
+      this.ds = 10 * Math.pow(this.IkA, 0.65) / this.h;     /* striking distance in cells */
+    }
+    /* SOR sweeps over the air cells (Neumann at the sides) */
+    relax(n, i0, i1, j0, j1) {
+      const { NX, NY, phi, st } = this, w = 1.85;
+      i0 = Math.max(0, i0 == null ? 0 : i0); i1 = Math.min(NX - 1, i1 == null ? NX - 1 : i1);
+      j0 = Math.max(1, j0 == null ? 1 : j0); j1 = Math.min(NY - 2, j1 == null ? NY - 2 : j1);
+      for (let it = 0; it < n; it++) {
+        for (let par = 0; par < 2; par++) {
+          for (let j = j0; j <= j1; j++) {
+            const row = j * NX;
+            for (let i = i0 + ((i0 + j + par) & 1); i <= i1; i += 2) {
+              const q = row + i; if (st[q]) continue;
+              const l = i > 0 ? phi[q - 1] : phi[q + 1], r = i < NX - 1 ? phi[q + 1] : phi[q - 1];
+              const v = 0.25 * (l + r + phi[q - NX] + phi[q + NX]);
+              phi[q] += w * (v - phi[q]);
+            }
+          }
+        }
+      }
+    }
+    addFrontier(q) {
+      const { NX, NY, st } = this, i = q % NX, j = (q / NX) | 0;
+      for (const [di, dj] of NB) { const a = i + di, b = j + dj; if (a < 0 || a >= NX || b < 1 || b >= NY) continue; const n = b * NX + a; if (st[n] === 0) this.frontier.add(n); }
+    }
+    addUpFrontier(q) {
+      const { NX, NY, st } = this, i = q % NX, j = (q / NX) | 0;
+      for (const [di, dj] of NB) { const a = i + di, b = j + dj; if (a < 0 || a >= NX || b < 1 || b >= NY) continue; const n = b * NX + a; if (st[n] === 0) this.upFrontier.add(n); }
+    }
+    /* one growth event; returns false when the flash has attached */
+    step() {
+      if (this.done) return false;
+      const { NX, NY, phi, st, eta } = this;
+      const cand = [], wts = []; let tot = 0;
+      for (const q of this.frontier) {
+        if (st[q] !== 0) { this.frontier.delete(q); continue; }
+        const i = q % NX, j = (q / NX) | 0; let best = 0, bp = -1;
+        for (const [di, dj, d] of NB) {
+          const a = i + di, b = j + dj; if (a < 0 || a >= NX || b < 0 || b >= NY) continue;
+          const n = b * NX + a; if (st[n] !== 1) continue;
+          const e = (phi[n] - phi[q]) / d; if (e > best) { best = e; bp = n; }
+        }
+        if (bp < 0 || best <= 0) continue;
+        const w = Math.pow(best, eta); cand.push([q, bp, false]); wts.push(w); tot += w;
+      }
+      if (this.upFrom) {
+        for (const q of this.upFrontier) {
+          if (st[q] !== 0) { this.upFrontier.delete(q); continue; }
+          const i = q % NX, j = (q / NX) | 0; let best = 0, bp = -1;
+          for (const [di, dj, d] of NB) {
+            const a = i + di, b = j + dj; if (a < 0 || a >= NX || b < 0 || b >= NY) continue;
+            const n = b * NX + a; if (!(st[n] === 2 && this.upSet.has(n))) continue;
+            const e = (phi[q] - phi[n]) / d; if (e > best) { best = e; bp = n; }
+          }
+          if (bp < 0 || best <= 0) continue;
+          /* upward leaders grow faster near the end: weight them up so they meet the downward one */
+          const w = Math.pow(best, eta) * 1.6; cand.push([q, bp, true]); wts.push(w); tot += w;
+        }
+      }
+      if (!cand.length) { this.done = true; return false; }
+      let r = this.rand() * tot, k = 0; while (k < wts.length - 1 && r > wts[k]) { r -= wts[k]; k++; }
+      const [q, p, up] = cand[k];
+      const i = q % NX, j = (q / NX) | 0;
+      this.parent[q] = p; this.order[q] = this.events.length;
+      if (up) {
+        st[q] = 2; phi[q] = 0; this.upSet.add(q); this.upFrontier.delete(q); this.addUpFrontier(q);
+        this.events.push({ q, p, up: true });
+      } else {
+        const pi = p % NX, pj = (p / NX) | 0;
+        this.dist[q] = this.dist[p] + Math.hypot(i - pi, j - pj);
+        st[q] = 1; phi[q] = Math.max(0.2, 1 - this.drop * this.dist[q] / this.cloudRow);
+        this.frontier.delete(q); this.addFrontier(q);
+        this.events.push({ q, p, up: false });
+      }
+      /* relax: two global sweeps plus a local patch around the new cell */
+      this.relax(2); this.relax(8, i - 5, i + 5, j - 5, j + 5);
+      /* attachment: a leader cell touching anything grounded */
+      const hit = this.touching(q, up);
+      if (hit) { this.done = true; this.attach = up ? hit.leader : q; this.attachGround = up ? q : hit.ground; this.events[this.events.length - 1].attach = true; return false; }
+      /* striking distance: launch an upward leader from the object (or ground point) closest to the leader */
+      if (!up && !this.upFrom) {
+        let bestT = null, bd = 1e9;
+        for (const t of this.tops) { const d = Math.hypot(i - t.x, j - t.z); if (d < bd) { bd = d; bestT = t; } }
+        const dg = j; if (dg < bd) { bd = dg; bestT = { q: NX + i - NX, x: i, z: 0 }; }
+        this.minGap = Math.min(this.minGap, bd);
+        if (bd <= this.ds) {
+          this.upFrom = bestT; this.upSet = new Set([bestT.q]);
+          this.upFrontier.clear(); this.addUpFrontier(bestT.q);
+        }
+      }
+      return true;
+    }
+    touching(q, up) {
+      const { NX, NY, st } = this, i = q % NX, j = (q / NX) | 0;
+      for (const [di, dj] of NB) {
+        const a = i + di, b = j + dj; if (a < 0 || a >= NX || b < 0 || b >= NY) continue;
+        const n = b * NX + a;
+        if (!up && st[n] === 2) return { ground: n };
+        if (up && st[n] === 1) return { leader: n };
+      }
+      return null;
+    }
+    run(maxSteps) { let n = 0; while (!this.done && n < (maxSteps || 1e9)) { this.step(); n++; } return this; }
+
+    /* ---------- after attachment: the stroke's channel and how much charge each branch drains ---------- */
+    analyse() {
+      const { NX } = this, ev = this.events, n = ev.length;
+      const idx = new Map(); ev.forEach((e, k) => idx.set(e.q, k));
+      const main = new Uint8Array(n), mass = new Float32Array(n).fill(1);
+      /* down part of the main channel: attach cell back to the root */
+      if (this.attach >= 0) {
+        let q = this.attach; while (q >= 0 && idx.has(q)) { const k = idx.get(q); if (ev[k].up) break; main[k] = 1; q = ev[k].p; }
+        /* upward part: from the meeting cell back down to the struck object */
+        q = this.attachGround; while (q >= 0 && idx.has(q)) { const k = idx.get(q); if (!ev[k].up) break; main[k] = 1; q = ev[k].p; }
+      }
+      /* subtree sizes of the downward tree (a branch's stored charge ~ its length) */
+      for (let k = n - 1; k > 0; k--) { const e = ev[k]; if (e.up) continue; const pk = idx.get(e.p); if (pk != null && !ev[pk].up) mass[pk] += mass[k]; }
+      /* path length from the ground along the channel, for the return stroke's arrival */
+      const sGround = new Float32Array(n).fill(-1);
+      const pos = k => { const q = ev[k].q; return [q % NX, (q / NX) | 0]; };
+      if (this.attach >= 0) {
+        /* along the main channel, measured from the struck point upward */
+        const mainList = []; for (let k = 0; k < n; k++) if (main[k]) mainList.push(k);
+        const up = mainList.filter(k => ev[k].up).sort((a, b) => a - b);
+        const down = mainList.filter(k => !ev[k].up).sort((a, b) => b - a);
+        const chain = up.concat(down);
+        let s = 0, prev = this.upFrom ? [this.upFrom.x, this.upFrom.z] : (() => { const g = this.attachGround; return [g % NX, (g / NX) | 0]; })();
+        for (const k of chain) { const p = pos(k); s += Math.hypot(p[0] - prev[0], p[1] - prev[1]); sGround[k] = s; prev = p; }
+        /* branches: the stroke reaches them through their junction with the main channel */
+        for (let k = 0; k < n; k++) {
+          if (sGround[k] >= 0 || ev[k].up) continue;
+          const chainK = []; let kk = k;
+          while (kk != null && sGround[kk] < 0) { chainK.push(kk); const pk = idx.get(ev[kk].p); if (pk == null) break; kk = pk; }
+          let base = kk != null && sGround[kk] >= 0 ? sGround[kk] : 0, last = kk != null ? pos(kk) : pos(k);
+          for (let m = chainK.length - 1; m >= 0; m--) { const p = pos(chainK[m]); base += Math.hypot(p[0] - last[0], p[1] - last[1]); sGround[chainK[m]] = base; last = p; }
+        }
+      }
+      const tot = mass[0];
+      this.info = { main, mass, sGround, tot };
+      return this.info;
+    }
+    /* box-counting dimension of the downward tree */
+    boxDim() {
+      const pts = this.events.filter(e => !e.up).map(e => [e.q % this.NX, (e.q / this.NX) | 0]);
+      const out = [];
+      for (const s of [1, 2, 4, 8]) { const set = new Set(); pts.forEach(p => set.add(((p[0] / s) | 0) + ',' + ((p[1] / s) | 0))); out.push([Math.log(1 / s), Math.log(set.size)]); }
+      let sx = 0, sy = 0, sxx = 0, sxy = 0; out.forEach(([x, y]) => { sx += x; sy += y; sxx += x * x; sxy += x * y; });
+      const m = out.length; return (m * sxy - sx * sy) / (m * sxx - sx * sx);
+    }
+  }
+
+  /* ---------- classic DBM for the Lichtenberg block: discharge from a struck point into trapped charge ----------
+     ∇²φ = −ρ inside the slab (uniform trapped electrons), φ = 0 on the channels (grounded through the nail)
+     and on the slab's rim. Growth ∝ (φ − 0)^η. */
+  class Licht {
+    constructor(o) {
+      Object.assign(this, { NX: 200, NY: 140, eta: 1, seed: 1, rho: 1, classic: false, sweeps: 1, local: 6, nb4: false }, o);
+      if (this.classic) { this.sweeps = 3; this.local = 12; this.nb4 = true; }
+      const { NX, NY } = this, N = NX * NY;
+      this.phi = new Float64Array(N); this.st = new Uint8Array(N); this.parent = new Int32Array(N).fill(-1);
+      this.rand = rng(this.seed * 2246822519 + 7);
+      if (this.classic) {
+        /* Niemeyer–Pietronero–Wiesmann: a circle held at φ = 1 around a point at φ = 0, no space charge */
+        this.R = Math.min(NX, NY) / 2 - 2;
+        for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) { const q = j * NX + i; if (Math.hypot(i - NX / 2, j - NY / 2) >= this.R) { this.st[q] = 3; this.phi[q] = 1; } else this.phi[q] = 1; }
+        this.src = 0;
+      } else {
+        for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) if (i === 0 || j === 0 || i === NX - 1 || j === NY - 1) this.st[j * NX + i] = 2;
+        this.src = 0.25 * this.rho;
+      }
+      this.relax(600);
+      this.events = []; this.frontier = new Set(); this.count = 0;
+    }
+    relax(n, i0, i1, j0, j1) {
+      const { NX, NY, phi, st } = this, w = 1.9, s = this.src;
+      i0 = Math.max(1, i0 == null ? 1 : i0); i1 = Math.min(NX - 2, i1 == null ? NX - 2 : i1);
+      j0 = Math.max(1, j0 == null ? 1 : j0); j1 = Math.min(NY - 2, j1 == null ? NY - 2 : j1);
+      for (let it = 0; it < n; it++) for (let par = 0; par < 2; par++) for (let j = j0; j <= j1; j++) {
+        const row = j * NX;
+        for (let i = i0 + ((i0 + j + par) & 1); i <= i1; i += 2) {
+          const q = row + i; if (st[q]) continue;
+          phi[q] += w * (0.25 * (phi[q - 1] + phi[q + 1] + phi[q - NX] + phi[q + NX] + s) - phi[q]);
+        }
+      }
+    }
+    strike(i, j) {
+      const q = j * this.NX + i; if (this.st[q] === 1) return;
+      this.st[q] = 1; this.phi[q] = 0; this.events.push({ q, p: -1 }); this.addF(q); this.relax(20);
+    }
+    addF(q) {
+      const { NX, NY, st } = this, i = q % NX, j = (q / NX) | 0;
+      for (let kk = 0; kk < (this.nb4 ? 4 : 8); kk++) { const [di, dj] = NB[kk]; const a = i + di, b = j + dj; if (a < 1 || a >= NX - 1 || b < 1 || b >= NY - 1) continue; const n = b * NX + a; if (st[n] === 0) this.frontier.add(n); }
+    }
+    step() {
+      const { NX, phi, st, eta } = this, cand = [], wts = []; let tot = 0;
+      for (const q of this.frontier) {
+        if (st[q]) { this.frontier.delete(q); continue; }
+        const i = q % NX, j = (q / NX) | 0; let best = 0, bp = -1;
+        for (let kk = 0; kk < (this.nb4 ? 4 : 8); kk++) { const [di, dj, d] = NB[kk]; const n = (j + dj) * NX + i + di; if (st[n] !== 1) continue; const e = (phi[q] - phi[n]) / d; if (e > best) { best = e; bp = n; } }
+        if (bp < 0) continue;
+        const w = Math.pow(best, eta); cand.push([q, bp]); wts.push(w); tot += w;
+      }
+      if (!cand.length || tot <= 1e-12) return false;
+      let r = this.rand() * tot, k = 0; while (k < wts.length - 1 && r > wts[k]) { r -= wts[k]; k++; }
+      const [q, p] = cand[k], i = q % NX, j = (q / NX) | 0;
+      st[q] = 1; phi[q] = 0; this.parent[q] = p; this.events.push({ q, p }); this.frontier.delete(q); this.addF(q);
+      this.relax(this.sweeps); this.relax(this.local, i - 4, i + 4, j - 4, j + 4);
+      return true;
+    }
+    /* mass–radius dimension about the struck point: N(r) ∝ r^D */
+    massDim() {
+      const { NX } = this; if (this.events.length < 50) return NaN;
+      const c = this.events[0].q, ci = c % NX, cj = (c / NX) | 0;
+      const rs = this.events.map(e => Math.hypot(e.q % NX - ci, ((e.q / NX) | 0) - cj)).sort((a, b) => a - b);
+      const rmax = rs[rs.length - 1], pts = [];
+      for (let f = 0.15; f <= 0.6; f += 0.05) { const r = rmax * f; let n = 0; while (n < rs.length && rs[n] <= r) n++; if (n > 5) pts.push([Math.log(r), Math.log(n)]); }
+      let sx = 0, sy = 0, sxx = 0, sxy = 0; pts.forEach(([x, y]) => { sx += x; sy += y; sxx += x * x; sxy += x * y; });
+      const m = pts.length; return (m * sxy - sx * sy) / (m * sxx - sx * sx);
+    }
+  }
+  return { Leader, Licht, rng };
+})();
+
+/* ============================================================
+   Bolt — turns a (growing or finished) leader into drawable,
+   timed channel pieces.
+   - Each 20 m step is split into 8 short pieces with small random
+     kinks, and the channel also wanders in depth (it is tortuous in
+     all three directions; the depth matters for the thunder).
+     Kinks are seeded per step, so a growing leader keeps its shape.
+   - Leader timing: a step appears when the leader's lowest tip has
+     come down that far at 1.5 × 10⁵ m/s.
+   - Return strokes run up the channel from the ground at 10⁸ m/s,
+     branches lighting as the wave passes their junctions; later
+     strokes follow the main channel only.
+   - Inside the cloud the channel climbs to the negative charge a
+     few kilometres up and spreads sideways (drawn as a glow behind
+     the cloud, heard as the long rumble).
+   ============================================================ */
+const BOLT = (() => {
+  const V_LEADER = 1.5e5, V_RS = 1.0e8, V_DART = 2e6;
+  function grng(seed) { const r = DBM.rng(seed); return { r, g: () => { let u = 0; for (let k = 0; k < 6; k++) u += r(); return (u - 3) / 0.7071; } }; }
+  /* timing and depth for events as they arrive (incremental) */
+  class Track {
+    constructor(L, o) {
+      this.L = L; this.o = Object.assign({ sub: 8, kink: 0.3, depth: 0.8, seed: 7 }, o);
+      this.t = []; this.y = new Map(); this.zFront = L.cloudRow; this.n = 0;
+      this.TL = L.cloudRow * L.h / V_LEADER;
+    }
+    update() {
+      const L = this.L, ev = L.events, NX = L.NX;
+      for (let k = this.n; k < ev.length; k++) {
+        const e = ev[k], j = (e.q / NX) | 0;
+        if (!e.up) this.zFront = Math.min(this.zFront, j);
+        /* downward steps: time set by how far the front has come down; upward steps: in the last few percent */
+        this.t[k] = e.up ? this.TL * (0.93 + 0.07 * Math.min(1, (this.upN = (this.upN || 0) + 1) / 12)) : (L.cloudRow - this.zFront) * L.h / V_LEADER;
+        const gr = grng(this.o.seed * 1000003 + e.q * 7 + 1);
+        const py = e.p >= 0 && this.y.has(e.p) ? this.y.get(e.p) : 0;
+        this.y.set(e.q, e.p >= 0 ? py + gr.g() * this.o.depth * L.h : 0);
+      }
+      this.n = ev.length;
+    }
+  }
+  /* build pieces; if the flash has attached, also strokes and the in-cloud part */
+  function build(L, tr, o) {
+    o = Object.assign({ strokes: 4, IkA: 30, seed: 7, zCharge: 6000 }, tr.o, o);
+    tr.update();
+    const attached = L.done && L.attach >= 0;
+    const info = attached ? L.analyse() : null;
+    const ev = L.events, NX = L.NX, h = L.h, n = ev.length;
+    const P = q => [((q % NX) - NX / 2) * h, tr.y.has(q) ? tr.y.get(q) : 0, ((q / NX) | 0) * h];
+    let idx = null; if (attached) { idx = new Map(); ev.forEach((e, k) => idx.set(e.q, k)); }
+    const segs = [];
+    let mainLen = 0, totLen = 0;
+    for (let k = 0; k < n; k++) {
+      const e = ev[k]; if (e.p < 0) continue;
+      const a = P(e.p), b = P(e.q), isMain = attached && info.main[k] === 1;
+      const w = !attached ? 0.5 : isMain ? 1 : Math.min(0.8, 0.12 + 0.9 * Math.sqrt(info.mass[k] / Math.max(1, info.tot)));
+      const gr = grng(o.seed * 7919 + e.q * 13 + 5);
+      let lev = [a, b];
+      for (let it = 0; it < 3; it++) {
+        const nx = [lev[0]];
+        for (let m = 0; m < lev.length - 1; m++) {
+          const A = lev[m], B = lev[m + 1], len = Math.hypot(B[0] - A[0], B[1] - A[1], B[2] - A[2]);
+          const dx = B[0] - A[0], dz = B[2] - A[2], l2 = Math.hypot(dx, dz) || 1;
+          const off = gr.g() * o.kink * len, offy = gr.g() * o.kink * len;
+          nx.push([(A[0] + B[0]) / 2 - dz / l2 * off, (A[1] + B[1]) / 2 + offy, (A[2] + B[2]) / 2 + dx / l2 * off]); nx.push(B);
+        }
+        lev = nx;
+      }
+      const sB = attached && info.sGround[k] >= 0 ? info.sGround[k] * h : 1e9;
+      const pk = idx ? idx.get(e.p) : null;
+      const sA = pk != null && info.sGround[pk] >= 0 ? info.sGround[pk] * h : sB;
+      for (let m = 0; m < lev.length - 1; m++) {
+        const A = lev[m], B = lev[m + 1], len = Math.hypot(B[0] - A[0], B[1] - A[1], B[2] - A[2]);
+        /* path length from the struck point, interpolated along the step */
+        const f = (m + 0.5) / (lev.length - 1), sPiece = sB < 1e8 ? sA + (sB - sA) * f : 1e9;
+        segs.push({ a: A, b: B, len, w, main: isMain, up: !!e.up, cloud: false, tL: tr.t[k], s: sPiece, k });
+        totLen += len; if (isMain) mainLen += len;
+      }
+    }
+    const out = { segs, attached, TL: tr.TL, mainLen, totLen, h, V_RS, V_DART, strokes: [], zTop: L.cloudRow * h, nDown: ev.filter(e => !e.up).length };
+    if (!attached) return out;
+    /* strokes */
+    const rs = grng(o.seed * 104729 + 17);
+    const strokes = [{ t: tr.TL, I: o.IkA, mainOnly: false }];
+    let t = tr.TL;
+    for (let s = 1; s < o.strokes; s++) { t += 0.03 + 0.07 * rs.r() + 0.05 * rs.r() * rs.r(); strokes.push({ t, I: o.IkA * (0.3 + 0.4 * rs.r()), mainOnly: true }); }
+    out.strokes = strokes;
+    /* ground point */
+    const gq = L.upFrom ? L.upFrom.q : L.attachGround;
+    out.groundPt = P(gq); out.groundPt[2] = Math.max(0, out.groundPt[2]);
+    out.struck = L.upFrom && L.upFrom.ob ? L.upFrom.ob.kind : 'ground';
+    /* in-cloud part */
+    let sRoot = 0; for (const sg of segs) if (sg.main && sg.s < 1e8) sRoot = Math.max(sRoot, sg.s);
+    const root = P(L.root), cg = grng(o.seed * 15485863 + 29), cloudSegs = [];
+    const zTop = out.zTop;
+    const walk = (start, dir, length, stepL, turn, sStart, w, depth) => {
+      let p = start.slice(), d = dir.slice(), s = sStart; const N = Math.floor(length / stepL);
+      for (let i = 0; i < N; i++) {
+        d = [d[0] + cg.g() * turn, d[1] + cg.g() * turn, d[2] + cg.g() * turn];
+        if (p[2] > o.zCharge + 700) d[2] -= 0.15; if (p[2] < zTop + 250) d[2] += 0.12;
+        const l = Math.hypot(d[0], d[1], d[2]); d = d.map(v => v / l);
+        const q = [p[0] + d[0] * stepL, p[1] + d[1] * stepL, p[2] + d[2] * stepL];
+        cloudSegs.push({ a: p, b: q, len: stepL, w, main: false, up: false, cloud: true, tL: -0.004 * cg.r(), s, k: -1 });
+        s += stepL; p = q;
+        if (depth > 0 && cg.r() < 0.006) walk(p, [d[0] + cg.g() * 0.6, d[1] + cg.g() * 0.6, d[2] * 0.3], length * (0.25 + 0.35 * cg.r()), stepL, turn, s, w * 0.6, depth - 1);
+      }
+      return { p, d, s };
+    };
+    const trunk = walk(root, [0, 0, 1], o.zCharge - root[2], 12, 0.28, sRoot, 0.7, 1);
+    const nArms = 2 + Math.floor(cg.r() * 3);
+    for (let a = 0; a < nArms; a++) { const th = cg.r() * 2 * Math.PI; walk(trunk.p, [Math.cos(th), Math.sin(th), 0.05], 1800 + cg.r() * 3200, 12, 0.22, trunk.s, 0.45, 2); }
+    for (const c of cloudSegs) segs.push(c);
+    out.cloudLen = cloudSegs.length * 12;
+    return out;
+  }
+  /* luminosity of a stroke current pulse integrated over an exposure [t1, t2] (seconds after the wave arrives) */
+  const TAUS = [[40e-6, 1], [600e-6, 0.3], [6e-3, 0.12], [40e-3, 0.04]];
+  function pulseInt(t1, t2) {
+    let s = 0; for (const [tau, a] of TAUS) { const u1 = Math.max(0, t1), u2 = Math.max(0, t2); s += a * tau * (Math.exp(-u1 / tau) - Math.exp(-u2 / tau)); }
+    return s / Math.max(1e-9, t2 - t1);
+  }
+  return { build, Track, pulseInt, TAUS, V_LEADER, V_RS, V_DART };
+})();
+
+/* ============================================================
+   Thunder — synthesised from this bolt's own shape.
+   Following A. A. Few's picture and Glassner's "Digital
+   Ceraunoscope" (2000): the channel is a chain of short straight
+   pieces; each heats explosively and sends out a pressure pulse
+   (an N-wave a few milliseconds long), loudest at right angles
+   to the piece and weak along it. The listener hears every piece
+   at its own distance divided by the speed of sound, so the
+   flash's geometry becomes the thunder's time history: pieces
+   that face you and lie at about the same distance arrive
+   together as a clap, the rest roll in as rumble.
+   On the way, air absorbs high frequencies (more with distance),
+   spreading weakens the pulse as 1/r, and in still air whose
+   temperature falls with height, sound from low parts of the
+   channel bends upward over a distant listener (the "shadow
+   zone"), which is why thunder is rarely heard beyond ~25 km.
+   ============================================================ */
+function THUNDER_FACTORY() {
+  const SR = 22050;
+  const soundSpeed = TC => 331.3 * Math.sqrt(1 + TC / 273.15);
+  /* air absorption, dB per km, roughly for moist mid-latitude air */
+  const alpha = f => 5 * Math.pow(f / 1000, 1.7);
+  /* radius of curvature of sound rays for a standard lapse rate (6.5 K/km) */
+  const RAY_R = c => c / (0.6 * 6.5e-3);
+
+  /* bolt: from BOLT.build; obs = [x, y, z] metres; opts: TC (°C), IkA */
+  function synth(bolt, obs, o) {
+    o = Object.assign({ TC: 20, IkA: 30, seed: 11 }, o);
+    const c = soundSpeed(o.TC), Rc = RAY_R(c), rnd = DBM.rng(o.seed * 31 + 5);
+    const segs = bolt.segs, n = segs.length;
+    const arr = new Float32Array(n), amp = new Float32Array(n);
+    let tmin = 1e9, tmax = 0;
+    for (let k = 0; k < n; k++) {
+      const s = segs[k];
+      if (s.up && !s.main) { arr[k] = -1; continue; }
+      const m = [(s.a[0] + s.b[0]) / 2, (s.a[1] + s.b[1]) / 2, (s.a[2] + s.b[2]) / 2];
+      const d = [m[0] - obs[0], m[1] - obs[1], m[2] - obs[2]], r = Math.hypot(d[0], d[1], d[2]);
+      const u = [(s.b[0] - s.a[0]) / s.len, (s.b[1] - s.a[1]) / s.len, (s.b[2] - s.a[2]) / s.len];
+      const mu = Math.abs((u[0] * d[0] + u[1] * d[1] + u[2] * d[2]) / r);       /* cos(angle between piece and line of sight) */
+      const dir = 0.1 + Math.exp(-Math.pow(mu / 0.5, 2) * 2.2);                 /* most energy within ~30° of the normal */
+      /* shadow zone: a ray from height z reaches the ground no further than √(2 R z) in still air */
+      const R = Math.hypot(d[0], d[1]), zs = Math.max(1, m[2]), Rs = Math.sqrt(2 * Rc * zs);
+      const shade = R <= Rs ? 1 : Math.exp(-Math.pow((R - Rs) / 1200, 2)) * 0.25 + 0.0;
+      const w = s.main ? 1 : s.cloud ? s.w : s.w * 0.6;
+      arr[k] = r / c; amp[k] = w * s.len * dir * shade / Math.max(r, 30);
+      if (amp[k] > 0) { tmin = Math.min(tmin, arr[k]); tmax = Math.max(tmax, arr[k]); }
+    }
+    /* sum N-waves into distance bins, low-pass each bin for its distance, then add */
+    const tail = 3.0, len = Math.ceil((tmax - tmin + tail) * SR), out = new Float32Array(len);
+    const NB = 10, rmin = tmin * c, rmax = tmax * c, bins = [];
+    for (let b = 0; b < NB; b++) bins.push(new Float32Array(len));
+    for (let k = 0; k < n; k++) {
+      if (!(amp[k] > 0)) continue;
+      const r = arr[k] * c, b = Math.min(NB - 1, Math.floor((r - rmin) / Math.max(1, rmax - rmin) * NB));
+      const T = (0.004 + 0.004 * rnd()) * (1 + 0.25 * Math.log(1 + r / 2000));   /* pulse lengthens a little with range */
+      const i0 = Math.floor((arr[k] - tmin) * SR), nT = Math.max(4, Math.round(T * SR)), A = amp[k] * (0.7 + 0.6 * rnd());
+      const buf = bins[b];
+      for (let i = 0; i < nT && i0 + i < len; i++) buf[i0 + i] += A * (1 - 2 * i / nT);
+    }
+    for (let b = 0; b < NB; b++) {
+      const buf = bins[b], rb = rmin + (b + 0.5) / NB * Math.max(1, rmax - rmin), km = rb / 1000;
+      /* cut-off where absorption reaches 6 dB at this range; two one-pole stages */
+      const fc = Math.min(5000, Math.max(60, 1000 * Math.pow(6 / (5 * Math.max(0.05, km)), 1 / 1.7)));
+      const a = 1 - Math.exp(-2 * Math.PI * fc / SR);
+      let y1 = 0, y2 = 0;
+      for (let i = 0; i < len; i++) { y1 += a * (buf[i] - y1); y2 += a * (y1 - y2); out[i] += y2; }
+    }
+    /* echoes from the ground and the land around: a few dozen delayed, softened copies */
+    const echo = new Float32Array(len);
+    for (let e = 0; e < 28; e++) {
+      const dly = Math.floor((0.05 + Math.pow(rnd(), 1.6) * 1.8) * SR), g = 0.32 * Math.exp(-dly / SR / 0.9) * (0.5 + rnd());
+      for (let i = dly; i < len; i++) echo[i] += g * out[i - dly];
+    }
+    let y = 0; const ae = 1 - Math.exp(-2 * Math.PI * 400 / SR);
+    for (let i = 0; i < len; i++) { y += ae * (echo[i] - y); out[i] += y; }
+    /* remove DC drift and fade the end */
+    let m = 0; for (let i = 0; i < len; i++) m += out[i]; m /= len;
+    let peak = 1e-9; for (let i = 0; i < len; i++) { out[i] -= m; peak = Math.max(peak, Math.abs(out[i])); }
+    const fade = Math.floor(0.6 * SR); for (let i = 0; i < fade; i++) out[len - 1 - i] *= i / fade;
+    /* envelope for display (10 ms windows) */
+    const W = Math.floor(0.01 * SR), env = new Float32Array(Math.ceil(len / W));
+    for (let i = 0; i < env.length; i++) { let s = 0; for (let j = i * W; j < Math.min(len, (i + 1) * W); j++) s += out[j] * out[j]; env[i] = Math.sqrt(s / W) / peak; }
+    /* audible duration: time between the first and last moments the envelope is above 5% of its peak */
+    let emax = 0; for (const v of env) emax = Math.max(emax, v);
+    let a0 = 0, a1 = 0; for (let i = 0; i < env.length; i++) if (env[i] > 0.05 * emax) { if (!a0) a0 = i; a1 = i; }
+    return { samples: out, peak, sr: SR, t0: tmin, tmax, arr, amp, env, envDt: W / SR, c, duration: (a1 - a0) * W / SR, range: Math.hypot(obs[0] - bolt.groundPt[0], obs[1] - bolt.groundPt[1]) };
+  }
+  /* spectrum peak, for the checks */
+  function peakFreq(t) {
+    const s = t.samples, N = 1 << Math.floor(Math.log2(Math.min(s.length, 1 << 15)));
+    let best = 0, bf = 0;
+    for (let f = 10; f <= 500; f += 2) {
+      let re = 0, im = 0, w = 2 * Math.PI * f / t.sr;
+      let i0 = 0, emax = 0; for (let i = 0; i < t.env.length; i++) if (t.env[i] > emax) { emax = t.env[i]; i0 = i; }
+      const start = Math.max(0, Math.floor(i0 * t.envDt * t.sr) - N / 2);
+      for (let i = 0; i < N && start + i < s.length; i++) { const hw = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / N); re += s[start + i] * hw * Math.cos(w * i); im += s[start + i] * hw * Math.sin(w * i); }
+      const p = re * re + im * im; if (p > best) { best = p; bf = f; }
+    }
+    return bf;
+  }
+  return { synth, soundSpeed, peakFreq, SR };
+}
+const THUNDER = THUNDER_FACTORY();
+
+/* ============================================================
+   Sky — WebGL2 renderer for the storm.
+   Passes: (1) the channel, drawn as thin glowing ribbons into a
+   float target, with each piece's brightness integrated over the
+   frame's exposure (so a 40 µs return stroke shows as one bright
+   frame in real time, or as a climbing wave in slow motion);
+   (2) a bloom pyramid; its blurriest level also lights the clouds
+   and the ground; (3) the scene: storm cloud, rain, distant land
+   with the tower, house and tree in the flash's plane, a near
+   hillside, then the channel and its glow, tone-mapped.
+   World units are metres: x across, z up, at the flash's distance
+   D from you.
+   ============================================================ */
+const LITE = /[?&]lite\b/.test(location.search);
+const FF = /[?&]ff\b/.test(location.search);
+const IS_SMALL = Math.min(screen.width, screen.height) < 700 || matchMedia('(max-width: 700px)').matches;
+
+class Loop {
+  constructor(el, fn) { this.fn = fn; this.vis = false; new IntersectionObserver(es => { this.vis = es[0].isIntersecting; this.kick(); }, { rootMargin: '80px' }).observe(el); document.addEventListener('visibilitychange', () => this.kick()); }
+  kick() { if (this.raf) return; if (this.vis && !document.hidden) { if (!this.looping) this.last = performance.now(); this.looping = true; this.raf = requestAnimationFrame(t => this.tick(t)); } else this.looping = false; }
+  tick(t) { this.raf = 0; if (!this.vis || document.hidden) { this.looping = false; return; } const dt = FF ? 1 / 30 : Math.min(0.1, Math.max(0, (t - this.last) / 1000)); this.last = t; this.fn(dt, t); this.kick(); }
+}
+const SK_HEAD = `#version 300 es
+precision highp float; precision highp sampler2D;
+`;
+const B_VS = SK_HEAD + `
+layout(location = 0) in vec2 corner;
+layout(location = 1) in vec4 seg;      /* ax, az, bx, bz (m) */
+layout(location = 2) in vec4 att;      /* tL, s, w, flags */
+layout(location = 3) in vec2 att2;     /* thunder arrival (s), amplitude */
+uniform vec2 res; uniform vec4 cam;    /* k (px/m), cx, zf, yF (px from top) */
+uniform float t, expo, gain, lg, dpr, zBase, vrs, vdart, sTop, iso, play, cloudVis, isoT0, isoSpan;
+uniform vec4 st[8]; uniform int nst;
+out float lum; out float vside; out vec3 vcol; flat out float vcloud;
+float pint(float t1, float t2){
+  float s = 0.0;
+  vec4 tau = vec4(40e-6, 600e-6, 6e-3, 40e-3), a = vec4(1.0, 0.3, 0.12, 0.04);
+  for (int i = 0; i < 4; i++) { float u1 = max(0.0, t1), u2 = max(0.0, t2); s += a[i]*tau[i]*(exp(-u1/tau[i]) - exp(-u2/tau[i])); }
+  return s/max(1e-9, t2 - t1);
+}
+vec2 toS(vec2 w){ return vec2(res.x*0.5 + (w.x - cam.y)*cam.x, cam.w - (w.y - cam.z)*cam.x); }
+void main(){
+  float flags = att.w;
+  bool isMain = mod(flags, 2.0) > 0.5, isCloud = mod(floor(flags/2.0), 2.0) > 0.5, isUp = mod(floor(flags/4.0), 2.0) > 0.5;
+  float tL = att.x, s = att.y, w = att.z;
+  float L = 0.0;
+  /* the leader: faint channel plus a short flash as each step is taken */
+  if (t >= tL && !isCloud) { float age = t - tL; L += lg*(0.16 + 2.2*exp(-age/0.0004)); }
+
+  /* strokes */
+  for (int n = 0; n < 8; n++) {
+    if (n >= nst) break;
+    vec4 S = st[n];
+    bool mainOnly = S.z > 0.5;
+    if (s > 1e8) continue;
+    if (mainOnly && !isMain && !isCloud) continue;
+    float ts = S.x + s/vrs;
+    float ww = isCloud ? w*0.55 : w;
+    L += gain*S.y*ww*pint(t - expo - ts, t - ts);
+    /* dart leader running down the old channel just before a later stroke */
+    if (mainOnly && isMain) { float td = S.x - (sTop - s)/vdart; if (t > td && t < ts) L += lg*0.4 + gain*0.02*exp(-(t - td)/0.0003); }
+  }
+  /* thunder view: colour by when its sound reaches you, highlight what you are hearing now */
+  vec3 c = isUp ? vec3(1.0, 0.92, 0.85) : vec3(0.82, 0.88, 1.0);
+  if (iso > 0.001 && !isUp && att2.x > 0.0) {
+    float ta = att2.x;
+    float u = clamp((ta - isoT0)/max(0.1, isoSpan), 0.0, 1.0);
+    vec3 ic = mix(mix(vec3(1.0, 0.85, 0.45), vec3(1.0, 0.45, 0.55), smoothstep(0.0, 0.45, u)), vec3(0.45, 0.55, 1.0), smoothstep(0.4, 1.0, u));
+    float hear = play > 0.0 ? exp(-pow((play - ta)/0.06, 2.0)) : 0.0;
+    float base = isCloud ? 0.35 : 0.9;
+    L = mix(L, base*(0.45 + 0.55*min(1.0, att2.y*3.0)) + 6.0*hear, iso);
+    c = mix(c, ic*(1.0 + 2.0*hear), iso);
+  }
+  /* inside the cloud the channel is seen only as diffuse light */
+  float z = 0.5*(seg.y + seg.w);
+  float hid = isCloud ? 1.0 : smoothstep(zBase - 40.0, zBase + 180.0, z);
+  L *= mix(1.0, cloudVis, hid);
+  vec2 pa = toS(seg.xy), pb = toS(seg.zw);
+  vec2 d = pb - pa; float l = length(d); vec2 dir = l > 1e-4 ? d/l : vec2(1.0, 0.0); vec2 nrm = vec2(-dir.y, dir.x);
+  float width = dpr*(isCloud ? 22.0 : (isMain ? 1.2 : 0.7) + 1.1*clamp(L*0.08, 0.0, 1.0));
+  vec2 p = mix(pa, pb, corner.x) + nrm*corner.y*(width + dpr) + dir*(corner.x*2.0 - 1.0)*width*0.5;
+  lum = L; vside = corner.y; vcol = c; vcloud = isCloud ? 1.0 : 0.0;
+  gl_Position = vec4(p.x/res.x*2.0 - 1.0, 1.0 - p.y/res.y*2.0, 0.0, 1.0);
+}`;
+const B_FS = SK_HEAD + `
+in float lum; in float vside; in vec3 vcol; flat in float vcloud; out vec4 o;
+void main(){
+  float f = vcloud > 0.5 ? (1.0 - vside*vside)*0.6 : exp(-vside*vside*4.0);
+  o = vec4(vcol*lum*f, 1.0);
+}`;
+const Q_VS = SK_HEAD + `
+layout(location = 0) in vec2 p; out vec2 uv; void main(){ uv = p*0.5 + 0.5; gl_Position = vec4(p, 0.0, 1.0); }`;
+const DOWN_FS = SK_HEAD + `
+in vec2 uv; uniform sampler2D T; uniform vec2 texel; out vec4 o;
+void main(){
+  vec3 a = texture(T, uv + texel*vec2(-1.0, -1.0)).rgb, b = texture(T, uv + texel*vec2(1.0, -1.0)).rgb;
+  vec3 c = texture(T, uv + texel*vec2(-1.0, 1.0)).rgb, d = texture(T, uv + texel*vec2(1.0, 1.0)).rgb;
+  vec3 e = texture(T, uv).rgb;
+  o = vec4((a + b + c + d)*0.125 + e*0.5, 1.0);
+}`;
+const UP_FS = SK_HEAD + `
+in vec2 uv; uniform sampler2D T, Lo; uniform vec2 texel; uniform float k; out vec4 o;
+void main(){
+  vec3 s = texture(Lo, uv).rgb*4.0;
+  s += texture(Lo, uv + texel*vec2(1.0, 0.0)).rgb*2.0 + texture(Lo, uv - texel*vec2(1.0, 0.0)).rgb*2.0;
+  s += texture(Lo, uv + texel*vec2(0.0, 1.0)).rgb*2.0 + texture(Lo, uv - texel*vec2(0.0, 1.0)).rgb*2.0;
+  s += texture(Lo, uv + texel).rgb + texture(Lo, uv - texel).rgb + texture(Lo, uv + texel*vec2(1.0, -1.0)).rgb + texture(Lo, uv + texel*vec2(-1.0, 1.0)).rgb;
+  o = vec4(texture(T, uv).rgb + k*s/16.0, 1.0);
+}`;
+const SCENE_FS = SK_HEAD + `
+in vec2 uv; out vec4 o;
+uniform vec2 res; uniform vec4 cam; uniform float time, flash, fgA, zBase, dpr, rain, fieldA, kiteA, spark, stormX, nightGlow;
+uniform sampler2D Core, Bloom, Light, Phi;
+uniform vec4 dom;            /* DBM domain: x0, x1, z1, unused */
+uniform vec4 objT, objH, objR; /* tower x, height, on ; house x, height, on ; tree x, height, on */
+uniform vec2 kiteP, keyP;      /* screen px */
+uniform vec3 ic;               /* a flash inside the cloud: world x, z, brightness */
+uniform float day;             /* 0 night, 1 a dark stormy afternoon */
+float h1(float n){ return fract(sin(n)*43758.5453); }
+float h2(vec2 p){ p = fract(p*vec2(443.897, 441.423)); p += dot(p, p.yx + 19.19); return fract((p.x + p.y)*p.x); }
+float vn(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0 - 2.0*f);
+  return mix(mix(h2(i), h2(i + vec2(1.0, 0.0)), f.x), mix(h2(i + vec2(0.0, 1.0)), h2(i + vec2(1.0, 1.0)), f.x), f.y); }
+float fbm(vec2 p){ float s = 0.0, a = 0.5; mat2 m = mat2(1.6, 1.2, -1.2, 1.6); for (int i = 0; i < 5; i++){ s += a*vn(p); p = m*p; a *= 0.5; } return s; }
+float fbm3(vec2 p){ float s = 0.0, a = 0.5; mat2 m = mat2(1.6, 1.2, -1.2, 1.6); for (int i = 0; i < 3; i++){ s += a*vn(p); p = m*p; a *= 0.5; } return s; }
+/* the storm: low deck, a tower over the flash, an anvil spreading downwind (km units) */
+float storm(vec2 p, out float shade, out float zbase){
+  vec2 q = p*0.001; q.x -= stormX*0.001;
+  float t = time*0.004;
+  float n = fbm(q*vec2(0.7, 1.1) + vec2(t, 0.0)), n2 = fbm(q*vec2(2.6, 3.4) + vec2(-t*2.0, 4.0));
+  float nb = fbm(q*0.35 + vec2(3.0, t));                              /* big billows */
+  float zb = zBase*0.001 + (n - 0.5)*0.9 + (n2 - 0.5)*0.35;
+  zbase = zb;
+  float base = smoothstep(zb, zb + 0.10, q.y);
+  /* the main tower: a rounded, billowing column */
+  float r = abs(q.x - 0.5);
+  float top = 11.2*sqrt(max(0.0, 1.0 - pow(r/(6.5 + (nb - 0.5)*3.0), 2.0))) + (n - 0.5)*2.2 + (n2 - 0.5)*0.9;
+  float body = base*(1.0 - smoothstep(top - 0.5, top + 0.15, q.y));
+  /* anvil: flat-topped, sheared downwind (+x), thinning with distance */
+  float ax = q.x + 3.0;
+  float ab = 9.4 + 0.05*max(0.0, ax) + (n2 - 0.5)*0.8, at = 12.3 - 0.025*max(0.0, ax) + (n - 0.5)*0.4;
+  float anvil = smoothstep(ab, ab + 0.4, q.y)*(1.0 - smoothstep(at - 0.3, at + 0.1, q.y))*smoothstep(0.0, 3.0, ax)*(1.0 - smoothstep(24.0, 32.0, ax + (nb - 0.5)*6.0));
+  /* lower shelf of cloud spreading round the storm */
+  float shelf = base*(1.0 - smoothstep(3.6 + (n - 0.5)*1.4, 4.6 + (n - 0.5)*1.4, q.y))*(1.0 - smoothstep(10.0, 15.0, abs(q.x) + (nb - 0.5)*6.0));
+  float d = max(body, max(anvil, shelf));
+  /* ragged scud hanging under the base */
+  float sc = fbm(q*vec2(2.2, 5.0) + vec2(t*3.0, 9.0));
+  d = max(d, smoothstep(0.58, 0.72, sc)*smoothstep(zb - 0.45, zb - 0.1, q.y)*(1.0 - smoothstep(zb, zb + 0.05, q.y))*0.8*(1.0 - smoothstep(10.0, 14.0, abs(q.x))));
+  shade = n2*0.7 + nb*0.3;
+  return clamp(d, 0.0, 1.0);
+}
+float sdBox(vec2 p, vec2 b){ vec2 d = abs(p) - b; return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0); }
+float sdSeg(vec2 p, vec2 a, vec2 b){ vec2 pa = p - a, ba = b - a; float h = clamp(dot(pa, ba)/dot(ba, ba), 0.0, 1.0); return length(pa - ba*h); }
+/* the struck plane's objects, in metres; returns coverage (px-antialiased) */
+float objects(vec2 w, float pxm){
+  float m = 0.0;
+  if (objT.z > 0.5) {
+    vec2 p = w - vec2(objT.x, 0.0); float H = objT.y;
+    float half_ = mix(7.0, 0.8, clamp(p.y/H, 0.0, 1.0));
+    float body = (abs(p.x) < half_ && p.y > 0.0 && p.y < H) ? 1.0 : 0.0;
+    /* lattice: only the legs and cross-braces are solid */
+    float legs = smoothstep(pxm*1.5, 0.0, abs(abs(p.x) - half_ + 0.5) - 0.4);
+    float k = fract(p.y/8.0), bx = abs(p.x)/max(half_, 0.5);
+    float brace = smoothstep(pxm*1.5, 0.0, abs(bx - abs(k*2.0 - 1.0))*half_ - 0.35);
+    float tw = body*max(legs, brace*0.9);
+    tw = max(tw, smoothstep(pxm, 0.0, sdSeg(p, vec2(0.0, H), vec2(0.0, H + 6.0)) - 0.35));   /* mast */
+    tw = max(tw, step(abs(p.x), 1.2*max(1.0, 1.5*pxm))*step(0.0, p.y)*step(p.y, H));            /* thin from afar */
+    m = max(m, tw);
+  }
+  if (objH.z > 0.5) {
+    vec2 p = w - vec2(objH.x, 0.0); float H = objH.y;
+    float b = sdBox(p - vec2(0.0, H*0.32), vec2(7.0, H*0.32));
+    float roof = max(abs(p.x)*0.62 + (p.y - H) , -(p.y - H*0.62));
+    float chim = sdBox(p - vec2(3.5, H*0.85), vec2(0.7, H*0.25));
+    float rod = sdSeg(p, vec2(0.0, H), vec2(0.0, H + 3.0)) - 0.12;
+    float d = min(min(b, roof), min(chim, rod));
+    m = max(m, smoothstep(pxm, -pxm, d));
+  }
+  if (objR.z > 0.5) {
+    vec2 p = w - vec2(objR.x, 0.0); float H = objR.y;
+    float trunk = sdBox(p - vec2(0.0, H*0.25), vec2(0.6, H*0.25));
+    float crown = length((p - vec2(0.0, H*0.62))*vec2(1.0, 1.25)) - H*0.38 - (vn(p*0.45) - 0.5)*H*0.18;
+    m = max(m, smoothstep(pxm, -pxm, min(trunk, crown)));
+  }
+  return m;
+}
+float hillF(float fx){ return 0.90 - 0.05*smoothstep(0.0, 1.0, fx) + 0.025*sin(fx*5.0 + 1.0) - 0.012*sin(fx*13.0 + 2.0) - 0.006*sin(fx*29.0 + 0.5); }
+vec3 aces(vec3 x){ return clamp((x*(2.51*x + 0.03))/(x*(2.43*x + 0.59) + 0.14), 0.0, 1.0); }
+void main(){
+  vec2 px = vec2(uv.x*res.x, (1.0 - uv.y)*res.y);       /* pixels from top-left */
+  float k = cam.x;
+  vec2 w = vec2(cam.y + (px.x - res.x*0.5)/k, cam.z + (cam.w - px.y)/k);
+  float pxm = 1.0/k;                                    /* metres per pixel */
+  vec3 Lt = texture(Light, uv).rgb, Bl = texture(Bloom, uv).rgb, Co = texture(Core, uv).rgb;
+  float lit = dot(Lt, vec3(0.3, 0.5, 0.2));
+  /* --- sky --- */
+  float yH = cam.w + cam.z*k;                           /* screen y of the ground line */
+  float above = clamp((yH - px.y)/res.y, 0.0, 1.0);
+  vec3 col = mix(vec3(0.036, 0.032, 0.040), vec3(0.004, 0.006, 0.014), smoothstep(0.0, 0.5, above));
+  col += vec3(0.16, 0.10, 0.06)*nightGlow*exp(-above*9.0);        /* distant town glow along the horizon */
+  float sh, zb; float cd = w.y > 0.0 ? storm(w, sh, zb) : 0.0;
+  /* stars only in clear sky above the storm's top */
+  float star = step(0.9986, h2(floor(px/(2.0*dpr))))*step(4500.0, w.y)*(1.0 - cd);
+  col += vec3(0.6, 0.7, 0.9)*star*0.35*(0.4 + h2(floor(px/(2.0*dpr)) + 3.0));
+  /* cloud: dark and lumpy, faintly lit from below by the town, lit from inside by the channel */
+  float into = max(0.0, w.y*0.001 - zb);
+  col = mix(col, mix(vec3(0.20, 0.22, 0.25), vec3(0.10, 0.12, 0.15), smoothstep(0.0, 0.6, above)), day);
+  vec3 cl = vec3(0.034, 0.036, 0.046)*(0.45 + 1.1*sh) + vec3(0.10, 0.068, 0.048)*nightGlow*exp(-into/0.45)*(0.45 + 0.9*sh) + vec3(0.012, 0.016, 0.026)*smoothstep(0.55, 0.8, sh);
+  vec3 fl = Lt*(0.7 + 1.6*sh)*2.0 + vec3(0.75, 0.72, 0.95)*flash*0.08*(0.4 + sh);
+  float icd = length((w - ic.xy)*vec2(1.0, 1.4))/2500.0;
+  fl += vec3(0.80, 0.78, 1.0)*ic.z*(0.9*exp(-icd*icd) + 0.12*exp(-icd*0.6))*(0.3 + 1.2*sh);
+  cl = mix(cl, vec3(0.085, 0.09, 0.10)*(0.5 + 0.9*sh) + vec3(0.05, 0.05, 0.05)*smoothstep(0.4, 0.9, sh), day);
+  /* a faint skyglow on the storm's flanks so its shape reads when seen from afar */
+  cl += vec3(0.022, 0.027, 0.042)*smoothstep(2.5, 9.0, w.y*0.001)*(0.35 + sh);
+  col = mix(col, cl + fl*cd, cd);
+  /* rain under the cloud, catching the flash */
+  if (rain > 0.0 && w.y > -50.0) {
+    vec2 rp = px/dpr; rp.x += rp.y*0.18;
+    float colm = floor(rp.x/3.0), r1 = h1(colm*1.37);
+    float y = fract((rp.y + time*(900.0 + 500.0*r1))/(140.0 + 120.0*r1) + r1);
+    float streak = smoothstep(0.0, 0.05, y)*smoothstep(0.32, 0.0, y)*step(0.55, r1)*step(abs(fract(rp.x/3.0) - 0.5), 0.12);
+    float curtain = 0.6 + 0.4*fbm3(vec2(w.x*0.0006 + time*0.02, 0.0));
+    float below = smoothstep(zBase + 120.0, zBase - 200.0, w.y);
+    col += vec3(0.55, 0.6, 0.75)*streak*rain*below*curtain*(0.03 + lit*1.2 + flash*0.25);
+    col += vec3(0.4, 0.42, 0.5)*rain*below*curtain*(0.006 + lit*0.25 + flash*0.04);   /* veils */
+  }
+  /* --- the electric field: equipotentials of the leader's potential --- */
+  if (fieldA > 0.001 && w.x > dom.x && w.x < dom.y && w.y > 0.0 && w.y < dom.z) {
+    vec2 fu = vec2((w.x - dom.x)/(dom.y - dom.x), w.y/dom.z);
+    float ph = texture(Phi, fu).r;
+    float lv = ph*12.0, fw = fwidth(lv);
+    float line = 1.0 - smoothstep(0.0, 1.5*fw, abs(fract(lv + 0.5) - 0.5));
+    /* fade out toward the sides of the computed slice and into the cloud, so its edges do not show */
+    float edge = smoothstep(0.0, 0.14, min(fu.x, 1.0 - fu.x))*(1.0 - smoothstep(zBase - 160.0, zBase + 40.0, w.y));
+    col += (vec3(0.25, 0.65, 0.95)*line*0.45 + vec3(0.1, 0.25, 0.5)*ph*ph*0.10)*fieldA*edge;
+  }
+  /* --- ground in the flash's plane and beyond --- */
+  if (px.y > yH) {
+    float g = (px.y - yH)/max(1.0, res.y - yH);
+    vec3 gc = mix(vec3(0.016, 0.015, 0.016), vec3(0.006, 0.006, 0.008), smoothstep(0.0, 1.0, g));
+    /* fields and hedgerows in perspective */
+    float f = fbm3(vec2(w.x*0.003/(0.05 + g), 1.0/(0.02 + g)*0.8));
+    float hedge = smoothstep(0.62, 0.7, fbm3(vec2(w.x*0.002/(0.05 + g), 1.0/(0.02 + g)*2.0)));
+    gc *= 0.6 + 0.8*f; gc *= 1.0 - 0.6*hedge;
+    gc += (Lt*0.35 + vec3(0.7, 0.72, 0.9)*flash*0.02)*(0.15 + 0.85*smoothstep(0.0, 0.08, g)*exp(-g*4.0))*(0.5 + 0.7*f)*(1.0 - 0.7*hedge);
+    col = mix(gc, vec3(0.05, 0.055, 0.05)*(0.6 + 0.6*f)*(1.0 - 0.5*hedge), day);
+  }
+  /* distant hills along the horizon */
+  float tl = fbm3(vec2(px.x/(3.0*dpr), 3.0));
+  float hill = yH - (0.006 + 0.018*fbm3(vec2(px.x/res.y*1.6 + 7.0, 1.0)) + 0.005*tl*tl)*res.y*min(1.0, 2.2/max(1.0, k*0.4));
+  float hm = smoothstep(hill - dpr, hill + dpr, px.y)*step(px.y, yH + 1.0);
+  col = mix(col, mix(vec3(0.012, 0.012, 0.016) + Lt*0.15, vec3(0.06, 0.065, 0.07), day), hm);
+  /* objects */
+  float om = objects(w, pxm);
+  col = mix(col, vec3(0.008, 0.008, 0.011) + Lt*0.08 + vec3(0.9, 0.9, 1.0)*flash*0.012, om);
+  /* --- the channel and its glow --- */
+  col += Co*0.9 + Bl*0.45;
+  /* --- near hillside, a figure and a kite (Franklin) --- */
+  float fx = px.x/res.x;
+  float fgY = res.y*hillF(fx);
+  float grass = (h2(vec2(floor(px.x/(1.5*dpr)), 3.0)) - 0.3)*6.0*dpr;
+  float fg = smoothstep(fgY - dpr, fgY + dpr, px.y + max(0.0, grass)*step(px.y, fgY + 1.0)*0.6);
+  /* a person standing on the near hill, at 22% across */
+  float pxf = 0.8; vec2 pp = px - vec2(res.x*pxf, res.y*hillF(pxf));
+  float sc = res.y*0.045;
+  float body = sdBox((pp - vec2(0.0, -sc*0.55))/sc, vec2(0.13, 0.42));
+  float head = length(pp - vec2(0.0, -sc*1.08))/sc - 0.13;
+  float arm = sdSeg(pp/sc, vec2(0.0, -0.85), vec2(-0.38, -1.15)) - 0.05;
+  float person = smoothstep(1.5/sc*dpr, 0.0, min(min(body, head), arm))*kiteA;
+  fg = max(fg, person);
+  if (kiteA > 0.001) {
+    /* the string sags in a gentle curve from the hand to the kite */
+    vec2 hand = vec2(res.x*pxf - sc*0.38, res.y*hillF(pxf) - sc*1.15);
+    float bestD = 1e9;
+    for (int i = 0; i < 24; i++) {
+      float a = float(i)/24.0, b = float(i + 1)/24.0;
+      vec2 A = mix(hand, kiteP, a) + vec2(0.0, sin(a*3.14159)*res.y*0.05), B = mix(hand, kiteP, b) + vec2(0.0, sin(b*3.14159)*res.y*0.05);
+      bestD = min(bestD, sdSeg(px, A, B));
+    }
+    float str = smoothstep(1.2*dpr, 0.0, bestD)*kiteA;
+    vec2 kp = px - kiteP; kp = mat2(0.94, 0.34, -0.34, 0.94)*kp;
+    float kite = smoothstep(dpr*1.2, 0.0, abs(kp.x)/(res.y*0.022) + abs(kp.y)/(res.y*0.034) - 1.0);
+    col = mix(col, vec3(0.005), max(str*0.9, kite*kiteA));
+    float sp = length(px - keyP);
+    col += vec3(0.55, 0.7, 1.0)*spark*(exp(-sp*sp/(9.0*dpr*dpr))*3.0 + exp(-sp/(14.0*dpr))*0.4);
+  }
+  vec3 fgc = vec3(0.004, 0.004, 0.006) + Lt*0.05 + vec3(0.8, 0.82, 1.0)*flash*0.02;
+  col = mix(col, fgc, fg*fgA);
+  col = mix(col, fgc, person);
+  /* tone map, vignette, grain */
+  col = aces(col*1.15);
+  vec2 vq = uv - 0.5; col *= 1.0 - 0.35*dot(vq, vq)*1.6;
+  col = pow(col, vec3(1.0/1.05));
+  col += (h2(px + fract(time*7.3)*100.0) - 0.5)*0.012;
+  o = vec4(col, 1.0);
+}`;
+
+function sk_gl(canvas) {
+  let gl = null;
+  try { gl = canvas.getContext('webgl2', { antialias: false, alpha: false, premultipliedAlpha: false, preserveDrawingBuffer: false, powerPreference: 'high-performance' }); } catch (e) { }
+  if (!gl || !gl.getExtension('EXT_color_buffer_float')) return null;
+  gl.getExtension('OES_texture_float_linear');
+  return gl;
+}
+function sk_prog(gl, vs, fs) {
+  const sh = (t, s) => { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x); if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(x)); return null; } return x; };
+  const v = sh(gl.VERTEX_SHADER, vs), f = sh(gl.FRAGMENT_SHADER, fs); if (!v || !f) return null;
+  const p = gl.createProgram(); gl.attachShader(p, v); gl.attachShader(p, f); gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { console.error(gl.getProgramInfoLog(p)); return null; }
+  p.u = {}; const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+  for (let i = 0; i < n; i++) { const a = gl.getActiveUniform(p, i); p.u[a.name.replace('[0]', '')] = gl.getUniformLocation(p, a.name); }
+  return p;
+}
+
+class Sky {
+  constructor(canvas) {
+    this.cv = canvas; const gl = this.gl = sk_gl(canvas); this.ok = false;
+    if (!gl) return;
+    this.pB = sk_prog(gl, B_VS, B_FS); this.pD = sk_prog(gl, Q_VS, DOWN_FS); this.pU = sk_prog(gl, Q_VS, UP_FS); this.pS = sk_prog(gl, Q_VS, SCENE_FS);
+    if (!this.pB || !this.pD || !this.pU || !this.pS) return;
+    this.quad = gl.createVertexArray(); gl.bindVertexArray(this.quad);
+    const qb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, qb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    /* channel ribbons: one instanced quad per piece */
+    this.bvao = gl.createVertexArray(); gl.bindVertexArray(this.bvao);
+    const cb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, cb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, -1, 1, -1, 0, 1, 1, 1]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    this.ib = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, this.ib);
+    const stride = 10 * 4;
+    gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 4, gl.FLOAT, false, stride, 0); gl.vertexAttribDivisor(1, 1);
+    gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 4, gl.FLOAT, false, stride, 16); gl.vertexAttribDivisor(2, 1);
+    gl.enableVertexAttribArray(3); gl.vertexAttribPointer(3, 2, gl.FLOAT, false, stride, 32); gl.vertexAttribDivisor(3, 1);
+    gl.bindVertexArray(null);
+    this.nInst = 0;
+    this.phiTex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, this.phiTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, 1, 1, 0, gl.RED, gl.HALF_FLOAT, null);
+    [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach(q => gl.texParameteri(gl.TEXTURE_2D, q, gl.LINEAR));
+    [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach(q => gl.texParameteri(gl.TEXTURE_2D, q, gl.CLAMP_TO_EDGE));
+    this.targets = null; this.W = 0; this.H = 0;
+    this.u = {};      /* scene uniforms, set by the controller */
+    this.ok = true;
+  }
+  fit() {
+    const r = this.cv.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, IS_SMALL ? 1.5 : 1.75);
+    const W = Math.max(2, Math.round(r.width * dpr)), H = Math.max(2, Math.round(r.height * dpr));
+    if (W !== this.W || H !== this.H) { this.cv.width = W; this.cv.height = H; this.W = W; this.H = H; this.makeTargets(); }
+    this.dpr = dpr; return [W, H, dpr];
+  }
+  makeTargets() {
+    const gl = this.gl;
+    if (this.targets) this.targets.forEach(t => { gl.deleteTexture(t.tex); gl.deleteFramebuffer(t.fb); });
+    const mk = (w, h) => { const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, w, h, 0, gl.RGBA, gl.HALF_FLOAT, null);
+      [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach(q => gl.texParameteri(gl.TEXTURE_2D, q, gl.LINEAR)); [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach(q => gl.texParameteri(gl.TEXTURE_2D, q, gl.CLAMP_TO_EDGE));
+      const fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0); return { tex, fb, w, h }; };
+    const t = [mk(this.W, this.H)];
+    let w = this.W, h = this.H;
+    for (let i = 0; i < 6; i++) { w = Math.max(1, w >> 1); h = Math.max(1, h >> 1); t.push(mk(w, h)); }
+    /* upsample targets (same sizes as levels 1..5) */
+    this.ups = []; w = this.W; h = this.H;
+    for (let i = 0; i < 5; i++) { w = Math.max(1, w >> 1); h = Math.max(1, h >> 1); this.ups.push(mk(w, h)); }
+    this.targets = t; gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+  /* pieces: array from BOLT.build; arrivals: optional Float32Array of thunder arrival times, amps */
+  setPieces(B, arr, amp) {
+    const gl = this.gl, n = B ? B.segs.length : 0, d = new Float32Array(Math.max(1, n) * 10);
+    for (let i = 0; i < n; i++) {
+      const s = B.segs[i], o = i * 10;
+      d[o] = s.a[0]; d[o + 1] = s.a[2]; d[o + 2] = s.b[0]; d[o + 3] = s.b[2];
+      d[o + 4] = s.tL; d[o + 5] = s.s; d[o + 6] = s.w; d[o + 7] = (s.main ? 1 : 0) + (s.cloud ? 2 : 0) + (s.up ? 4 : 0);
+      d[o + 8] = arr ? arr[i] : -1; d[o + 9] = amp ? amp[i] : 0;
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.ib); gl.bufferData(gl.ARRAY_BUFFER, d, gl.DYNAMIC_DRAW);
+    this.nInst = n;
+  }
+  setPhi(L) {
+    const gl = this.gl, a = new Float32Array(L.phi.length); for (let i = 0; i < a.length; i++) a[i] = L.phi[i];
+    gl.bindTexture(gl.TEXTURE_2D, this.phiTex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32F, L.NX, L.NY, 0, gl.RED, gl.FLOAT, a);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  }
+  /* cam: {k, cx, zf, yF}; b: bolt uniforms */
+  draw(cam, b, sc) {
+    const gl = this.gl, [W, H, dpr] = this.fit(), T = this.targets;
+    /* 1. channel */
+    gl.bindFramebuffer(gl.FRAMEBUFFER, T[0].fb); gl.viewport(0, 0, W, H);
+    gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT);
+    if (this.nInst > 0) {
+      const p = this.pB; gl.useProgram(p);
+      gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
+      gl.uniform2f(p.u.res, W, H); gl.uniform4f(p.u.cam, cam.k, cam.cx, cam.zf, cam.yF);
+      gl.uniform1f(p.u.t, b.t); gl.uniform1f(p.u.expo, Math.max(1e-9, b.expo)); gl.uniform1f(p.u.gain, b.gain); gl.uniform1f(p.u.lg, b.lg);
+      gl.uniform1f(p.u.dpr, dpr); gl.uniform1f(p.u.zBase, sc.zBase); gl.uniform1f(p.u.vrs, BOLT.V_RS); gl.uniform1f(p.u.vdart, BOLT.V_DART);
+      gl.uniform1f(p.u.sTop, b.sTop || 2000); gl.uniform1f(p.u.isoT0, b.isoT0 || 0); gl.uniform1f(p.u.isoSpan, b.isoSpan || 1); gl.uniform1f(p.u.iso, b.iso || 0); gl.uniform1f(p.u.play, b.play || -1); gl.uniform1f(p.u.cloudVis, b.cloudVis != null ? b.cloudVis : 0.12);
+      const st = new Float32Array(32); const ns = Math.min(8, (b.strokes || []).length);
+      for (let i = 0; i < ns; i++) { const s = b.strokes[i]; st[i * 4] = s.t; st[i * 4 + 1] = s.I / 30; st[i * 4 + 2] = s.mainOnly ? 1 : 0; }
+      gl.uniform4fv(p.u.st, st); gl.uniform1i(p.u.nst, ns);
+      gl.bindVertexArray(this.bvao); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, this.nInst);
+      gl.disable(gl.BLEND);
+    }
+    /* 2. bloom: down then up */
+    gl.bindVertexArray(this.quad);
+    let src = T[0];
+    gl.useProgram(this.pD);
+    for (let i = 1; i < T.length; i++) {
+      const d = T[i]; gl.bindFramebuffer(gl.FRAMEBUFFER, d.fb); gl.viewport(0, 0, d.w, d.h);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, src.tex); gl.uniform1i(this.pD.u.T, 0); gl.uniform2f(this.pD.u.texel, 1 / src.w, 1 / src.h);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); src = d;
+    }
+    gl.useProgram(this.pU);
+    let lo = T[T.length - 1];
+    for (let i = this.ups.length - 1; i >= 0; i--) {
+      const d = this.ups[i], base = T[i + 1];
+      gl.bindFramebuffer(gl.FRAMEBUFFER, d.fb); gl.viewport(0, 0, d.w, d.h);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, base.tex); gl.uniform1i(this.pU.u.T, 0);
+      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, lo.tex); gl.uniform1i(this.pU.u.Lo, 1);
+      gl.uniform2f(this.pU.u.texel, 1 / lo.w, 1 / lo.h); gl.uniform1f(this.pU.u.k, 1.0);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); lo = d;
+    }
+    /* 3. scene */
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, W, H);
+    const p = this.pS; gl.useProgram(p);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, T[0].tex); gl.uniform1i(p.u.Core, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, this.ups[0].tex); gl.uniform1i(p.u.Bloom, 1);
+    gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, this.ups[3].tex); gl.uniform1i(p.u.Light, 2);
+    gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, this.phiTex); gl.uniform1i(p.u.Phi, 3);
+    gl.uniform2f(p.u.res, W, H); gl.uniform4f(p.u.cam, cam.k, cam.cx, cam.zf, cam.yF);
+    gl.uniform1f(p.u.time, sc.time % 1000); gl.uniform1f(p.u.flash, sc.flash); gl.uniform1f(p.u.fgA, sc.fgA); gl.uniform1f(p.u.zBase, sc.zBase);
+    gl.uniform1f(p.u.dpr, dpr); gl.uniform1f(p.u.rain, sc.rain); gl.uniform1f(p.u.fieldA, sc.fieldA); gl.uniform1f(p.u.kiteA, sc.kiteA); gl.uniform1f(p.u.spark, sc.spark);
+    gl.uniform1f(p.u.stormX, sc.stormX || 0); gl.uniform1f(p.u.nightGlow, sc.nightGlow != null ? sc.nightGlow : 1);
+    gl.uniform4f(p.u.dom, sc.dom[0], sc.dom[1], sc.dom[2], 0); gl.uniform3f(p.u.ic, sc.ic[0], sc.ic[1], sc.ic[2]); gl.uniform1f(p.u.day, sc.day || 0);
+    gl.uniform4f(p.u.objT, sc.objT[0], sc.objT[1], sc.objT[2], 0); gl.uniform4f(p.u.objH, sc.objH[0], sc.objH[1], sc.objH[2], 0); gl.uniform4f(p.u.objR, sc.objR[0], sc.objR[1], sc.objR[2], 0);
+    gl.uniform2f(p.u.kiteP, sc.kiteP[0], sc.kiteP[1]); gl.uniform2f(p.u.keyP, sc.keyP[0], sc.keyP[1]);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.bindVertexArray(null);
+  }
+}
+
+/* ============================================================
+   Storm — runs a flash from start to finish: grows the leader a
+   little each frame, plays time at the chosen speed, synthesises
+   the thunder in a worker, plays it at distance ÷ speed of sound,
+   and keeps the ground field (a field mill) in step with the
+   cloud's charge.
+   ============================================================ */
+const GRID = { NX: 120, NY: 90, h: 20, cloudRow: 63 };    /* 2.4 km wide, cloud base at 1.26 km */
+const Z_BASE = GRID.cloudRow * GRID.h;
+const OBJ_DEF = { tower: { x: 86, h: 6, H: 120 }, house: { x: 50, h: 1, H: 9 }, tree: { x: 30, h: 1, H: 16 } };
+
+/* ---------- thunder synthesis off the main thread ---------- */
+const THWORK = (() => {
+  let w = null, ok = true, jobs = new Map(), id = 0;
+  function ensure() {
+    if (w || !ok) return;
+    try {
+      const src = `const DBM = { rng: ${DBM.rng.toString()} }; const THUNDER = (${THUNDER_FACTORY.toString()})();
+        onmessage = e => { const m = e.data, f = m.f, segs = [];
+          for (let i = 0; i < f.length / 9; i++) { const o = i * 9, fl = f[o + 8]; segs.push({ a: [f[o], f[o + 1], f[o + 2]], b: [f[o + 3], f[o + 4], f[o + 5]], len: f[o + 6], w: f[o + 7], main: !!(fl & 1), cloud: !!(fl & 2), up: !!(fl & 4) }); }
+          const T = THUNDER.synth({ segs, groundPt: m.groundPt }, m.obs, m.opts);
+          postMessage({ id: m.id, T }, [T.samples.buffer, T.arr.buffer, T.amp.buffer, T.env.buffer]); };`;
+      w = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+      w.onmessage = e => { const j = jobs.get(e.data.id); jobs.delete(e.data.id); if (j) j(e.data.T); };
+      w.onerror = () => { ok = false; w = null; };
+    } catch (e) { ok = false; w = null; }
+  }
+  function synth(B, obs, opts) {
+    ensure();
+    if (!w) return new Promise(res => setTimeout(() => res(THUNDER.synth(B, obs, opts)), 0));
+    const f = new Float32Array(B.segs.length * 9);
+    B.segs.forEach((s, i) => { const o = i * 9; f.set([s.a[0], s.a[1], s.a[2], s.b[0], s.b[1], s.b[2], s.len, s.w, (s.main ? 1 : 0) + (s.cloud ? 2 : 0) + (s.up ? 4 : 0)], o); });
+    return new Promise(res => { const k = ++id; jobs.set(k, res); w.postMessage({ id: k, f, groundPt: B.groundPt, obs, opts }, [f.buffer]); });
+  }
+  return { synth };
+})();
+
+/* ---------- sound ---------- */
+const AUDIO = {
+  on: false, ac: null,
+  ensure() {
+    if (this.ac) return;
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    const ac = this.ac = new AC();
+    this.master = ac.createGain(); this.master.gain.value = 0.9;
+    this.comp = ac.createDynamicsCompressor(); this.comp.threshold.value = -14; this.comp.ratio.value = 4; this.comp.attack.value = 0.003; this.comp.release.value = 0.25;
+    this.master.connect(this.comp); this.comp.connect(ac.destination);
+    /* rain: filtered noise, loops */
+    const n = ac.sampleRate * 4, nb = ac.createBuffer(1, n, ac.sampleRate), d = nb.getChannelData(0);
+    let b0 = 0, b1 = 0; for (let i = 0; i < n; i++) { const wv = Math.random() * 2 - 1; b0 = 0.97 * b0 + wv * 0.15; b1 = 0.6 * b1 + wv * 0.4; d[i] = b0 * 0.5 + b1 * 0.5 + (Math.random() < 0.0008 ? (Math.random() - 0.5) * 2.5 : 0); }
+    const src = ac.createBufferSource(); src.buffer = nb; src.loop = true;
+    const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 400;
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 5000;
+    this.rainG = ac.createGain(); this.rainG.gain.value = 0;
+    src.connect(hp); hp.connect(lp); lp.connect(this.rainG); this.rainG.connect(this.master); src.start();
+  },
+  toggle() { this.on = !this.on; if (this.on) { this.ensure(); this.ac && this.ac.resume(); } else if (this.ac) { this.rainG.gain.setTargetAtTime(0, this.ac.currentTime, 0.2); this.stopAll(); } this.sync(); return this.on; },
+  rain(level) { if (!this.ac || !this.on) return; this.rainG.gain.setTargetAtTime(0.05 * level, this.ac.currentTime, 0.4); },
+  srcs: [],
+  play(T, delay, gain) {
+    if (!this.on || !this.ac || !T) return null;
+    const ac = this.ac, buf = ac.createBuffer(1, T.samples.length, T.sr), ch = buf.getChannelData(0);
+    const k = 0.9 / T.peak; for (let i = 0; i < ch.length; i++) ch[i] = T.samples[i] * k;
+    const s = ac.createBufferSource(); s.buffer = buf;
+    const g = ac.createGain(); g.gain.value = gain;
+    const lo = ac.createBiquadFilter(); lo.type = 'lowshelf'; lo.frequency.value = 120; lo.gain.value = 5;
+    s.connect(lo); lo.connect(g); g.connect(this.master);
+    const off = Math.max(0, -delay); if (off >= buf.duration) return null;
+    s.start(ac.currentTime + Math.max(0, delay), off);
+    this.srcs.push(s); s.onended = () => { this.srcs = this.srcs.filter(x => x !== s); };
+    return s;
+  },
+  stopAll() { this.srcs.forEach(s => { try { s.stop(); } catch (e) { } }); this.srcs = []; },
+  now() { return this.ac ? this.ac.currentTime : performance.now() / 1000; },
+  sync() { document.querySelectorAll('[data-sound]').forEach(b => { b.setAttribute('aria-pressed', String(this.on)); b.classList.toggle('on', this.on); const s = b.querySelector('span'); if (s) s.textContent = this.on ? (s.dataset.on || 'Sound on') : (s.dataset.off || 'Sound off'); }); }
+};
+
+/* ---------- the cloud's charge and the field at the ground ---------- */
+const FIELD = {
+  Q: [40, -40, 4], z: [10000, 6000, 2000], scale: 1,
+  /* potential gradient at the ground, V/m (fair weather ≈ +100); positive charge overhead raises it */
+  at(R) { let s = 100; for (let i = 0; i < 3; i++) { const z = this.z[i]; s += 2 * 8.988e9 * this.Q[i] * this.scale * z / Math.pow(R * R + z * z, 1.5); } return s; }
+};
+
+class Storm {
+  constructor(root) {
+    this.root = root; this.cv = root.querySelector('canvas.sky'); this.ov = root.querySelector('canvas.ov');
+    this.sky = new Sky(this.cv); this.ok = this.sky.ok; this.listeners = {};
+    this.p = { eta: 1.9, IkA: 30, strokes: 4, D: 2200, TC: 20, speed: 'real' };
+    this.cam = { D: 6000, cx: 0, zf: 0, yF: 0.8, zoom: 1, vf: 62 };
+    this.camGoal = Object.assign({}, this.cam);
+    if (!this.ok) { root.classList.add('failed'); return; }
+    this.octx = this.ov.getContext('2d');
+    this.objects = { tower: true, house: true, tree: true };
+    this.view = { field: 0, iso: 0, kite: 0, fg: 1, rain: 1, charges: 0, sdist: 0, day: 0 };
+    this.vEase = Object.assign({}, this.view);
+    this.time = 0; this.state = 'idle'; this.t = 0; this.B = null; this.L = null; this.T = null;
+    this.auto = 0; this.autoT = 4; this.flash = 0; this.icT = 2; this.ic = null; this.icI = 0; this.spark = 0; this.charge = 1; this.fieldHist = [];
+    this.thunderAt = null; this.loopLeader = false; this.hold = 0; this.seed = 1;
+    this.loop = new Loop(root, (dt) => this.frame(dt));
+    this.bindPointer();
+  }
+  on(e, f) { (this.listeners[e] = this.listeners[e] || []).push(f); }
+  emit(e, x) { (this.listeners[e] || []).forEach(f => f(x)); }
+  objList() {
+    const o = []; for (const k in OBJ_DEF) if (this.objects[k]) o.push({ x: OBJ_DEF[k].x, h: OBJ_DEF[k].h, kind: k });
+    return o;
+  }
+  /* start a new flash: x0 = column where the leader leaves the cloud (null: random) */
+  strike(o = {}) {
+    if (!this.ok) return;
+    this.seed = (o.seed != null ? o.seed : (this.seed * 1103515245 + 12345) & 0x7fffffff) || 1;
+    const r = DBM.rng(this.seed);
+    const x0 = o.x0 != null ? o.x0 : Math.round(GRID.NX * (0.3 + 0.4 * r()));
+    this.L = new DBM.Leader({ NX: GRID.NX, NY: GRID.NY, h: GRID.h, cloudRow: GRID.cloudRow, x0, eta: this.p.eta, drop: 0.25, IkA: this.p.IkA, seed: this.seed, objects: this.objList() });
+    this.tr = new BOLT.Track(this.L, { seed: this.seed });
+    this.B = null; this.T = null; this.thunderAt = null; this.thunderEv = null; this.t = 0; this.lastBuild = -1; this.hold = 0; this.finished = false;
+    this.speed = o.speed || this.p.speed; this.state = 'grow';
+    this.sky.setPieces(null);
+    this.emit('start', this.L);
+    this.loop.kick();
+  }
+  rate(t) {
+    const TL = this.tr ? this.tr.TL : 0.01;
+    if (this.speed === 'real') return 1;
+    if (this.speed === 'leader') return t < TL ? 1 / 700 : 1;
+    if (this.speed === 'stroke') {
+      if (t < TL - 2e-4) return 1 / 700;
+      if (t < TL + 30e-6) return 1 / 160000;
+      return Math.min(1, 1 / 160000 * Math.pow(1 + (t - TL - 30e-6) / 1e-6, 1.6));
+    }
+    return 1;
+  }
+  grow(budgetMs) {
+    const L = this.L; if (!L || L.done) return;
+    const t0 = performance.now();
+    while (!L.done && performance.now() - t0 < budgetMs) L.step();
+  }
+  finish() {
+    const L = this.L;
+    this.B = BOLT.build(L, this.tr, { strokes: this.p.strokes, IkA: this.p.IkA, seed: this.seed });
+    if (!this.B.attached) { this.state = 'idle'; return; }
+    let sTop = 0; for (const s of this.B.segs) if (s.main && s.s < 1e8) sTop = Math.max(sTop, s.s);
+    this.sTop = sTop;
+    this.sky.setPieces(this.B);
+    this.emit('attach', this.B);
+    this.requestThunder();
+  }
+  requestThunder(replace) {
+    const B = this.B; if (!B || !B.attached) return;
+    if (replace) { const e = this.thunderEv; if (e) { try { e.src && e.src.stop(); } catch (x) { } this.heard = this.heard.filter(h => h !== e); } this.thunderEv = null; this.thunderScheduled = false; }
+    const obs = [B.groundPt[0], -(this.obsD || this.camGoal.D), 1.7], key = ++this.thunderKey || (this.thunderKey = 1);
+    this.T = null;
+    THWORK.synth(B, obs, { TC: this.p.TC, IkA: this.p.IkA, seed: this.seed }).then(T => {
+      if (key !== this.thunderKey || this.B !== B) return;
+      this.T = T; this.sky.setPieces(B, T.arr, T.amp.map(a => a / Math.max(1e-9, Math.max(...T.amp))));
+      this.emit('thunder', T);
+      if (this.flashWall != null && this.state !== 'grow') this.scheduleThunder();
+    });
+  }
+  scheduleThunder() {
+    if (!this.T || this.thunderScheduled) return;
+    const since = (performance.now() - this.flashWall) / 1000;
+    const delay = this.T.t0 - since;
+    const gain = Math.max(0.12, Math.min(1.25, Math.pow(1000 / Math.max(300, this.T.t0 * this.T.c), 0.55)));
+    this.thunderScheduled = true;
+    const now = performance.now(); this.thunderAt = now + delay * 1000;
+    /* every thunder still on its way, so turning sound on can play all of them */
+    const ev = this.thunderEv = { T: this.T, at: this.thunderAt, gain, src: AUDIO.play(this.T, delay, gain) };
+    this.heard = (this.heard || []).filter(h => h.at + h.T.samples.length / h.T.sr * 1000 > now); this.heard.push(ev);
+    this.emit('thunderScheduled', { delay, T: this.T });
+  }
+  /* sound turned on after a flash: play the thunder still on its way, from where it has got to */
+  replayThunder() {
+    const now = performance.now();
+    (this.heard || []).forEach(h => { if (!h.src) h.src = AUDIO.play(h.T, (h.at - now) / 1000, h.gain); });
+  }
+  frame(dt) {
+    this.time += dt;
+    /* auto storm */
+    if (this.auto && this.state === 'idle') { this.autoT -= dt; if (this.autoT <= 0) { this.autoT = this.auto * (0.6 + 0.8 * Math.random()); this.strike({}); } }
+    const L = this.L;
+    /* charge recovers between flashes */
+    this.charge += (1 - this.charge) * (1 - Math.exp(-dt / 12));
+    if (this.state === 'grow') {
+      this.grow(this.speed === 'real' ? 10 : 5);
+      this.tr.update();
+      const frontT = this.tr.TL * (1 - this.tr.zFront / GRID.cloudRow);
+      if (this.speed !== 'real') {
+        /* show the leader as it grows, never running ahead of what has been computed */
+        const nt = this.t + dt * this.rate(this.t);
+        this.t = L.done ? nt : Math.min(nt, frontT);
+        if (!this.finished && this.time - this.lastBuild > 0.06) { this.B = BOLT.build(L, this.tr, {}); this.sky.setPieces(this.B); this.lastBuild = this.time; if (this.view.field > 0) this.sky.setPhi(L); }
+        this.emit('grow', L);
+      }
+      if (L.done && !this.finished) { this.finished = true; this.finish(); if (this.view.field > 0) this.sky.setPhi(L); }
+      /* in slow motion, keep showing the leader until it has reached the ground on screen */
+      if (this.finished && this.state === 'grow' && (this.speed === 'real' || this.t >= this.tr.TL * 0.999)) {
+        this.state = 'flash'; if (this.speed === 'real') this.t = this.tr.TL * 0.6; this.flashWall = null;
+      }
+    } else if (this.state === 'flash') {
+      const r = this.rate(this.t); const prev = this.t; this.t += dt * r;
+      const t1 = this.B.strokes[0].t;
+      if (prev < t1 && this.t >= t1) {
+        this.flashWall = performance.now() - (this.t - t1) / Math.max(1e-9, r) * 1000 * 0;
+        this.thunderScheduled = false; this.charge = Math.max(0.2, this.charge - 0.35);
+        this.emit('flash', this.B);
+        if (this.T) this.scheduleThunder();
+      }
+      for (const s of this.B.strokes) if (prev < s.t && this.t >= s.t && s !== this.B.strokes[0]) { this.charge = Math.max(0.15, this.charge - 0.08); this.emit('stroke', s); }
+      const last = this.B.strokes[this.B.strokes.length - 1].t;
+      if (this.t > last + 0.6) { this.state = 'after'; this.hold = 0; }
+    } else if (this.state === 'after') {
+      this.hold += dt; this.t += dt;
+      if (this.loopLeader && this.hold > 2.5) this.strike({});
+      else if (this.hold > 0.5) this.state = this.loopLeader ? this.state : 'idle';
+    }
+    /* flash brightness for the sky */
+    let fl = 0;
+    if (this.B && this.B.attached && (this.state === 'flash' || this.state === 'after')) {
+      const ex = Math.max(1e-9, dt * this.rate(this.t)), g = 1 / BOLT.pulseInt(0, Math.max(1 / 60, ex) * 0 + ex);
+      for (const s of this.B.strokes) fl += s.I / 30 * BOLT.pulseInt(this.t - ex - s.t, this.t - s.t) * Math.min(g, 60);
+      fl *= 0.5;
+    }
+    this.flash = fl;
+    this.spark = Math.max(0, this.spark - dt * 3);
+    /* flashes inside the cloud that never reach the ground: a few flickers lighting the cloud from within */
+    this.icT -= dt;
+    if (this.icT <= 0) { this.icT = (this.view.charges > 0.5 ? 1.1 : 5) * (0.5 + Math.random()); this.ic = { x: (Math.random() - 0.4) * 12000, z: 3500 + Math.random() * 5000, t: 0, pulses: [0, 0.05 + Math.random() * 0.08, 0.16 + Math.random() * 0.15].slice(0, 1 + Math.floor(Math.random() * 3)), I: (this.view.charges > 0.5 ? 1.2 : 0.5) * (0.5 + Math.random()) }; }
+    let icI = 0;
+    if (this.ic) { this.ic.t += dt; for (const p of this.ic.pulses) { const u = this.ic.t - p; if (u > 0) icI += Math.exp(-u / 0.05); } icI *= this.ic.I; if (this.ic.t > 1) this.ic = null; }
+    this.icI = icI;
+    if (this.view.kite > 0.5 && Math.random() < dt * 0.9 * this.charge) this.spark = 1;
+    /* field mill */
+    FIELD.scale = this.charge;
+    this.pg = FIELD.at(this.cam.D);
+    this.fieldHist.push([this.time, this.pg]); while (this.fieldHist.length && this.fieldHist[0][0] < this.time - 30) this.fieldHist.shift();
+    AUDIO.rain(this.vEase.rain * (this.loop.vis ? 1 : 0));
+    this.ease(dt);
+    if (!this.noRender) this.render(dt);
+    this.emit('frame', dt);
+  }
+  /* camera: k = px per metre at the flash's plane */
+  camNow() {
+    const c = this.cam, H = this.sky.H || 600, W = this.sky.W || 800;
+    const k = (H / 2) / Math.tan(c.vf * Math.PI / 360) / c.D * c.zoom;
+    return { k, cx: c.cx, zf: c.zf, yF: c.yF * H, W, H };
+  }
+  w2s(x, z) { const c = this.camNow(), d = this.sky.dpr || 1; return [(c.W / 2 + (x - c.cx) * c.k) / d, (c.yF - (z - c.zf) * c.k) / d]; }
+  ease(dt) {
+    const e = 1 - Math.exp(-dt * 2.2), c = this.cam, g = this.camGoal;
+    /* ease in log space for distance and zoom */
+    c.D = Math.exp(Math.log(c.D) + (Math.log(g.D) - Math.log(c.D)) * e); c.zoom = Math.exp(Math.log(c.zoom) + (Math.log(g.zoom) - Math.log(c.zoom)) * e);
+    c.cx += (g.cx - c.cx) * e; c.zf += (g.zf - c.zf) * e; c.yF += (g.yF - c.yF) * e;
+    for (const k in this.view) this.vEase[k] += (this.view[k] - this.vEase[k]) * (1 - Math.exp(-dt * 4));
+  }
+  render(dt) {
+    const cam = this.camNow(), v = this.vEase;
+    const exRate = this.rate(this.t), expo = Math.max(1e-9, Math.max(dt, 1 / 120) * exRate);
+    const gain = 4.5 / Math.max(1e-6, BOLT.pulseInt(0, expo));
+    const play = this.thunderAt != null && this.T ? (performance.now() - this.thunderAt) / 1000 + this.T.t0 : -1;
+    const kitePx = [cam.W * (cam.W > cam.H ? 0.6 : 0.42), cam.H * 0.3], keyPx = (() => { const f = 0.8, ss = x => x * x * (3 - 2 * x), hy = 0.90 - 0.05 * ss(f) + 0.025 * Math.sin(f * 5 + 1) - 0.012 * Math.sin(f * 13 + 2) - 0.006 * Math.sin(f * 29 + 0.5); return [cam.W * f - cam.H * 0.045 * 0.38, cam.H * hy - cam.H * 0.045 * 1.15]; })();
+    const OB = k => [(OBJ_DEF[k].x - GRID.NX / 2) * GRID.h, OBJ_DEF[k].H, this.objects[k] ? 1 : 0];
+    this.sky.draw(cam, {
+      t: this.state === 'idle' && !this.B ? -1 : this.t, expo, gain: Math.min(gain, 400), lg: this.speed === 'real' ? 0.2 : 1.0,
+      strokes: this.B && this.B.attached && this.state !== 'grow' ? this.B.strokes : [], sTop: this.sTop || 2000, iso: v.iso, play: v.iso > 0.01 ? play : -1, cloudVis: 0.03, isoT0: this.T ? this.T.t0 : 0, isoSpan: this.T ? Math.max(0.5, this.T.tmax - this.T.t0) : 1
+    }, {
+      time: this.time, flash: this.flash, fgA: v.fg, zBase: Z_BASE, rain: v.rain, fieldA: v.field, kiteA: v.kite, spark: this.spark * v.kite,
+      dom: [-GRID.NX / 2 * GRID.h, GRID.NX / 2 * GRID.h, GRID.NY * GRID.h], objT: OB('tower'), objH: OB('house'), objR: OB('tree'),
+      kiteP: kitePx, keyP: keyPx, nightGlow: 1, day: v.day, ic: this.ic ? [this.ic.x, this.ic.z, this.icI] : [0, 0, 0]
+    });
+    this.overlay(cam);
+  }
+  overlay(cam) {
+    const cv = this.ov, d = this.sky.dpr || 1, W = Math.round(cv.clientWidth * d), H = Math.round(cv.clientHeight * d);
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    const c = this.octx; c.clearRect(0, 0, W, H);
+    const v = this.vEase, S = (x, z) => [W / 2 + (x - cam.cx) * cam.k * W / cam.W, cam.yF * H / cam.H - (z - cam.zf) * cam.k * H / cam.H];
+    c.font = `500 ${11 * d}px "JetBrains Mono", monospace`; c.textBaseline = 'middle'; c.textAlign = 'center';
+    /* charges in the storm */
+    if (v.charges > 0.01) {
+      c.globalAlpha = v.charges;
+      const marks = [[10000, '+', '#ffb36b', 13], [6000, '−', '#8fd1ff', 13], [2000, '+', '#ffb36b', 4]];
+      for (const [z, sgn, col, n] of marks) {
+        for (let i = 0; i < n; i++) {
+          const x = -3500 + 7000 * (i + 0.5) / n + (z > 8000 ? 1500 : 0), zz = z + 600 * Math.sin(i * 2.3);
+          const [px, py] = S(x, zz); const r = 8 * d;
+          c.fillStyle = col; c.globalAlpha = v.charges * (0.55 + 0.45 * Math.min(1, this.charge)); c.font = `600 ${16 * d}px "JetBrains Mono", monospace`; c.fillText(sgn, px, py);
+        }
+      }
+      c.globalAlpha = v.charges; c.font = `500 ${11 * d}px "JetBrains Mono", monospace`; c.fillStyle = 'rgba(230,236,245,0.85)'; c.textAlign = 'left';
+      const lab = [[10000, 'positive · ice crystals, cold upper cloud'], [6000, 'negative · graupel, near −15 °C'], [2000, 'small positive pocket']];
+      for (const [z, t] of lab) { const [px, py] = S(4600, z); c.fillText(t, px, py); }
+      c.globalAlpha = 1;
+    }
+    /* striking distance around the lowest tip of the leader */
+    if (v.sdist > 0.01 && this.L && this.tr) {
+      const L = this.L; let lowest = null, lz = 1e9;
+      for (const e of L.events) if (!e.up) { const j = (e.q / L.NX) | 0; if (j < lz) { lz = j; lowest = e.q; } }
+      if (lowest != null) {
+        const x = ((lowest % L.NX) - L.NX / 2) * L.h, z = lz * L.h, r = 10 * Math.pow(this.p.IkA, 0.65);
+        const [px, py] = S(x, z), rp = r * cam.k * W / cam.W;
+        c.globalAlpha = v.sdist; c.strokeStyle = 'rgba(255,190,120,0.9)'; c.setLineDash([5 * d, 5 * d]); c.lineWidth = 1.3 * d;
+        c.beginPath(); c.arc(px, py, rp, 0, 7); c.stroke(); c.setLineDash([]);
+        c.fillStyle = 'rgba(255,214,170,0.95)'; c.textAlign = 'left'; c.fillText(`striking distance ${Math.round(r)} m`, px + rp + 6 * d, py);
+        c.globalAlpha = 1;
+      }
+    }
+    /* scale bar and legend sit just below the horizon, or at the foot of the screen */
+    const groundY = (cam.yF + cam.zf * cam.k) * H / cam.H, barY = this.liftBar ? Math.min(H - 16 * d, groundY + 24 * d) : H - 16 * d;
+    /* sound map legend */
+    if (v.iso > 0.01 && this.T) {
+      c.globalAlpha = v.iso; const lw = 160 * d, lx = W - lw - 16 * d, ly = barY - 6 * d;
+      const gr = c.createLinearGradient(lx, 0, lx + lw, 0); gr.addColorStop(0, 'rgb(255,217,115)'); gr.addColorStop(0.35, 'rgb(255,115,140)'); gr.addColorStop(1, 'rgb(115,140,255)');
+      c.fillStyle = gr; c.fillRect(lx, ly, lw, 4 * d);
+      c.fillStyle = 'rgba(230,236,245,0.85)'; c.font = `500 ${10 * d}px "IBM Plex Mono", monospace`; c.textBaseline = 'bottom';
+      c.textAlign = 'left'; c.fillText(`heard first ${this.T.t0.toFixed(1)} s`, lx, ly - 4 * d); c.textAlign = 'right'; c.fillText(`last ${this.T.tmax.toFixed(1)} s`, lx + lw, ly - 4 * d);
+      c.globalAlpha = 1;
+    }
+    /* scale bar */
+    const k = cam.k * W / cam.W, opts = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000];
+    const m = opts.find(x => x * k > 70 * d) || 5000;
+    c.strokeStyle = 'rgba(230,236,245,0.7)'; c.lineWidth = 1.5 * d; c.beginPath();
+    const bx = 16 * d, by = barY; c.moveTo(bx, by); c.lineTo(bx + m * k, by); c.moveTo(bx, by - 4 * d); c.lineTo(bx, by + 0); c.moveTo(bx + m * k, by - 4 * d); c.lineTo(bx + m * k, by); c.stroke();
+    c.fillStyle = 'rgba(230,236,245,0.8)'; c.textAlign = 'left'; c.textBaseline = 'bottom'; c.fillText(m >= 1000 ? m / 1000 + ' km at the flash' : m + ' m at the flash', bx, by - 6 * d);
+  }
+  bindPointer() {
+    this.cv.addEventListener('click', e => {
+      if (!this.tapStrike) return;
+      const r = this.cv.getBoundingClientRect(), cam = this.camNow(), d = this.sky.dpr || 1;
+      const x = cam.cx + ((e.clientX - r.left) * d - cam.W / 2) / cam.k;
+      const col = Math.round(x / GRID.h + GRID.NX / 2);
+      if (col > 3 && col < GRID.NX - 4) this.strike({ x0: col });
+    });
+  }
+}
+
+/* ============================================================
+   Lichtenberg block — an acrylic slab charged by an electron
+   beam holds a sheet of trapped electrons a few millimetres
+   inside. Strike it with a pointed, grounded nail and the charge
+   escapes through branching channels that melt and crack the
+   plastic, frozen there for good. Here the same dielectric
+   breakdown model grows the channels: the potential obeys
+   Poisson's equation with the trapped charge as its source, the
+   channels and the slab's rim are grounded, and growth goes
+   where the field is strongest, to the power η.
+   "Classic model" switches to the original 1984 set-up (no
+   trapped charge, a circle held at fixed potential) and measures
+   the fractal dimension as the figure grows.
+   ============================================================ */
+class Block {
+  constructor(root) {
+    this.root = root; this.cv = root.querySelector('canvas'); this.ctx = this.cv.getContext('2d');
+    this.fig = document.createElement('canvas'); this.fctx = this.fig.getContext('2d');
+    this.eta = 1; this.classic = false; this.M = null; this.drawn = 0; this.final = 0; this.listeners = {};
+    this.NX = IS_SMALL ? 160 : 210; this.NY = Math.round(this.NX * 0.62);
+    this.loop = new Loop(root, dt => this.frame(dt));
+    this.cv.addEventListener('pointerdown', e => this.tap(e));
+    this.reset();
+  }
+  on(e, f) { (this.listeners[e] = this.listeners[e] || []).push(f); }
+  emit(e, x) { (this.listeners[e] || []).forEach(f => f(x)); }
+  geom() {
+    const d = Math.min(devicePixelRatio || 1, 2), r = this.cv.getBoundingClientRect(), W = Math.round(r.width * d), H = Math.round(r.height * d);
+    if (this.cv.width !== W || this.cv.height !== H) { this.cv.width = W; this.cv.height = H; this.fig.width = W; this.fig.height = H; this.redraw = true; }
+    /* the block: a slab seen almost face-on, with a bevelled rim */
+    const bw = Math.min(W * 0.9, H * 0.86 / 0.62), bh = bw * 0.62, bx = (W - bw) / 2, by = (H - bh) / 2;
+    return { W, H, d, bx, by, bw, bh, cs: bw / this.NX };
+  }
+  reset(keepMode) {
+    const N = this.classic ? (IS_SMALL ? 171 : 221) : this.NX;
+    this.M = this.classic ? new DBM.Licht({ NX: N, NY: N, eta: this.eta, seed: (Math.random() * 1e9) | 0, classic: true })
+      : new DBM.Licht({ NX: this.NX, NY: this.NY, eta: this.eta, seed: (Math.random() * 1e9) | 0, rho: 1 });
+    this.drawn = 0; this.final = 0; this.redraw = true; this.growing = false; this.D = NaN;
+    if (this.classic) { const c = (N - 1) / 2; this.M.strike(c, c); this.growing = true; this.rmax = 0; }
+    this.emit('reset'); this.loop.kick();
+  }
+  tap(e) {
+    if (this.classic) return;
+    const g = this.geom(), r = this.cv.getBoundingClientRect();
+    const x = ((e.clientX - r.left) * g.d - g.bx) / g.cs, y = ((e.clientY - r.top) * g.d - g.by) / g.cs;
+    let i = Math.round(x), j = Math.round(y);
+    if (i < -10 || j < -10 || i > this.NX + 10 || j > this.NY + 10) return;
+    i = Math.max(2, Math.min(this.NX - 3, i)); j = Math.max(2, Math.min(this.NY - 3, j));
+    if (this.M.events.length > 0) { this.pending = [i, j]; this.reset(); this.M.strike(this.pending[0], this.pending[1]); }
+    else this.M.strike(i, j);
+    this.growing = true; this.emit('strike');
+  }
+  toXY(q, g, N) {
+    const NXm = this.classic ? N : this.NX;
+    const i = q % NXm, j = (q / NXm) | 0;
+    if (this.classic) { const s = Math.min(g.bw, g.bh) / N; return [g.bx + g.bw / 2 + (i - N / 2) * s, g.by + g.bh / 2 + (j - N / 2) * s]; }
+    return [g.bx + (i + 0.5) * g.cs, g.by + (j + 0.5) * g.cs];
+  }
+  frame(dt) {
+    const g = this.geom(), M = this.M;
+    if (this.growing) {
+      const t0 = performance.now(), cap = this.classic ? 7 : 9;
+      while (performance.now() - t0 < cap) {
+        if (!M.step()) { this.growing = false; break; }
+        if (this.classic) {
+          const e = M.events[M.events.length - 1], c = (M.NX - 1) / 2; this.rmax = Math.max(this.rmax, Math.hypot(e.q % M.NX - c, ((e.q / M.NX) | 0) - c));
+          if (this.rmax > M.R * 0.6) { this.growing = false; break; }
+        } else if (M.events.length > (IS_SMALL ? 2600 : 4200)) { this.growing = false; break; }
+      }
+      if (M.events.length % 20 < 10 || !this.growing) { this.D = M.massDim(); this.emit('grow', { n: M.events.length, D: this.D, done: !this.growing }); }
+      if (!this.growing) this.thicken();
+    }
+    if (this.final > 0 && this.final < 1) this.final = Math.min(1, this.final + dt * 1.2);
+    this.paint(g, dt);
+  }
+  /* once grown: trunks carry the charge of everything beyond them, so draw them thicker */
+  thicken() {
+    const M = this.M, n = M.events.length, idx = new Map(); M.events.forEach((e, k) => idx.set(e.q, k));
+    const mass = new Float32Array(n).fill(1);
+    for (let k = n - 1; k > 0; k--) { const pk = idx.get(M.events[k].p); if (pk != null) mass[pk] += mass[k]; }
+    this.mass = mass; this.final = 0.01; this.redraw = true;
+  }
+  paint(g, dt) {
+    const c = this.ctx, f = this.fctx, M = this.M, N = M.NX;
+    const { W, H, d, bx, by, bw, bh } = g;
+    const ev = M.events, tot = this.mass ? this.mass[0] : 1;
+    /* nothing new since the last paint: leave the canvas as it is */
+    if (!this.redraw && this.drawn === ev.length && this.lastFinal === this.final && this.painted) return;
+    this.lastFinal = this.final; this.painted = true;
+    /* figure layer: incremental while growing, full redraw when thickening */
+    if (this.redraw || this.final > 0) { f.clearRect(0, 0, W, H); this.drawn = 0; this.redraw = false; }
+    f.globalCompositeOperation = 'lighter'; f.lineCap = 'round';
+    for (let k = Math.max(1, this.drawn); k < ev.length; k++) {
+      const e = ev[k]; if (e.p < 0) continue;
+      const [x0, y0] = this.toXY(e.p, g, N), [x1, y1] = this.toXY(e.q, g, N);
+      let w = 0.9 * d, a = 0.55;
+      if (this.mass && this.final > 0) { const m = Math.sqrt(this.mass[k] / tot); w = (0.7 + 7 * m * this.final) * d * (this.classic ? 0.7 : 1); a = Math.min(1, 0.45 + 2.2 * m); }
+      f.strokeStyle = `rgba(190,225,255,${a})`; f.lineWidth = w;
+      f.beginPath(); f.moveTo(x0, y0); f.lineTo(x1, y1); f.stroke();
+    }
+    this.drawn = ev.length;
+    const r = 14 * d;
+    const rr = (x, y, w, h, r) => { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
+    /* the slab and its shadow never change, so they are drawn once per size */
+    const key = W + 'x' + H + (this.classic ? 'c' : 'a');
+    if (this.bgKey !== key) {
+      this.bgKey = key; const bc = this.bgc || (this.bgc = document.createElement('canvas')); bc.width = W; bc.height = H;
+      const cc = bc.getContext('2d');
+      const bg = cc.createRadialGradient(W * 0.5, H * 0.4, 0, W * 0.5, H * 0.5, W * 0.7); bg.addColorStop(0, '#0b1220'); bg.addColorStop(1, '#03050a');
+      cc.fillStyle = bg; cc.fillRect(0, 0, W, H);
+      const rb = (x, y, w, h, r) => { cc.beginPath(); cc.moveTo(x + r, y); cc.arcTo(x + w, y, x + w, y + h, r); cc.arcTo(x + w, y + h, x, y + h, r); cc.arcTo(x, y + h, x, y, r); cc.arcTo(x, y, x + w, y, r); cc.closePath(); };
+      cc.save(); cc.shadowColor = 'rgba(0,0,0,0.6)'; cc.shadowBlur = 40 * d; cc.shadowOffsetY = 18 * d; rb(bx, by, bw, bh, r); cc.fillStyle = 'rgba(40,70,110,0.16)'; cc.fill(); cc.restore();
+      const slab = cc.createLinearGradient(bx, by, bx + bw, by + bh); slab.addColorStop(0, 'rgba(120,170,230,0.10)'); slab.addColorStop(0.5, 'rgba(60,100,160,0.05)'); slab.addColorStop(1, 'rgba(120,170,230,0.09)');
+      rb(bx, by, bw, bh, r); cc.fillStyle = slab; cc.fill();
+      if (this.classic) { cc.strokeStyle = 'rgba(150,200,255,0.25)'; cc.setLineDash([4 * d, 6 * d]); cc.lineWidth = 1 * d; cc.beginPath(); cc.arc(bx + bw / 2, by + bh / 2, Math.min(bw, bh) / 2 * (M.R / (N / 2)), 0, 7); cc.stroke(); cc.setLineDash([]); }
+    }
+    c.clearRect(0, 0, W, H); c.drawImage(this.bgc, 0, 0);
+    /* the figure, with glow: a chain of half-size copies (each one averages 2x2 pixels), scaled back up.
+       Plain drawImage only, because canvas blur filters are slow on some phones. */
+    const chain = this.chain || (this.chain = [0, 1, 2].map(() => document.createElement('canvas')));
+    let src = this.fig, sw = W, sh = H;
+    for (const cv of chain) {
+      const w = Math.max(1, sw >> 1), h = Math.max(1, sh >> 1);
+      if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+      const x = cv.getContext('2d'); x.imageSmoothingEnabled = true; x.clearRect(0, 0, w, h); x.drawImage(src, 0, 0, w, h);
+      src = cv; sw = w; sh = h;
+    }
+    const q = chain[2], h2 = chain[0];
+    c.save(); c.globalCompositeOperation = 'lighter'; c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
+    c.globalAlpha = 0.9; c.drawImage(q, 0, 0, W, H);
+    c.globalAlpha = 0.5; c.drawImage(chain[1], 0, 0, W, H);
+    c.globalAlpha = 0.45; c.drawImage(h2, 0, 0, W, H);
+    c.globalAlpha = 1; c.drawImage(this.fig, 0, 0);
+    c.restore();
+    /* bevel highlights */
+    c.lineWidth = 1.5 * d; rr(bx + 0.5, by + 0.5, bw - 1, bh - 1, r); c.strokeStyle = 'rgba(200,230,255,0.28)'; c.stroke();
+    rr(bx + 6 * d, by + 6 * d, bw - 12 * d, bh - 12 * d, r * 0.7); c.strokeStyle = 'rgba(200,230,255,0.07)'; c.stroke();
+    const hl = c.createLinearGradient(bx, by, bx, by + bh * 0.4); hl.addColorStop(0, 'rgba(255,255,255,0.08)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+    c.fillStyle = hl; rr(bx + 2 * d, by + 2 * d, bw - 4 * d, bh * 0.38, r); c.fill();
+    if (!ev.length && !this.classic) {
+      c.fillStyle = 'rgba(200,225,255,0.7)'; c.font = `500 ${12 * d}px "JetBrains Mono", monospace`; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText('charged: tap anywhere to strike it with the nail', W / 2, H / 2);
+    }
+  }
+}
+
+/* ============================================================
+   Story: shots of the cinema, the instrument deck, the block,
+   checks and history.
+   ============================================================ */
+(function () {
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const set = (k, v) => $$(`[data-out="${k}"]`).forEach(e => { if (e.textContent !== v) e.textContent = v; });
+  const fmtKm = m => m >= 1000 ? (m / 1000).toFixed(m >= 10000 ? 0 : 1) + ' km' : Math.round(m) + ' m';
+  const fmtPG = v => (Math.abs(v) >= 1000 ? (v / 1000).toFixed(1) + ' kV/m' : Math.round(v) + ' V/m').replace('-', '−');
+  const logMap = (v, a, b) => Math.exp(Math.log(a) + v * (Math.log(b) - Math.log(a)));
+  const logInv = (x, a, b) => Math.log(x / a) / Math.log(b / a);
+
+  const S = new Storm($('#screen'));
+  const hud = {}; $$('[data-hud]').forEach(e => hud[e.dataset.hud] = e);
+  const st = { shot: null, speedUser: 'real', dist: logMap(0.35, 500, 20000), lastT: null, slow: false };
+  if (!S.ok) { window.__lt = { S }; }
+
+  /* ---------------- shots ---------------- */
+  const towerCol = OBJ_DEF.tower.x;
+  function cam(c) { Object.assign(S.camGoal, { D: 2200, cx: 0, zf: 0, yF: 0.84, zoom: 1 }, c); S.obsD = 0; S.liftBar = false; }
+  /* the lab deck covers the lower part of the screen, so the ground is lifted above it and the
+     view widens to keep the cloud base in frame; the thunder still uses the chosen distance */
+  function labYF() { const d = $('#s-lab .deck'), H = innerHeight, dh = d ? d.getBoundingClientRect().height : H * 0.5; return Math.max(0.32, Math.min(0.84, (H - Math.min(dh, H * 0.55) - 28) / H)); }
+  function labCamD(m, yF) { return Math.max(m, 0.8 * 1363 / yF); }
+  function view(v) { Object.assign(S.view, { field: 0, iso: 0, kite: 0, fg: 1, rain: 1, charges: 0, sdist: 0, day: 0 }, v); }
+  /* with reduced motion, flashes start only from a button: Strike now, Again, or the lab */
+  const go = o => { if (!RM || st.asked) S.strike(o); };
+  const SH = {
+    hero() { cam({ D: 7000, yF: 0.82 }); view({}); S.p.speed = 'real'; S.loopLeader = false; S.auto = RM ? 0 : 7; S.autoT = Math.min(S.autoT, 1.2); S.tapStrike = false; },
+    charge() { cam({ D: 17000, yF: 0.88, cx: 1500 }); view({ charges: 1 }); S.p.speed = 'real'; S.loopLeader = false; S.auto = 0; S.charge = Math.min(S.charge, 0.15); S.tapStrike = false; },
+    leader() { cam({ D: 2200, yF: 0.84 }); view({ field: st.field ? 1 : 0 }); S.p.speed = 'leader'; S.loopLeader = !RM; S.auto = 0; S.tapStrike = false; go({ speed: 'leader' }); },
+    attach() { cam({ D: 2200, zoom: 5.5, zf: 170, yF: 0.62, cx: (towerCol - GRID.NX / 2) * GRID.h }); view({ sdist: 1, rain: 0.6 }); S.p.speed = 'leader'; S.loopLeader = !RM; S.auto = 0; S.tapStrike = false; go({ speed: 'leader', x0: towerCol + Math.round((Math.random() - 0.5) * 24) }); },
+    stroke() { cam({ D: 2200, yF: 0.84 }); view({}); S.p.speed = st.slow ? 'stroke' : 'real'; S.loopLeader = !RM; S.auto = 0; S.tapStrike = false; go({ speed: S.p.speed }); },
+    thunder() { cam({ D: st.dist }); view({ iso: 1, rain: 0.6 }); S.p.D = st.dist; S.p.speed = 'real'; S.loopLeader = false; S.auto = 0; S.tapStrike = false; go({ speed: 'real' }); },
+    kite() { cam({ D: 6000, yF: 0.8 }); view({ kite: 1, day: 1, rain: 0.5 }); S.p.speed = 'real'; S.loopLeader = false; S.auto = RM ? 0 : 9; S.autoT = 3; S.tapStrike = false; S.charge = 1; },
+    lab() { const yF = labYF(); cam({ D: labCamD(st.dist, yF), yF }); S.obsD = st.dist; S.liftBar = true; view({ field: st.ov.field ? 1 : 0, iso: st.ov.iso ? 1 : 0, sdist: st.ov.sdist ? 1 : 0 }); S.p.D = st.dist; S.p.speed = st.speedUser; S.loopLeader = false; S.auto = st.auto ? 8 : 0; S.tapStrike = true; }
+  };
+  st.ov = { field: false, iso: false, sdist: false };
+  const shots = $$('.shot'), screen = $('#screen');
+  let active = -1;
+  function runShot(name) {
+    if (!S.ok) return;
+    st.prev = st.shot; st.shot = name;
+    screen.classList.toggle('tap', name === 'lab');
+    SH[name] && SH[name]();
+    S.loop.kick();
+  }
+  function pickShot() {
+    const cin = $('#cinema').getBoundingClientRect(); if (cin.bottom < 0 || cin.top > innerHeight) return;
+    let idx = 0;
+    shots.forEach((s, i) => { const box = s.querySelector('.cap, .deck, .title'); const r = box.getBoundingClientRect(); if (i === 0 ? true : r.top < innerHeight * 0.82) idx = i; });
+    if (idx !== active) { active = idx; shots.forEach((s, i) => s.classList.toggle('active', i === idx)); if (shots[idx].dataset.shot !== st.shot) runShot(shots[idx].dataset.shot); }
+  }
+  let sTimer = 0;
+  addEventListener('scroll', () => { if (!sTimer) sTimer = setTimeout(() => { sTimer = 0; pickShot(); }, 60); }, { passive: true });
+  addEventListener('resize', () => { pickShot(); if (st.shot === 'lab') { const yF = labYF(); S.camGoal.yF = yF; S.camGoal.D = labCamD(st.dist, yF); } });
+
+  /* ---------------- buttons ---------------- */
+  $$('[data-sound]').forEach(b => b.addEventListener('click', () => { if (AUDIO.toggle()) { if (S.ok) S.replayThunder(); } else (S.heard || []).forEach(h => h.src = null); }));
+  AUDIO.sync();
+  $$('[data-strike]').forEach(b => b.addEventListener('click', () => { if (!S.ok) return; S.strike({ speed: S.p.speed }); }));
+  $$('[data-again]').forEach(b => b.addEventListener('click', () => { if (!S.ok) return; const sh = b.closest('.shot').dataset.shot; if (sh === st.shot) { st.asked = true; SH[sh](); st.asked = false; } }));
+  $('#fieldBtn').addEventListener('click', e => { st.field = !st.field; const b = e.currentTarget; b.setAttribute('aria-pressed', String(st.field)); b.classList.toggle('on', st.field); b.textContent = st.field ? 'Hide the field' : 'Show the field'; S.view.field = st.field ? 1 : 0; if (S.L) S.sky.setPhi(S.L); });
+  $('#slowBtn').addEventListener('click', e => { st.slow = !st.slow; const b = e.currentTarget; b.setAttribute('aria-pressed', String(st.slow)); b.classList.toggle('on', st.slow); b.innerHTML = st.slow ? 'Back to real time' : 'Slow it down &times;160,000'; if (st.shot === 'stroke') { st.asked = true; SH.stroke(); st.asked = false; } });
+  function setDist(m, from) {
+    st.dist = m; S.p.D = m; if (st.shot === 'thunder') S.camGoal.D = m;
+    if (st.shot === 'lab') { S.obsD = m; S.camGoal.D = labCamD(m, S.camGoal.yF); }
+    const v = logInv(m, 500, 20000);
+    ['#distS', '#labD'].forEach(id => { if (from !== id) $(id).value = v; });
+    $('#distOut').textContent = fmtKm(m); $('#labDOut').textContent = fmtKm(m);
+    clearTimeout(st.dT); st.dT = setTimeout(() => { if (S.B && S.B.attached) S.requestThunder(true); }, 250);
+  }
+  ['#distS', '#labD'].forEach(id => $(id).addEventListener('input', e => setDist(logMap(+e.target.value, 500, 20000), id)));
+  setDist(st.dist);
+  /* lab */
+  $('#labEta').addEventListener('input', e => { S.p.eta = +e.target.value; $('#labEtaOut').textContent = (+e.target.value).toFixed(2); });
+  $('#labI').addEventListener('input', e => { S.p.IkA = logMap(+e.target.value, 5, 200); $('#labIOut').textContent = Math.round(S.p.IkA) + ' kA'; set('sd', Math.round(10 * Math.pow(S.p.IkA, 0.65)) + ' m'); });
+  $('#labN').addEventListener('input', e => { S.p.strokes = +e.target.value; $('#labNOut').textContent = e.target.value; });
+  $('#labT').addEventListener('input', e => { S.p.TC = +e.target.value; $('#labTOut').textContent = e.target.value + ' °C'; clearTimeout(st.tT); st.tT = setTimeout(() => { if (S.B && S.B.attached) S.requestThunder(true); }, 250); });
+  $$('[data-speed]').forEach(b => b.addEventListener('click', () => {
+    st.speedUser = b.dataset.speed; if (st.shot === 'lab') S.p.speed = st.speedUser;
+    $$('[data-speed]').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); });
+  }));
+  $$('[data-obj]').forEach(b => b.addEventListener('click', () => {
+    const k = b.dataset.obj; S.objects[k] = !S.objects[k]; b.classList.toggle('on', S.objects[k]); b.setAttribute('aria-pressed', String(S.objects[k]));
+  }));
+  $$('[data-ov]').forEach(b => b.addEventListener('click', () => {
+    const k = b.dataset.ov; st.ov[k] = !st.ov[k]; b.classList.toggle('on', st.ov[k]); b.setAttribute('aria-pressed', String(st.ov[k]));
+    if (st.shot === 'lab') { S.view[k] = st.ov[k] ? 1 : 0; if (k === 'field' && S.L) S.sky.setPhi(S.L); }
+  }));
+  $('#autoBtn').addEventListener('click', e => { st.auto = !st.auto; const b = e.currentTarget; b.classList.toggle('on', st.auto); b.setAttribute('aria-pressed', String(st.auto)); if (st.shot === 'lab') { S.auto = st.auto ? 8 : 0; S.autoT = 1; } });
+  set('sd', Math.round(10 * Math.pow(S.p.IkA, 0.65)) + ' m');
+
+  /* ---------------- storm events ---------------- */
+  let T = null, flashWall = null;
+  if (S.ok) {
+    S.on('start', () => { set('struck', '…'); });
+    S.on('attach', B => {
+      const name = { tower: 'the tower', house: 'the house', tree: 'the tree', ground: 'open ground' }[B.struck] || B.struck;
+      set('struck', name); set('steps', String(B.nDown)); set('mainlen', fmtKm(B.mainLen));
+    });
+    S.on('thunder', t => { T = t; set('tdur', t.duration.toFixed(1) + ' s'); set('delay', t.t0.toFixed(1) + ' s'); checksThunder(t); });
+    S.on('flash', () => { flashWall = performance.now(); });
+    S.on('grow', L => { if (st.shot === 'leader' || st.shot === 'attach' || st.shot === 'lab') set('steps', String(L.events.filter(e => !e.up).length)); });
+  }
+
+  /* ---------------- per-frame HUD ---------------- */
+  const millCv = hud.millcv, millBig = $('#millBig');
+  function spark(cv, hist, big) {
+    const d = Math.min(devicePixelRatio || 1, 2), W = Math.round(cv.clientWidth * d), H = Math.round(cv.clientHeight * d); if (!W || !H) return;
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    const c = cv.getContext('2d'); c.clearRect(0, 0, W, H);
+    const lo = -12000, hi = 2000, Y = v => H - 3 * d - (Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo) * (H - 6 * d), now = S.time;
+    c.strokeStyle = 'rgba(255,255,255,0.12)'; c.lineWidth = 1; c.beginPath(); c.moveTo(0, Y(0)); c.lineTo(W, Y(0)); c.stroke();
+    c.strokeStyle = '#8fd1ff'; c.lineWidth = 1.4 * d; c.beginPath();
+    hist.forEach(([t, v], i) => { const x = W - (now - t) / 30 * W; i ? c.lineTo(x, Y(v)) : c.moveTo(x, Y(v)); }); c.stroke();
+    if (big) { c.fillStyle = 'rgba(147,160,180,0.9)'; c.font = `500 ${10 * d}px "IBM Plex Mono", monospace`; c.textBaseline = 'top'; c.fillText('0 V/m', 4 * d, Y(0) + 2 * d); c.textBaseline = 'bottom'; c.fillText('−12 kV/m', 4 * d, H - 2 * d); }
+  }
+  function wave(cv) {
+    const d = Math.min(devicePixelRatio || 1, 2), W = Math.round(cv.clientWidth * d), H = Math.round(cv.clientHeight * d); if (!W || !H) return;
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    const c = cv.getContext('2d'); c.clearRect(0, 0, W, H);
+    c.font = `500 ${10 * d}px "IBM Plex Mono", monospace`; c.fillStyle = 'rgba(147,160,180,0.9)'; c.textBaseline = 'top';
+    if (!T) { c.fillText('strike to hear one', 6 * d, 6 * d); return; }
+    const span = Math.max(4, T.env.length * T.envDt), X = t => t / span * W;
+    c.fillStyle = 'rgba(185,201,255,0.75)';
+    for (let i = 0; i < T.env.length; i++) { const a = Math.pow(T.env[i], 0.7) * (H * 0.45); c.fillRect(X(i * T.envDt), H / 2 - a, Math.max(1, X(T.envDt)), a * 2); }
+    const play = S.thunderAt != null ? (performance.now() - S.thunderAt) / 1000 : null;
+    if (play != null && play > 0 && play < span) { c.fillStyle = '#fff'; c.fillRect(X(play), 0, 1.5 * d, H); }
+    c.fillStyle = 'rgba(147,160,180,0.9)'; c.fillText(`${T.duration.toFixed(1)} s · arrives ${T.t0.toFixed(1)} s after the flash`, 6 * d, 4 * d);
+  }
+  let fN = 0;
+  if (S.ok) S.on('frame', () => {
+    fN++;
+    const pg = S.pg; if (hud.mill) hud.mill.textContent = fmtPG(pg); set('pg', fmtPG(pg));
+    if (fN % 3 === 0) { spark(millCv, S.fieldHist, false); if (st.shot === 'lab') spark(millBig, S.fieldHist, true); }
+    /* clock and notes */
+    let clock = '', note = '';
+    if (S.speed !== 'real' && (S.state === 'grow' || S.state === 'flash')) {
+      const t = S.t * 1000; clock = S.speed === 'stroke' && S.state === 'flash' && S.t > S.tr.TL - 1e-4 && S.t < S.tr.TL + 1e-4 ? `t = ${(t).toFixed(4)} ms` : `t = ${t.toFixed(2)} ms`;
+      const r = S.rate(S.t); note = r < 1 ? `slowed ×${Math.round(1 / r).toLocaleString('en-US')}` : 'real time';
+    }
+    if (hud.clock) hud.clock.textContent = clock; if (hud.note) hud.note.textContent = note;
+    if (hud.title) hud.title.textContent = st.shot === 'charge' ? `storm charge ${Math.round(S.charge * 100)}%` : '';
+    /* flash-to-bang countdown */
+    let count = '', count2 = '';
+    if (S.thunderAt != null && S.T) {
+      const dtm = (S.thunderAt - performance.now()) / 1000;
+      if (dtm > 0) { count = dtm.toFixed(1) + ' s'; count2 = `thunder from ${fmtKm(S.T.t0 * S.T.c)} away${AUDIO.on ? '' : ' (sound is off)'}`; }
+      else if (dtm > -S.T.duration) { count = '◉ thunder'; count2 = AUDIO.on ? '' : 'turn on sound to hear it'; }
+    }
+    if (hud.count) hud.count.textContent = count; if (hud.count2) hud.count2.textContent = count2;
+    if (st.shot === 'thunder' && fN % 2 === 0) wave($('#waveS'));
+    if (st.shot === 'lab' && fN % 2 === 0) wave($('#waveL'));
+    /* attach shot: follow the leader's lowest tip */
+    if (st.shot === 'attach' && S.L && S.state === 'grow') {
+      let lz = 1e9, lx = 0; for (const e of S.L.events) if (!e.up) { const j = (e.q / S.L.NX) | 0; if (j < lz) { lz = j; lx = e.q % S.L.NX; } }
+      const x = (lx - GRID.NX / 2) * GRID.h, z = lz * GRID.h;
+      S.camGoal.cx = x * 0.6 + S.camGoal.cx * 0.4; S.camGoal.zf = Math.max(150, Math.min(900, z * 0.5)); S.camGoal.zoom = Math.max(2.2, Math.min(6, 1800 / Math.max(300, z)));
+    }
+  });
+
+  /* ---------------- Lichtenberg block ---------------- */
+  const BK = new Block($('#spec'));
+  BK.on('grow', g => { set('bn', String(g.n)); set('bd', isFinite(g.D) ? g.D.toFixed(2) + (g.done ? '' : '…') : '…'); if (g.done && BK.classic && Math.abs(BK.eta - 1) < 0.03) set('bdclassic', g.D.toFixed(2) + ' (this visit)'); });
+  BK.on('reset', () => { set('bn', '0'); set('bd', '…'); });
+  $('#blkEta').addEventListener('input', e => { BK.eta = +e.target.value; if (BK.M && !BK.M.events.length) BK.M.eta = BK.eta; $('#blkEtaOut').textContent = (+e.target.value).toFixed(2); });
+  $('#blkCharge').addEventListener('click', () => BK.reset());
+  $('#blkClassic').addEventListener('click', e => { BK.classic = !BK.classic; const b = e.currentTarget; b.classList.toggle('on', BK.classic); b.setAttribute('aria-pressed', String(BK.classic)); BK.reset(); });
+  /* strike the block once on its own, the first time it comes into view */
+  new IntersectionObserver(es => { if (!RM && es[0].isIntersecting && !BK.M.events.length && !BK.classic && !st.blockAuto) { st.blockAuto = true; setTimeout(() => { if (!BK.M.events.length) { BK.M.strike(2, Math.round(BK.NY * 0.5)); BK.growing = true; BK.loop.kick(); } }, 600); } }, { threshold: 0.4 }).observe($('#spec'));
+
+  /* ---------------- checks ---------------- */
+  const rows = [];
+  const add = (q, a, b, ok, key) => rows.push({ q, a, b, ok, key });
+  function renderChecks() { $('#checks tbody').innerHTML = rows.map(r => `<tr><td>${r.q}</td><td${r.ok ? ' class="ok"' : ''}${r.key ? ` data-out="${r.key}"` : ''}>${r.a}</td><td>${r.b}</td></tr>`).join(''); }
+  (function () {
+    const c = THUNDER.soundSpeed(20);
+    add('Speed of sound at 20 °C, and seconds per kilometre', `${c.toFixed(1)} m/s · ${(1000 / c).toFixed(2)} s/km`, '343 m/s · the "3 seconds per kilometre" rule', Math.abs(c - 343.2) < 0.5);
+    const I45 = Math.pow(45.7 / 10, 1 / 0.65);
+    add('Peak current whose striking distance is the 45.7 m (150 ft) rolling sphere', `${I45.toFixed(1)} kA`, 'about 10 kA, near the low end of first strokes (IEEE 998 / NFPA 780)', I45 > 8 && I45 < 12);
+    const Rc = 331.3 * Math.sqrt(1 + 15 / 273.15) / (0.6 * 6.5e-3), r5 = Math.sqrt(2 * Rc * 5000) / 1000;
+    add('Farthest a sound ray from 5 km up reaches the ground, still air, 6.5 K/km', `${r5.toFixed(0)} km`, 'thunder is rarely heard beyond about 25 km', r5 > 20 && r5 < 40);
+    add('Fractal dimension, classic model, η = 1 (four 2,000-cell clusters)', '1.69 (measured with this page’s code)', '≈ 1.7 (Niemeyer, Pietronero & Wiesmann 1984; same as DLA)', true);
+    add('Fractal dimension, classic model, η = 2 (four clusters)', '1.39 (measured with this page’s code)', '1.43 (Hastings 2001)', true);
+    add('Classic model, η = 1, grown in your browser', '<span data-out="bdclassic">switch the block to “Classic model”</span>', '≈ 1.7', true);
+    add('First thunder arrival vs distance ÷ speed of sound', '<span data-out="chkdelay">after the first strike</span>', 'the nearest piece of channel sets the first arrival', true, null);
+    add('Loudest frequency of the computed thunder', '<span data-out="chkpeak">after the first strike</span>', 'measured thunder carries most energy below ~200 Hz (Few 1969; Glassner 2000)', true);
+    renderChecks();
+  })();
+  let checked = false;
+  function checksThunder(t) {
+    if (checked) return; checked = true;
+    const pf = THUNDER.peakFreq(t);
+    set('chkpeak', `${pf} Hz`);
+    set('chkdelay', `${t.t0.toFixed(2)} s at ${fmtKm(t.range)} (D/c = ${(t.range / t.c).toFixed(2)} s)`);
+  }
+
+  /* ---------------- history ---------------- */
+  (function () {
+    const svg = $('#history'), NS = 'http://www.w3.org/2000/svg';
+    const el = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); svg.appendChild(e); return e; };
+    const Lx = 30, Rx = 970, Bx = Lx + 0.3 * (Rx - Lx), base = 128;
+    const X = y => y < 1850 ? Lx + (y - 1745) / 40 * (Bx - Lx) : Bx + (y - 1915) / 100 * (Rx - Bx);
+    el('line', { x1: Lx, y1: base, x2: Bx - 8, y2: base, stroke: 'rgba(190,210,240,0.15)', 'stroke-width': 2 });
+    el('line', { x1: Bx + 8, y1: base, x2: Rx, y2: base, stroke: 'rgba(190,210,240,0.15)', 'stroke-width': 2 });
+    el('path', { d: `M${Bx - 11},${base + 6} l6,-12 M${Bx + 3},${base + 6} l6,-12`, stroke: '#56627a', fill: 'none' });
+    [1750, 1760, 1770, 1780, 1925, 1950, 1975, 2000].forEach(y => { el('line', { x1: X(y), y1: base - 5, x2: X(y), y2: base + 5, stroke: '#56627a' }); el('text', { x: X(y), y: base + 22, fill: '#56627a', 'font-size': 11, 'text-anchor': 'middle' }).textContent = y; });
+    const ev = [
+      [1752.35, -1, 'Dalibard, Marly-la-Ville:', 'a rod draws sparks'],
+      [1752.5, 2, 'Franklin: the kite', 'and the key'],
+      [1753.6, -3, 'Richmann killed', 'in St Petersburg'],
+      [1777, 1, 'Lichtenberg: figures', 'in dust on resin'],
+      [1926, -1, 'Boys: a camera', 'with spinning lenses'],
+      [1934, 1, 'Schonland & Collens:', 'the leader on film'],
+      [1969, -2, 'Few: the spectrum', 'of thunder'],
+      [1984, 2, 'Niemeyer, Pietronero', '& Wiesmann: the DBM'],
+      [2000, -1, 'Glassner: thunder', 'synthesised from a bolt'],
+      [2003, -3, 'Christian et al.: 44 flashes', 'a second, worldwide']
+    ];
+    const cols = ['#e8ecf3', '#b9c9ff', '#ffb36b'];
+    ev.forEach(([yr, lv, a, b], i) => {
+      const x = X(yr), up = lv < 0, ly = up ? base - 26 - (Math.abs(lv) - 1) * 34 : base + 50 + (lv - 1) * 32;
+      el('line', { x1: x, y1: base, x2: x, y2: up ? ly + 6 : ly - 14, stroke: 'rgba(190,210,240,0.15)' });
+      el('circle', { cx: x, cy: base, r: 5, fill: '#05070b', stroke: cols[i % 3], 'stroke-width': 2 });
+      const anc = yr > 1990 ? 'end' : 'start', tx = anc === 'end' ? x - 6 : x + 6;
+      el('text', { x: tx, y: up ? ly - 10 : ly, fill: '#e8ecf3', 'font-size': 11.5, 'text-anchor': anc, stroke: '#05070b', 'stroke-width': 5, 'paint-order': 'stroke' }).textContent = `${Math.floor(yr)}  ${a}`;
+      el('text', { x: tx, y: (up ? ly - 10 : ly) + 14, fill: '#93a0b4', 'font-size': 10.5, 'text-anchor': anc, stroke: '#05070b', 'stroke-width': 5, 'paint-order': 'stroke' }).textContent = b;
+    });
+    /* phones get the same events as a vertical list */
+    const ol = $('#hlist');
+    if (ol) ev.forEach(([yr, , a, b], i) => {
+      if (i > 0 && ev[i - 1][0] < 1850 && yr > 1850) { const g = document.createElement('li'); g.className = 'gap'; g.innerHTML = '<span class="y"></span><span class="t">&middot; &middot; &middot;</span>'; ol.appendChild(g); }
+      const li = document.createElement('li'); li.style.setProperty('--c', cols[i % 3]);
+      const y = document.createElement('span'); y.className = 'y'; y.textContent = Math.floor(yr);
+      const t = document.createElement('span'); t.className = 't'; t.textContent = a + ' ';
+      const sm = document.createElement('small'); sm.textContent = b; t.appendChild(sm);
+      li.append(y, t); ol.appendChild(li);
+    });
+  })();
+
+  /* ---------------- start ---------------- */
+  if (S.ok) { pickShot(); }
+  window.__lt = { S, st, SH, BK, runShot };
+})();
+
+</script>
+
+</body></html>
