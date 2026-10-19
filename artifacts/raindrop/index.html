@@ -537,11 +537,23 @@ const RD = (() => {
     const last = segs[segs.length - 1];
     const total = { km: last.km0 + last.km, days: last.d0 + last.days };
     const end = PLACES.ending(last, total);
-    // a lake at the very end isn't part of the trip: in a closed basin the water never leaves it
-    if (end.type === 'closed' || end.type === 'lake') {
+    // a lake at the very end isn't part of the trip: in a closed basin the water never leaves it.
+    // (The network already stops at the shore of the Great Lakes, and the artificial paths before it
+    // there are wide rivers, so those routes are left whole.)
+    if (end.type === 'closed') {
+      // walk back through the paths inside that same lake only: wide rivers are drawn as artificial paths too
       let i = segs.length - 1;
-      while (i > 0 && segs[i].attrs && segs[i].attrs.ftype === 'ArtificialPath') i--;
-      if (i < segs.length - 1) { total.days = segs[i + 1].d0; end.arriveKm = segs[i + 1].km0; }
+      const wb = +(segs[i].attrs && segs[i].attrs.wbareacomi) || 0, inLake = sg => sg.attrs && sg.attrs.ftype === 'ArtificialPath' && +sg.attrs.wbareacomi === wb;
+      while (wb && i > 0 && inLake(segs[i])) i--;
+      if (i < segs.length - 1) {
+        // the drop arrives at the shore: the network's path across the lake is dropped from the route,
+        // the distance and the time, and any onward route starts from the shore
+        const arrive = segs[i + 1], shore = arrive.coords[0];
+        total.days = arrive.d0; total.km = end.arriveKm = arrive.km0;
+        segs.length = i + 1;
+        end.end = shore;
+        if (end.onward) end.onward.coords[0] = shore;
+      }
     }
     // slow water: lakes and reservoirs where the drop lingers
     const slow = [];
@@ -1311,10 +1323,13 @@ const JOURNEY = {
     // where it meets the sea, in words
     if (A.end.type === 'sea') {
       const m = await Promise.race([RD.nominatim(endPt[1], endPt[0], 10), sleep(2500)]);
+      if (!this.alive(id)) return;
       if (m && (m.town || m.county)) A.end.text = `It meets ${A.end.sea} ${m.town ? 'near ' + m.town : 'in ' + m.county}${m.state ? ', ' + m.state : ''}.`;
     }
     await Promise.race([D.pLive, sleep(4000)]);
+    if (!this.alive(id)) return;
     if (!D.lakesNamed) await Promise.race([sleep(1200), new Promise(r => { const iv = setInterval(() => { if (D.lakesNamed) { clearInterval(iv); r(); } }, 100); })]);
+    if (!this.alive(id)) return;
     for (const l of A.lakes) if (!l.name) l.name = LAYERS.waterNameNear(l.at);
     if (!D.place) D.place = LAYERS.placeNear([D.start.lon, D.start.lat]);
     UI.endCard(D);
