@@ -938,6 +938,15 @@ class Route {
     Object.assign(this, { pts, km, mp, seg, segs, totalKm: k, totalM: m || 1 });
   }
   setSegs(segs) { this.segs = segs; }
+  // cut the line at s km (a closed-basin route whose attributes arrived after the line was drawn)
+  trimTo(s) {
+    if (!(s > 0) || s >= this.totalKm) return false;
+    const { i, p, m } = this.at(s), n = i + 1;
+    for (const a of [this.pts, this.km, this.mp, this.seg]) a.length = n;
+    this.pts.push(p); this.km.push(s); this.mp.push(m); this.seg.push(this.seg[n - 1]);
+    this.totalKm = s; this.totalM = m || 1;
+    return true;
+  }
   // index of the last vertex at or before distance s (km)
   idx(s) {
     const a = this.km; if (s <= 0) return 0; if (s >= this.totalKm) return a.length - 1;
@@ -1138,7 +1147,11 @@ const JOURNEY = {
       if (!this.alive(id)) return;
       D.attrs = attrs;
       D.A = RD.assemble(trace, dm, attrs);
-      if (D.route) { D.route.setSegs(D.A.segs); UI.legsKnown(D.A, D.route); }
+      if (D.route) {
+        D.route.setSegs(D.A.segs);
+        if (D.A.end.arriveKm != null && D.route.trimTo(D.A.end.arriveKm)) APP.map.getSource('route').setData(D.route.geojson());
+        UI.legsKnown(D.A, D.route);
+      }
       RD.lakeNames(D.A.lakes, signal).then(() => { if (this.alive(id)) D.lakesNamed = true; });
     });
     pAttrs.catch(e => { if (this.alive(id)) console.warn('attributes', e); });
@@ -1252,7 +1265,8 @@ const JOURNEY = {
         const tail = reduceMotion() ? 1 : clamp((1 - u) / 0.05, 0.35, 1);
         u = Math.min(1, u + dt * 1000 * this.speed * vel * tail / Dms);
         if (this.skip) u = 1;
-        const s = Math.min(L, sOf(u));
+        const Lnow = route.totalKm;                    // shorter if a closed-basin route was cut at the shore
+        const s = Math.min(Lnow, sOf(u)); if (s >= Lnow) u = 1;
         const here = route.at(s), p = here.p;
         // reveal the line up to the drop
         const prog = route.progress(s);
@@ -1264,7 +1278,7 @@ const JOURNEY = {
         const hand = reduceMotion() ? 1 : smooth((now - t0) / 1400);
         const z = lerp(z0, Math.min(z0, CAM.zoomForWidth(W, p[1])), hand);
         // aim at the middle of the stretch just ahead, averaged so meanders don't shake the view
-        let lx = 0, ly = 0; for (let k = 0; k < 5; k++) { const q = route.at(Math.min(L, s + W * 0.06 * k)).p; lx += q[0] / 5; ly += q[1] / 5; }
+        let lx = 0, ly = 0; for (let k = 0; k < 5; k++) { const q = route.at(Math.min(Lnow, s + W * 0.06 * k)).p; lx += q[0] / 5; ly += q[1] / 5; }
         const a = reduceMotion() ? 1 : approach(dt, 6) * hand + (1 - hand) * approach(dt, 2.5);
         cam.lng += (lx - cam.lng) * a; cam.lat += (ly - cam.lat) * a;
         const tb = route.heading(s, Math.max(0.5, W * 0.45));
@@ -1288,10 +1302,10 @@ const JOURNEY = {
             UI.lakeNote(lk); SND.drip(0.8);
             if (!this.skip && lk.days >= 30 && !reduceMotion()) hold = 1800;
           }
-          UI.hudUpdate(s, route.dayAt(s), route.elevAt(s), L);
+          UI.hudUpdate(s, route.dayAt(s), route.elevAt(s), Lnow);
           const g = route.segAt(s), fl = g && g.flow ? Math.log10(g.flow + 1) / 5 : 0.2;
           SND.mix({ rain: 0, creek: clamp(1.2 - fl * 1.6, 0, 1), river: clamp(fl * 1.4 - 0.15, 0, 1) }, 1.5);
-        } else UI.hudUpdate(s, null, null, L);
+        } else UI.hudUpdate(s, null, null, Lnow);
         if (u < 1) requestAnimationFrame(frame); else res();
       };
       requestAnimationFrame(frame);
@@ -1644,6 +1658,8 @@ const SHARE = {
 
   async card(D) {
     await document.fonts.ready;
+    // the card borrows the live map, so it gives up if another drop starts while it waits
+    const run = JOURNEY.run; if (JOURNEY.D !== D) return null;
     const map = APP.map, W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H;
     const g = c.getContext('2d');
     g.fillStyle = '#05080e'; g.fillRect(0, 0, W, H);
@@ -1660,6 +1676,7 @@ const SHARE = {
     if (cam) map.jumpTo({ ...cam, zoom: Math.min(cam.zoom, 12.5), bearing: 0, pitch: 0, padding: { top: 0, bottom: 0, left: 0, right: 0 } });
     await new Promise(r => { let done = false; const fin = () => { if (!done) { done = true; r(); } }; map.once('idle', fin); map.triggerRepaint(); setTimeout(fin, 4000); });
     await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    if (JOURNEY.run !== run) return null;
     g.save();
     g.beginPath(); g.rect(box.x, box.y, box.w, box.h); g.clip();
     try { g.drawImage(mc, bx * sx, by * sx, bw * sx, bh * sx, box.x, box.y, box.w, box.h); } catch (e) { /* tainted or lost context: leave the night sky */ }
@@ -1725,6 +1742,7 @@ const SHARE = {
     const ready = this.cachedFor(D);
     try {
       const blob = ready || await this.cardFor(D);
+      if (JOURNEY.D !== D) return;
       const file = blob && new File([blob], 'raindrop.png', { type: 'image/png' });
       if (file && navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: `${text} ${url}` }); return; }
       if (navigator.share) { await navigator.share({ text, url }); return; }
@@ -1735,7 +1753,7 @@ const SHARE = {
     await this.copyLink(D, true);
   },
   async save(D) {
-    const blob = await this.cardFor(D); if (!blob) return UI.toast('Couldn’t draw the image here.');
+    const blob = await this.cardFor(D); if (JOURNEY.D !== D) return; if (!blob) return UI.toast('Couldn’t draw the image here.');
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'raindrop.png'; document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   },
