@@ -5,12 +5,14 @@ All notable changes to this project are documented here. Versions follow [semant
 ## [Unreleased]
 
 ### Site
+- Artifact pages let the stage's frame use the share sheet (`web-share`), so a piece's own Share button works on phones.
 - `detect.mjs` no longer counts a page's own `Chart` class as Chart.js (it now looks for a Chart.js script URL or `Chart.register`), and treats three.js r163 and later as needing WebGL2, so the stage note checks for the right context.
 - Artifact pages for pieces that draw with WebGL or WebGL2 check the browser for that context and, when it is missing, show a paper label by the stage saying the piece runs on the graphics card and is best seen in a current browser or on another device. `detect.mjs` now records which context a piece needs.
 - The home display window rotates through every featured artifact; it was capped at seven.
 - `stage: tall` in an artifact's front matter gives it the tall stage on any shelf (documented in docs/WRITEUPS.md). The Navier–Stokes page's figures now work only while on screen.
 
 ### Artifacts
+- Raindrop, on the Explainers shelf (unlisted for now): tap anywhere in the US and follow a raindrop down the USGS river network to wherever it ends, with live gauge readings. The shelf copy keeps the camera above the terrain (MapLibre left it at sea level under the hills, which turned the screen black), smooths the hand-off from the landing to the river, steadies the view over meanders and eases the drop in and out of lakes.
 - Electric Fire, on the Simulations shelf with a tall stage and in the display case: lightning grown by the dielectric breakdown model, with return strokes, thunder synthesised from the bolt's shape and Lichtenberg figures in acrylic. The shelf copy keeps real time, loads its Canvas 2D parts and checks without WebGL2, plays thunder that was on its way when sound is turned on, holds back automatic flashes under reduced motion, and drops a build note from the footer.
 - The GPU simulations (Belousov's Clock, Kármán's Street, A Great Variety of Colours, Klangfiguren, Letters from the Sky) no longer take a long or negative time step when a tab or section comes back into view, which in Letters had been shrinking the step budget on every return.
 - Letters from the Sky, on the Simulations shelf with a tall stage and in the display case: snow crystals grown on the GPU from the Gravner–Griffeath lattice model and steered through Nakaya's diagram. The shelf copy fixes the frame clock that kept its step budget from adapting.

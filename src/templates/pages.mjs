@@ -256,7 +256,7 @@ export function itemPage(ctx, L, it) {
   <section class="stage stage--${stage}" aria-label="${it.title}, running">
     <div class="stage-frame" data-src="${playUrl}" data-title="${it.title}">
       ${it.autorun
-        ? html`<iframe class="stage-iframe" src="${playUrl}" title="${it.title}" allow="fullscreen; autoplay; clipboard-write; gamepad; accelerometer; gyroscope; geolocation; camera" allowfullscreen></iframe>`
+        ? html`<iframe class="stage-iframe" src="${playUrl}" title="${it.title}" allow="fullscreen; autoplay; clipboard-write; web-share; gamepad; accelerometer; gyroscope; geolocation; camera" allowfullscreen></iframe>`
         : html`${poster(ctx, L, it, { eager: true, sizes: '(max-width: 1100px) 100vw, 1100px', cls: 'poster stage-poster' })}
           <button class="stage-run" type="button">${icons.play({ size: 18 })}<span>Run ${it.title}</span></button>`}
     </div>
