@@ -1468,23 +1468,26 @@ const UI = {
       clearTimeout(timer);
       const v = q.value.trim(); if (v.length < 3) { items = []; render(); return; }
       timer = setTimeout(async () => {
-        if (ctl) ctl.abort(); ctl = new AbortController();
+        // each search keeps its own controller, and only the latest one may fill the list
+        if (ctl) ctl.abort(); const my = ctl = new AbortController();
         try {
+          let found;
           try {
-            const r = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(v)}&limit=7&lang=en`, { signal: ctl.signal });
+            const r = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(v)}&limit=7&lang=en`, { signal: my.signal });
             if (!r.ok) throw new Error('photon ' + r.status);
             const d = await r.json();
-            items = (d.features || []).filter(f => f.properties.countrycode === 'US').map(f => {
+            found = (d.features || []).filter(f => f.properties.countrycode === 'US').map(f => {
               const p = f.properties, line1 = [p.housenumber, p.street].filter(Boolean).join(' ');
               return { name: p.name || line1 || p.city, sub: [p.name && line1 ? line1 : '', p.city && p.city !== p.name ? p.city : '', p.state].filter(Boolean).join(', '), lat: f.geometry.coordinates[1], lon: f.geometry.coordinates[0] };
             }).slice(0, 6);
           } catch (e) {
-            if (ctl.signal.aborted) return;
-            const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=us&limit=6&accept-language=en&q=${encodeURIComponent(v)}`, { signal: ctl.signal });
+            if (my !== ctl || my.signal.aborted) return;
+            const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=us&limit=6&accept-language=en&q=${encodeURIComponent(v)}`, { signal: my.signal });
             const d = await r.json();
-            items = d.map(x => { const parts = x.display_name.split(', '); return { name: parts[0], sub: parts.slice(1, 4).join(', '), lat: +x.lat, lon: +x.lon }; });
+            found = d.map(x => { const parts = x.display_name.split(', '); return { name: parts[0], sub: parts.slice(1, 4).join(', '), lat: +x.lat, lon: +x.lon }; });
           }
-          sel = items.length ? 0 : -1; render();
+          if (my !== ctl || my.signal.aborted) return;
+          items = found; sel = items.length ? 0 : -1; render();
         } catch (e) { /* typing on */ }
       }, 280);
     });
@@ -1729,11 +1732,15 @@ const SHARE = {
   // the card for this drop, drawn once per drop and unit setting
   cached: null,
   cachedFor(D) { const c = this.cached; return c && c.D === D && c.metric === UNITS.metric ? c.blob : null; },
+  // one render at a time, since each borrows the live map: a second request joins the one under way
+  pending: null,
   async cardFor(D) {
     const have = this.cachedFor(D); if (have) return have;
-    const blob = await this.card(D);
-    if (blob) this.cached = { D, metric: UNITS.metric, blob };
-    return blob;
+    const metric = UNITS.metric, w = this.pending;
+    if (w) { if (w.D === D && w.metric === metric) return w.p; await w.p.catch(() => null); return this.cardFor(D); }
+    const p = this.card(D).then(blob => { if (blob) this.cached = { D, metric, blob }; return blob; });
+    this.pending = { D, metric, p };
+    try { return await p; } finally { if (this.pending && this.pending.p === p) this.pending = null; }
   },
   async share(D) {
     const url = this.link(D), text = this.text(D);
