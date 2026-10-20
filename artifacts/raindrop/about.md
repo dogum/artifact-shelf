@@ -4,7 +4,7 @@ summary: "Tap anywhere in the US and follow a raindrop downhill, creek to river,
 shelf: explainers
 tags: [hydrology, rivers, maps, maplibre, live-data, usgs]
 made: 2026-10-19
-status: unlisted
+status: published
 featured: false
 autorun: true
 capture_wait: 9000
