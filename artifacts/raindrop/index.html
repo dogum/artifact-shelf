@@ -1368,11 +1368,21 @@ const CAM = {
     const px = Math.max(320, Math.min(innerWidth, innerHeight * 1.2));
     return clamp(Math.log2(78271.517 * Math.cos(lat * Math.PI / 180) * px / (Wkm * 1000)), 2.2, 15.6);
   },
-  landOn(p) {
-    const map = APP.map;
+  // The dive flies at the landing spot's real ground height. MapLibre keeps the height the flight
+  // started with until it lands, so in the mountains the camera went under the ground (a dark
+  // screen) and then jumped up thousands of metres at the end.
+  async landOn(p) {
+    const map = APP.map, T = map.getTerrain();
+    let el = null;
+    if (T) {
+      const m = await Promise.race([APP.elevAt(p), sleep(700).then(() => null)]);
+      el = m != null ? m * (T.exaggeration || 1) : Math.max(0, map.queryTerrainElevation(p) || 0);
+      map.setCenterClampedToGround(false); this.ground = el;    // CAM.follow(false) hands it back
+      map.jumpTo({ elevation: el });
+    }
     return new Promise(res => {
       if (reduceMotion()) { map.jumpTo({ center: p, zoom: 15, pitch: 50, bearing: 0 }); return res(); }
-      map.flyTo({ center: p, zoom: 15.2, pitch: 56, bearing: map.getBearing() + 20, duration: 3200, curve: 1.6, essential: true });
+      map.flyTo({ center: p, zoom: 15.2, pitch: 56, bearing: map.getBearing() + 20, duration: 3200, curve: 1.6, essential: true, freezeElevation: el != null });
       map.once('moveend', () => { this.settle(); res(); });
       setTimeout(res, 4200);
     });
