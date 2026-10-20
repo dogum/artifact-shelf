@@ -1377,7 +1377,7 @@ const CAM = {
     let el = null;
     if (T) {
       const m = await Promise.race([APP.elevAt(p), sleep(700).then(() => null)]);
-      if (id != null && !JOURNEY.alive(id)) return;           // cancelled while we looked it up
+      if (id != null && (!JOURNEY.alive(id) || JOURNEY.state !== 'landing')) return;   // cancelled or failed meanwhile
       if (m != null) {
         el = m * (T.exaggeration || 1);
         map.setCenterClampedToGround(false); this.ground = el;  // CAM.follow(false) hands it back
