@@ -1563,12 +1563,7 @@ function select(id) {
 
 function setClock(f) {
   clockTarget = f;
-  thermalButton?.addEventListener("click", () => {
-  quietTour();
-  setThermal(!thermal.on);
-});
-
-clockButtons.forEach((button) => button.setAttribute("aria-pressed", Number(button.dataset.clock) === f ? "true" : "false"));
+  clockButtons.forEach((button) => button.setAttribute("aria-pressed", Number(button.dataset.clock) === f ? "true" : "false"));
   if (live) live.textContent = `GPU clock ${f.toFixed(1)}×`;
   describe();
   run();
