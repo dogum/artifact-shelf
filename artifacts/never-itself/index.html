@@ -3250,6 +3250,7 @@ E.bus.addEventListener("press", (event) => {
 E.bus.addEventListener("set", (event) => {
   current = event.detail.pos;
   showSettings(event.detail);
+  drawWiring();
   if (!internal && !busy && pad.input) resetPad("The wheels moved, so this is a new message.");
   else renderPad();
 });
@@ -3335,13 +3336,14 @@ $("[data-demo]").addEventListener("click", async (event) => {
     const box = plate.getBoundingClientRect();
     scrollTo({ top: scrollY + box.top + box.height * 0.11, behavior: quiet.matches ? "auto" : "smooth" });
     E.setApart(true);
+    // take the token before any wait, so a touch during the wait (letGo bumps program) cancels the demo
+    const id = ++program;
     if (quiet.matches) {
       E.pressKey(word[0], { hold: true });
       held = word[0];
       return;
     }
     await wait(1300);
-    const id = ++program;
     for (const [index, letter] of [...word].entries()) {
       if (id !== program) break;
       E.pressKey(letter, { hold: true });
