@@ -48,6 +48,7 @@ capture_click: "#start"
 | `capture_click` | no | CSS selector to click before the poster screenshot (a Start button, a splash screen). |
 | `capture_time` | no | Pin the clock for the poster, e.g. `2026-06-21T16:30:00Z`. For anything that shows the time, the sun or the sky. |
 | `capture_timezone` | no | Time zone for the poster browser, e.g. `America/New_York`. |
+| `capture_motion` | no | `reduce` runs the poster browser with reduced motion. For pages that animate into the state the poster should show: the capture browser renders slowly, so a fade or a tour can be caught halfway. |
 | `repo` | no | The bigger project this belongs to: `owner/name` or a URL. Shows a "Part of … on GitHub" link on the page. If it matches an entry in `projects` in `shelf.config.json`, that project's name is used. |
 | `links` | no | Extra links shown beside it, as `["Label \| https://…"]`. |
 

@@ -57,6 +57,7 @@ Then fill in `about.md` exactly as `docs/WRITEUPS.md` describes:
 - `summary`: one sentence, 110–155 characters. Count them.
 - `tags`: 3–6, lowercase-hyphenated, mixing technique and subject.
 - `capture_click` / `capture_wait` if the poster needs a click or time to look good.
+  `capture_motion: reduce` if the page animates into that state and the poster catches it halfway.
 - `autorun: false` if it is heavy, makes sound on load, or opens on a menu.
 - Body: opening paragraph, `## How to use it` (real keys and labels), `## How it works`
   (named techniques, only what the code does), optional `## Notes`.

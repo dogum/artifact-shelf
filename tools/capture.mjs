@@ -144,6 +144,9 @@ async function captureOne(it) {
     viewport: { width: 1280, height: 800 },
     deviceScaleFactor: 1,
     ...(it.capture.timezone ? { timezoneId: it.capture.timezone } : {}),
+    // Pages that animate toward a state (a fade, a tour) can reach it at once under reduced motion,
+    // where the slow software renderer would otherwise catch them halfway.
+    ...(it.capture.motion ? { reducedMotion: it.capture.motion } : {}),
   });
   // Time-dependent artifacts (clocks, sun, sky) can pin the moment their poster shows.
   if (it.capture.time) await context.clock.setFixedTime(new Date(it.capture.time));
@@ -169,6 +172,7 @@ async function captureOne(it) {
   await card(ogHtml(it, poster.toString('base64')), path.join(dir, 'og.jpg'));
   fs.writeFileSync(path.join(dir, 'capture.json'), JSON.stringify({
     hash: it.tech.hash, captured: new Date().toISOString(), wait: it.capture.wait, click: it.capture.click, time: it.capture.time,
+    ...(it.capture.motion ? { motion: it.capture.motion } : {}),
   }, null, 2) + '\n');
   const secs = ((Date.now() - t) / 1000).toFixed(1);
   console.log(`  ✓ ${it.slug.padEnd(32)} ${secs}s${errors.length ? `  \x1b[33m(${errors.length} page error${errors.length > 1 ? 's' : ''}: ${errors[0].slice(0, 90)})\x1b[0m` : ''}`);

@@ -61,6 +61,7 @@ export function loadShelf(root, config, { includeDrafts = false } = {}) {
         click: data.capture_click || null,
         time: data.capture_time ? String(data.capture_time) : null,
         timezone: data.capture_timezone || null,
+        motion: data.capture_motion === 'reduce' ? 'reduce' : null,
       },
       repo: data.repo ? String(data.repo) : null,
       links: (Array.isArray(data.links) ? data.links : data.links ? [data.links] : []).map(parseLink).filter(Boolean),
