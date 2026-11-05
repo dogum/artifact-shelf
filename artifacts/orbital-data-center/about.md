@@ -8,6 +8,8 @@ status: published
 featured: false
 autorun: true
 capture_wait: 1500
+capture_click: "[data-thermal-toggle]"
+capture_motion: reduce
 ---
 
 A drawing of one node of an orbital data center as it might fly around 2030: about 1.15 MW of GPUs in a 15 t spacecraft, 1,400 km up in a dawn-dusk orbit. The thin-film array is the floor of the drawing and faces the Sun, which is below it, so everything above the array sits in its shade. The figure follows one idea: power is easy to collect in orbit, and the hard part is getting rid of the heat.
