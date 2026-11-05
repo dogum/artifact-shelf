@@ -1,0 +1,2210 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Collision Course</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Watch the Milky Way and Andromeda collide, and recreate famous interacting galaxies, with half a million stars simulated live on your GPU.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<style>
+/* Layout: a full-bleed sky; the instruments sit at its edges like an observatory console, the story is told in captions. */
+:root{
+  --void:#05060b;
+  --ink:#ece7dd;
+  --dim:#a29fae;
+  --faint:#6f6d7e;
+  --line:rgba(236,231,221,.14);
+  --glass:rgba(7,8,15,.58);
+  --glass-strong:rgba(9,10,19,.92);
+  --sodium:#f3b86e;
+  --ion:#92b7ff;
+  --rose:#ff7c99;
+  --display:"Cormorant Garamond","Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --t-xs:10.5px; --t-sm:12px; --t-md:14px; --t-lg:23px; --t-xl:40px;
+  color-scheme:dark;
+}
+html,body{height:100%;margin:0;background:var(--void);color:var(--ink);overflow:hidden;overscroll-behavior:none}
+body{font-family:var(--sans);font-size:var(--t-md);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+#stage{position:fixed;inset:0;touch-action:none;cursor:grab;background:var(--void)}
+#stage.dragging{cursor:grabbing}
+#stage.aiming{cursor:crosshair}
+#gl,#ov{position:absolute;inset:0;width:100%;height:100%;display:block}
+#ov{pointer-events:none}
+
+#ui{position:fixed;inset:0;pointer-events:none;display:grid;
+  grid-template-columns:minmax(0,330px) minmax(0,1fr) auto;
+  grid-template-rows:auto minmax(0,1fr) auto auto;
+  column-gap:24px;row-gap:14px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:max(18px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-bottom,0px));
+}
+#ui > *{pointer-events:auto}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible{outline:1.5px solid var(--sodium);outline-offset:3px;border-radius:4px}
+
+/* Brand and scene index */
+.brand{grid-column:1;grid-row:1 / 3;align-self:start;display:flex;flex-direction:column;gap:18px;min-width:0}
+.brand h1{margin:0;font-family:var(--display);font-style:italic;font-weight:500;font-size:var(--t-xl);line-height:.95;letter-spacing:-.01em;text-wrap:balance}
+.brand h1 span{display:block;font-family:var(--mono);font-style:normal;font-size:var(--t-xs);letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:10px;font-weight:400}
+.scenes{display:flex;flex-direction:column;gap:2px;margin:0;padding:0;list-style:none}
+.scene{display:grid;grid-template-columns:14px minmax(0,1fr);column-gap:8px;align-items:baseline;text-align:left;padding:7px 8px 7px 4px;border-radius:6px;transition:background .2s}
+.scene:hover{background:rgba(236,231,221,.05)}
+.scene .mk{width:7px;height:7px;border-radius:50%;border:1px solid var(--faint);justify-self:center;transform:translateY(-2px);transition:all .25s}
+.scene .nm{font-family:var(--display);font-size:20px;font-weight:500;line-height:1.1;color:var(--dim);transition:color .2s}
+.scene .ds{grid-column:2;font-family:var(--mono);font-size:var(--t-xs);letter-spacing:.06em;color:var(--faint);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scene[aria-pressed="true"] .nm{color:var(--ink)}
+.scene[aria-pressed="true"] .mk{background:var(--sodium);border-color:var(--sodium);box-shadow:0 0 10px var(--sodium)}
+.scene[aria-pressed="true"] .ds{color:var(--dim)}
+
+/* Tools */
+.tools{grid-column:3;grid-row:1;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.seg{display:flex;border:1px solid var(--line);border-radius:999px;padding:2px;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.seg button{font-family:var(--mono);font-size:var(--t-xs);letter-spacing:.1em;text-transform:uppercase;padding:6px 11px;border-radius:999px;color:var(--dim);transition:all .2s}
+.seg button[aria-pressed="true"]{background:rgba(236,231,221,.12);color:var(--ink)}
+.pill{font-family:var(--mono);font-size:var(--t-xs);letter-spacing:.1em;text-transform:uppercase;display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:var(--dim);transition:all .2s}
+.pill:hover{color:var(--ink);border-color:rgba(236,231,221,.3)}
+.pill[aria-pressed="true"]{color:var(--ink);border-color:rgba(243,184,110,.55)}
+.pill svg{width:13px;height:13px;flex:none}
+.pill.throw{color:var(--sodium);border-color:rgba(243,184,110,.45)}
+.lbl-s{display:none}
+.pill.throw[aria-pressed="true"]{background:rgba(243,184,110,.16);color:#ffe3bd;border-color:var(--sodium)}
+.pill .dot{width:7px;height:7px;border-radius:50%;border:1.5px solid currentColor;position:relative}
+.pill .dot::after{content:"";position:absolute;inset:1.5px;border-radius:50%;background:currentColor;transform:scale(.5)}
+.legend{font-family:var(--mono);font-size:var(--t-xs);letter-spacing:.06em;color:var(--dim);display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end;min-height:14px}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:-0.5px}
+
+/* Possible futures (Local Group) */
+.futures{grid-column:3;grid-row:2;align-self:start;justify-self:end;width:300px;max-height:100%;overflow-y:auto;box-sizing:border-box;padding:12px 14px 12px;border:1px solid var(--line);border-radius:14px;background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);scrollbar-width:none}
+.fut-head{display:grid;grid-template-columns:1fr auto;width:100%;text-align:left;row-gap:2px}
+.fut-eyebrow{font-family:var(--mono);font-size:var(--t-xs);letter-spacing:.14em;text-transform:uppercase;color:var(--sodium)}
+.fut-head .chev{grid-column:2;grid-row:1 / 4;width:14px;height:14px;align-self:start;color:var(--dim);transition:transform .25s}
+.fut-head[aria-expanded="false"] .chev{transform:rotate(-90deg)}
+.fut-big{display:flex;align-items:baseline;gap:8px}
+#futPct{font-family:var(--mono);font-weight:500;font-size:30px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.fut-of{font-family:var(--mono);font-size:var(--t-xs);color:var(--dim);font-variant-numeric:tabular-nums}
+.fut-sub{font-size:12.5px;color:var(--dim);line-height:1.35}
+.fut-body{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.fut-cap{font-family:var(--mono);font-size:var(--t-xs);letter-spacing:.06em;color:var(--faint);margin-bottom:-4px}
+#futChart{width:100%;height:128px;display:block}
+.fut-key{display:flex;gap:12px;font-family:var(--mono);font-size:var(--t-xs);color:var(--dim)}
+.fut-key .ln{display:inline-block;width:14px;height:2px;border-radius:2px;margin-right:6px;vertical-align:3px}
+.fut-key .m{background:var(--sodium)}.fut-key .n{background:var(--ion)}.fut-key .y{background:var(--ink)}
+.fut-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.fut-lbl{font-family:var(--mono);font-size:var(--t-xs);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-right:2px}
+.chip{font-family:var(--mono);font-size:var(--t-xs);letter-spacing:.06em;padding:6px 10px;border:1px solid var(--line);border-radius:999px;color:var(--dim);transition:all .2s}
+.chip[aria-pressed="true"]{color:var(--ink);border-color:rgba(236,231,221,.4);background:rgba(236,231,221,.08)}
+.chip[aria-pressed="false"]{text-decoration:line-through;text-decoration-color:rgba(162,159,174,.6)}
+.chip.roll{color:var(--sodium);border-color:rgba(243,184,110,.45)}
+.chip.roll:hover{background:rgba(243,184,110,.12)}
+.fut-note{margin:0;font-size:12.5px;line-height:1.45;color:var(--ink)}
+.fut-ref{margin:0;font-family:var(--mono);font-size:var(--t-xs);line-height:1.6;color:var(--dim)}
+.fut-ref b{font-weight:500;color:var(--ink)}
+.timeline .tick.sat{background:var(--ion);height:8px;top:12px;opacity:.8}
+
+/* Caption */
+.caption{grid-column:1 / 3;grid-row:3;align-self:end;min-height:3.2em;max-width:36ch;font-family:var(--display);font-style:italic;font-weight:500;font-size:var(--t-lg);line-height:1.28;color:var(--ink);text-shadow:0 1px 14px rgba(0,0,0,.95),0 0 2px rgba(0,0,0,.6);text-wrap:pretty;pointer-events:none!important}
+.caption p{margin:0;transition:opacity .9s ease,transform .9s ease}
+.caption p.out{opacity:0;transform:translateY(6px)}
+.caption .src{display:block;font-family:var(--mono);font-style:normal;font-size:var(--t-xs);letter-spacing:.08em;color:var(--dim);margin-top:8px;text-transform:uppercase}
+
+/* Deck */
+.deck{grid-column:1 / -1;grid-row:4;display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;align-items:center;column-gap:18px;row-gap:8px;padding:12px 16px;border:1px solid var(--line);border-radius:14px;background:var(--glass);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2)}
+.transport{display:flex;gap:6px}
+.icon{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);color:var(--ink);transition:all .2s}
+.icon:hover{border-color:rgba(236,231,221,.35);background:rgba(236,231,221,.06)}
+.icon svg{width:15px;height:15px}
+.icon.primary{background:var(--ink);color:var(--void);border-color:var(--ink)}
+.icon.primary:hover{background:#fff}
+.clock{display:flex;flex-direction:column;min-width:150px}
+.clock .v{font-family:var(--mono);font-weight:500;font-size:22px;letter-spacing:-.01em;font-variant-numeric:tabular-nums;line-height:1.1}
+.clock .u{font-family:var(--mono);font-size:var(--t-xs);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:3px;white-space:nowrap}
+.tl-wrap{display:flex;flex-direction:column;gap:6px;min-width:0}
+.readout{font-family:var(--mono);font-size:var(--t-xs);letter-spacing:.06em;color:var(--dim);font-variant-numeric:tabular-nums;display:flex;gap:16px;flex-wrap:wrap;min-height:14px}
+.readout b{font-weight:500;color:var(--ink)}
+.timeline{position:relative;height:26px;cursor:pointer;touch-action:none}
+.timeline .track{position:absolute;left:0;right:0;top:15px;height:2px;border-radius:2px;background:rgba(236,231,221,.14)}
+.timeline .fill{position:absolute;left:0;top:15px;height:2px;border-radius:2px;background:linear-gradient(90deg,rgba(146,183,255,.7),var(--sodium));width:0}
+.timeline .head{position:absolute;top:10px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 4px rgba(236,231,221,.12)}
+.timeline .tick{position:absolute;top:11px;width:1px;height:10px;background:rgba(236,231,221,.4)}
+.timeline .tick.major{background:var(--sodium);height:12px;top:10px}
+.timeline .tick span{position:absolute;bottom:13px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.speed{display:flex;gap:2px;border:1px solid var(--line);border-radius:999px;padding:2px}
+.speed button{font-family:var(--mono);font-size:var(--t-xs);padding:6px 8px;border-radius:999px;color:var(--dim);font-variant-numeric:tabular-nums;min-width:34px}
+.speed button[aria-pressed="true"]{background:rgba(236,231,221,.12);color:var(--ink)}
+
+.hint{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(max(14px,env(safe-area-inset-bottom,0px)) + 110px);font-family:var(--mono);font-size:var(--t-xs);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);pointer-events:none;transition:opacity 1.2s;white-space:nowrap;text-shadow:0 1px 8px #000}
+.hint.out{opacity:0}
+.aimtip{position:fixed;left:50%;bottom:calc(max(14px,env(safe-area-inset-bottom,0px)) + 112px);white-space:nowrap;transform:translateX(-50%);font-family:var(--mono);font-size:var(--t-xs);letter-spacing:.1em;text-transform:uppercase;color:#ffe3bd;background:rgba(243,184,110,.14);border:1px solid rgba(243,184,110,.5);padding:7px 12px;border-radius:999px;pointer-events:none;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+
+/* About sheet */
+.sheet{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--glass-strong);border-left:1px solid var(--line);overflow-y:auto;
+  padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px));
+  padding-block:max(28px,env(safe-area-inset-top,0px)) max(28px,env(safe-area-inset-bottom,0px));
+  box-sizing:border-box;z-index:20;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transform:translateX(0);transition:transform .35s ease}
+.sheet[hidden]{display:block!important;transform:translateX(105%);visibility:hidden;transition:transform .35s ease,visibility 0s .35s}
+.sheet h2{font-family:var(--display);font-style:italic;font-weight:500;font-size:32px;line-height:1.05;margin:0 0 6px;text-wrap:balance}
+.sheet h3{font-family:var(--mono);font-size:var(--t-xs);letter-spacing:.14em;text-transform:uppercase;color:var(--sodium);font-weight:500;margin:28px 0 10px}
+.sheet p,.sheet li{font-size:14.5px;line-height:1.62;color:#d6d1c8;max-width:62ch}
+.sheet p{margin:0 0 12px}
+.sheet ul{margin:0 0 12px;padding-left:18px}
+.sheet li{margin-bottom:6px}
+.sheet a{color:var(--ion);text-underline-offset:3px}
+.sheet .close{position:absolute;top:max(20px,env(safe-area-inset-top,0px));right:max(20px,env(safe-area-inset-right,0px))}
+.stats{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-family:var(--mono);font-size:var(--t-sm);font-variant-numeric:tabular-nums;margin:4px 0 8px}
+.stats dt{color:var(--dim)}
+.stats dd{margin:0;color:var(--ink);text-align:right}
+.quality{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0 4px}
+.quality button{font-family:var(--mono);font-size:var(--t-xs);letter-spacing:.06em;padding:7px 10px;border:1px solid var(--line);border-radius:999px;color:var(--dim);font-variant-numeric:tabular-nums}
+.quality button[aria-pressed="true"]{color:var(--ink);border-color:var(--sodium)}
+.keys{font-family:var(--mono);font-size:var(--t-sm);color:var(--dim);display:grid;grid-template-columns:auto 1fr;gap:6px 14px}
+.keys kbd{font-family:var(--mono);font-size:var(--t-xs);border:1px solid var(--line);border-radius:4px;padding:2px 6px;color:var(--ink);justify-self:start}
+
+.fail{position:fixed;inset:0;display:grid;place-items:center;text-align:center;padding:24px;font-family:var(--display);font-size:22px;font-style:italic;color:var(--ink);background:var(--void);z-index:50}
+.fail small{display:block;font-family:var(--mono);font-style:normal;font-size:var(--t-sm);color:var(--dim);margin-top:12px}
+
+@media (max-width:760px){
+  :root{--t-lg:18px;--t-xl:27px}
+  #ui{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto minmax(0,1fr) auto auto;row-gap:10px;column-gap:10px;padding-block:max(12px,env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-bottom,0px))}
+  .brand{display:contents}
+  .brand h1{grid-column:1;grid-row:1;align-self:center;white-space:nowrap}
+  .brand h1 span{display:none}
+  .scenes{grid-column:1 / -1;grid-row:2;flex-direction:row;overflow-x:auto;scrollbar-width:none;gap:6px;margin-inline:-4px;padding:2px 4px}
+  .scenes::-webkit-scrollbar{display:none}
+  .scene{flex:none;grid-template-columns:10px auto;border:1px solid var(--line);border-radius:999px;padding:6px 12px 6px 8px;background:var(--glass)}
+  .scene .nm{font-size:16px;white-space:nowrap}
+  .scene .ds{display:none}
+  .scene[aria-pressed="true"]{border-color:rgba(243,184,110,.5)}
+  .tools{display:contents}
+  .tools .row{grid-column:2;grid-row:1;gap:6px;flex-wrap:nowrap}
+  .tools .seg{grid-column:1 / -1;grid-row:3;justify-self:start}
+  .pill{padding:7px 10px}
+  #aboutBtn .lbl{display:none}
+  .legend{display:none}
+  .futures{grid-column:1 / -1;grid-row:4;justify-self:end;width:min(100%,320px);padding:10px 12px}
+  .fut-head{grid-template-columns:auto 1fr auto;align-items:baseline;column-gap:10px}
+  .fut-eyebrow{display:none}
+  .fut-head .chev{grid-column:3;grid-row:1;align-self:center}
+  #futPct{font-size:20px}
+  .fut-sub{font-size:11.5px}
+  #futChart{height:100px}
+  .caption{grid-column:1 / -1;grid-row:5;max-width:none;min-height:2.6em}
+  .caption .src{margin-top:4px}
+  .deck{grid-row:6;grid-template-columns:auto minmax(0,1fr) auto;padding:10px 12px;column-gap:12px;border-radius:12px}
+  .deck .tl-wrap{grid-column:1 / -1;grid-row:2}
+  .clock{min-width:0}
+  .clock .v{font-size:18px}
+  .clock .u{white-space:normal;line-height:1.3}
+  .speed button[data-s="0.25"]{display:none}
+  .readout{gap:10px}
+  .icon{width:34px;height:34px}
+  .hint,.aimtip{bottom:calc(max(10px,env(safe-area-inset-bottom,0px)) + 176px);font-size:9.5px}
+  .pill.lbl-hide .lbl{display:none}
+  .lbl-l{display:none}
+  .lbl-s{display:inline}
+  .hide-sm{display:none}
+}
+@media (max-width:420px){
+  .seg button{padding:6px 8px;letter-spacing:.06em}
+  .speed button{min-width:28px;padding:5px 5px}
+}
+@media (prefers-reduced-motion:reduce){
+  .caption p,.hint,.sheet{transition:none}
+}
+</style>
+
+<div id="stage" aria-label="Galaxy collision simulation. Drag to orbit, scroll or pinch to zoom." role="img">
+  <canvas id="gl"></canvas>
+  <canvas id="ov"></canvas>
+</div>
+
+<div id="ui">
+  <div class="brand">
+    <h1>Collision Course<span id="desig">Galaxies, colliding, live</span></h1>
+    <div class="scenes" id="scenes" role="group" aria-label="Choose an encounter"></div>
+  </div>
+
+  <div class="tools">
+    <div class="row">
+      <button class="pill throw" id="throwBtn" aria-pressed="false" title="Throw a dwarf galaxy (T, or Shift-drag)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="4.5" cy="11.5" r="2.5"/><path d="M7 9l6.5-6.5M9.5 2.5h4v4"/></svg><span class="lbl lbl-l">Throw a galaxy</span><span class="lbl lbl-s">Throw</span>
+      </button>
+      <button class="pill lbl-hide" id="sunBtn" aria-pressed="true" aria-label="Track the Sun" title="Track the Sun (S)"><span class="dot" aria-hidden="true"></span><span class="lbl">Sun</span></button>
+      <button class="pill" id="aboutBtn" aria-haspopup="dialog" aria-label="About this simulation" title="How this works">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="8" cy="8" r="6.3"/><path d="M8 7.2v4M8 4.6v.1" stroke-linecap="round"/></svg><span class="lbl">About</span>
+      </button>
+    </div>
+    <div class="seg" role="group" aria-label="Star colors">
+      <button data-mode="0" aria-pressed="true" title="True color (C cycles)">True color</button>
+      <button data-mode="1" aria-pressed="false" title="Color by galaxy of origin">Origin</button>
+      <button data-mode="2" aria-pressed="false" title="Color by line-of-sight velocity">Doppler</button>
+    </div>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <section class="futures" id="futures" hidden aria-label="Possible futures">
+    <button class="fut-head" id="futHead" aria-expanded="true" aria-controls="futBody" type="button">
+      <span class="fut-eyebrow">Possible futures</span>
+      <span class="fut-big"><span id="futPct">…</span><span class="fut-of" id="futOf"></span></span>
+      <span class="fut-sub">end in a merger within 10 billion years</span>
+      <svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
+    </button>
+    <div class="fut-body" id="futBody">
+      <span class="fut-cap">Milky Way to Andromeda, kpc</span>
+      <canvas id="futChart" role="img" aria-label="Distance between the Milky Way and Andromeda over the next 10 billion years, one line per possible future"></canvas>
+      <div class="fut-key"><span><i class="ln m"></i>merges</span><span><i class="ln n"></i>misses</span><span><i class="ln y"></i>this run</span></div>
+      <div class="fut-row">
+        <span class="fut-lbl">Include</span>
+        <button class="chip" id="lmcBtn" type="button" aria-pressed="true">LMC</button>
+        <button class="chip" id="m33Btn" type="button" aria-pressed="true">M33</button>
+        <button class="chip roll" id="rollBtn" type="button">Roll another future</button>
+      </div>
+      <p class="fut-note" id="futNote"></p>
+      <p class="fut-ref" id="futRef"></p>
+    </div>
+  </section>
+
+  <div class="caption" id="caption" aria-live="polite"><p class="out"></p></div>
+
+  <div class="deck">
+    <div class="transport">
+      <button class="icon primary" id="playBtn" aria-label="Pause" title="Play / pause (Space)">
+        <svg id="playIcon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="3.5" y="2.5" width="3" height="11" rx=".8"/><rect x="9.5" y="2.5" width="3" height="11" rx=".8"/></svg>
+      </button>
+      <button class="icon" id="restartBtn" aria-label="Restart" title="Restart (R)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.6-3.7"/><path d="M3.2 1.8v3h3"/></svg>
+      </button>
+    </div>
+    <div class="clock"><span class="v" id="clockV">0.00</span><span class="u" id="clockU">billion years</span></div>
+    <div class="tl-wrap">
+      <div class="readout" id="readout"></div>
+      <div class="timeline" id="timeline" role="slider" tabindex="0" aria-label="Timeline" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="track"></div><div class="fill" id="tlFill"></div><div id="ticks"></div><div class="head" id="tlHead"></div>
+      </div>
+    </div>
+    <div class="speed" role="group" aria-label="Playback speed" id="speed">
+      <button data-s="0.25">¼×</button><button data-s="0.5">½×</button><button data-s="1" aria-pressed="true">1×</button><button data-s="2">2×</button><button data-s="4">4×</button>
+    </div>
+  </div>
+</div>
+
+<div class="hint" id="hint">Drag to orbit · Scroll to zoom · Shift-drag to throw a galaxy</div>
+<div class="aimtip" id="aimtip" hidden>Drag from the launch point in the direction of travel</div>
+
+<aside class="sheet" id="sheet" hidden role="dialog" aria-labelledby="sheetTitle">
+  <button class="icon close" id="closeSheet" aria-label="Close">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+  </button>
+  <h2 id="sheetTitle">How this works</h2>
+  <p style="color:var(--dim)">Every point of light here is a star, and every one of them is being moved by your graphics card, many times a second.</p>
+
+  <h3>Right now</h3>
+  <dl class="stats" id="stats"></dl>
+  <div class="quality" id="quality" role="group" aria-label="Number of stars"></div>
+
+  <h3>The method</h3>
+  <p>Each galaxy is a dark-matter halo, modeled as a softened point mass (a Plummer sphere), carrying a disk and bulge of stars. The halos pull on each other. The stars feel every halo but have no mass of their own. This is the restricted many-body approach that Alar and Juri Toomre used in 1972 to show that the bridges and tails of peculiar galaxies are tides, not explosions or magnetism.</p>
+  <p>Halos that overlap lose orbital energy to dynamical friction, modeled here as a drag that switches on as they interpenetrate. That is what lets two galaxies fall back together and merge instead of passing like ships in the night.</p>
+  <p>The GPU advances every star with a leapfrog integrator through WebGL2 transform feedback. Halo orbits, the Sun, and the event forecast on the timeline run on the CPU with the same equations.</p>
+
+  <h3>The Local Group scene</h3>
+  <p>This one starts from today’s measured positions, velocities and masses of the Milky Way, Andromeda, M33 and the Large Magellanic Cloud, the same inputs Sawala et al. (2025) used. Each possible future draws those inputs from their measurement errors. As in the paper, halos are softened at 20 kpc, feel Chandrasekhar dynamical friction inside their virial radius, satellites are absorbed once they come within 20 kpc, and the Milky Way and Andromeda count as merged at the same distance. Run that way, this toy lands within a few points of the published odds.</p>
+  <p>The Sun in this scene starts where the Sun really is: 8.1 kpc from the galactic center, moving at 246 km/s.</p>
+
+  <h3>What it leaves out</h3>
+  <ul>
+    <li>Gas, dust and star formation. Real collisions light up with new stars; these don't.</li>
+    <li>The stars' own gravity, so there are no bars, and the initial spiral arms wind up instead of persisting.</li>
+    <li>Realistic halo shapes. Point-like halos make tails longer and let more stars escape than in nature.</li>
+  </ul>
+  <p>Scales are approximate: one simulation unit is 10 kiloparsecs (about 33,000 light-years) and 45 million years.</p>
+
+  <h3>Sources</h3>
+  <ul>
+    <li>Toomre &amp; Toomre (1972), <a href="https://ui.adsabs.harvard.edu/abs/1972ApJ...178..623T" target="_blank" rel="noopener">Galactic Bridges and Tails</a>, ApJ 178, 623.</li>
+    <li>Lynds &amp; Toomre (1976), <a href="https://ui.adsabs.harvard.edu/abs/1976ApJ...209..382L" target="_blank" rel="noopener">On the interpretation of ring galaxies</a>, ApJ 209, 382.</li>
+    <li>van der Marel et al. (2012), <a href="https://arxiv.org/abs/1205.6865" target="_blank" rel="noopener">The M31 Velocity Vector III</a>: first passage in about 4 billion years, merger at 5.9, and an 85% chance the Sun ends up farther out.</li>
+    <li>Sawala et al. (2025), <a href="https://arxiv.org/abs/2408.00064" target="_blank" rel="noopener">Apocalypse When? No Certainty of a Milky Way–Andromeda Collision</a>, Nature Astronomy: a merger within 10 billion years in about half of all futures, two thirds without the LMC, one third without M33. Summary by <a href="https://www.uwa.edu.au/news/article/2025/june/astronomers-thought-the-milky-way-was-doomed-to-crash-into-andromeda" target="_blank" rel="noopener">UWA</a>.</li>
+  </ul>
+
+  <h3>Controls</h3>
+  <div class="keys">
+    <kbd>Drag</kbd><span>Orbit the camera</span>
+    <kbd>Scroll</kbd><span>Zoom (pinch on touch)</span>
+    <kbd>Shift-drag</kbd><span>Throw a dwarf galaxy</span>
+    <kbd>Space</kbd><span>Play / pause</span>
+    <kbd>R</kbd><span>Restart</span>
+    <kbd>1–6</kbd><span>Choose an encounter</span>
+    <kbd>C</kbd><span>Cycle star colors</span>
+    <kbd>T</kbd><span>Throw mode</span>
+    <kbd>S</kbd><span>Track the Sun</span>
+  </div>
+</aside>
+
+<script>
+(() => {
+'use strict';
+
+// ===================================================================
+//  Units: G = 1. One length unit = 10 kpc, one time unit = 45 Myr,
+//  so one velocity unit = 217 km/s and one mass unit = 1.1e11 suns.
+// ===================================================================
+const KPC = 10, MYR = 45, KMS = 217.3, MSUN_U = 1.0979e11;
+let DT = 0.03;
+const MAXC = 6;
+const TAU = Math.PI * 2;
+
+// -------------------------------------------------------------------
+//  Physics library. Self-contained so the same source can run in a
+//  Web Worker for the Local Group ensemble.
+// -------------------------------------------------------------------
+function PHYSICS() {
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function gaussFn(rng) {
+    let spare = null;
+    return () => {
+      if (spare !== null) { const s = spare; spare = null; return s; }
+      let u, v, s;
+      do { u = rng() * 2 - 1; v = rng() * 2 - 1; s = u * u + v * v; } while (s >= 1 || s === 0);
+      const m = Math.sqrt(-2 * Math.log(s) / s);
+      spare = v * m; return u * m;
+    };
+  }
+  function erf(x) {
+    const s = x < 0 ? -1 : 1; x = Math.abs(x);
+    const t = 1 / (1 + 0.3275911 * x);
+    return s * (1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x));
+  }
+  // NFW halo properties for Chandrasekhar friction (Sawala et al. 2025 recipe)
+  const RHOC = 127.2 * 1000 / 1.0979e11;
+  function nfw(M, c) {
+    const r200 = Math.cbrt(3 * M / (4 * Math.PI * 200 * RHOC));
+    const rs = r200 / c, fc = Math.log(1 + c) - c / (1 + c);
+    return { r200, rs, rhos: M / (4 * Math.PI * rs * rs * rs * fc), vmax: Math.sqrt(M / r200) * Math.sqrt(0.2162 * c / fc), eps: rs >= 0.8 ? 2.2 * rs - 1.4 : 0.45 * rs };
+  }
+
+  // Galaxy centers: softened point masses. Optional: proximity drag (gamma),
+  // Chandrasekhar dynamical friction inside r200, and absorption of small
+  // satellites that come within 20 kpc.
+  class Cores {
+    constructor(opt) {
+      opt = opt || {};
+      this.gamma = opt.gamma || 0; this.chandra = !!opt.chandra; this.absorb = !!opt.absorb; this.sub = opt.sub || 4;
+      this.x = []; this.v = []; this.m = []; this.a = []; this.pot = []; this.c = []; this.nf = [];
+      this.alive = []; this.host = []; this.sat = []; this.lastAbsorbed = []; this._a = null;
+    }
+    get n() { return this.m.length; }
+    add(x, v, m, a, pot, conc, sat) {
+      this.x.push(x.slice()); this.v.push(v.slice()); this.m.push(m); this.a.push(a);
+      this.pot.push(pot ? pot.slice() : [m, a, 0, 1]); this.c.push(conc || 10);
+      this.nf.push(this.chandra ? nfw(m, conc || 10) : null);
+      this.alive.push(true); this.host.push(this.m.length - 1); this.sat.push(!!sat);
+      this._a = null; return this.m.length - 1;
+    }
+    pop() {
+      for (const k of ['x', 'v', 'm', 'a', 'pot', 'c', 'nf', 'alive', 'host', 'sat']) this[k].pop();
+      this._a = null;
+    }
+    clone() {
+      const c = new Cores({ gamma: this.gamma, chandra: this.chandra, absorb: this.absorb, sub: this.sub });
+      c.x = this.x.map(p => p.slice()); c.v = this.v.map(p => p.slice()); c.m = this.m.slice(); c.a = this.a.slice();
+      c.pot = this.pot.map(p => p.slice()); c.c = this.c.slice(); c.nf = this.nf.slice();
+      c.alive = this.alive.slice(); c.host = this.host.slice(); c.sat = this.sat.slice();
+      return c;
+    }
+    acc() {
+      const n = this.n, A = new Float64Array(n * 3);
+      for (let i = 0; i < n; i++) {
+        if (!this.alive[i]) continue;
+        const xi = this.x[i], vi = this.v[i], mi = this.m[i];
+        for (let j = i + 1; j < n; j++) {
+          if (!this.alive[j]) continue;
+          const xj = this.x[j], vj = this.v[j], mj = this.m[j];
+          const dx = xj[0] - xi[0], dy = xj[1] - xi[1], dz = xj[2] - xi[2];
+          const r2 = dx * dx + dy * dy + dz * dz, e2 = this.a[i] * this.a[i] + this.a[j] * this.a[j];
+          const q = r2 + e2, f = 1 / (q * Math.sqrt(q));
+          A[i * 3] += mj * f * dx; A[i * 3 + 1] += mj * f * dy; A[i * 3 + 2] += mj * f * dz;
+          A[j * 3] -= mi * f * dx; A[j * 3 + 1] -= mi * f * dy; A[j * 3 + 2] -= mi * f * dz;
+          const mt = mi + mj;
+          const ux = vi[0] - vj[0], uy = vi[1] - vj[1], uz = vi[2] - vj[2];
+          if (this.gamma > 0) {
+            const eps = Math.sqrt(e2), w = 1 + r2 / e2;
+            const k = this.gamma * Math.sqrt(mt / (eps * eps * eps)) / (w * w * Math.sqrt(w));
+            const ki = k * mj / mt, kj = k * mi / mt;
+            A[i * 3] -= ki * ux; A[i * 3 + 1] -= ki * uy; A[i * 3 + 2] -= ki * uz;
+            A[j * 3] += kj * ux; A[j * 3 + 1] += kj * uy; A[j * 3 + 2] += kj * uz;
+          }
+          if (this.chandra) {
+            const hostI = mi >= mj, h = hostI ? i : j, s = hostI ? j : i, P = this.nf[h];
+            const r = Math.sqrt(r2);
+            if (P && r < P.r200 && r > 1e-6) {
+              const lnL = Math.log(r / P.eps);
+              if (lnL > 0) {
+                const sg = hostI ? -1 : 1;
+                const wx = sg * ux, wy = sg * uy, wz = sg * uz;
+                const vm = Math.sqrt(wx * wx + wy * wy + wz * wz) + 1e-9;
+                const xx = r / P.rs, rho = P.rhos / (xx * (1 + xx) * (1 + xx));
+                const sig = P.vmax * 1.4393 * Math.pow(xx, 0.354) / (1 + 1.1756 * Math.pow(xx, 0.725));
+                const X = vm / (Math.SQRT2 * sig);
+                const fac = erf(X) - 2 * X / Math.sqrt(Math.PI) * Math.exp(-X * X);
+                const aDF = -4 * Math.PI * this.m[s] * rho * lnL / (vm * vm * vm) * fac;
+                const Ms = this.m[s], Mh = this.m[h], fs = aDF * Mh / (Ms + Mh), fh = -aDF * Ms / (Ms + Mh);
+                A[s * 3] += fs * wx; A[s * 3 + 1] += fs * wy; A[s * 3 + 2] += fs * wz;
+                A[h * 3] += fh * wx; A[h * 3 + 1] += fh * wy; A[h * 3 + 2] += fh * wz;
+              }
+            }
+          }
+        }
+      }
+      return A;
+    }
+    leap(h) {
+      const n = this.n;
+      let A = this._a || this.acc();
+      for (let i = 0; i < n; i++) for (let d = 0; d < 3; d++) { this.v[i][d] += 0.5 * h * A[i * 3 + d]; this.x[i][d] += h * this.v[i][d]; }
+      A = this.acc();
+      for (let i = 0; i < n; i++) for (let d = 0; d < 3; d++) this.v[i][d] += 0.5 * h * A[i * 3 + d];
+      this._a = A;
+    }
+    root(i) { while (this.host[i] !== i) i = this.host[i]; return i; }
+    post() {
+      this.lastAbsorbed = [];
+      const n = this.n;
+      for (let i = 0; i < n; i++) if (!this.alive[i]) { const r = this.root(i); this.x[i] = this.x[r].slice(); this.v[i] = this.v[r].slice(); }
+      if (!this.absorb) return;
+      for (let i = 0; i < n; i++) {
+        if (!this.alive[i]) continue;
+        for (let j = i + 1; j < n; j++) {
+          if (!this.alive[j] || !this.alive[i]) continue;
+          const b = this.m[i] >= this.m[j] ? i : j, s = b === i ? j : i;
+          if (!this.sat[s]) continue;
+          const dx = this.x[j][0] - this.x[i][0], dy = this.x[j][1] - this.x[i][1], dz = this.x[j][2] - this.x[i][2];
+          if (dx * dx + dy * dy + dz * dz >= 4) continue;           // 20 kpc
+          const mb = this.m[b], ms = this.m[s], mt = mb + ms;
+          for (let d = 0; d < 3; d++) {
+            this.x[b][d] = (this.x[b][d] * mb + this.x[s][d] * ms) / mt;
+            this.v[b][d] = (this.v[b][d] * mb + this.v[s][d] * ms) / mt;
+          }
+          this.m[b] = mt; this.pot[b][2] += ms; this.m[s] = 0;
+          if (this.chandra) this.nf[b] = nfw(mt, this.c[b]);
+          this.alive[s] = false; this.host[s] = b;
+          this.x[s] = this.x[b].slice(); this.v[s] = this.v[b].slice();
+          this._a = null;
+          this.lastAbsorbed.push({ sat: s, into: b });
+        }
+      }
+    }
+    // one star step; returns halo positions at the half step (for DKD star updates)
+    step(dt, wantMid) {
+      const S = this.sub, h = dt / S; let mid = null;
+      if (S === 1) {
+        const x0 = wantMid === false ? null : this.x.map(p => p.slice());
+        this.leap(h);
+        if (x0) mid = x0.map((p, i) => [(p[0] + this.x[i][0]) * 0.5, (p[1] + this.x[i][1]) * 0.5, (p[2] + this.x[i][2]) * 0.5]);
+      } else {
+        for (let k = 0; k < S; k++) {
+          this.leap(h);
+          if (k === (S >> 1) - 1 && wantMid !== false) mid = this.x.map(p => p.slice());
+        }
+      }
+      this.post();
+      return mid;
+    }
+  }
+  // DKD step for a CPU test particle (the Sun, forecast candidates)
+  function testStep(p, v, mid, cores, dt) {
+    p[0] += 0.5 * dt * v[0]; p[1] += 0.5 * dt * v[1]; p[2] += 0.5 * dt * v[2];
+    let ax = 0, ay = 0, az = 0;
+    for (let j = 0; j < mid.length; j++) {
+      if (!cores.alive[j]) continue;
+      const pt = cores.pot[j];
+      const dx = mid[j][0] - p[0], dy = mid[j][1] - p[1], dz = mid[j][2] - p[2];
+      const r2 = dx * dx + dy * dy + dz * dz;
+      const q1 = r2 + pt[1] * pt[1], q2 = r2 + pt[3] * pt[3];
+      const f = pt[0] / (q1 * Math.sqrt(q1)) + pt[2] / (q2 * Math.sqrt(q2));
+      ax += f * dx; ay += f * dy; az += f * dz;
+    }
+    v[0] += dt * ax; v[1] += dt * ay; v[2] += dt * az;
+    p[0] += 0.5 * dt * v[0]; p[1] += 0.5 * dt * v[1]; p[2] += 0.5 * dt * v[2];
+  }
+  // Place two halos at pericenter, then run the orbit backwards to the start time.
+  function periOrbit(M1, M2, a1, a2, rp, f, tback) {
+    const Mt = M1 + M2, e2 = a1 * a1 + a2 * a2;
+    const vp = f * Math.sqrt(2 * Mt / Math.sqrt(rp * rp + e2));
+    const c = new Cores({ sub: 4 });
+    c.add([-M2 / Mt * rp, 0, 0], [0, -M2 / Mt * vp, 0], M1, a1);
+    c.add([M1 / Mt * rp, 0, 0], [0, M1 / Mt * vp, 0], M2, a2);
+    const n = Math.round(tback / 0.01);
+    for (let s = 0; s < n; s++) c.leap(-0.01);
+    c._a = null;
+    return c;
+  }
+
+  // ---------------- The Local Group, as measured today ----------------
+  // ICRS -> Galactic rotation; Galactocentric frame as in astropy v4 defaults,
+  // which is the frame Sawala et al. (2025) used.
+  const RG = [[-0.0548755604162154, -0.8734370902348850, -0.4838350155487132],
+              [0.4941094278755837, -0.4448296299600112, 0.7469822444972189],
+              [-0.8676661490190047, -0.1980763734312015, 0.4559837761750669]];
+  const R0 = 8.122, ZSUN = 0.0208, VSUN = [12.9, 245.6, 7.78];
+  function toGC(ra, dec, dm, vlos, pmra, pmdec) {
+    const a = ra * Math.PI / 180, d = dec * Math.PI / 180, dist = Math.pow(10, dm / 5 + 1) / 1000;
+    const r = [Math.cos(d) * Math.cos(a), Math.cos(d) * Math.sin(a), Math.sin(d)];
+    const ea = [-Math.sin(a), Math.cos(a), 0], ed = [-Math.sin(d) * Math.cos(a), -Math.sin(d) * Math.sin(a), Math.cos(d)];
+    const K = 4.740470463533348 * dist / 1000;
+    const p = [0, 1, 2].map(k => dist * r[k]);
+    const v = [0, 1, 2].map(k => vlos * r[k] + K * pmra * ea[k] + K * pmdec * ed[k]);
+    const pg = RG.map(row => row[0] * p[0] + row[1] * p[1] + row[2] * p[2]);
+    const vg = RG.map(row => row[0] * v[0] + row[1] * v[1] + row[2] * v[2]);
+    return [[pg[0] - R0, pg[1], pg[2] + ZSUN], [vg[0] + VSUN[0], vg[1] + VSUN[1], vg[2] + VSUN[2]]];
+  }
+  // Measurements and 1-sigma errors as tabulated by Sawala et al. (2025).
+  // Proper motions in microarcseconds per year; masses are M200 in 1e12 suns.
+  const LG_OBS = {
+    M31: { ra: 10.68470833, dec: 41.26875, dm: [24.407, 0.032], vlos: [-301, 1], pmra: [48.9, 10.5], pmdec: [-36.9, 8.1] },
+    M33: { ra: 23.46204167, dec: 30.660175, dm: [24.67, 0.07], vlos: [-179.2, 1.8], pmra: [31, 19], pmdec: [-29, 16] },
+    LMC: { ra: 78.76, dec: -69.19, dm: [18.477, 0.026], vlos: [262.2, 3.4], pmra: [1910, 20], pmdec: [229, 47] },
+  };
+  const LG_MASS = { MW: [1.0, 0.2], M31: [1.3, 0.4], M33: [0.3, 0.1], LMC: [0.15, 0.05] };
+  // inner (disk + bulge) potential that the stars feel, and halo softening
+  const LG_POT = { MW: [1.0, 0.4, 2.0], M31: [1.25, 0.45, 2.0], M33: [0.25, 0.22, 1.2], LMC: [0.15, 0.15, 1.0] };
+  const LG_ORDER = ['MW', 'M31', 'M33', 'LMC'];
+  // Member 0 is the best current measurement; others are drawn from the
+  // errors (Gaussian, truncated at 2 sigma). Draw order never depends on
+  // which galaxies are switched on, so toggles compare the same futures.
+  function lgSample(k) {
+    const rng = mulberry32(90210 + k * 7919), g = gaussFn(rng);
+    const tn = (ms) => { if (k === 0) return ms[0]; let z; do { z = g(); } while (Math.abs(z) > 2); return ms[0] + ms[1] * z; };
+    const out = { mass: {}, conc: {}, obs: {} };
+    for (const n of LG_ORDER) out.mass[n] = Math.max(0.02, tn(LG_MASS[n])) * 1e12 / 1.0979e11;
+    for (const n of LG_ORDER) out.conc[n] = Math.max(4, tn([10, 2]));
+    for (const n of ['M31', 'M33', 'LMC']) {
+      const o = LG_OBS[n];
+      out.obs[n] = toGC(o.ra, o.dec, tn(o.dm), tn(o.vlos), tn(o.pmra), tn(o.pmdec));
+    }
+    return out;
+  }
+  function lgNames(opts) { return LG_ORDER.filter(n => n === 'MW' || n === 'M31' || (n === 'M33' && opts.m33) || (n === 'LMC' && opts.lmc)); }
+  function lgCores(sample, opts) {
+    const names = lgNames(opts);
+    const X = [], V = [], M = [];
+    for (const n of names) {
+      if (n === 'MW') { X.push([0, 0, 0]); V.push([0, 0, 0]); }
+      else { const [p, v] = sample.obs[n]; X.push(p.map(q => q / 10)); V.push(v.map(q => q / 217.3)); }
+      M.push(sample.mass[n]);
+    }
+    let mt = 0; const cx = [0, 0, 0], cv = [0, 0, 0];
+    names.forEach((_, i) => { mt += M[i]; for (let d = 0; d < 3; d++) { cx[d] += X[i][d] * M[i]; cv[d] += V[i][d] * M[i]; } });
+    const c = new Cores({ chandra: true, absorb: true, gamma: 0.45, sub: 1 });
+    names.forEach((n, i) => {
+      const P = LG_POT[n], m = M[i];
+      c.add(X[i].map((q, d) => q - cx[d] / mt), V[i].map((q, d) => q - cv[d] / mt), m, Math.SQRT2,
+        [P[0], P[1], Math.max(0, m - P[0]), P[2]], sample.conc[n], n === 'M33' || n === 'LMC');
+    });
+    return { cores: c, names };
+  }
+  // one possible future, for the ensemble
+  function runMember(k, opts, steps, dt, every) {
+    const { cores: c, names } = lgCores(lgSample(k), opts);
+    const nOut = Math.floor(steps / every) + 1, sep = new Float32Array(nOut);
+    let merge = -1, lmc = -1, m33 = -1, s = 0;
+    const d01 = () => { const a = c.x[0], b = c.x[1]; return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]); };
+    for (; s < steps; s++) {
+      if (s % every === 0) sep[s / every] = d01();
+      c.step(dt, false);
+      for (const e of c.lastAbsorbed) {
+        if (names[e.sat] === 'LMC' && lmc < 0) lmc = s + 1;
+        if (names[e.sat] === 'M33' && m33 < 0) m33 = s + 1;
+      }
+      if (merge < 0 && d01() < 2) merge = s + 1;
+      if (merge >= 0 && s > merge + 4 * every) break;
+    }
+    for (let q = Math.floor(s / every) + 1; q < nOut; q++) sep[q] = 0;
+    return { k, merge, lmc, m33, sep };
+  }
+  return { mulberry32, gaussFn, erf, nfw, Cores, testStep, periOrbit, toGC, lgSample, lgNames, lgCores, runMember, LG_POT };
+}
+const { mulberry32, gaussFn, Cores, testStep, periOrbit, lgSample, lgNames, lgCores, runMember } = PHYSICS();
+
+// R = Rz(w) * Rx(i), row-major 3x3
+function rotMat(iDeg, wDeg) {
+  const i = iDeg * Math.PI / 180, w = wDeg * Math.PI / 180;
+  const ci = Math.cos(i), si = Math.sin(i), cw = Math.cos(w), sw = Math.sin(w);
+  return [cw, -sw * ci, sw * si, sw, cw * ci, -cw * si, 0, si, ci];
+}
+const vc2 = (r, M, a) => M * r * r / Math.pow(r * r + a * a, 1.5);
+
+const V3 = {
+  sub: (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]],
+  add: (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]],
+  scale: (a, s) => [a[0] * s, a[1] * s, a[2] * s],
+  dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2],
+  cross: (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]],
+  len: (a) => Math.hypot(a[0], a[1], a[2]),
+  norm: (a) => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; },
+};
+function perspective(fovy, aspect, near, far) {
+  const f = 1 / Math.tan(fovy / 2), nf = 1 / (near - far);
+  return new Float32Array([f / aspect, 0, 0, 0, 0, f, 0, 0, 0, 0, (far + near) * nf, -1, 0, 0, 2 * far * near * nf, 0]);
+}
+function lookAt(e, c, up) {
+  const z = V3.norm(V3.sub(e, c)), x = V3.norm(V3.cross(up, z)), y = V3.cross(z, x);
+  return new Float32Array([x[0], y[0], z[0], 0, x[1], y[1], z[1], 0, x[2], y[2], z[2], 0,
+    -V3.dot(x, e), -V3.dot(y, e), -V3.dot(z, e), 1]);
+}
+function mul4(a, b) {
+  const o = new Float32Array(16);
+  for (let c = 0; c < 4; c++) for (let r = 0; r < 4; r++) {
+    o[c * 4 + r] = a[r] * b[c * 4] + a[4 + r] * b[c * 4 + 1] + a[8 + r] * b[c * 4 + 2] + a[12 + r] * b[c * 4 + 3];
+  }
+  return o;
+}
+
+// -------------------------------------------------------------------
+//  Encounters
+// -------------------------------------------------------------------
+const GDEF = { M: 1, a: 0.4, h: 0.33, rmin: 0.08, rmax: 1.3, bulge: 0.15, bulgeR: 0.1, sigma: 0.025, spin: 1, i: 0, w: 0, n: 1, armFrac: 0.55, pitch: 16, halo: null };
+const G = (o) => Object.assign({}, GDEF, o);
+const GUEST = G({ name: 'Dwarf', M: 0.25, a: 0.15, h: 0.12, rmin: 0.03, rmax: 0.5, bulge: 0.2, bulgeR: 0.05, sigma: 0.02, armFrac: 0.4, pitch: 18 });
+
+const kpc = (u) => Math.round(u * KPC);
+const gyrAt = (step) => (step * DT * MYR / 1000).toFixed(1);
+
+// Local Group galaxies (disk orientations from their observed tilt and spin)
+const LG_GALS = {
+  MW: G({ name: 'Milky Way', M: 1.0, a: 0.4, spin: -1, n: 1.0 }),
+  M31: G({ name: 'Andromeda', M: 1.25, a: 0.45, h: 0.40, rmax: 1.6, i: 120.05, w: -28.28, n: 1.3 }),
+  M33: G({ name: 'M33', M: 0.25, a: 0.22, h: 0.16, rmin: 0.04, rmax: 0.75, bulge: 0.05, bulgeR: 0.04, armFrac: 0.5, i: 100, w: 170, n: 0.32 }),
+  LMC: G({ name: 'LMC', M: 0.15, a: 0.15, h: 0.13, rmin: 0.03, rmax: 0.55, bulge: 0.12, bulgeR: 0.07, armFrac: 0.12, i: 100, w: -16.75, n: 0.2 }),
+};
+const LG = { opts: { lmc: true, m33: true }, member: 0 };
+function lgBuild() {
+  const smp = lgSample(LG.member);
+  const { cores, names } = lgCores(smp, LG.opts);
+  const gals = names.map((n, i) => G(Object.assign({}, LG_GALS[n], { halo: { M: cores.pot[i][2], a: cores.pot[i][3] } })));
+  const sun = { p: V3.add(cores.x[0], [-0.8122, 0, 0.00208]), v: V3.add(cores.v[0], [12.9 / KMS, 245.6 / KMS, 7.78 / KMS]) };
+  return { cores, names, gals, sun };
+}
+const LG_PUB = { '11': '48–54%', '01': '56–63%', '10': '34–37%', '00': '40–44%' };
+const lgKey = () => `${LG.opts.lmc ? 1 : 0}${LG.opts.m33 ? 1 : 0}`;
+
+const SCENES = [
+  {
+    id: 'andromeda', key: '1', name: 'Milky Way × Andromeda', desig: 'Our own future · in ~4 billion years',
+    gals: [
+      G({ name: 'Milky Way', M: 1.0, a: 0.40, i: 30, w: 40 }),
+      G({ name: 'Andromeda', M: 1.25, a: 0.45, h: 0.40, rmax: 1.6, i: 75, w: -60, spin: -1, n: 1.25 }),
+    ],
+    orbit: { rp: 1.0, f: 0.95, tback: 13 }, gamma: 0.45, T: 108, pace: 80,
+    cam: { yaw: -2.2, pitch: 0.5, dist: 16 }, focus: 'com', sun: true, clock: { anchor: 3.9 },
+    captions: [
+      { at: 'start', off: 0.2, text: 'Andromeda is falling toward us. Today it is 2.5 million light-years away and closing at about 110 km/s.' },
+      { at: 'peri1', off: -0.6, text: (p) => `First passage. The two disks graze each other, their centers just ${kpc(p.peri[0].sep)} kpc apart.` },
+      { at: 'peri1', off: 5.5, text: 'Tides pull stars off the far side of each disk and fling them out into long tidal tails.' },
+      { at: 'apo1', off: 3, text: 'The galaxies swing apart, then slow. Their dark-matter halos drag on each other and bleed off orbital energy.' },
+      { at: 'peri2', off: -0.5, text: 'Second passage. Each pass is closer than the last.' },
+      { at: 'peri2', off: 8, text: 'Stars almost never hit each other. The gaps between them are tens of millions of times wider than the stars themselves.' },
+      { at: 'merge', off: -2, text: 'The cores merge. Two spiral disks become one diffuse, roughly elliptical galaxy, nicknamed Milkdromeda.' },
+      { at: 'merge', off: 9, text: (p, s) => `Where does the Sun end up? A 2012 Hubble study gave 85% odds it is flung farther out than today's 8 kpc. In this run it is ${s.sunKpc()} kpc from the center.`, src: 'van der Marel et al. 2012' },
+      { at: 'end', off: -16, text: 'None of this is certain. A 2025 study using Gaia and Hubble data puts the chance of a merger in the next 10 billion years at about 50%.', src: 'Sawala et al. 2025, Nature Astronomy' },
+    ],
+  },
+  {
+    id: 'localgroup', key: '2', name: 'The Local Group', desig: 'A coin flip · the next 10 billion years',
+    lg: true, dt: 0.06, T: 222.2, pace: 80, mergeR: 2.0, periMax: 60,
+    cam: { yaw: 'auto', pitch: 0.42, dist: 30 }, focus: 'pair', autoFrame: true, sun: true, clock: { anchor: 0, abs: true },
+    captions: [
+      { at: 'start', off: 0.3, text: 'Today. Andromeda is 2.5 million light-years away with M33 in tow, and the Large Magellanic Cloud is circling us. Every galaxy starts where telescopes place it now.' },
+      { at: 'start', off: 30, text: 'Why not just predict it? Andromeda’s sideways drift is tiny and hard to measure, and a few tens of km/s decide between a collision and a miss. Each line on the chart is one future the measurements allow.' },
+      { at: 'absorb:LMC', off: -1.5, text: (p) => `The Large Magellanic Cloud sinks into the Milky Way ${gyrAt(p.abs.LMC)} billion years from now. Its pull has already shifted our galaxy’s path.` },
+      { at: 'absorb:M33', off: -1.5, text: (p) => `M33 falls into Andromeda ${gyrAt(p.abs.M33)} billion years from now, and Andromeda gets heavier.` },
+      { at: 'peri1', off: -2, when: (p) => !p.merge || p.merge.step > p.peri[0].step + 40, text: (p) => `First approach, ${kpc(p.peri[0].sep)} kpc apart. Too far for the disks to touch, but the dark-matter halos overlap and start to drag on each other.` },
+      { at: 'merge', off: -1.5, text: (p) => `Merger, ${gyrAt(p.merge.step)} billion years from now. Once the two galaxies come within 20 kpc of each other, there is no escape.` },
+      { at: 'end', off: -34, when: (p) => !p.merge, text: (p) => `No merger in this future. After 10 billion years, Andromeda is still ${kpc(p.endSep)} kpc away.` },
+      { at: 'end', off: -14, text: () => ensSummary(), src: 'Sawala et al. 2025, Nature Astronomy' },
+    ],
+  },
+  {
+    id: 'antennae', key: '3', name: 'The Antennae', desig: 'NGC 4038 / 4039 · Corvus',
+    gals: [G({ name: 'NGC 4038', i: 60, w: -30 }), G({ name: 'NGC 4039', i: 60, w: -30 })],
+    orbit: { rp: 1.0, f: 0.9, tback: 9 }, gamma: 0.5, T: 64, pace: 95,
+    cam: { yaw: -1.2, pitch: 0.75, dist: 12 }, focus: 'com',
+    captions: [
+      { at: 'start', off: 0.2, text: 'Two equal spirals on a prograde encounter: the setup Alar and Juri Toomre used in 1972 to explain the Antennae.' },
+      { at: 'peri1', off: 2.5, text: 'Stars on the far side of each galaxy are flung outward in two long, curving arcs. Those are the antennae.' },
+      { at: 'peri1', off: 13, text: 'Orbit the camera. The tails only look like insect feelers from some angles, and Earth happens to have one of them.' },
+      { at: 'peri2', off: 1, text: 'The real pair is in the middle of merging, and the gas squeezed between the two cores is forming new star clusters at a furious rate.' },
+    ],
+  },
+  {
+    id: 'mice', key: '4', name: 'The Mice', desig: 'NGC 4676 A / B · Coma Berenices',
+    gals: [G({ name: 'NGC 4676 A', i: 15, w: 0 }), G({ name: 'NGC 4676 B', i: 60, w: 90 })],
+    orbit: { rp: 1.0, f: 0.9, tback: 9 }, gamma: 0.25, T: 60, pace: 95,
+    cam: { yaw: -1.9, pitch: 0.42, dist: 12.5 }, focus: 'com',
+    captions: [
+      { at: 'start', off: 0.2, text: 'NGC 4676, the Mice. One disk lies almost flat in the orbital plane; the other is tilted steeply.' },
+      { at: 'peri1', off: 2.5, text: 'The flat-lying disk feels the tide most strongly. Its outer stars stream out into a long, straight tail.' },
+      { at: 'peri1', off: 10, text: 'Switch to Origin colors to see whose stars went where. Each mouse grows its tail from its own outskirts.' },
+    ],
+  },
+  {
+    id: 'cartwheel', key: '5', name: 'Cartwheel', desig: 'ESO 350-40 · Sculptor',
+    gals: [
+      G({ name: 'Cartwheel', h: 0.5, rmax: 1.7, armFrac: 0.12, sigma: 0.015 }),
+      G({ name: 'Intruder', M: 0.6, a: 0.2, h: 0.12, rmax: 0.4, bulgeR: 0.05, i: 50, w: 20, n: 0.15 }),
+    ],
+    explicit: { X: [[0, 0, 0], [0.12, 0.05, 8.5]], V: [[0, 0, 0], [0, 0, -1.7]] },
+    gamma: 0, T: 23, pace: 55,
+    cam: { yaw: -1.4, pitch: 0.95, dist: 10 }, focus: 0,
+    captions: [
+      { at: 'start', off: 0.2, text: 'A small galaxy is about to drop almost straight through the center of a larger disk.' },
+      { at: 'peri1', off: 0.4, text: 'Its sudden pull draws every star in the disk inward at once.' },
+      { at: 'peri1', off: 4, text: 'The stars rebound together, and a ring of crowded stars spreads outward like a ripple on a pond.' },
+      { at: 'peri1', off: 14, text: 'The real Cartwheel’s ring is wider than the entire Milky Way, and it glows with young stars born in the compressed gas.' },
+    ],
+  },
+  {
+    id: 'whirlpool', key: '6', name: 'Whirlpool', desig: 'M51 · NGC 5194 / 5195 · Canes Venatici',
+    gals: [
+      G({ name: 'NGC 5194', h: 0.38, rmax: 1.5, i: 15, armFrac: 0.3 }),
+      G({ name: 'NGC 5195', M: 0.33, a: 0.22, h: 0.12, rmax: 0.45, bulge: 0.3, bulgeR: 0.06, i: 40, w: 50, n: 0.18 }),
+    ],
+    orbit: { rp: 1.6, f: 0.95, tback: 6.5 }, gamma: 0.1, T: 36, pace: 70,
+    cam: { yaw: -1.57, pitch: 1.12, dist: 8.5 }, focus: 0,
+    captions: [
+      { at: 'start', off: 0.2, text: 'A companion about a third of the mass swings past a nearly face-on spiral.' },
+      { at: 'peri1', off: 2, text: 'Its pull raises tides on opposite sides of the disk, and the disk’s rotation winds them into two grand-design arms.' },
+      { at: 'peri1', off: 9, text: 'In the real Whirlpool, a bridge of stars still links M51 to its companion, NGC 5195.' },
+    ],
+  },
+];
+const SCENE_BY_ID = Object.fromEntries(SCENES.map(s => [s.id, s]));
+
+function initialCores(scn) {
+  if (scn.lg) return lgBuild().cores;
+  const g = scn.gals;
+  let c;
+  if (scn.explicit) {
+    c = new Cores({ gamma: scn.gamma });
+    const X = scn.explicit.X, V = scn.explicit.V;
+    let mt = 0, cx = [0, 0, 0], cv = [0, 0, 0];
+    g.forEach((gg, i) => { mt += gg.M; cx = V3.add(cx, V3.scale(X[i], gg.M)); cv = V3.add(cv, V3.scale(V[i], gg.M)); });
+    cx = V3.scale(cx, 1 / mt); cv = V3.scale(cv, 1 / mt);
+    g.forEach((gg, i) => c.add(V3.sub(X[i], cx), V3.sub(V[i], cv), gg.M, gg.a));
+  } else {
+    const o = scn.orbit;
+    c = periOrbit(g[0].M, g[1].M, g[0].a, g[1].a, o.rp, o.f, o.tback);
+    c.gamma = scn.gamma;
+  }
+  return c;
+}
+
+// -------------------------------------------------------------------
+//  Star generation
+// -------------------------------------------------------------------
+function genGalaxy(seed, g, count, X, V, gid, P, Vv, A, off) {
+  const rng = mulberry32(seed), gauss = gaussFn(rng);
+  const nb = Math.floor(count * g.bulge), nd = count - nb;
+  const R = rotMat(g.i, g.w);
+  const tanp = Math.tan(g.pitch * Math.PI / 180);
+  const sp = g.spin;
+  const vcs = (r) => vc2(r, g.M, g.a) + (g.halo ? vc2(r, g.halo.M, g.halo.a) : 0);
+  for (let k = 0; k < count; k++) {
+    let lx, ly, lz, vx, vy, vz, type, bright;
+    if (k < nd) {
+      let r;
+      do { r = -g.h * Math.log(rng() * rng() + 1e-12); } while (r < g.rmin || r > g.rmax);
+      const arm = rng() < g.armFrac;
+      const phi = arm ? ((rng() < 0.5 ? 0 : Math.PI) - sp * Math.log(r / 0.2) / tanp + gauss() * 0.28) : rng() * TAU;
+      const c = Math.cos(phi), s = Math.sin(phi);
+      lx = r * c; ly = r * s; lz = gauss() * (0.012 + 0.02 * r);
+      const v = Math.sqrt(vcs(r));
+      vx = -s * v * sp + gauss() * g.sigma; vy = c * v * sp + gauss() * g.sigma; vz = gauss() * g.sigma * 0.6;
+      const pY = (arm ? 0.45 : 0.08) + 0.35 * (r / g.rmax);
+      type = rng() < pY ? 1 : 0;
+      if (arm && rng() < 0.045) type = 3;
+      bright = Math.exp(gauss() * 0.45) * (type === 1 ? 1.9 : 0.8);
+    } else {
+      const b = g.bulgeR;
+      const u = 0.01 + rng() * 0.89;
+      const rb = Math.min(b / Math.sqrt(Math.pow(u, -2 / 3) - 1), 4 * b);
+      let d = V3.norm([gauss(), gauss(), gauss()]); d[2] *= 0.7;
+      lx = d[0] * rb; ly = d[1] * rb; lz = d[2] * rb;
+      const pp = [lx, ly, lz], rr = V3.len(pp) || 1e-6;
+      let t = [gauss(), gauss(), gauss()];
+      const proj = V3.dot(t, pp) / (rr * rr);
+      t = V3.norm(V3.sub(t, V3.scale(pp, proj)));
+      const sd = V3.norm(V3.cross([0, 0, sp], pp));
+      t = V3.norm(V3.add(V3.scale(t, 0.7), V3.scale(sd, 0.5)));
+      const v = Math.sqrt(vcs(rr));
+      vx = t[0] * v; vy = t[1] * v; vz = t[2] * v;
+      type = 2; bright = Math.exp(gauss() * 0.35);
+    }
+    const o3 = 3 * (off + k), o4 = 4 * (off + k);
+    P[o3] = R[0] * lx + R[1] * ly + R[2] * lz + X[0];
+    P[o3 + 1] = R[3] * lx + R[4] * ly + R[5] * lz + X[1];
+    P[o3 + 2] = R[6] * lx + R[7] * ly + R[8] * lz + X[2];
+    Vv[o3] = R[0] * vx + R[1] * vy + R[2] * vz + V[0];
+    Vv[o3 + 1] = R[3] * vx + R[4] * vy + R[5] * vz + V[1];
+    Vv[o3 + 2] = R[6] * vx + R[7] * vy + R[8] * vz + V[2];
+    A[o4] = gid; A[o4 + 1] = type; A[o4 + 2] = bright; A[o4 + 3] = rng();
+  }
+}
+
+// -------------------------------------------------------------------
+//  Forecast: run the halos ahead to place events on the timeline,
+//  and to pick a representative Sun.
+// -------------------------------------------------------------------
+function forecast(scn, throws, sunCands, nSteps) {
+  const c = initialCores(scn);
+  const names = scn.lg ? lgNames(LG.opts) : null;
+  const steps = nSteps || Math.round(scn.T / DT);
+  const sep = new Float32Array(steps + 1);
+  let ti = 0, guestIdx = -1;
+  const abs = {};
+  const cand = sunCands ? sunCands.map(s => ({ p: s.p.slice(), v: s.v.slice() })) : null;
+  for (let s = 0; s <= steps; s++) {
+    sep[s] = V3.len(V3.sub(c.x[1], c.x[0]));
+    if (s === steps) break;
+    while (ti < throws.length && throws[ti].step === s) {
+      if (guestIdx >= 0) { c.pop(); }
+      guestIdx = c.add(throws[ti].x, throws[ti].v, GUEST.M, GUEST.a, null, 10, true); ti++;
+    }
+    const mid = c.step(DT, !!cand);
+    for (const e of c.lastAbsorbed) { const nm = names && names[e.sat]; if (nm && abs[nm] === undefined) abs[nm] = s + 1; }
+    if (cand) for (const k of cand) testStep(k.p, k.v, mid, c, DT);
+  }
+  // events for the primary pair
+  const peri = [], apo = [];
+  const periMax = scn.periMax || 6, win = 15;
+  for (let s = 1; s < steps; s++) {
+    if (sep[s] < sep[s - 1] && sep[s] <= sep[s + 1] && sep[s] < periMax) {
+      let isMin = true;
+      for (let q = Math.max(0, s - win); q <= Math.min(steps, s + win); q++) if (sep[q] < sep[s]) { isMin = false; break; }
+      if (isMin && (!peri.length || s - peri[peri.length - 1].step > 20)) peri.push({ step: s, sep: sep[s] });
+    }
+    if (sep[s] > sep[s - 1] && sep[s] >= sep[s + 1] && peri.length && sep[s] > peri[peri.length - 1].sep * 1.2) apo.push({ step: s, sep: sep[s] });
+  }
+  let merge = null;
+  if (scn.mergeR) {
+    for (let s = 0; s <= steps; s++) if (sep[s] < scn.mergeR) { merge = { step: s }; break; }
+  } else {
+    const hold = Math.round(3 / DT);
+    for (let s = 0; s < steps - hold; s++) {
+      if (sep[s] < 0.15) {
+        let ok = true;
+        for (let q = s; q < s + hold; q++) if (sep[q] > 0.3) { ok = false; break; }
+        if (ok) { merge = { step: s }; break; }
+      }
+    }
+  }
+  // peris after the merger are just the cores settling; drop them
+  const peris = merge ? peri.filter(p => p.step < merge.step) : peri;
+  const apos = apo.filter(a => (!merge || a.step < merge.step));
+  let sunPick = null;
+  if (cand) {
+    const fin = c.x[0];
+    const d = cand.map(k => V3.len(V3.sub(k.p, fin)));
+    // prefer a Sun that is flung outward but stays bound (the common outcome)
+    let best = -1, bestScore = 1e9;
+    d.forEach((di, i) => { const score = Math.abs(di - 2.6); if (di > 1.2 && di < 5 && score < bestScore) { bestScore = score; best = i; } });
+    if (best < 0) best = d.indexOf(Math.min(...d.filter(x => x > 0.82)));
+    sunPick = best >= 0 ? best : 0;
+  }
+  const every = 10, series = new Float32Array(Math.floor(steps / every) + 1);
+  for (let q = 0; q < series.length; q++) series[q] = sep[q * every];
+  return { peri: peris, apo: apos, merge, steps, sunPick, abs, endSep: sep[steps], series, every };
+}
+
+// ===================================================================
+//  WebGL2
+// ===================================================================
+const stage = document.getElementById('stage');
+const canvas = document.getElementById('gl');
+const ov = document.getElementById('ov');
+const ctx2 = ov.getContext('2d');
+const gl = canvas.getContext('webgl2', { antialias: false, alpha: false, depth: false, stencil: false, premultipliedAlpha: false, powerPreference: 'high-performance', preserveDrawingBuffer: false });
+
+function fail(msg, sub) {
+  const d = document.createElement('div'); d.className = 'fail';
+  d.innerHTML = `<div>${msg}<small>${sub || ''}</small></div>`;
+  document.body.appendChild(d);
+}
+if (!gl) { fail('This needs WebGL2 to run the stars.', 'Try a recent version of Chrome, Safari, Firefox or Edge.'); return; }
+
+const hasCBF = !!gl.getExtension('EXT_color_buffer_float');
+const hasCBHF = hasCBF || !!gl.getExtension('EXT_color_buffer_half_float');
+gl.getExtension('OES_texture_float_linear');
+
+function sh(type, src) {
+  const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s) + '\n' + src);
+  return s;
+}
+function prog(vs, fs, tfVaryings) {
+  const p = gl.createProgram();
+  gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs));
+  if (tfVaryings) gl.transformFeedbackVaryings(p, tfVaryings, gl.SEPARATE_ATTRIBS);
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  const u = {}; const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+  for (let i = 0; i < n; i++) { const info = gl.getActiveUniform(p, i); const name = info.name.replace(/\[0\]$/, ''); u[name] = gl.getUniformLocation(p, info.name); }
+  return { p, u };
+}
+
+const UPDATE_VS = `#version 300 es
+precision highp float;
+layout(location=0) in vec3 aPos;
+layout(location=1) in vec3 aVel;
+uniform vec4 uCore[${MAXC}];
+uniform vec4 uCoreH[${MAXC}];
+uniform int uNC;
+uniform float uDt;
+uniform int uGuestStart;
+uniform int uGuestOn;
+out vec3 vPos;
+out vec3 vVel;
+void main(){
+  vec3 p = aPos, v = aVel;
+  if (gl_VertexID < uGuestStart || uGuestOn == 1) {
+    p += 0.5 * uDt * v;
+    vec3 acc = vec3(0.0);
+    for (int i = 0; i < ${MAXC}; i++) {
+      if (i >= uNC) break;
+      vec3 d = uCore[i].xyz - p;
+      float r2 = dot(d, d);
+      float q1 = r2 + uCoreH[i].y, q2 = r2 + uCoreH[i].z;
+      acc += d * (uCore[i].w * inversesqrt(q1 * q1 * q1) + uCoreH[i].x * inversesqrt(q2 * q2 * q2));
+    }
+    v += uDt * acc;
+    p += 0.5 * uDt * v;
+  }
+  vPos = p; vVel = v;
+}`;
+const NULL_FS = `#version 300 es
+precision mediump float; out vec4 o; void main(){ o = vec4(0.0); }`;
+
+const STAR_VS = `#version 300 es
+precision highp float;
+layout(location=0) in vec3 aPos;
+layout(location=1) in vec3 aVel;
+layout(location=2) in vec4 aAttr;
+uniform mat4 uVP;
+uniform vec3 uCam;
+uniform float uPxScale;
+uniform float uStarPx;
+uniform float uFlux;
+uniform float uGasFlux;
+uniform float uD0;
+uniform int uMode;
+uniform vec3 uVref;
+uniform int uGuestStart;
+uniform int uGuestOn;
+uniform vec3 uGal[5];
+out vec3 vCol;
+out float vSoft;
+void main(){
+  if (gl_VertexID >= uGuestStart && uGuestOn == 0) { gl_Position = vec4(2.0, 2.0, 2.0, 1.0); gl_PointSize = 0.0; vCol = vec3(0.0); vSoft = 1.0; return; }
+  gl_Position = uVP * vec4(aPos, 1.0);
+  float dist = max(length(aPos - uCam), 0.25);
+  int typ = int(aAttr.y + 0.5);
+  int gid = int(aAttr.x + 0.5);
+  float px, inten;
+  if (typ == 3) {
+    float want = 0.05 * uPxScale / dist;
+    px = clamp(want, uStarPx, 42.0);
+    inten = uGasFlux * min(1.0, (want * want) / (px * px));
+    vSoft = 2.2;
+  } else {
+    px = uStarPx;
+    inten = uFlux * (uD0 / dist) * (uD0 / dist);
+    vSoft = 3.2;
+  }
+  gl_PointSize = px;
+  vec3 c;
+  float sd = aAttr.w;
+  if (uMode == 0) {
+    if (typ == 0) c = mix(vec3(1.0, 0.76, 0.50), vec3(1.0, 0.86, 0.68), sd);
+    else if (typ == 1) c = mix(vec3(0.26, 0.46, 1.0), vec3(0.42, 0.60, 1.0), sd);
+    else if (typ == 2) c = mix(vec3(1.0, 0.46, 0.16), vec3(1.0, 0.60, 0.28), sd);
+    else c = mix(vec3(1.0, 0.16, 0.36), vec3(0.95, 0.26, 0.62), sd);
+  } else if (uMode == 1) {
+    c = uGal[gid] * (typ == 3 ? 0.6 : 1.0);
+  } else {
+    vec3 los = normalize(aPos - uCam);
+    float vl = dot(aVel - uVref, los);
+    float s = clamp(vl / 0.75, -1.0, 1.0);
+    vec3 n = vec3(0.42, 0.42, 0.46);
+    c = s > 0.0 ? mix(n, vec3(1.0, 0.22, 0.10), s) : mix(n, vec3(0.20, 0.48, 1.0), -s);
+    c *= 1.0 + 0.6 * abs(s);
+  }
+  vCol = c * aAttr.z * inten;
+}`;
+const STAR_FS = `#version 300 es
+precision highp float;
+in vec3 vCol; in float vSoft;
+out vec4 o;
+void main(){
+  vec2 q = gl_PointCoord * 2.0 - 1.0;
+  float r2 = dot(q, q);
+  if (r2 > 1.0) discard;
+  o = vec4(vCol * exp(-r2 * vSoft), 1.0);
+}`;
+
+const BG_VS = `#version 300 es
+precision highp float;
+layout(location=0) in vec4 aS;
+layout(location=1) in vec3 aC;
+uniform mat4 uRotVP;
+uniform float uPx;
+out vec3 vC;
+void main(){
+  gl_Position = uRotVP * vec4(aS.xyz * 900.0, 1.0);
+  gl_PointSize = uPx * (aS.w > 0.92 ? 1.6 : 1.0);
+  vC = aC * aS.w;
+}`;
+const BG_FS = `#version 300 es
+precision highp float;
+in vec3 vC; out vec4 o;
+void main(){ vec2 q = gl_PointCoord*2.0-1.0; float r2 = dot(q,q); if (r2>1.0) discard; o = vec4(vC*exp(-r2*3.0),1.0); }`;
+
+const FS_VS = `#version 300 es
+out vec2 vUv;
+void main(){ vec2 p = vec2(float((gl_VertexID << 1) & 2), float(gl_VertexID & 2)); vUv = p; gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0); }`;
+const DOWN_FS = `#version 300 es
+precision highp float;
+uniform sampler2D uSrc; uniform vec2 uTexel; uniform float uClampMax;
+in vec2 vUv; out vec4 o;
+vec3 T(vec2 d){ return min(texture(uSrc, vUv + uTexel * d).rgb, vec3(uClampMax)); }
+void main(){
+  vec3 a=T(vec2(-2,2)), b=T(vec2(0,2)), c=T(vec2(2,2));
+  vec3 d=T(vec2(-2,0)), e=T(vec2(0,0)), f=T(vec2(2,0));
+  vec3 g=T(vec2(-2,-2)), h=T(vec2(0,-2)), i=T(vec2(2,-2));
+  vec3 j=T(vec2(-1,1)), k=T(vec2(1,1)), l=T(vec2(-1,-1)), m=T(vec2(1,-1));
+  vec3 s = e*0.125 + (a+c+g+i)*0.03125 + (b+d+f+h)*0.0625 + (j+k+l+m)*0.125;
+  o = vec4(s, 1.0);
+}`;
+const UP_FS = `#version 300 es
+precision highp float;
+uniform sampler2D uSrc; uniform vec2 uTexel;
+in vec2 vUv; out vec4 o;
+vec3 T(vec2 d){ return texture(uSrc, vUv + uTexel * d).rgb; }
+void main(){
+  vec3 s = T(vec2(0))*4.0 + (T(vec2(-1,0))+T(vec2(1,0))+T(vec2(0,-1))+T(vec2(0,1)))*2.0 + T(vec2(-1,-1))+T(vec2(1,-1))+T(vec2(-1,1))+T(vec2(1,1));
+  o = vec4(s / 16.0, 1.0);
+}`;
+const COMP_FS = `#version 300 es
+precision highp float;
+uniform sampler2D uScene; uniform sampler2D uBloom;
+uniform float uExposure; uniform float uBloomStr; uniform float uTime; uniform vec2 uRes;
+in vec2 vUv; out vec4 o;
+vec3 aces(vec3 x){ return clamp((x*(2.51*x+0.03))/(x*(2.43*x+0.59)+0.14), 0.0, 1.0); }
+void main(){
+  vec3 c = texture(uScene, vUv).rgb;
+  vec3 b = texture(uBloom, vUv).rgb;
+  c = (c + b * uBloomStr) * uExposure;
+  c = 1.0 - exp(-c);
+  vec2 q = vUv - 0.5; q.x *= uRes.x / uRes.y;
+  c *= 1.0 - 0.32 * dot(q, q);
+  c = pow(c, vec3(1.0/2.2));
+  float n = fract(sin(dot(gl_FragCoord.xy + fract(uTime) * 61.0, vec2(12.9898, 78.233))) * 43758.5453);
+  c += (n - 0.5) / 255.0;
+  o = vec4(c, 1.0);
+}`;
+
+let P_UPD, P_STAR, P_BG, P_DOWN, P_UP, P_COMP;
+try {
+  P_UPD = prog(UPDATE_VS, NULL_FS, ['vPos', 'vVel']);
+  P_STAR = prog(STAR_VS, STAR_FS);
+  P_BG = prog(BG_VS, BG_FS);
+  P_DOWN = prog(FS_VS, DOWN_FS);
+  P_UP = prog(FS_VS, UP_FS);
+  P_COMP = prog(FS_VS, COMP_FS);
+} catch (e) {
+  console.error(e); fail('The star shaders could not compile on this device.', String(e.message || e).split('\n')[0]); return;
+}
+const emptyVAO = gl.createVertexArray();
+
+// -------------------------------------------------------------------
+//  Background: very faint, very distant galaxies and stars
+// -------------------------------------------------------------------
+const bg = (() => {
+  const n = 2600, rng = mulberry32(7), gauss = gaussFn(rng);
+  const s = new Float32Array(n * 4), c = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    const d = V3.norm([gauss(), gauss(), gauss()]);
+    const b = Math.pow(rng(), 7);
+    s.set([d[0], d[1], d[2], 0.004 + 0.06 * b], i * 4);
+    const t = rng();
+    c.set(t < 0.3 ? [0.7, 0.8, 1.0] : t < 0.8 ? [1.0, 0.95, 0.88] : [1.0, 0.78, 0.6], i * 3);
+  }
+  const vao = gl.createVertexArray(); gl.bindVertexArray(vao);
+  const b1 = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b1); gl.bufferData(gl.ARRAY_BUFFER, s, gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 0, 0);
+  const b2 = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b2); gl.bufferData(gl.ARRAY_BUFFER, c, gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
+  gl.bindVertexArray(null);
+  return { vao, n };
+})();
+
+// -------------------------------------------------------------------
+//  Particle buffers
+// -------------------------------------------------------------------
+const P = { N: 0, NG: 0, pos: [], vel: [], attr: null, upd: [], ren: [], cur: 0 };
+function allocParticles(N) {
+  for (const b of [...P.pos, ...P.vel]) gl.deleteBuffer(b);
+  if (P.attr) gl.deleteBuffer(P.attr);
+  for (const v of [...P.upd, ...P.ren]) gl.deleteVertexArray(v);
+  P.N = N; P.NG = N >> 3; P.cur = 0;
+  const mk = (bytes) => { const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, bytes, gl.DYNAMIC_COPY); return b; };
+  P.pos = [mk(N * 12), mk(N * 12)]; P.vel = [mk(N * 12), mk(N * 12)];
+  P.attr = mk(N * 16);
+  P.upd = []; P.ren = [];
+  for (let k = 0; k < 2; k++) {
+    let v = gl.createVertexArray(); gl.bindVertexArray(v);
+    gl.bindBuffer(gl.ARRAY_BUFFER, P.pos[k]); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, P.vel[k]); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
+    P.upd.push(v);
+    v = gl.createVertexArray(); gl.bindVertexArray(v);
+    gl.bindBuffer(gl.ARRAY_BUFFER, P.pos[k]); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, P.vel[k]); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, P.attr); gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 0, 0);
+    P.ren.push(v);
+  }
+  gl.bindVertexArray(null);
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
+}
+
+// -------------------------------------------------------------------
+//  Render targets
+// -------------------------------------------------------------------
+const RT = { w: 0, h: 0, fmt: null, scene: null, sceneFB: null, mips: [] };
+function texFmt() {
+  if (hasCBHF) return { internal: gl.RGBA16F, format: gl.RGBA, type: gl.HALF_FLOAT, hdr: true };
+  return { internal: gl.RGBA8, format: gl.RGBA, type: gl.UNSIGNED_BYTE, hdr: false };
+}
+function mkTarget(w, h, fmt) {
+  const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.texImage2D(gl.TEXTURE_2D, 0, fmt.internal, w, h, 0, fmt.format, fmt.type, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  const fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+  const ok = gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE;
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  return { t, fb, w, h, ok };
+}
+function freeTarget(x) { if (!x) return; gl.deleteTexture(x.t); gl.deleteFramebuffer(x.fb); }
+function buildTargets(w, h) {
+  freeTarget(RT.scene); RT.mips.forEach(freeTarget); RT.mips = [];
+  if (!RT.fmt) RT.fmt = texFmt();
+  RT.scene = mkTarget(w, h, RT.fmt);
+  if (!RT.scene.ok && RT.fmt.hdr) { freeTarget(RT.scene); RT.fmt = { internal: gl.RGBA8, format: gl.RGBA, type: gl.UNSIGNED_BYTE, hdr: false }; RT.scene = mkTarget(w, h, RT.fmt); }
+  let mw = w, mh = h;
+  for (let i = 0; i < 6; i++) {
+    mw = Math.max(1, mw >> 1); mh = Math.max(1, mh >> 1);
+    if (mw < 4 || mh < 4) break;
+    RT.mips.push(mkTarget(mw, mh, RT.fmt));
+  }
+  RT.w = w; RT.h = h;
+}
+
+// ===================================================================
+//  Simulation state
+// ===================================================================
+const S = {
+  scn: null, cores: null, guestIdx: -1, guestOn: false, step: 0, throws: [], fc: null,
+  init: null, playing: true, speed: 1, acc: 0, seekTo: -1, mode: 0, sunOn: true,
+  sun: null, sunTrail: [], sunInit: null, events: [], capIdx: -1, guestLabelUntil: 0,
+  gals: [],
+  sunKpc() { if (!this.sun) return '—'; return String(kpc(V3.len(V3.sub(this.sun.p, this.cores.x[0])))); },
+};
+const cam = { yaw: 0, pitch: 0.5, dist: 14, target: [0, 0, 0], vyaw: 0, vpitch: 0, auto: true, intro: 0, introFrom: 1, introDur: 1, zoom: 1, frame: 30 };
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (reduceMotion) { cam.auto = false; }
+const coarse = matchMedia('(pointer: coarse)').matches;
+
+function pickN() {
+  let r = '';
+  try { const e = gl.getExtension('WEBGL_debug_renderer_info'); if (e) r = gl.getParameter(e.UNMASKED_RENDERER_WEBGL) || ''; } catch (_) { }
+  S.renderer = r;
+  if (/swiftshader|llvmpipe|software/i.test(r)) return 1 << 16;
+  if (coarse) return 1 << 18;
+  if (/apple m\d|nvidia|geforce|rtx|radeon rx|radeon pro|arc a/i.test(r)) return 1 << 20;
+  return 1 << 19;
+}
+
+function genInitial(scn, N) {
+  const NG = N >> 3, NM = N - NG;
+  const pos = new Float32Array(N * 3), vel = new Float32Array(N * 3), attr = new Float32Array(N * 4);
+  let cores, gals = scn.gals, sun = null;
+  if (scn.lg) { const b = lgBuild(); cores = b.cores; gals = b.gals; sun = b.sun; }
+  else cores = initialCores(scn);
+  S.gals = gals;
+  const wsum = gals.reduce((s, g) => s + g.n, 0);
+  let off = 0;
+  gals.forEach((g, i) => {
+    const cnt = i === gals.length - 1 ? NM - off : Math.floor(NM * g.n / wsum);
+    genGalaxy(1000 + i * 7919 + scn.id.length, g, cnt, cores.x[i], cores.v[i], i, pos, vel, attr, off);
+    off += cnt;
+  });
+  // guest region: parked far away until a dwarf is thrown
+  for (let k = NM; k < N; k++) { pos[3 * k] = 1e4; attr[4 * k] = 4; attr[4 * k + 1] = 0; }
+  return { pos, vel, attr, cores, N, gals, sun, key: scn.lg ? `${LG.member}:${lgKey()}` : '' };
+}
+
+function uploadInitial() {
+  const I = S.init;
+  P.cur = 0;
+  for (let k = 0; k < 2; k++) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, P.pos[k]); gl.bufferSubData(gl.ARRAY_BUFFER, 0, I.pos);
+    gl.bindBuffer(gl.ARRAY_BUFFER, P.vel[k]); gl.bufferSubData(gl.ARRAY_BUFFER, 0, I.vel);
+  }
+  gl.bindBuffer(gl.ARRAY_BUFFER, P.attr); gl.bufferSubData(gl.ARRAY_BUFFER, 0, I.attr);
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
+}
+
+function sunCandidates(scn, cores) {
+  const g = S.gals[0], R = rotMat(g.i, g.w), r = 0.82, v = Math.sqrt(vc2(r, g.M, g.a));
+  const out = [];
+  for (let k = 0; k < 48; k++) {
+    const ph = k / 48 * TAU, c = Math.cos(ph), s = Math.sin(ph);
+    const l = [r * c, r * s, 0], lv = [-s * v * g.spin, c * v * g.spin, 0];
+    const p = [0, 1, 2].map(d => R[d * 3] * l[0] + R[d * 3 + 1] * l[1] + R[d * 3 + 2] * l[2] + cores.x[0][d]);
+    const vv = [0, 1, 2].map(d => R[d * 3] * lv[0] + R[d * 3 + 1] * lv[1] + R[d * 3 + 2] * lv[2] + cores.v[0][d]);
+    out.push({ p, v: vv });
+  }
+  return out;
+}
+
+function resetSim() {
+  S.runId = (S.runId || 0) + 1;
+  uploadInitial();
+  S.cores = S.init.cores.clone();
+  S.guestIdx = -1; S.guestOn = false; S.step = 0; S.acc = 0;
+  S.sun = S.sunInit ? { p: S.sunInit.p.slice(), v: S.sunInit.v.slice() } : null;
+  S.sunTrail = [];
+  S.capIdx = -1;
+}
+
+function computeEvents() {
+  const scn = S.scn, fc = S.fc;
+  const ev = [];
+  const stepOf = (at, off) => {
+    let base = null;
+    if (at === 'start') base = 0;
+    else if (at === 'end') base = fc.steps;
+    else if (at === 'merge') base = fc.merge ? fc.merge.step : null;
+    else if (at.startsWith('peri')) { const k = +at.slice(4) - 1; base = fc.peri[k] ? fc.peri[k].step : null; }
+    else if (at.startsWith('apo')) { const k = +at.slice(3) - 1; base = fc.apo[k] ? fc.apo[k].step : null; }
+    else if (at.startsWith('absorb:')) { const v = fc.abs[at.slice(7)]; base = v === undefined ? null : v; }
+    if (base === null) return null;
+    return Math.max(0, Math.min(fc.steps - 1, base + Math.round(off / DT)));
+  };
+  scn.captions.forEach(c => { if (c.when && !c.when(fc, S)) return; const s = stepOf(c.at, c.off || 0); if (s !== null) ev.push({ step: s, c }); });
+  ev.sort((a, b) => a.step - b.step);
+  // keep captions at least ~3.5 s apart so each can be read
+  const gap = Math.round(3.5 * scn.pace);
+  for (let i = 1; i < ev.length; i++) if (ev[i].step < ev[i - 1].step + gap) ev[i].step = Math.min(fc.steps - 1, ev[i - 1].step + gap);
+  for (const th of S.throws) ev.push({ step: th.step, c: { text: th.caption } });
+  ev.sort((a, b) => a.step - b.step);
+  S.events = ev;
+  buildTicks();
+}
+
+function loadScene(id, opts = {}) {
+  const scn = SCENE_BY_ID[id] || SCENES[0];
+  const changed = !S.scn || S.scn.id !== scn.id;
+  S.scn = scn;
+  DT = scn.dt || 0.03;
+  if (!opts.keepThrows) S.throws = [];
+  const key = scn.lg ? `${LG.member}:${lgKey()}` : '';
+  if (changed || !S.init || S.init.N !== P.N || opts.regen || S.init.key !== key) S.init = genInitial(scn, P.N);
+  S.gals = S.init.gals;
+  S.sunInit = null;
+  let cands = null;
+  if (scn.sun && !scn.lg) cands = sunCandidates(scn, S.init.cores);
+  if (!opts.keepThrows || !S.Tsteps) S.Tsteps = Math.round(scn.T / DT);
+  S.fc = forecast(scn, S.throws, cands, S.Tsteps);
+  if (cands) S.sunInit = cands[S.fc.sunPick];
+  if (scn.lg) S.sunInit = S.init.sun;
+  S.anchorStep = scn.clock && scn.clock.abs ? 0 : (S.fc.peri[0] ? S.fc.peri[0].step : 0);
+  resetSim();
+  computeEvents();
+  if (scn.autoFrame) cam.frame = autoDist();
+  if (!opts.keepCamera) {
+    cam.yaw = scn.cam.yaw; cam.pitch = scn.cam.pitch;
+    if (scn.cam.yaw === 'auto') { const d = V3.sub(S.cores.x[1], S.cores.x[0]); cam.yaw = Math.atan2(d[1], d[0]) - 1.15; }
+    cam.zoom = 1;
+    cam.base = scn.autoFrame ? autoDist() : scn.cam.dist;
+    cam.intro = 0; cam.introFrom = cam.base * 1.7; cam.introDur = reduceMotion ? 0.01 : (scn.autoFrame ? 8 : 3.2);
+    cam.dist = scn.autoFrame ? 5.5 : cam.introFrom;
+    cam.target = scn.autoFrame ? S.cores.x[0].slice() : focusPoint();
+    cam.vyaw = cam.vpitch = 0;
+  }
+  S.playing = opts.play !== undefined ? opts.play : !reduceMotion;
+  syncUI(changed);
+}
+
+function focusPoint() {
+  const c = S.cores, scn = S.scn;
+  if (typeof scn.focus === 'number') return c.x[scn.focus].slice();
+  if (scn.focus === 'pair') return V3.scale(V3.add(c.x[0], c.x[1]), 0.5);
+  const nf = S.gals.length;
+  let m = 0, x = [0, 0, 0];
+  for (let i = 0; i < nf; i++) { m += c.m[i]; x = V3.add(x, V3.scale(c.x[i], c.m[i])); }
+  return m > 0 ? V3.scale(x, 1 / m) : c.x[0].slice();
+}
+function autoDist() {
+  const d = V3.len(V3.sub(S.cores.x[1], S.cores.x[0]));
+  return Math.max(13, Math.min(190, 1.75 * d + 9));
+}
+function comVel() {
+  const c = S.cores; let m = 0, v = [0, 0, 0];
+  for (let i = 0; i < c.n; i++) { m += c.m[i]; v = V3.add(v, V3.scale(c.v[i], c.m[i])); }
+  return V3.scale(v, 1 / m);
+}
+
+// ---------- throwing a dwarf galaxy ----------
+const guestBuf = { pos: null, vel: null, attr: null };
+function applyThrow(th) {
+  const NG = P.NG, start = P.N - NG;
+  if (!guestBuf.pos || guestBuf.pos.length !== NG * 3) {
+    guestBuf.pos = new Float32Array(NG * 3); guestBuf.vel = new Float32Array(NG * 3); guestBuf.attr = new Float32Array(NG * 4);
+  }
+  const r = mulberry32(th.seed);
+  const g = Object.assign({}, GUEST, { i: Math.acos(1 - 2 * r()) * 180 / Math.PI, w: r() * 360, spin: r() < 0.5 ? 1 : -1 });
+  genGalaxy(th.seed + 1, g, NG, th.x, th.v, 4, guestBuf.pos, guestBuf.vel, guestBuf.attr, 0);
+  const k = P.cur;
+  gl.bindBuffer(gl.ARRAY_BUFFER, P.pos[k]); gl.bufferSubData(gl.ARRAY_BUFFER, start * 12, guestBuf.pos);
+  gl.bindBuffer(gl.ARRAY_BUFFER, P.vel[k]); gl.bufferSubData(gl.ARRAY_BUFFER, start * 12, guestBuf.vel);
+  gl.bindBuffer(gl.ARRAY_BUFFER, P.attr); gl.bufferSubData(gl.ARRAY_BUFFER, start * 16, guestBuf.attr);
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  if (S.guestIdx >= 0) S.cores.pop();
+  S.guestIdx = S.cores.add(th.x, th.v, GUEST.M, GUEST.a, null, 10, true);
+  S.guestOn = true;
+  S.guestLabelUntil = S.step + Math.round(6 / DT);
+}
+
+function launch(x, v) {
+  const sp = V3.len(V3.sub(v, comVel())) * KMS;
+  const th = {
+    step: S.step, x: x.slice(), v: v.slice(), seed: (Math.random() * 1e9) | 0,
+    caption: `You threw a dwarf galaxy, a quarter of the Milky Way’s mass, at ${Math.round(sp / 10) * 10} km/s.`,
+  };
+  // replace any later throws (we are rewriting the future)
+  S.throws = S.throws.filter(t => t.step < S.step);
+  S.throws.push(th);
+  applyThrow(th); th._applied = S.runId;
+  const room = Math.round(22 / DT);
+  if (S.step > S.Tsteps - room) S.Tsteps = S.step + room;
+  S.fc = Object.assign(forecast(S.scn, S.throws, null, S.Tsteps), { sunPick: S.fc.sunPick });
+  computeEvents();
+  S.capIdx = -1;
+  if (S.scn.lg) futText();
+  if (!S.playing) setPlaying(true);
+}
+
+// ---------- cinematic slow motion near close passages ----------
+function slowMo(step) {
+  const fc = S.fc; if (!fc) return 1;
+  let k = 0;
+  const W = 2.0 / DT;
+  for (let i = 0; i < Math.min(2, fc.peri.length); i++) {
+    const d = (step - fc.peri[i].step) / W;
+    k += Math.exp(-d * d) * (i === 0 ? 0.55 : 0.4);
+  }
+  return Math.max(0.4, 1 - k);
+}
+
+// ---------- stepping ----------
+const coreU = new Float32Array(MAXC * 4), coreH = new Float32Array(MAXC * 4);
+function simStep() {
+  for (const th of S.throws) if (th.step === S.step && th._applied !== S.runId) { applyThrow(th); th._applied = S.runId; }
+  const c = S.cores;
+  const mid = c.step(DT, true);
+  if (c.lastAbsorbed.length) renderLegend();
+  for (let i = 0; i < MAXC; i++) {
+    if (i < c.n && c.alive[i]) {
+      const pt = c.pot[i];
+      coreU[i * 4] = mid[i][0]; coreU[i * 4 + 1] = mid[i][1]; coreU[i * 4 + 2] = mid[i][2]; coreU[i * 4 + 3] = pt[0];
+      coreH[i * 4] = pt[2]; coreH[i * 4 + 1] = pt[1] * pt[1]; coreH[i * 4 + 2] = pt[3] * pt[3]; coreH[i * 4 + 3] = 0;
+    } else { coreU[i * 4 + 3] = 0; coreH[i * 4] = 0; coreH[i * 4 + 1] = 1; coreH[i * 4 + 2] = 1; }
+  }
+  gl.useProgram(P_UPD.p);
+  gl.uniform4fv(P_UPD.u.uCore, coreU);
+  gl.uniform4fv(P_UPD.u.uCoreH, coreH);
+  gl.uniform1i(P_UPD.u.uNC, c.n);
+  gl.uniform1f(P_UPD.u.uDt, DT);
+  gl.uniform1i(P_UPD.u.uGuestStart, P.N - P.NG);
+  gl.uniform1i(P_UPD.u.uGuestOn, S.guestOn ? 1 : 0);
+  const src = P.cur, dst = 1 - P.cur;
+  gl.bindVertexArray(P.upd[src]);
+  gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, P.pos[dst]);
+  gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 1, P.vel[dst]);
+  gl.enable(gl.RASTERIZER_DISCARD);
+  gl.beginTransformFeedback(gl.POINTS);
+  gl.drawArrays(gl.POINTS, 0, P.N);
+  gl.endTransformFeedback();
+  gl.disable(gl.RASTERIZER_DISCARD);
+  gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, null);
+  gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 1, null);
+  gl.bindVertexArray(null);
+  P.cur = dst;
+  if (S.sun) {
+    testStep(S.sun.p, S.sun.v, mid, c, DT);
+    if (S.step % 3 === 0) {
+      S.sunTrail.push(V3.sub(S.sun.p, c.x[0]));
+      const keep = Math.round(24 / (3 * DT));
+      while (S.sunTrail.length > keep) S.sunTrail.shift();
+    }
+  }
+  S.step++;
+  stats.steps++;
+}
+
+// ===================================================================
+//  Rendering
+// ===================================================================
+const GAL_COLS = new Float32Array([0.35, 0.66, 1.0, 1.0, 0.56, 0.22, 0.55, 1.0, 0.6, 1.0, 0.85, 0.3, 0.95, 0.38, 1.0]);
+let renderScale = Math.min(devicePixelRatio || 1, coarse ? 1.5 : 2);
+let cssW = 0, cssH = 0;
+let VP = null, VIEW = null, PROJ = null, camPos = [0, 0, 0], fovY = 0.7;
+function resize() {
+  cssW = Math.max(1, stage.clientWidth); cssH = Math.max(1, stage.clientHeight);
+  const w = Math.max(2, Math.round(cssW * renderScale)), h = Math.max(2, Math.round(cssH * renderScale));
+  if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  ov.width = Math.round(cssW * dpr); ov.height = Math.round(cssH * dpr);
+  ctx2.setTransform(dpr, 0, 0, dpr, 0, 0);
+  if (RT.w !== w || RT.h !== h) buildTargets(w, h);
+}
+new ResizeObserver(resize).observe(stage);
+
+function updateCamera(dt) {
+  let introFocus = null;
+  if (S.scn.autoFrame) {
+    cam.frame += (autoDist() - cam.frame) * (1 - Math.exp(-dt * 1.4));
+    cam.base = cam.frame * cam.zoom;
+    if (cam.intro < cam.introDur) {
+      cam.intro = Math.min(cam.introDur, cam.intro + dt);
+      const k = cam.intro / cam.introDur, hold = 0.18;
+      const u = Math.max(0, (k - hold) / (1 - hold)), e = u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+      cam.dist = Math.exp(Math.log(5.5) + (Math.log(cam.base) - Math.log(5.5)) * e);
+      const w = Math.max(0, Math.min(1, (cam.dist - 5.5) / Math.max(1, cam.base - 5.5)));
+      introFocus = V3.add(V3.scale(S.cores.x[0], 1 - w), V3.scale(focusPoint(), w));
+    } else cam.dist = cam.base;
+  } else if (cam.intro < cam.introDur) {
+    cam.intro = Math.min(cam.introDur, cam.intro + dt);
+    const k = cam.intro / cam.introDur, e = 1 - Math.pow(1 - k, 3);
+    cam.dist = cam.introFrom + (cam.base - cam.introFrom) * e;
+  }
+  if (!drag.active) {
+    cam.yaw += cam.vyaw * dt; cam.pitch += cam.vpitch * dt;
+    const damp = Math.exp(-dt * 3.5); cam.vyaw *= damp; cam.vpitch *= damp;
+    if (cam.auto && Math.abs(cam.vyaw) < 0.02) cam.yaw += 0.028 * dt;
+  }
+  cam.pitch = Math.max(-1.45, Math.min(1.45, cam.pitch));
+  const f = focusPoint();
+  if (introFocus) cam.target = introFocus;
+  else cam.target = V3.add(cam.target, V3.scale(V3.sub(f, cam.target), 1 - Math.exp(-dt * 2.2)));
+  const cp = Math.cos(cam.pitch);
+  camPos = V3.add(cam.target, V3.scale([cp * Math.cos(cam.yaw), cp * Math.sin(cam.yaw), Math.sin(cam.pitch)], cam.dist));
+  const aspect = cssW / cssH;
+  fovY = aspect >= 1 ? 40 * Math.PI / 180 : Math.min(2 * Math.atan(Math.tan(20 * Math.PI / 180) / aspect), 80 * Math.PI / 180);
+  PROJ = perspective(fovY, aspect, 0.02, 4000);
+  VIEW = lookAt(camPos, cam.target, [0, 0, 1]);
+  VP = mul4(PROJ, VIEW);
+}
+
+let exposure = 1.0;
+function render(time) {
+  const w = canvas.width, h = canvas.height;
+  gl.bindFramebuffer(gl.FRAMEBUFFER, RT.scene.fb);
+  gl.viewport(0, 0, w, h);
+  gl.clearColor(0.0002, 0.00025, 0.0006, 1); gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
+  const hdrK = RT.fmt.hdr ? 1 : 0.6;
+
+  // background
+  const rotView = new Float32Array(VIEW); rotView[12] = rotView[13] = rotView[14] = 0;
+  gl.useProgram(P_BG.p);
+  gl.uniformMatrix4fv(P_BG.u.uRotVP, false, mul4(PROJ, rotView));
+  gl.uniform1f(P_BG.u.uPx, 1.6 * renderScale);
+  gl.bindVertexArray(bg.vao); gl.drawArrays(gl.POINTS, 0, bg.n);
+
+  // stars
+  gl.useProgram(P_STAR.p);
+  const pxScale = h / (2 * Math.tan(fovY / 2));
+  const nNorm = 524288 / (P.N - P.NG);
+  gl.uniformMatrix4fv(P_STAR.u.uVP, false, VP);
+  gl.uniform3fv(P_STAR.u.uCam, camPos);
+  gl.uniform1f(P_STAR.u.uPxScale, pxScale);
+  const starPx = Math.max(1.0, 1.55 * renderScale);
+  gl.uniform1f(P_STAR.u.uStarPx, starPx);
+  gl.uniform1f(P_STAR.u.uFlux, 0.03 * nNorm * hdrK * (S.mode === 2 ? 1.3 : 1));
+  gl.uniform1f(P_STAR.u.uGasFlux, 0.009 * nNorm * hdrK);
+  gl.uniform1f(P_STAR.u.uD0, 14.0 * (pxScale / starPx) / 886);
+  gl.uniform1i(P_STAR.u.uMode, S.mode);
+  gl.uniform3fv(P_STAR.u.uVref, comVel());
+  gl.uniform1i(P_STAR.u.uGuestStart, P.N - P.NG);
+  gl.uniform1i(P_STAR.u.uGuestOn, S.guestOn ? 1 : 0);
+  gl.uniform3fv(P_STAR.u.uGal, GAL_COLS);
+  gl.bindVertexArray(P.ren[P.cur]);
+  gl.drawArrays(gl.POINTS, 0, P.N);
+  gl.bindVertexArray(null);
+
+  // bloom
+  gl.disable(gl.BLEND);
+  gl.bindVertexArray(emptyVAO);
+  gl.useProgram(P_DOWN.p);
+  gl.uniform1i(P_DOWN.u.uSrc, 0);
+  gl.activeTexture(gl.TEXTURE0);
+  let src = RT.scene;
+  RT.mips.forEach((m, i) => {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, m.fb); gl.viewport(0, 0, m.w, m.h);
+    gl.bindTexture(gl.TEXTURE_2D, src.t);
+    gl.uniform2f(P_DOWN.u.uTexel, 1 / src.w, 1 / src.h);
+    gl.uniform1f(P_DOWN.u.uClampMax, i === 0 ? 40 : 1e4);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    src = m;
+  });
+  gl.useProgram(P_UP.p);
+  gl.uniform1i(P_UP.u.uSrc, 0);
+  gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
+  for (let i = RT.mips.length - 1; i > 0; i--) {
+    const s = RT.mips[i], d = RT.mips[i - 1];
+    gl.bindFramebuffer(gl.FRAMEBUFFER, d.fb); gl.viewport(0, 0, d.w, d.h);
+    gl.bindTexture(gl.TEXTURE_2D, s.t);
+    gl.uniform2f(P_UP.u.uTexel, 1 / s.w, 1 / s.h);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  gl.disable(gl.BLEND);
+
+  // composite
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.viewport(0, 0, w, h);
+  gl.useProgram(P_COMP.p);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, RT.scene.t);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, RT.mips.length ? RT.mips[0].t : RT.scene.t);
+  gl.uniform1i(P_COMP.u.uScene, 0); gl.uniform1i(P_COMP.u.uBloom, 1);
+  gl.uniform1f(P_COMP.u.uExposure, exposure);
+  gl.uniform1f(P_COMP.u.uBloomStr, RT.mips.length ? 0.06 : 0);
+  gl.uniform1f(P_COMP.u.uTime, time);
+  gl.uniform2f(P_COMP.u.uRes, w, h);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindVertexArray(null);
+}
+
+// ---------- overlay: labels, the Sun, throw aiming ----------
+function project(p) {
+  const m = VP, x = p[0], y = p[1], z = p[2];
+  const cw = m[3] * x + m[7] * y + m[11] * z + m[15];
+  if (cw <= 0.01) return null;
+  const cx = m[0] * x + m[4] * y + m[8] * z + m[12], cy = m[1] * x + m[5] * y + m[9] * z + m[13];
+  return [(cx / cw * 0.5 + 0.5) * cssW, (1 - (cy / cw * 0.5 + 0.5)) * cssH];
+}
+function label(ctx, x, y, a, title, sub, color, down) {
+  if (a <= 0.01) return;
+  ctx.save();
+  ctx.globalAlpha = a;
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '1.4px';
+  ctx.font = '500 11px "IBM Plex Mono", ui-monospace, monospace';
+  const w1 = ctx.measureText(title.toUpperCase()).width;
+  ctx.font = '400 10.5px "IBM Plex Mono", ui-monospace, monospace';
+  const w2 = sub ? ctx.measureText(sub).width : 0;
+  const tw = Math.max(w1, w2);
+  const flip = x + 36 + tw > cssW - 10;
+  const sx = flip ? -1 : 1, sy = down ? 1 : -1;
+  const lx = x + sx * 22, ly = y + sy * (down ? 30 : 26);
+  ctx.strokeStyle = 'rgba(236,231,221,.45)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(x + sx * 7, y + sy * 7); ctx.lineTo(lx, ly); ctx.lineTo(lx + sx * 10, ly); ctx.stroke();
+  const clampX = (x0, w) => Math.max(8, Math.min(cssW - 8 - w, x0));
+  const tx = lx + 14;
+  ctx.shadowColor = 'rgba(0,0,0,.9)'; ctx.shadowBlur = 6;
+  ctx.font = '500 11px "IBM Plex Mono", ui-monospace, monospace';
+  ctx.fillStyle = color || '#ece7dd';
+  ctx.fillText(title.toUpperCase(), clampX(flip ? lx - 14 - w1 : tx, w1), ly + 4);
+  if (sub) { ctx.font = '400 10.5px "IBM Plex Mono", ui-monospace, monospace'; ctx.fillStyle = 'rgba(162,159,174,.95)'; ctx.fillText(sub, clampX(flip ? lx - 14 - w2 : tx, w2), ly + 19); }
+  ctx.restore();
+}
+function drawOverlay() {
+  const ctx = ctx2;
+  ctx.clearRect(0, 0, cssW, cssH);
+  const scn = S.scn, c = S.cores;
+  // galaxy names fade out as the first passage approaches
+  const p1 = S.fc.peri[0] ? S.fc.peri[0].step : S.fc.steps;
+  let la = Math.max(0, Math.min(1, (p1 * 0.75 - S.step) / (p1 * 0.25 + 1)));
+  if (scn.autoFrame) la = Math.max(0, Math.min(1, (V3.len(V3.sub(c.x[1], c.x[0])) * KPC - 140) / 90));
+  S.gals.forEach((g, i) => {
+    if (!c.alive[i]) return;
+    const s = project(c.x[i]); if (!s) return;
+    label(ctx, s[0], s[1], la * (S.seekTo >= 0 ? 0 : 1), g.name, '', null);
+  });
+  if (S.guestOn && S.step < S.guestLabelUntil) {
+    const s = project(c.x[S.guestIdx]);
+    if (s) label(ctx, s[0], s[1], Math.min(1, (S.guestLabelUntil - S.step) / 40), 'Your dwarf galaxy', '', '#ffd6a0');
+  }
+  // the Sun
+  if (S.sun && S.sunOn) {
+    const c0 = c.x[0], tr = S.sunTrail.map(q => V3.add(q, c0)), n = tr.length;
+    if (n > 1) {
+      ctx.lineWidth = 1.25; ctx.lineCap = 'round';
+      const seg = 24, per = Math.ceil(n / seg);
+      for (let k = 0; k < seg; k++) {
+        const a0 = k * per, a1 = Math.min(n - 1, (k + 1) * per);
+        if (a1 <= a0) continue;
+        ctx.strokeStyle = `rgba(243,184,110,${(0.06 + 0.5 * (k + 1) / seg).toFixed(3)})`;
+        ctx.beginPath(); let started = false;
+        for (let q = a0; q <= a1; q++) {
+          const s = project(tr[q]); if (!s) { started = false; continue; }
+          if (!started) { ctx.moveTo(s[0], s[1]); started = true; } else ctx.lineTo(s[0], s[1]);
+        }
+        ctx.stroke();
+      }
+    }
+    const s = project(S.sun.p);
+    if (s) {
+      ctx.save();
+      ctx.strokeStyle = '#f3b86e'; ctx.fillStyle = '#f3b86e'; ctx.lineWidth = 1.4;
+      ctx.shadowColor = 'rgba(243,184,110,.8)'; ctx.shadowBlur = 8;
+      ctx.beginPath(); ctx.arc(s[0], s[1], 6.5, 0, TAU); ctx.stroke();
+      ctx.beginPath(); ctx.arc(s[0], s[1], 1.6, 0, TAU); ctx.fill();
+      ctx.restore();
+      const merged = S.fc.merge && S.step >= S.fc.merge.step;
+      if (la < 0.3) label(ctx, s[0], s[1], 1 - la / 0.3, 'Sun', `${S.sunKpc()} kpc from ${merged ? 'the new center' : 'the galactic center'}`, '#ffd9a6', true);
+    }
+  }
+  // aiming
+  if (aim.active && aim.p0) {
+    const s0 = project(aim.p0);
+    if (aim.path && aim.path.length > 1) {
+      ctx.save(); ctx.setLineDash([2, 5]); ctx.lineWidth = 1.4; ctx.strokeStyle = 'rgba(255,214,160,.8)';
+      ctx.beginPath(); let st = false;
+      for (const p of aim.path) { const s = project(p); if (!s) { st = false; continue; } if (!st) { ctx.moveTo(s[0], s[1]); st = true; } else ctx.lineTo(s[0], s[1]); }
+      ctx.stroke(); ctx.restore();
+    }
+    if (s0) {
+      ctx.save(); ctx.strokeStyle = '#ffd6a0'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(s0[0], s0[1], 9, 0, TAU); ctx.stroke();
+      ctx.beginPath(); ctx.arc(s0[0], s0[1], 2, 0, TAU); ctx.fillStyle = '#ffd6a0'; ctx.fill();
+      if (aim.p1) {
+        const s1 = project(aim.p1);
+        if (s1) {
+          ctx.beginPath(); ctx.moveTo(s0[0], s0[1]); ctx.lineTo(s1[0], s1[1]); ctx.stroke();
+          const ang = Math.atan2(s1[1] - s0[1], s1[0] - s0[0]);
+          ctx.beginPath(); ctx.moveTo(s1[0], s1[1]);
+          ctx.lineTo(s1[0] - 10 * Math.cos(ang - 0.4), s1[1] - 10 * Math.sin(ang - 0.4));
+          ctx.moveTo(s1[0], s1[1]); ctx.lineTo(s1[0] - 10 * Math.cos(ang + 0.4), s1[1] - 10 * Math.sin(ang + 0.4)); ctx.stroke();
+          ctx.font = '500 11px "IBM Plex Mono", ui-monospace, monospace'; ctx.fillStyle = '#ffd6a0';
+          ctx.shadowColor = '#000'; ctx.shadowBlur = 6;
+          ctx.fillText(`${Math.round(aim.kms / 10) * 10} km/s`, s1[0] + 12, s1[1] + 4);
+        }
+      }
+      ctx.restore();
+    }
+  }
+}
+
+// ===================================================================
+//  Input
+// ===================================================================
+const drag = { active: false, pts: new Map(), lastX: 0, lastY: 0, pinch0: 0, dist0: 0, moved: 0 };
+const aim = { active: false, p0: null, p1: null, path: null, kms: 0 };
+let throwMode = false;
+
+function rayPlane(sx, sy) {
+  const ndcX = sx / cssW * 2 - 1, ndcY = 1 - sy / cssH * 2;
+  const fwd = V3.norm(V3.sub(cam.target, camPos));
+  const right = V3.norm(V3.cross(fwd, [0, 0, 1]));
+  const up = V3.cross(right, fwd);
+  const th = Math.tan(fovY / 2), asp = cssW / cssH;
+  const dir = V3.norm(V3.add(fwd, V3.add(V3.scale(right, ndcX * th * asp), V3.scale(up, ndcY * th))));
+  const t = V3.dot(V3.sub(cam.target, camPos), fwd) / V3.dot(dir, fwd);
+  return V3.add(camPos, V3.scale(dir, t));
+}
+function aimVelocity() {
+  const d = V3.sub(aim.p1 || aim.p0, aim.p0);
+  let v = V3.scale(d, 0.55);
+  const L = V3.len(v); if (L > 3.2) v = V3.scale(v, 3.2 / L);
+  aim.kms = V3.len(v) * KMS;
+  return V3.add(v, comVel());
+}
+function previewPath() {
+  const c = S.cores.clone();
+  if (S.guestIdx >= 0) c.pop();
+  const gi = c.add(aim.p0, aimVelocity(), GUEST.M, GUEST.a, null, 10, true);
+  const path = [aim.p0.slice()];
+  const hstep = S.scn.lg ? 0.3 : 0.09;
+  for (let s = 0; s < 220; s++) { c.step(hstep, false); if (s % 2 === 0) path.push(c.x[gi].slice()); }
+  aim.path = path;
+}
+
+stage.addEventListener('pointerdown', (e) => {
+  stage.setPointerCapture(e.pointerId);
+  drag.pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  hideHint();
+  if ((throwMode || e.shiftKey) && drag.pts.size === 1) {
+    const r = stage.getBoundingClientRect();
+    aim.active = true; aim.p0 = rayPlane(e.clientX - r.left, e.clientY - r.top); aim.p1 = null; previewPath();
+    stage.classList.add('aiming');
+    return;
+  }
+  if (drag.pts.size === 2) {
+    aim.active = false; aim.p0 = null;
+    const [a, b] = [...drag.pts.values()];
+    drag.pinch0 = Math.hypot(a.x - b.x, a.y - b.y); drag.dist0 = cam.dist;
+  }
+  drag.active = true; drag.lastX = e.clientX; drag.lastY = e.clientY; drag.moved = 0;
+  cam.vyaw = cam.vpitch = 0;
+  stage.classList.add('dragging');
+});
+stage.addEventListener('pointermove', (e) => {
+  if (!drag.pts.has(e.pointerId)) return;
+  drag.pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (aim.active) {
+    const r = stage.getBoundingClientRect();
+    aim.p1 = rayPlane(e.clientX - r.left, e.clientY - r.top); previewPath();
+    return;
+  }
+  if (drag.pts.size === 2) {
+    const [a, b] = [...drag.pts.values()];
+    const d = Math.hypot(a.x - b.x, a.y - b.y);
+    if (drag.pinch0 > 0) setDist(drag.dist0 * drag.pinch0 / d);
+    return;
+  }
+  if (!drag.active) return;
+  const dx = e.clientX - drag.lastX, dy = e.clientY - drag.lastY;
+  drag.lastX = e.clientX; drag.lastY = e.clientY; drag.moved += Math.abs(dx) + Math.abs(dy);
+  cam.yaw -= dx * 0.0055; cam.pitch += dy * 0.0055;
+  const now = performance.now(), dtm = Math.max(8, now - (drag.t || now)); drag.t = now;
+  cam.vyaw = -dx * 0.0055 / (dtm / 1000) * 0.5; cam.vpitch = dy * 0.0055 / (dtm / 1000) * 0.5;
+});
+function endPointer(e) {
+  if (!drag.pts.has(e.pointerId)) return;
+  drag.pts.delete(e.pointerId);
+  if (aim.active && drag.pts.size === 0) {
+    if (aim.p0) launch(aim.p0, aimVelocity());
+    aim.active = false; aim.p0 = aim.p1 = aim.path = null;
+    stage.classList.remove('aiming');
+    setThrowMode(false);
+  }
+  if (drag.pts.size === 0) { drag.active = false; stage.classList.remove('dragging'); }
+  if (drag.pts.size === 1) { const p = [...drag.pts.values()][0]; drag.lastX = p.x; drag.lastY = p.y; drag.pinch0 = 0; }
+}
+stage.addEventListener('pointerup', endPointer);
+stage.addEventListener('pointercancel', endPointer);
+function setDist(d) {
+  if (S.scn.autoFrame) { cam.zoom = Math.max(0.06, Math.min(3, d / cam.frame)); cam.intro = cam.introDur; return; }
+  cam.base = Math.max(1.2, Math.min(70, d)); cam.intro = cam.introDur; cam.dist = cam.base;
+}
+stage.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  setDist(cam.dist * Math.exp(e.deltaY * (e.deltaMode === 1 ? 0.04 : 0.0012)));
+}, { passive: false });
+stage.addEventListener('dblclick', () => { cam.auto = !cam.auto; });
+
+// ===================================================================
+//  UI
+// ===================================================================
+const $ = (id) => document.getElementById(id);
+const scenesEl = $('scenes');
+SCENES.forEach(s => {
+  const b = document.createElement('button');
+  b.className = 'scene'; b.type = 'button'; b.dataset.id = s.id;
+  b.setAttribute('aria-pressed', 'false');
+  b.innerHTML = `<span class="mk" aria-hidden="true"></span><span class="nm">${s.name}</span><span class="ds">${s.desig}</span>`;
+  b.addEventListener('click', () => go(s.id));
+  scenesEl.appendChild(b);
+});
+function go(id) {
+  if (id === 'localgroup') LG.member = 0;
+  if (S.scn && S.scn.id === id) { loadScene(id); return; }
+  if (location.hash.slice(1) !== id) { suppressHash = true; location.hash = id; }
+  loadScene(id);
+}
+let suppressHash = false;
+addEventListener('hashchange', () => { if (suppressHash) { suppressHash = false; return; } const id = location.hash.slice(1); if (SCENE_BY_ID[id]) loadScene(id); });
+
+const playBtn = $('playBtn'), playIcon = $('playIcon');
+function setPlaying(p) {
+  S.playing = p;
+  playBtn.setAttribute('aria-label', p ? 'Pause' : 'Play');
+  playIcon.innerHTML = p ? '<rect x="3.5" y="2.5" width="3" height="11" rx=".8"/><rect x="9.5" y="2.5" width="3" height="11" rx=".8"/>' : '<path d="M4.5 2.8v10.4a.6.6 0 0 0 .9.5l8.2-5.2a.6.6 0 0 0 0-1L5.4 2.3a.6.6 0 0 0-.9.5z"/>';
+}
+playBtn.addEventListener('click', () => {
+  if (!S.playing && S.step >= S.fc.steps) resetSim();
+  setPlaying(!S.playing);
+});
+$('restartBtn').addEventListener('click', () => { loadScene(S.scn.id, { keepCamera: true, play: true }); setPlaying(true); });
+document.querySelectorAll('#speed button').forEach(b => b.addEventListener('click', () => setSpeed(+b.dataset.s)));
+function setSpeed(s) { S.speed = s; document.querySelectorAll('#speed button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.s === s))); }
+document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => setMode(+b.dataset.mode)));
+function setMode(m) {
+  S.mode = m;
+  document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.mode === m)));
+  renderLegend();
+}
+function renderLegend() {
+  const L = $('legend');
+  if (S.mode === 1) {
+    const cols = ['#5aa8ff', '#ff8f38', '#8cff99', '#ffd84d', '#f261ff'];
+    L.innerHTML = S.gals.map((g, i) => `<span><i style="background:${cols[i]}"></i>${g.name}</span>`).join('') + (S.guestOn ? `<span><i style="background:${cols[4]}"></i>Dwarf</span>` : '');
+  } else if (S.mode === 2) {
+    L.innerHTML = '<span><i style="background:#3b7bff"></i>Approaching</span><span><i style="background:#ff4a24"></i>Receding</span>';
+  } else L.innerHTML = '<span><i style="background:#ffbf73"></i>Old</span><span><i style="background:#9cbcff"></i>Young</span><span><i style="background:#ff5a8a"></i>Gas</span>';
+}
+const sunBtn = $('sunBtn');
+sunBtn.addEventListener('click', () => { S.sunOn = !S.sunOn; sunBtn.setAttribute('aria-pressed', String(S.sunOn)); });
+const throwBtn = $('throwBtn'), aimtip = $('aimtip');
+function setThrowMode(on) { throwMode = on; throwBtn.setAttribute('aria-pressed', String(on)); aimtip.hidden = !on; stage.classList.toggle('aiming', on); }
+throwBtn.addEventListener('click', () => setThrowMode(!throwMode));
+const sheet = $('sheet');
+$('aboutBtn').addEventListener('click', () => { sheet.hidden = !sheet.hidden; if (!sheet.hidden) { updateStats(true); $('closeSheet').focus(); } });
+$('closeSheet').addEventListener('click', () => { sheet.hidden = true; $('aboutBtn').focus(); });
+
+const QUAL = [1 << 16, 1 << 17, 1 << 18, 1 << 19, 1 << 20];
+const qEl = $('quality');
+QUAL.forEach(n => {
+  const b = document.createElement('button'); b.type = 'button'; b.dataset.n = n;
+  b.textContent = n >= 1 << 20 ? '1M stars' : `${n / 1024 | 0}k`;
+  b.addEventListener('click', () => { userPickedN = true; setN(n); });
+  qEl.appendChild(b);
+});
+let userPickedN = false;
+function setN(n) {
+  if (n === P.N) return;
+  const step = S.step;
+  allocParticles(n);
+  S.init = null;
+  loadScene(S.scn.id, { keepThrows: true, keepCamera: true, regen: true, play: S.playing });
+  if (step > 0) startSeek(step);
+  qEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.n === n)));
+}
+
+// timeline
+const tl = $('timeline'), tlFill = $('tlFill'), tlHead = $('tlHead'), ticksEl = $('ticks');
+function buildTicks() {
+  const fc = S.fc; let html = '';
+  fc.peri.forEach((p, i) => {
+    const lab = i === 0 ? '1st pass' : i === 1 ? '2nd pass' : '';
+    html += `<div class="tick${i < 2 ? ' major' : ''}" style="left:${(p.step / fc.steps * 100).toFixed(2)}%" title="Closest approach ${i + 1}: ${kpc(p.sep)} kpc">${lab && !(fc.merge && fc.merge.step - p.step < fc.steps * 0.06 && i > 0) ? `<span>${lab}</span>` : ''}</div>`;
+  });
+  if (fc.merge) html += `<div class="tick major" style="left:${(fc.merge.step / fc.steps * 100).toFixed(2)}%" title="Cores merge"><span>Merger</span></div>`;
+  for (const [nm, st] of Object.entries(fc.abs || {})) html += `<div class="tick sat" style="left:${(st / fc.steps * 100).toFixed(2)}%" title="${nm === 'LMC' ? 'The LMC sinks into the Milky Way' : 'M33 falls into Andromeda'}"></div>`;
+  for (const th of S.throws) html += `<div class="tick" style="left:${(th.step / fc.steps * 100).toFixed(2)}%;background:#ffd6a0" title="Dwarf galaxy thrown"></div>`;
+  ticksEl.innerHTML = html;
+}
+function startSeek(target) {
+  target = Math.max(0, Math.min(S.fc.steps, Math.round(target)));
+  if (target < S.step) resetSim();
+  S.seekTo = target;
+}
+let tlDrag = false;
+function tlSeek(e) {
+  const r = tl.getBoundingClientRect();
+  const f = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+  startSeek(f * S.fc.steps);
+}
+tl.addEventListener('pointerdown', (e) => { tlDrag = true; tl.setPointerCapture(e.pointerId); tlSeek(e); });
+tl.addEventListener('pointermove', (e) => { if (tlDrag) tlSeek(e); });
+tl.addEventListener('pointerup', () => { tlDrag = false; });
+tl.addEventListener('keydown', (e) => {
+  const d = Math.round(S.fc.steps * 0.05);
+  if (e.key === 'ArrowRight') { startSeek(S.step + d); e.preventDefault(); }
+  if (e.key === 'ArrowLeft') { startSeek(S.step - d); e.preventDefault(); }
+});
+
+addEventListener('keydown', (e) => {
+  if (e.target.closest && e.target.closest('input,textarea')) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if (k === ' ' && !(e.target.tagName === 'BUTTON')) { e.preventDefault(); playBtn.click(); }
+  else if (k === 'r') $('restartBtn').click();
+  else if (k === 'c') setMode((S.mode + 1) % 3);
+  else if (k === 't') setThrowMode(!throwMode);
+  else if (k === 's' && S.scn.sun) sunBtn.click();
+  else if (k === 'escape') { if (!sheet.hidden) { sheet.hidden = true; } setThrowMode(false); }
+  else { const s = SCENES.find(x => x.key === k); if (s) go(s.id); }
+});
+
+const hint = $('hint');
+if (coarse) hint.textContent = 'Drag to orbit · Pinch to zoom · Tap Throw to launch a galaxy';
+let hintTimer = setTimeout(hideHint, 9000);
+function hideHint() { hint.classList.add('out'); clearTimeout(hintTimer); }
+
+function syncUI(changed) {
+  const scn = S.scn;
+  document.querySelectorAll('.scene').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === scn.id)));
+  $('desig').textContent = scn.desig;
+  sunBtn.hidden = !scn.sun;
+  futEl.hidden = !scn.lg;
+  if (scn.lg) futText();
+  setPlaying(S.playing);
+  renderLegend();
+  qEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.n === P.N)));
+  if (changed) showCaption(null);
+}
+
+// captions
+const capEl = $('caption');
+let capShownAt = 0, capCurrent = null;
+function showCaption(c) {
+  const p = capEl.querySelector('p');
+  if (c === capCurrent) return;
+  capCurrent = c;
+  p.classList.add('out');
+  clearTimeout(showCaption.t);
+  if (!c) return;
+  showCaption.t = setTimeout(() => {
+    const text = typeof c.text === 'function' ? c.text(S.fc, S) : c.text;
+    p.innerHTML = '';
+    p.appendChild(document.createTextNode(text));
+    if (c.src) { const s = document.createElement('span'); s.className = 'src'; s.textContent = c.src; p.appendChild(s); }
+    p.classList.remove('out');
+    capShownAt = performance.now();
+  }, reduceMotion ? 0 : 450);
+}
+function updateCaption() {
+  if (S.seekTo >= 0) return;
+  let cur = null;
+  for (const e of S.events) { if (e.step <= S.step) cur = e; else break; }
+  if (cur && cur.c !== capCurrent) showCaption(cur.c);
+  if (!cur && capCurrent) showCaption(null);
+}
+
+// readouts
+const clockV = $('clockV'), clockU = $('clockU'), readout = $('readout');
+function fmtTime() {
+  const scn = S.scn;
+  if (scn.clock) {
+    const gyr = scn.clock.anchor + (S.step - S.anchorStep) * DT * MYR / 1000;
+    return [gyr.toFixed(2), 'billion years from now'];
+  }
+  const myr = S.step * DT * MYR;
+  return myr < 1000 ? [String(Math.round(myr)), 'million years elapsed'] : [(myr / 1000).toFixed(2), 'billion years elapsed'];
+}
+let lastHud = 0;
+function updateHud(now) {
+  const f = S.fc.steps ? S.step / S.fc.steps : 0;
+  tlFill.style.width = (f * 100).toFixed(2) + '%';
+  tlHead.style.left = (f * 100).toFixed(2) + '%';
+  if (now - lastHud < 90) return;
+  lastHud = now;
+  tl.setAttribute('aria-valuenow', String(Math.round(f * 100)));
+  const [v, u] = fmtTime();
+  clockV.textContent = v; clockU.textContent = u;
+  const c = S.cores;
+  const d = V3.len(V3.sub(c.x[1], c.x[0]));
+  const dv = V3.sub(c.v[1], c.v[0]);
+  const rv = V3.dot(dv, V3.sub(c.x[1], c.x[0])) / (d || 1);
+  const merged = S.fc.merge && S.step >= S.fc.merge.step;
+  const ns = P.N - P.NG + (S.guestOn ? P.NG : 0);
+  const nsTxt = ns >= 1e6 ? (ns / 1e6).toFixed(2) + 'M' : Math.round(ns / 1000) + 'k';
+  if (merged) readout.innerHTML = `<span>Cores <b>merged</b></span><span>Stars <b>${nsTxt}</b></span>`;
+  else readout.innerHTML = `<span>Separation <b>${kpc(d)} kpc</b></span><span>${rv < 0 ? 'Closing' : 'Receding'} at <b>${Math.round(Math.abs(rv) * KMS)} km/s</b></span><span class="hide-sm">Stars <b>${nsTxt}</b></span>`;
+}
+const stats = { steps: 0, frames: 0, t0: performance.now(), sps: 0, fps: 0 };
+function updateStats(force) {
+  const now = performance.now(), dt = (now - stats.t0) / 1000;
+  if (dt > 1 || force) {
+    if (dt > 0.2) { stats.sps = stats.steps / dt; stats.fps = stats.frames / dt; }
+    stats.steps = 0; stats.frames = 0; stats.t0 = now;
+    if (!sheet.hidden) {
+      const nStars = P.N - P.NG + (S.guestOn ? P.NG : 0);
+      $('stats').innerHTML = `<dt>Stars</dt><dd>${nStars.toLocaleString()}</dd>
+        <dt>Steps per second</dt><dd>${Math.round(stats.sps)}</dd>
+        <dt>Star updates per second</dt><dd>${(stats.sps * P.N / 1e6).toFixed(1)} million</dd>
+        <dt>Frames per second</dt><dd>${Math.round(stats.fps)}</dd>
+        <dt>Color buffer</dt><dd>${RT.fmt && RT.fmt.hdr ? 'HDR, 16-bit float' : '8-bit'}</dd>`;
+    }
+  }
+}
+
+// ===================================================================
+//  The Local Group ensemble: hundreds of possible futures
+// ===================================================================
+const ENS = { cache: {}, n: coarse ? 240 : 400 };
+const LG_STEPS = Math.round(222.2 / 0.06);
+function ensFor(key) {
+  if (!ENS.cache[key]) ENS.cache[key] = { key, opts: Object.assign({}, LG.opts), results: [], next: 1, merged: 0, layer: null };
+  return ENS.cache[key];
+}
+function ensTick(budget) {
+  if (!S.scn || !S.scn.lg) return;
+  const e = ensFor(lgKey());
+  if (e.next > ENS.n) return;
+  const t0 = performance.now();
+  while (e.next <= ENS.n && performance.now() - t0 < budget) {
+    const r = runMember(e.next, e.opts, LG_STEPS, 0.06, 10);
+    e.results.push(r); if (r.merge > 0) e.merged++; e.next++;
+    chartLine(e, r);
+  }
+  futText();
+}
+function ensSummary() {
+  const key = lgKey(), e = ENS.cache[key], done = e ? e.results.length : 0;
+  const cfg = { '11': '', '01': ' without the LMC', '10': ' without M33', '00': ' with neither satellite' }[key];
+  if (done < 40) return 'A 2025 study that ran 50,000 futures like this one found about a 50% chance of a merger within 10 billion years: a coin flip.';
+  const pct = Math.round(100 * e.merged / done);
+  return `Across ${done} possible futures${cfg}, ${pct}% end in a merger within 10 billion years. The 2025 study found ${LG_PUB[key]}${key === '11' ? ', a coin flip' : ''}. ` +
+    (key === '11' ? 'Switch off the LMC or M33 to see how each one shifts the odds.' : 'Switch both satellites back on to compare.');
+}
+
+const futEl = $('futures'), futHead = $('futHead'), futBody = $('futBody'), futChart = $('futChart');
+const futCtx = futChart.getContext('2d');
+let futW = 0, futH = 0, futDpr = 1;
+const CH = { l: 30, r: 6, t: 8, b: 18 };
+const chX = (f) => CH.l + f * (futW - CH.l - CH.r);
+const chY = (sepU) => { const k = Math.sqrt(Math.min(900, Math.max(0, sepU * KPC)) / 900); return futH - CH.b - k * (futH - CH.t - CH.b); };
+function chartSize() {
+  const r = futChart.getBoundingClientRect();
+  if (!r.width) return false;
+  futDpr = Math.min(devicePixelRatio || 1, 2);
+  if (Math.round(r.width) !== futW || Math.round(r.height) !== futH) {
+    futW = Math.round(r.width); futH = Math.round(r.height);
+    futChart.width = futW * futDpr; futChart.height = futH * futDpr;
+    for (const e of Object.values(ENS.cache)) e.layer = null;
+  }
+  return true;
+}
+function chartLayer(e) {
+  if (e.layer) return e.layer;
+  const c = document.createElement('canvas'); c.width = futW * futDpr; c.height = futH * futDpr;
+  e.layer = c; const x = c.getContext('2d'); x.setTransform(futDpr, 0, 0, futDpr, 0, 0);
+  for (const r of e.results) chartLine(e, r, x);
+  return c;
+}
+function chartLine(e, r, x) {
+  if (!x) { if (!e.layer) return; x = e.layer.getContext('2d'); }
+  const n = r.sep.length;
+  x.strokeStyle = r.merge > 0 ? 'rgba(243,184,110,0.16)' : 'rgba(146,183,255,0.16)';
+  x.lineWidth = 1;
+  x.beginPath();
+  for (let q = 0; q < n; q++) { const X = chX(q / (n - 1)), Y = chY(r.sep[q]); if (q) x.lineTo(X, Y); else x.moveTo(X, Y); if (r.merge > 0 && q * 10 > r.merge + 10) break; }
+  x.stroke();
+}
+function drawChart() {
+  if (!S.scn.lg || futBody.hidden || !chartSize()) return;
+  const x = futCtx, e = ensFor(lgKey());
+  x.setTransform(futDpr, 0, 0, futDpr, 0, 0);
+  x.clearRect(0, 0, futW, futH);
+  // axes
+  x.font = '400 9.5px "IBM Plex Mono", ui-monospace, monospace'; x.fillStyle = 'rgba(162,159,174,.9)';
+  x.strokeStyle = 'rgba(236,231,221,.10)'; x.lineWidth = 1;
+  for (const k of [200, 800]) { const Y = Math.round(chY(k / KPC)) + 0.5; x.beginPath(); x.moveTo(CH.l, Y); x.lineTo(futW - CH.r, Y); x.stroke(); x.textAlign = 'right'; x.fillText(String(k), CH.l - 5, Y + 3); }
+  x.save(); x.setLineDash([3, 3]); x.strokeStyle = 'rgba(243,184,110,.55)';
+  const Y20 = Math.round(chY(2)) + 0.5; x.beginPath(); x.moveTo(CH.l, Y20); x.lineTo(futW - CH.r, Y20); x.stroke(); x.restore();
+  x.textAlign = 'right'; x.fillStyle = 'rgba(243,184,110,.9)'; x.fillText('20', CH.l - 5, Y20 + 3);
+  x.fillStyle = 'rgba(162,159,174,.9)';
+  for (const g of [0, 2.5, 5, 7.5, 10]) { x.textAlign = g === 0 ? 'left' : g === 10 ? 'right' : 'center'; x.fillText(g === 10 ? '10 Gyr' : String(g), chX(g / 10), futH - 4); }
+  x.drawImage(chartLayer(e), 0, 0, futW, futH);
+  // this run
+  const fc = S.fc, ser = fc.series, n = ser.length, upto = Math.min(n - 1, Math.floor(S.step / fc.every));
+  x.lineWidth = 1.6; x.strokeStyle = 'rgba(236,231,221,.35)';
+  x.beginPath(); for (let q = 0; q < n; q++) { const X = chX(q * fc.every / fc.steps), Y = chY(ser[q]); if (q) x.lineTo(X, Y); else x.moveTo(X, Y); } x.stroke();
+  x.strokeStyle = '#ffffff'; x.lineWidth = 2;
+  x.beginPath(); for (let q = 0; q <= upto; q++) { const X = chX(q * fc.every / fc.steps), Y = chY(ser[q]); if (q) x.lineTo(X, Y); else x.moveTo(X, Y); } x.stroke();
+  const hx = chX(Math.min(1, S.step / fc.steps)), hy = chY(ser[upto]);
+  x.fillStyle = '#ffffff'; x.beginPath(); x.arc(hx, hy, 3, 0, TAU); x.fill();
+}
+const futPct = $('futPct'), futOf = $('futOf'), futNote = $('futNote'), futRef = $('futRef');
+function futText() {
+  if (!S.scn || !S.scn.lg) return;
+  const key = lgKey(), e = ensFor(key), done = e.results.length;
+  futPct.textContent = done ? `${Math.round(100 * e.merged / done)}%` : '…';
+  futOf.textContent = done < ENS.n ? `of ${done} so far` : `of ${done}`;
+  const fc = S.fc;
+  const who = LG.member === 0 ? 'Best current measurements' : `Future no. ${LG.member}`;
+  let note = `${who}: ${fc.merge ? `merger in ${gyrAt(fc.merge.step)} billion years` : 'no merger within 10 billion years'}.`;
+  if (fc.abs.LMC) note += ` The LMC sinks in at ${gyrAt(fc.abs.LMC)} Gyr.`;
+  if (fc.abs.M33) note += ` M33 joins Andromeda at ${gyrAt(fc.abs.M33)} Gyr.`;
+  if (S.throws.length) note += ' Your dwarf galaxy is changing this future.';
+  futNote.textContent = note;
+  const names = { '11': 'Both', '01': 'No LMC', '10': 'No M33', '00': 'Neither' };
+  const here = Object.values(ENS.cache).filter(c => c.results.length >= ENS.n).map(c => `${names[c.key]} ${Math.round(100 * c.merged / c.results.length)}%`);
+  futRef.innerHTML = `Published (Sawala et al. 2025): <b>${LG_PUB[key]}</b>` + (here.length > 1 ? `<br>This model: ${here.join(' · ')}` : '');
+}
+function setFutOpen(open) { futHead.setAttribute('aria-expanded', String(open)); futBody.hidden = !open; }
+futHead.addEventListener('click', () => setFutOpen(futBody.hidden));
+setFutOpen(!(coarse || matchMedia('(max-width: 760px)').matches));
+function lgReload() { loadScene('localgroup', { keepCamera: true, play: true }); futText(); }
+$('lmcBtn').addEventListener('click', (ev) => { LG.opts.lmc = !LG.opts.lmc; ev.currentTarget.setAttribute('aria-pressed', String(LG.opts.lmc)); lgReload(); });
+$('m33Btn').addEventListener('click', (ev) => { LG.opts.m33 = !LG.opts.m33; ev.currentTarget.setAttribute('aria-pressed', String(LG.opts.m33)); lgReload(); });
+$('rollBtn').addEventListener('click', () => {
+  let k; do { k = 1 + Math.floor(Math.random() * ENS.n); } while (k === LG.member);
+  LG.member = k; lgReload();
+});
+
+// ===================================================================
+//  Main loop
+// ===================================================================
+let last = performance.now(), slow = 0;
+S.runId = 1;
+function frame(now) {
+  const rdt = Math.min(0.1, (now - last) / 1000); last = now;
+  stats.frames++;
+  // adaptive resolution: back off if we're struggling
+  if (rdt > 0.028) slow++; else slow = Math.max(0, slow - 1);
+  if (slow > 45 && renderScale > 1) { renderScale = Math.max(1, renderScale - 0.25); slow = 0; resize(); }
+  else if (slow > 90 && P.N > (1 << 18) && S.step < 900 && S.seekTo < 0 && !userPickedN) { slow = 0; setN(P.N >> 1); }
+
+  let n = 0;
+  if (S.seekTo >= 0) {
+    const cap = P.N > 600000 ? 22 : 40;
+    n = Math.min(cap, S.seekTo - S.step);
+    if (n <= 0) { S.seekTo = -1; n = 0; }
+  } else if (S.playing) {
+    S.acc += rdt * S.scn.pace * S.speed * slowMo(S.step);
+    n = Math.min(Math.floor(S.acc), 14);
+    S.acc -= Math.floor(S.acc);
+    if (S.step + n >= S.fc.steps) { n = Math.max(0, S.fc.steps - S.step); setPlaying(false); }
+  }
+  for (let k = 0; k < n; k++) simStep();
+  if (S.seekTo >= 0 && S.step >= S.seekTo) S.seekTo = -1;
+
+  ensTick(coarse ? 5 : 7);
+  updateCamera(rdt);
+  render(now / 1000);
+  drawOverlay();
+  if (S.scn.lg) drawChart();
+  updateCaption();
+  updateHud(now);
+  updateStats(false);
+  requestAnimationFrame(frame);
+}
+
+canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); fail('The graphics context was lost.', 'Reload the page to bring the stars back.'); });
+
+// boot
+allocParticles(pickN());
+resize();
+const startId = SCENE_BY_ID[location.hash.slice(1)] ? location.hash.slice(1) : 'andromeda';
+loadScene(startId);
+setSpeed(1); setMode(0);
+requestAnimationFrame((t) => { last = t; frame(t); });
+
+// test hooks (harmless for viewers)
+window.__ccSeekDone = () => S.seekTo < 0;
+window.__cc = {
+  go: (id) => loadScene(id), seek: (u) => startSeek(u / DT), state: () => ({ step: S.step, steps: S.fc.steps, fc: S.fc, N: P.N, hdr: RT.fmt.hdr, sun: S.sunKpc() }),
+  setN, setMode, cam, pause: () => setPlaying(false), play: () => setPlaying(true),
+  throwAt: (x, v) => launch(x, v), exposure: (e) => { exposure = e; },
+};
+})();
+
+</script>
+
+</body></html>
