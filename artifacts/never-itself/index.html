@@ -905,8 +905,10 @@ tr.is-on td {
   color: var(--ns-sheet);
 }
 
-tr.is-cut {
-  display: none;
+tr.is-cut td {
+  opacity: 0.45;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
 }
 
 .ns-sheet-cut {
@@ -915,7 +917,6 @@ tr.is-cut {
   border-top: 1.5px dashed var(--ns-red);
   font-size: 12px;
   color: var(--ns-soft);
-  cursor: pointer;
 }
 
 /* ---------- the figure sits wider than the text */
@@ -1480,7 +1481,7 @@ tr.is-cut {
           <tbody data-sheet-rows></tbody>
         </table>
       </div>
-      <p class="ns-sheet-cut" data-cut>✂ The days run backwards, from 31 at the top, so the used day at the bottom could be cut off and burned.</p>
+      <p class="ns-sheet-cut" data-cut>✂ The days run backwards, from 31 at the top, so each used day at the bottom could be cut off and burned. Days already used are struck through here, and you can still pick them.</p>
     </div>
   </section>
 
@@ -3164,7 +3165,8 @@ let day = Math.min(31, Math.max(1, new Date().getDate()));
 function renderSheet() {
   rowsEl.innerHTML = SHEET.map((row) => {
     const used = row.day < day;
-    return `<tr data-day="${row.day}"${row.day === day ? ' class="is-on" aria-current="true"' : ""}${used ? ' class="is-cut"' : ""} tabindex="${used ? -1 : 0}"><td>${row.day}</td><td>${row.order.join(" ")}</td><td>${row.rings.map(NUM).join(" ")}</td><td>${row.plugs}</td><td class="ns-hide-s">${row.groups.join(" ")}</td></tr>`;
+    // days already used are shown cut (struck through and faded) but stay selectable
+    return `<tr data-day="${row.day}"${row.day === day ? ' class="is-on" aria-current="true"' : ""}${used ? ' class="is-cut"' : ""} tabindex="0"><td>${row.day}</td><td>${row.order.join(" ")}</td><td>${row.rings.map(NUM).join(" ")}</td><td>${row.plugs}</td><td class="ns-hide-s">${row.groups.join(" ")}</td></tr>`;
   }).join("");
   const on = $(".is-on", rowsEl);
   const scroller = $(".ns-sheet-scroll");
@@ -3183,7 +3185,7 @@ function setDay(next, { start } = {}) {
 rowsEl.addEventListener("click", (event) => {
   if (reading) return;
   const tr = event.target.closest("tr[data-day]");
-  if (tr && !tr.classList.contains("is-cut")) setDay(Number(tr.dataset.day));
+  if (tr) setDay(Number(tr.dataset.day));
 });
 rowsEl.addEventListener("keydown", (event) => {
   const tr = event.target.closest("tr[data-day]");
@@ -3192,8 +3194,6 @@ rowsEl.addEventListener("keydown", (event) => {
     setDay(Number(tr.dataset.day));
   }
 });
-// a cut row can be had back: click the scissors line to restore the whole month
-$("[data-cut]").addEventListener("click", () => reading || setDay(31));
 
 // ---------------------------------------------------------------- settings strip
 function showSettings(state) {
@@ -3362,16 +3362,17 @@ $("[data-demo]").addEventListener("click", async (event) => {
 
 // a read holds the machine: no hand input, no day or wheel changes, until it is done
 async function owning(fn) {
+  if (reading) return;
   letGo();
   reading = true;
   E.lock(true);
-  $$("[data-read], [data-demo], [data-pad-clear]").forEach((el) => (el.disabled = true));
+  $$("[data-read], [data-demo], [data-pad-clear], [data-incoming-load]").forEach((el) => (el.disabled = true));
   try {
     return await fn();
   } finally {
     reading = false;
     E.lock(false);
-    $$("[data-read], [data-demo], [data-pad-clear]").forEach((el) => (el.disabled = false));
+    $$("[data-read], [data-demo], [data-pad-clear], [data-incoming-load]").forEach((el) => (el.disabled = false));
   }
 }
 
