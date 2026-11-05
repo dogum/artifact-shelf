@@ -3087,9 +3087,11 @@ new IntersectionObserver((entries) => {
 }, { rootMargin: "120px 0px" }).observe(stage);
 
 // ---------------------------------------------------------------- input
+// while the page runs a read through the machine, hand input is held off so it can't step the wheels mid-read
+let locked = false;
 const typing = (target) => target && (target.closest("input, textarea, select, [contenteditable]") !== null);
 document.addEventListener("keydown", (event) => {
-  if (event.metaKey || event.ctrlKey || event.altKey || typing(event.target)) return;
+  if (locked || event.metaKey || event.ctrlKey || event.altKey || typing(event.target)) return;
   const letter = /^[a-z]$/i.test(event.key) ? event.key.toUpperCase() : "";
   if (letter) {
     event.preventDefault();
@@ -3102,6 +3104,7 @@ document.addEventListener("keyup", (event) => {
 });
 let pointerKey = null;
 stage.addEventListener("pointerdown", (event) => {
+  if (locked) return;
   const keyEl = event.target.closest(".en-key");
   if (keyEl) {
     pointerKey = D.keys[Number(keyEl.dataset.key)].ch;
@@ -3140,7 +3143,7 @@ function turnTo(pos) {
 }
 
 // what the page around the figure can call
-window.enigma = { bus, setMachine, pressKey, releaseKey, turnTo, setApart, snapshot, get trace() { return trace; } };
+window.enigma = { bus, setMachine, pressKey, releaseKey, turnTo, setApart, snapshot, lock: (on) => (locked = on), get trace() { return trace; } };
 setMachine(snapshot(), { quiet: true });
 // ---------------------------------------------------------------- the page around the machine
 const E = window.enigma;
@@ -3150,7 +3153,8 @@ const NUM = (p) => String(p + 1).padStart(2, "0");
 const letters = (pos) => pos.map((p) => ABC[p]).join("");
 const posOf = (text) => [...text].map((ch) => ABC.indexOf(ch));
 const SHEET = keySheet(1940);
-let busy = false; // a program (an incoming message, the 1941 read) is driving the machine
+let busy = false; // a program (an incoming message, the 1941 read, Show me) is driving the machine
+let reading = false; // a read owns the machine: hand input and setting changes wait until it ends
 
 // ---------------------------------------------------------------- I. the key sheet
 const rowsEl = $("[data-sheet-rows]");
@@ -3177,18 +3181,19 @@ function setDay(next, { start } = {}) {
 }
 
 rowsEl.addEventListener("click", (event) => {
+  if (reading) return;
   const tr = event.target.closest("tr[data-day]");
   if (tr && !tr.classList.contains("is-cut")) setDay(Number(tr.dataset.day));
 });
 rowsEl.addEventListener("keydown", (event) => {
   const tr = event.target.closest("tr[data-day]");
-  if (tr && (event.key === "Enter" || event.key === " ")) {
+  if (tr && !reading && (event.key === "Enter" || event.key === " ")) {
     event.preventDefault();
     setDay(Number(tr.dataset.day));
   }
 });
 // a cut row can be had back: click the scissors line to restore the whole month
-$("[data-cut]").addEventListener("click", () => setDay(31));
+$("[data-cut]").addEventListener("click", () => reading || setDay(31));
 
 // ---------------------------------------------------------------- settings strip
 function showSettings(state) {
@@ -3230,15 +3235,13 @@ function resetPad(note = "") {
 
 E.bus.addEventListener("press", (event) => {
   const { key, lamp, state } = event.detail;
-  if (!busy) {
+  // the form holds 600 letters; past that it stops writing, so the start it shows still opens the message
+  if (!busy && pad.input.length < 600) {
     if (!pad.start) pad.start = [...current];
     pad.input += key;
     pad.output += lamp;
-    if (pad.input.length > 600) {
-      pad.input = pad.input.slice(-600);
-      pad.output = pad.output.slice(-600);
-    }
     renderPad();
+    if (pad.input.length === 600) $("[data-pad-note]").textContent = "The form is full at 600 letters. Clear it to start another message.";
   }
   current = state.pos;
   showSettings(state);
@@ -3252,6 +3255,7 @@ E.bus.addEventListener("set", (event) => {
 });
 
 $("[data-pad-clear]").addEventListener("click", () => {
+  if (reading) return;
   if (pad.start) muted(() => E.turnTo(pad.start));
   resetPad();
 });
@@ -3298,18 +3302,30 @@ const quiet = matchMedia("(prefers-reduced-motion: reduce)");
 
 // ---------------------------------------------------------------- "Show me": lift the stack and type slowly
 // The last key stays down, so its lamp and its road through the wheels stay lit until you touch anything.
+// The demo works on the machine you were using, so it saves the settings first and puts them back as soon as
+// you type or click: a message you were writing carries on from where it was.
 let held = null;
+let demoSaved = null;
 const letGo = () => {
   if (held) E.releaseKey(held);
   held = null;
+  if (demoSaved) {
+    program++;
+    const saved = demoSaved;
+    demoSaved = null;
+    busy = false;
+    muted(() => E.setMachine(saved, { quiet: true }));
+  }
 };
-addEventListener("keydown", letGo, true);
+addEventListener("keydown", (event) => reading || letGo(), true);
 addEventListener("pointerdown", (event) => {
-  if (!event.target.closest("[data-demo]")) letGo();
+  if (!reading && !event.target.closest("[data-demo]")) letGo();
 }, true);
 $("[data-demo]").addEventListener("click", async (event) => {
+  if (reading) return;
   const button = event.currentTarget;
   letGo();
+  demoSaved = E.snapshot();
   button.disabled = true;
   busy = true;
   try {
@@ -3338,10 +3354,24 @@ $("[data-demo]").addEventListener("click", async (event) => {
       await wait(500);
     }
   } finally {
-    busy = false;
     button.disabled = false;
   }
 });
+
+// a read holds the machine: no hand input, no day or wheel changes, until it is done
+async function owning(fn) {
+  letGo();
+  reading = true;
+  E.lock(true);
+  $$("[data-read], [data-demo], [data-pad-clear]").forEach((el) => (el.disabled = true));
+  try {
+    return await fn();
+  } finally {
+    reading = false;
+    E.lock(false);
+    $$("[data-read], [data-demo], [data-pad-clear]").forEach((el) => (el.disabled = false));
+  }
+}
 
 // ---------------------------------------------------------------- an incoming message (#msg=day.START.CIPHER)
 const incoming = (() => {
@@ -3361,7 +3391,7 @@ if (incoming) {
     $(".en-fig").scrollIntoView({ behavior: quiet.matches ? "auto" : "smooth", block: "center" });
     await wait(quiet.matches ? 0 : 700);
     pad.start = posOf(incoming.start);
-    await typeOut(incoming.cipher, { rate: 7 });
+    await owning(() => typeOut(incoming.cipher, { rate: 7 }));
   });
 }
 
@@ -3553,9 +3583,11 @@ cribEl.addEventListener("pointerup", endDrag);
 cribEl.addEventListener("pointercancel", endDrag);
 
 // ---------------------------------------------------------------- read the 1941 message on this machine
-$("[data-read]").addEventListener("click", async (event) => {
-  const button = event.currentTarget;
-  button.disabled = true;
+$("[data-read]").addEventListener("click", () => owning(read41));
+// The read borrows the machine: it saves your settings, sets the 1941 key, and gives yours back at the end,
+// so a message you were writing on the day's key carries on where it was.
+async function read41() {
+  const saved = E.snapshot();
   busy = true;
   const box = $("[data-decrypt]");
   box.hidden = false;
@@ -3567,14 +3599,14 @@ $("[data-read]").addEventListener("click", async (event) => {
   $("[data-gloss]").hidden = true;
   const fast = quiet.matches;
   try {
-    E.setMachine({ ...KEY41, pos: posOf("WXC") });
+    muted(() => E.setMachine({ ...KEY41, pos: posOf("WXC") }));
     say(`Wheels <b>II IV V</b>, rings <b>02 21 12</b>, plugs <b>AV BS CG DL FU HZ IN KM OW RX</b>: the key for that day.`);
     await wait(fast ? 0 : 600);
     let key = "";
     say(`Start at <b>WXC</b>, as sent in the clear, and type the enciphered message key <b>KCH</b>: the lamps give <b data-mk></b>.`);
     await typeOut("KCH", { rate: fast ? 200 : 3, onLetter: (_, lamp) => (key += lamp, ($("[data-mk]").textContent = key)) });
     await wait(fast ? 0 : 500);
-    E.turnTo(posOf(key));
+    muted(() => E.turnTo(posOf(key)));
     say(`Set the wheels to <b>${key}</b> and type the 174 letters of cipher.`);
     let text = "";
     const ok = await typeOut(INTERCEPT, { rate: fast ? 400 : 22, onLetter: (_, lamp) => {
@@ -3584,14 +3616,14 @@ $("[data-read]").addEventListener("click", async (event) => {
     if (ok) {
       plain41 = text;
       $("[data-gloss]").hidden = false;
-      $("[data-read-say]").textContent = "The crib places that were really in the message are marked on the track.";
+      $("[data-read-say]").textContent = "The crib places that were really in the message are marked on the track. The machine is back on your settings.";
       renderCrib({ follow: false });
     }
   } finally {
+    muted(() => E.setMachine(saved, { quiet: true }));
     busy = false;
-    button.disabled = false;
   }
-});
+}
 
 // ---------------------------------------------------------------- start
 setDay(day);
