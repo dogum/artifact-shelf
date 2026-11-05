@@ -1,0 +1,753 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Folded Sky</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300;1,9..144,500&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap">
+<style>
+/* Layout: the sky is the page. Chrome floats on it as thin smoked-glass slips —
+   a wordmark top-left, a control dock along the bottom, an anatomy drawer on the right. */
+:root{
+  --bg:#0a0f1c;            /* night zenith, behind the canvas while it boots */
+  --glass:rgba(10,14,24,.72);
+  --glass-2:rgba(10,14,24,.55);
+  --glass-strong:rgba(9,12,21,.84);
+  --fg:#ece7da;            /* warm paper */
+  --mute:#a79f8d;
+  --accent:#f0b353;        /* sodium amber, the sun */
+  --accent-ink:#2a1a05;
+  --line:rgba(236,231,218,.14);
+  --code:#cbd6ff;          /* cool code ink against the warm UI */
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:13px;line-height:1.45;overflow:hidden}
+canvas#gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+canvas#gl.dragging{cursor:grabbing}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* wordmark */
+.mark{position:fixed;top:calc(env(safe-area-inset-top,0px) + 16px);left:max(16px,env(safe-area-inset-left,0px));z-index:5;pointer-events:none;padding:10px 16px 11px 14px;border-radius:8px;background:var(--glass-2);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line)}
+.mark h1{font-family:var(--display);font-weight:300;font-style:italic;font-size:clamp(28px,4vw,44px);line-height:1;margin:0;letter-spacing:-.01em;font-variation-settings:"opsz" 144}
+.mark p{margin:6px 0 0;color:var(--mute);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.mark p b{color:var(--fg);font-weight:500}
+.mark p.by{margin-top:5px;font-family:var(--display);font-style:italic;font-size:15px;letter-spacing:0;text-transform:none;color:var(--mute)}
+.mark a,.drawer a{pointer-events:auto;color:var(--fg);text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
+.mark a:hover,.drawer a:hover{color:var(--accent)}
+
+/* boot overlay */
+#boot{position:fixed;inset:0;z-index:9;display:grid;place-items:center;background:var(--bg);transition:opacity .6s;pointer-events:none}
+#boot.gone{opacity:0}
+#boot.failed{z-index:5;opacity:1;text-align:center;padding-inline:max(24px,env(safe-area-inset-left,0px))}
+#boot.failed div{max-width:36ch;line-height:1.45}
+.nogl .seg,.nogl .sliders,.nogl #fps,.nogl #pause,.nogl #tune,.nogl #split{display:none!important}
+#note{color:var(--mute);font-size:11px;max-width:34ch;line-height:1.35}
+#boot div{font-family:var(--display);font-style:italic;font-size:18px;color:var(--mute)}
+#boot div span{display:inline-block;width:1.4em;text-align:left}
+
+/* dock */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;
+  padding-block:12px calc(env(safe-area-inset-bottom,0px) + 12px);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background:var(--glass-strong);border-top:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--glass-2);gap:2px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:6px 12px;color:var(--mute);cursor:pointer;letter-spacing:.02em;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:500}
+.ctl{display:flex;flex-direction:column;gap:3px;min-width:0}
+.ctl label,.ctl .row{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);display:flex;justify-content:space-between;gap:10px}
+.ctl .row label{all:unset;cursor:default}
+.ctl label output,.ctl .row output{color:var(--fg);font-variant-numeric:tabular-nums}
+.ctl input[type=range]{width:132px;accent-color:var(--accent);margin:0;height:18px}
+.sliders{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:flex-end}
+.sliders.hidden-ctls{display:none}
+.dock .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.pill{border:1px solid var(--line);background:var(--glass-2);color:var(--fg);border-radius:999px;padding:7px 14px;cursor:pointer}
+.pill[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.mini{border:1px solid var(--line);background:transparent;color:var(--mute);border-radius:999px;padding:0 7px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;line-height:15px}
+.mini[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+#tune{display:none}
+#fps{color:var(--mute);font-variant-numeric:tabular-nums;font-size:11px;min-width:5.5em;text-align:right}
+
+/* split handle */
+#split{position:fixed;top:0;bottom:0;width:0;z-index:4;display:none;pointer-events:none}
+#split.on{display:block}
+#split::before{content:"";position:absolute;top:0;bottom:0;left:-1px;width:2px;background:var(--fg);opacity:.8;box-shadow:0 0 12px rgba(0,0,0,.6)}
+#split .grip{position:absolute;top:50%;left:-18px;width:36px;height:36px;border-radius:50%;background:var(--fg);color:var(--bg);display:grid;place-items:center;transform:translateY(-50%);pointer-events:auto;cursor:ew-resize;font-size:14px;box-shadow:0 2px 12px rgba(0,0,0,.5)}
+#split .tag{position:absolute;top:calc(env(safe-area-inset-top,0px) + 24px);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg);background:var(--glass);padding:4px 8px;border-radius:4px;white-space:nowrap}
+#split .tag.l{right:12px}#split .tag.r{left:12px}
+
+/* anatomy drawer */
+.drawer{position:fixed;top:0;right:0;bottom:0;z-index:7;width:min(460px,100%);background:var(--glass);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-left:1px solid var(--line);transform:translateX(102%);transition:transform .45s cubic-bezier(.2,.8,.2,1);overflow-y:auto;overscroll-behavior:contain;
+  padding-block:calc(env(safe-area-inset-top,0px) + 20px) calc(env(safe-area-inset-bottom,0px) + 110px);
+  padding-left:22px;padding-right:max(22px,env(safe-area-inset-right,0px))}
+.drawer.open{transform:none}
+.drawer h2{font-family:var(--display);font-weight:300;font-style:italic;font-size:30px;margin:0 0 4px;line-height:1.05;text-wrap:balance}
+.drawer .lede{color:var(--mute);margin:0 0 18px;font-size:12px;max-width:40ch}
+.drawer .x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);right:max(14px,env(safe-area-inset-right,0px));width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;cursor:pointer}
+pre.one{margin:0 0 18px;white-space:pre-wrap;word-break:break-all;font-size:12.5px;line-height:1.7;color:var(--code);padding:14px;border:1px solid var(--line);border-radius:6px;background:rgba(0,0,0,.25)}
+pre.one span{border-radius:3px;padding:1px 0;transition:background .15s,color .15s;cursor:default}
+pre.one span.hot,.notes li.hot{background:var(--accent);color:var(--accent-ink)}
+.notes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.notes li{padding:9px 11px;border-radius:6px;border:1px solid transparent;cursor:default;transition:background .15s}
+.notes li:hover{border-color:var(--line)}
+.notes li b{display:block;font-family:var(--display);font-style:italic;font-weight:500;font-size:15px;margin-bottom:2px}
+.notes li small{color:var(--mute);display:block}
+.notes li.hot small{color:var(--accent-ink)}
+.drawer h3{font-family:var(--display);font-style:italic;font-weight:500;font-size:19px;margin:26px 0 8px}
+.drawer p{margin:0 0 10px;max-width:46ch;color:var(--fg)}
+.drawer p.m{color:var(--mute)}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;font-size:12px}
+.cmp div:nth-child(odd){color:var(--mute)}
+.cmp div{padding:6px 0;border-bottom:1px solid var(--line)}
+.cmp .h{color:var(--accent);font-size:10px;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid var(--accent)}
+kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-radius:3px;padding:0 5px}
+@media (max-width:640px){
+  .ctl input[type=range]{width:100%}
+  .sliders{display:none;order:3;width:100%;display:none;grid-template-columns:1fr 1fr;gap:10px 16px}
+  .sliders.open{display:grid}
+  .sliders.open.hidden-ctls{display:none}
+  #tune{display:inline-block}
+  #how{padding-inline:11px}
+  .mark p.stats{display:none}
+  #split .tag{top:calc(env(safe-area-inset-top,0px) + 84px)}
+  .dock{gap:8px 12px}
+}
+@media (prefers-reduced-motion:reduce){.drawer{transition:none}}
+</style>
+
+<canvas id="gl" aria-label="Volumetric cloud rendering; drag to look around"></canvas>
+
+<div id="boot"><div id="boot-msg">Baking the noise volume<span id="dots">…</span></div></div>
+
+<header class="mark">
+  <h1>Folded Sky</h1>
+  <p class="by">After <a href="https://x.com/YoheiNishitsuji" target="_blank" rel="noopener">Yohei Nishitsuji</a></p>
+  <p class="stats"><b id="chars">—</b> characters in the original &middot; 98 steps &middot; 19 folds</p>
+</header>
+
+<div id="split"><div class="tag l">Original</div><div class="tag r">Rebuilt</div><div class="grip" role="slider" aria-label="Compare divider" tabindex="0">&#8596;</div></div>
+
+<nav class="dock" aria-label="Controls">
+  <div class="seg" role="group" aria-label="Mode">
+    <button id="m-orig" aria-pressed="false">Original</button>
+    <button id="m-new" aria-pressed="false">Rebuilt</button>
+    <button id="m-cmp" aria-pressed="true">Side by side</button>
+  </div>
+  <div class="sliders" id="sliders">
+    <div class="ctl"><label for="sun">Sun <output id="sun-o">24°</output></label><input id="sun" type="range" min="-4" max="70" step="0.5" value="24"></div>
+    <div class="ctl"><label for="alt">Altitude <output id="alt-o">5.8 km</output></label><input id="alt" type="range" min="0.1" max="9" step="0.1" value="5.8"></div>
+    <div class="ctl"><label for="cov">Coverage <output id="cov-o">0.45</output></label><input id="cov" type="range" min="0.05" max="1" step="0.01" value="0.45"></div>
+    <div class="ctl"><label for="den">Density <output id="den-o">1.00</output></label><input id="den" type="range" min="0.2" max="3" step="0.05" value="1"></div>
+    <div class="ctl"><label for="wind">Wind <output id="wind-o">1.0</output></label><input id="wind" type="range" min="0" max="4" step="0.1" value="1"></div>
+    <div class="ctl"><label for="steps">Steps <output id="steps-o">40</output></label><input id="steps" type="range" min="16" max="96" step="8" value="40"></div>
+    <div class="ctl"><div class="row"><label for="res">Pixels</label><span><output id="res-o">70%</output> <button class="mini" id="auto" aria-pressed="true" title="Adjust resolution to hold the frame rate">auto</button></span></div><input id="res" type="range" min="0.3" max="1" step="0.05" value="0.7"></div>
+  </div>
+  <div class="right">
+    <span id="note" hidden></span>
+    <span id="fps">— fps</span>
+    <button class="pill" id="tune" aria-pressed="false">Tune</button>
+    <button class="pill" id="pause" aria-pressed="false">Pause</button>
+    <button class="pill" id="how">How it works</button>
+  </div>
+</nav>
+
+<aside class="drawer" id="drawer" aria-label="How the shader works">
+  <button class="x" id="close" aria-label="Close">&#215;</button>
+  <h2>How 280 characters become a sky</h2>
+  <p class="lede">Hover a fragment of the one-liner, or a note below it. This is the twigl "geekest" dialect: <code>FC</code> is the pixel, <code>r</code> the resolution, <code>t</code> time, <code>o</code> the output color.</p>
+  <pre class="one" id="one"></pre>
+  <ul class="notes" id="notes"></ul>
+
+  <h3>Why it reads as clouds</h3>
+  <p>Nothing in the code knows about clouds. Nineteen rounds of <code>abs()</code>, a scale and an offset build a <em>kaleidoscopic IFS</em> fractal, and the <code>7.1/dot(p,p)</code> term is a sphere inversion, which turns the flat folds into rounded, billowing lobes at every scale. The camera is orthographic, tilted about 63&deg; so the fractal's "up" lands at the top of the frame.</p>
+  <p>The color trick is the clever part. Each step <em>subtracts</em> a faint orange. Where the ray passes through dense fractal structure, little gets subtracted and the pixel stays near white. Where it passes through nothing, 98 subtractions of orange leave you with its complement, sky blue. Translucency, lighting and sky come from one line of arithmetic.</p>
+
+  <h3>What the rebuild does instead</h3>
+  <p class="m">The right side is a conventional real-time cloud renderer, the kind used in games, with everything the one-liner fakes done explicitly.</p>
+  <div class="cmp">
+    <div class="h">Original</div><div class="h">Rebuilt</div>
+    <div>IFS fractal as density</div><div>A 128&sup3; Perlin&ndash;Worley volume baked on the GPU at load, eroded by a Worley detail channel, shaped by a two-scale weather map and a cumulus height profile. Mipmapped and sampled at each step's footprint, so distant cloud doesn't shimmer.</div>
+    <div>Orthographic camera on a fixed tilt</div><div>Perspective camera on a planet of radius 6360&nbsp;km. Clouds fill a shell from 1.5 to 4.2&nbsp;km; Altitude flies you from the ground up through the deck and out above it.</div>
+    <div>Color by subtraction</div><div>Beer&ndash;Lambert transmittance, four octaves of approximate multiple scattering with a Henyey&ndash;Greenstein phase, a six-sample light march, and sky light averaged over the hemisphere.</div>
+    <div>Sky implied</div><div>Rayleigh, Mie and ozone single scattering, with aerial perspective applied to both clouds and ground. The sun reddens as it drops and the clouds follow.</div>
+    <div>No ground</div><div>Fields and forest from the same noise, with cloud shadows that drift with the wind.</div>
+    <div>98 steps, every frame from scratch</div><div>About 40 jittered steps per frame, blended with the previous frames after reprojecting them, so a still view converges to hundreds of samples per pixel.</div>
+    <div>Animation: axis wobble</div><div>Wind carries the volume; the detail noise drifts slowly so the edges boil.</div>
+  </div>
+  <p class="m" style="margin-top:14px">Drag the sky to look around. <kbd>space</kbd> pauses. Pixels adjusts itself to hold the frame rate; tap auto to pin it. On a laptop with two GPUs, make sure the browser runs on the discrete one.</p>
+  <p class="m">Original shader by <a href="https://x.com/YoheiNishitsuji" target="_blank" rel="noopener">Yohei Nishitsuji</a>, posted on X as a twigl one-liner; ported here with its two built-ins (<code>hsv</code>, <code>rotate3D</code>) defined inline.</p>
+</aside>
+
+<script>
+// ---------- the original one-liner, kept verbatim for the anatomy panel ----------
+const ORIGINAL = "for(float i,g,e,s;++i<99.;o.rgb+=.01-hsv(.1,g*.016-e*.3,s/2e2)){vec3 p=vec3((FC.xy-.5*r)/r.y*5.+vec2(0,9),g)*rotate3D(-1.1-cos(t*.15)*.1,vec3(1,11.+sin(t)*.15,-1.5));s=2.;for(int i;i++<19;p=vec3(.08,4,-1)-abs(abs(p)*e-vec3(3,4,3)))s*=e=7.1/dot(p,p*.51);g+=p.y/s;s=log2(s)/exp(e);}";
+document.getElementById('chars').textContent = ORIGINAL.length;
+
+const PARTS = [
+ ["for(float i,g,e,s;++i<99.;", "Ray march, 98 steps", "i counts steps, g is how far along the ray we are, e the current fold scale, s a running density."],
+ ["o.rgb+=.01-hsv(.1,g*.016-e*.3,s/2e2)", "Color by subtraction", "Each step subtracts a faint orange (hue .1). Thin structure stays white; empty air ends up the complement: blue. This is the sky, the lighting and the translucency, all at once."],
+ [")", "", ""],
+ ["{vec3 p=vec3((FC.xy-.5*r)/r.y*5.+vec2(0,9),g)", "Orthographic camera", "The pixel becomes a point: screen x,y (scaled, pushed 9 units up) and g units deep. Parallel rays, no perspective."],
+ ["*rotate3D(-1.1-cos(t*.15)*.1,vec3(1,11.+sin(t)*.15,-1.5));", "Tilt the world", "Rotate the whole space about 63° around a slowly wobbling axis. This is the only animation."],
+ ["s=2.;", "Reset the scale", "The accumulated scale starts at 2 for each ray step."],
+ ["for(int i;i++<19;p=vec3(.08,4,-1)-abs(abs(p)*e-vec3(3,4,3)))", "19 kaleidoscopic folds", "abs() mirrors space across the axes; scale by e, shift, mirror again. Repeat 19 times and a plain box becomes an infinitely detailed fractal (a KIFS)."],
+ ["s*=e=7.1/dot(p,p*.51);", "Sphere inversion", "e = 7.1 / (0.51·|p|²). Points near the origin are blown up, far ones shrunk. That inversion is what rounds the folds into billows. s multiplies up the scale, a running Jacobian."],
+ ["g+=p.y/s;", "Distance estimate", "The classic DE trick: folded height divided by accumulated scale is a safe step size. The ray advances that far."],
+ ["s=log2(s)/exp(e);", "Density for this step", "Squash the scale into something small, dim it by the inversion factor, and feed it back to the color line as brightness."],
+ ["}", "", ""],
+];
+(function buildAnatomy(){
+  const pre = document.getElementById('one'), ul = document.getElementById('notes');
+  PARTS.forEach((p,i)=>{
+    const s = document.createElement('span'); s.textContent = p[0]; s.dataset.k = i; pre.appendChild(s);
+    if(!p[1]) return;
+    const li = document.createElement('li'); li.dataset.k = i;
+    li.innerHTML = `<b>${p[1]}</b><small>${p[2]}</small>`; ul.appendChild(li);
+  });
+  const hot = k => { document.querySelectorAll('[data-k]').forEach(el=>el.classList.toggle('hot', el.dataset.k===k)); };
+  const wire = el => { el.addEventListener('pointerenter', ()=>hot(el.dataset.k)); el.addEventListener('pointerleave', ()=>hot(null)); el.addEventListener('click', ()=>hot(el.dataset.k)); };
+  document.querySelectorAll('#one span, #notes li').forEach(wire);
+})();
+// the explanation must work even if WebGL never starts: wire the drawer before any GL code
+const $=id=>document.getElementById(id);
+$('how').addEventListener('click',()=>$('drawer').classList.add('open'));
+$('close').addEventListener('click',()=>$('drawer').classList.remove('open'));
+
+// ---------- shaders ----------
+const VS = `#version 300 es
+void main(){ vec2 v=vec2((gl_VertexID<<1)&2, gl_VertexID&2); gl_Position=vec4(v*2.-1.,0,1); }`;
+
+// The original, ported. twigl's two built-ins are defined inline; the loop body is untouched.
+const FS_ORIG = `#version 300 es
+precision highp float;
+uniform vec2 r; uniform float t; out vec4 O;
+vec3 hsv(float h,float s,float v){vec4 k=vec4(1.,2./3.,1./3.,3.);vec3 p=abs(fract(vec3(h)+k.xyz)*6.-vec3(k.w));return v*mix(vec3(k.x),clamp(p-vec3(k.x),0.,1.),s);}
+mat3 rotate3D(float a,vec3 ax){vec3 n=normalize(ax);float s=sin(a),c=cos(a),q=1.-c;
+ return mat3(n.x*n.x*q+c,n.y*n.x*q+n.z*s,n.z*n.x*q-n.y*s, n.x*n.y*q-n.z*s,n.y*n.y*q+c,n.z*n.y*q+n.x*s, n.x*n.z*q+n.y*s,n.y*n.z*q-n.x*s,n.z*n.z*q+c);}
+void main(){
+  vec2 FC=gl_FragCoord.xy; vec4 o=vec4(0,0,0,1);
+  for(float i=0.,g=0.,e=0.,s=0.;++i<99.;o.rgb+=.01-hsv(.1,g*.016-e*.3,s/2e2)){
+    vec3 p=vec3((FC.xy-.5*r)/r.y*5.+vec2(0,9),g)*rotate3D(-1.1-cos(t*.15)*.1,vec3(1,11.+sin(t)*.15,-1.5));
+    s=2.;
+    for(int j=0;j++<19;p=vec3(.08,4,-1)-abs(abs(p)*e-vec3(3,4,3)))s*=e=7.1/dot(p,p*.51);
+    g+=p.y/s;s=log2(s)/exp(e);
+  }
+  O=vec4(clamp(o.rgb,0.,1.),1.);
+}`;
+
+// Bakes one layer of the tileable noise volume. R: Perlin-Worley (cloud shape). G: Worley fBm (edge detail).
+const FS_BAKE = `#version 300 es
+precision highp float; precision highp int;
+uniform float uLayer, uN;
+out vec4 O;
+uint pcg(uint v){uint s=v*747796405u+2891336453u;uint w=((s>>((s>>28u)+4u))^s)*277803737u;return (w>>22u)^w;}
+float rnd(ivec3 c,int k){return float(pcg(uint(c.x)+pcg(uint(c.y)+pcg(uint(c.z)+pcg(uint(k))))))*(1./4294967296.);}
+vec3 grad(ivec3 c,int k){return normalize(vec3(rnd(c,k),rnd(c,k+101),rnd(c,k+202))*2.-1.+1e-5);}
+float perlin(vec3 x,int P,int k){
+  vec3 xs=x*float(P); vec3 fl=floor(xs); ivec3 i=ivec3(fl); vec3 f=xs-fl; vec3 u=f*f*f*(f*(f*6.-15.)+10.);
+  float r=0.;
+  for(int c=0;c<8;c++){
+    ivec3 o=ivec3(c&1,(c>>1)&1,(c>>2)&1);
+    vec3 w=mix(1.-u,u,vec3(o));
+    r+=dot(grad((i+o)%P,k),f-vec3(o))*w.x*w.y*w.z;
+  }
+  return r;
+}
+float worley(vec3 x,int F,int k){
+  vec3 xs=x*float(F); vec3 fl=floor(xs); ivec3 i=ivec3(fl); vec3 f=xs-fl; float md=9.;
+  for(int c=0;c<27;c++){
+    ivec3 o=ivec3(c%3,(c/3)%3,c/9)-1;
+    ivec3 cc=(i+o+F)%F;
+    vec3 d=vec3(o)+vec3(rnd(cc,k),rnd(cc,k+1),rnd(cc,k+2))-f;
+    md=min(md,dot(d,d));
+  }
+  return clamp(1.-sqrt(md),0.,1.);
+}
+void main(){
+  vec3 x=vec3(gl_FragCoord.xy,uLayer+.5)/uN;
+  float p=0.,a=1.,n=0.;
+  for(int o=0;o<5;o++){p+=a*perlin(x,4<<o,7+o*13);n+=a;a*=.5;}
+  p=clamp((p/n*.5+.5-.2)/.6,0.,1.);
+  float wf=.625*worley(x,4,11)+.25*worley(x,8,23)+.125*worley(x,16,37);
+  float pw=wf+p*(1.-wf);
+  float wd=.625*worley(x,8,51)+.25*worley(x,16,61)+.125*worley(x,32,71);
+  O=vec4(clamp((pw-.55)/.36,0.,1.),clamp((wd-.24)/.5,0.,1.),0.,1.);
+}`;
+
+// The rebuild. Everything is in camera-local metres (camera at the origin, planet centre straight
+// below), heights use a cancellation-free formula, and every volume fetch uses an explicit LOD
+// so the result is the same on every GPU and driver.
+const FS_TRACE = `#version 300 es
+precision highp float; precision highp sampler3D; precision highp sampler2D;
+uniform vec2 uRes, uJit;
+uniform float uFrame, uCov, uDen, uSteps, uExp, uHc, uAlpha, uHistMinX;
+uniform vec3 uSun, uSunT0, uSunC, uAmbTop, uAmbBot, uWindOff, uWindDelta, uEvolve;
+uniform mat3 uCam, uPrevCam;
+uniform sampler3D uNoise; uniform sampler2D uHist;
+out vec4 O;
+#define PI 3.14159265
+const float R_E=6360e3, C_B=1500., C_T=4200., SIG=.04, F=1.05, SUN_I=22., H_R=8000., H_M=1200.;
+const vec3 bR=vec3(5.8e-6,13.5e-6,33.1e-6), bO=vec3(.65e-6,1.881e-6,.085e-6);
+const float bM=10e-6;
+
+float remap(float v,float a,float b,float c,float d){return c+clamp((v-a)/(b-a),0.,1.)*(d-c);}
+float ign(vec2 p){return fract(52.9829189*fract(dot(p,vec2(.06711056,.00583715))));}
+float hg(float mu,float g){float k=1.+g*g-2.*g*mu;return (1.-g*g)/(4.*PI*k*sqrt(k));}
+vec3 aces(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}
+// ACES alone pushes saturated sunset orange toward cream; blend in a version that keeps the hue
+vec3 tonemap(vec3 x){float L=dot(x,vec3(.2126,.7152,.0722));vec3 b=x*(aces(vec3(L)).x/max(L,1e-5));return clamp(mix(aces(x),b,.45),0.,1.);}
+float hgt(vec3 p){float a=R_E+uHc+p.y;float b2=dot(p.xz,p.xz);return uHc+p.y+b2/(sqrt(a*a+b2)+a);}
+// both distances along rd to the sphere at altitude H (stable quadratic); (-1,-1) on a miss
+vec2 shell(vec3 rd,float H){
+  float b=(R_E+uHc)*rd.y, c=(uHc-H)*(2.*R_E+uHc+H), d=b*b-c;
+  if(d<0.)return vec2(-1.);
+  float q=-(b+(b>=0.?1.:-1.)*sqrt(d)), r=c/q;
+  return vec2(min(q,r),max(q,r));
+}
+vec3 sunTrans(float h,float cs){
+  float am=min(cs>0.?1./(cs+.025):40.,40.);
+  return exp(-((bR+bO)*exp(-h/H_R)*H_R+bM*1.11*exp(-h/H_M)*H_M)*am);
+}
+// single-scattering sky, 8 samples, each lit through its own path to the sun
+vec3 sky(vec3 d,float tmax,out vec3 Tv){
+  float mu=dot(d,uSun);
+  float pr=3./(16.*PI)*(1.+mu*mu);
+  const float g=.88; float k=1.+g*g-2.*g*mu;
+  float pm=3./(8.*PI)*(1.-g*g)*(1.+mu*mu)/((2.+g*g)*k*sqrt(k));
+  vec3 sR=vec3(0.),sM=vec3(0.); float oR=0.,oM=0.,tp=0.;
+  for(int i=0;i<8;i++){
+    float f=(float(i)+1.)/8., t=tmax*f*f, dt=t-tp, tm=t-.5*dt; tp=t;
+    vec3 p=d*tm; float h=max(hgt(p),0.);
+    vec3 up=normalize(vec3(p.x,R_E+uHc+p.y,p.z));
+    float hr=exp(-h/H_R)*dt, hm=exp(-h/H_M)*dt;
+    vec3 tv=exp(-((bR+bO)*(oR+.5*hr)+bM*1.11*(oM+.5*hm)));
+    vec3 ts=sunTrans(h,dot(up,uSun));
+    sR+=hr*tv*ts; sM+=hm*tv*ts; oR+=hr; oM+=hm;
+  }
+  Tv=exp(-((bR+bO)*oR+bM*1.11*oM));
+  return SUN_I*(bR*pr*sR+bM*pm*sM)+vec3(.0004,.0007,.0015);
+}
+// fp = footprint of this sample in metres; picks the mip level
+float density(vec3 p,float h,float fp,bool detail){
+  if(h<=0.||h>=1.)return 0.;
+  vec3 q=p+uWindOff;
+  float lw=max(0.,log2(fp/625.));
+  float w=.7*textureLod(uNoise,vec3(q.xz*1.25e-5,.31),lw).r+.3*textureLod(uNoise,vec3(q.xz*5e-5+vec2(.37,.11),.71),lw+2.).r;
+  float cov=remap(w,.9-uCov*.85,1.15-uCov*.85,0.,1.);
+  cov*=smoothstep(0.,.08,h)*smoothstep(1.,.5,h);
+  if(cov<.005)return 0.;
+  float sn=textureLod(uNoise,q*2e-4,max(0.,log2(fp/39.))).r;
+  float base=remap(sn,1.-cov,1.,0.,1.)*cov;
+  if(base<=0.)return 0.;
+  if(detail){
+    float dn=textureLod(uNoise,q*1.6e-3+uEvolve,max(0.,log2(fp/4.9))).g;
+    base=remap(base,mix(dn,1.-dn,clamp(h*5.,0.,1.))*.35,1.,0.,1.);
+  }
+  return base*uDen;
+}
+float cloudShadow(vec3 gp){
+  float cs=max(uSun.y,.06), od=0.;
+  for(int k=0;k<4;k++){
+    float hh=(float(k)+.5)*.25;
+    od+=density(gp+uSun*((C_B+(C_T-C_B)*hh)/cs),hh,300.,false);
+  }
+  return exp(-od*(C_T-C_B)*.25/cs*SIG*.35);
+}
+vec3 ground(vec3 gp,float fp){
+  float lod=max(0.,log2(fp/130.));
+  float n=textureLod(uNoise,vec3(gp.xz*6e-5,.62),lod).r;
+  float m=textureLod(uNoise,vec3(gp.xz*5e-4,.13),lod+3.).g;
+  vec3 alb=mix(vec3(.028,.042,.022),vec3(.10,.10,.055),smoothstep(.35,.7,n))*(.75+.5*m);
+  float sh=cloudShadow(gp);
+  return alb*(uSunT0*SUN_I*max(uSun.y,0.)*(sh+(1.-sh)*.28)/PI+uAmbTop*.8);
+}
+void main(){
+  vec2 fc=gl_FragCoord.xy;
+  vec3 rd0=normalize(uCam*vec3((fc-.5*uRes)/uRes.y,F));
+  vec3 rd=normalize(uCam*vec3((fc+uJit-.5*uRes)/uRes.y,F));
+  float pixAng=1./(uRes.y*F);
+  float jit=ign(fc+5.588238*mod(uFrame,64.)), jl=fract(jit*1.618034+.31);
+
+  // background: ground or sky
+  vec3 Tb, bg; float vis=1.;
+  vec2 g=shell(rd,0.);
+  bool hitG=g.x>0.;
+  if(hitG){ vec3 ins=sky(rd,g.x,Tb); bg=ground(rd*g.x,g.x*pixAng)*Tb+ins; vis=0.; }
+  else bg=sky(rd,shell(rd,60e3).y,Tb);
+
+  // the stretch of this ray that lies inside the cloud shell
+  vec2 sb=shell(rd,C_B), st=shell(rd,C_T);
+  float t0=-1., t1=-1.;
+  if(uHc<C_B){ if(!hitG){t0=sb.y;t1=st.y;} }
+  else if(uHc<C_T){ t0=0.; t1=sb.x>0.?sb.x:st.y; }
+  else if(st.x>0.){ t0=st.x; t1=sb.x>0.?sb.x:st.y; }
+
+  vec3 cl=vec3(0.); float T=1., tw=0., ws=0.;
+  if(t0>=0.&&t0<160000.){
+    t1=min(t1,t0+30000.);
+    float dt=(t1-t0)/uSteps, t=t0+dt*jit, mu=dot(rd,uSun);
+    float p0=mix(hg(mu,.8),hg(mu,-.2),.3), p1=mix(hg(mu,.4),hg(mu,-.1),.3), p2=mix(hg(mu,.2),hg(mu,-.05),.3);
+    float pw0=.15+.35*(.5-.5*mu);
+    for(float i=0.;i<uSteps;i++){
+      vec3 p=rd*t;
+      float h=(hgt(p)-C_B)/(C_T-C_B);
+      float fp=max(t*pixAng,dt*.25);
+      float d=density(p,h,fp,true);
+      if(d>.003){
+        float od=0., cum=0., seg=50.;
+        for(int j=0;j<6;j++){
+          vec3 lp=p+uSun*(cum+seg*jl);
+          od+=density(lp,(hgt(lp)-C_B)/(C_T-C_B),max(fp,seg*.3),j<2)*seg;
+          cum+=seg; seg*=1.6;
+        }
+        float e=od*SIG;
+        // four scattering octaves: each sees less extinction and a broader phase
+        vec3 sunL=uSunC*(exp(-e)*p0+.5*exp(-e*.35)*p1+.25*exp(-e*.12)*p2+.15*exp(-e*.04)*.0796);
+        sunL*=1.-pw0*exp(-e*1.5);
+        vec3 amb=uAmbTop*(.4+.6*h)+uAmbBot*(1.-h);
+        float Tr=exp(-d*SIG*dt), a=T*(1.-Tr);
+        cl+=(sunL+amb)*a; tw+=t*a; ws+=a;
+        T*=Tr; if(T<.003)break;
+      }
+      t+=dt; if(t>t1)break;
+    }
+  }
+  vec3 col=bg;
+  if(ws>0.){ vec3 Tc; vec3 ins=sky(rd,tw/ws,Tc); col=cl/max(ws,1e-4)*(1.-T)*Tc+ins*(1.-T)+bg*T; }
+  vec4 cur=vec4(tonemap(col*uExp),T*vis);
+  if(!(cur.x+cur.y+cur.z+cur.w>=0.))cur=vec4(0.);
+
+  // temporal accumulation: find where this pixel's content sat last frame
+  vec3 pd=ws>.05?normalize(rd0*(tw/ws)+uWindDelta):rd0;
+  vec3 q=transpose(uPrevCam)*pd;
+  float a=uAlpha; vec4 hist=cur;
+  if(q.z>.01){
+    vec2 pf=q.xy/q.z*F*uRes.y+.5*uRes;
+    if(pf.x>uHistMinX+1.&&pf.x<uRes.x-1.&&pf.y>1.&&pf.y<uRes.y-1.)hist=texture(uHist,pf/uRes); else a=1.;
+  } else a=1.;
+  if(!(hist.x+hist.y+hist.z+hist.w>=0.)){hist=cur;}
+  O=mix(hist,cur,a);
+}`;
+
+// Puts the accumulated clouds on screen and adds the sun disk at full resolution.
+const FS_COMP = `#version 300 es
+precision highp float; precision highp sampler2D;
+uniform sampler2D uImg; uniform vec2 uScreen; uniform mat3 uCam; uniform vec3 uSun, uSunRad; uniform float uExp, uFrame;
+out vec4 O;
+vec3 aces(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}
+float ign(vec2 p){return fract(52.9829189*fract(dot(p,vec2(.06711056,.00583715))));}
+void main(){
+  vec2 fc=gl_FragCoord.xy;
+  vec4 c=texture(uImg,fc/uScreen);
+  vec3 rd=normalize(uCam*vec3((fc-.5*uScreen)/uScreen.y,1.05));
+  float disk=smoothstep(.99995,.99998,dot(rd,uSun));
+  vec3 col=c.rgb+aces(uSunRad*uExp)*disk*c.a;
+  col=pow(clamp(col,0.,1.),vec3(1./2.2));
+  col+=(ign(fc+5.588238*mod(uFrame,64.))-.5)/255.;
+  O=vec4(col,1.);
+}`;
+
+// ---------- the same atmosphere in JS, for the handful of per-frame constants ----------
+const ATM={RE:6360e3,bR:[5.8e-6,13.5e-6,33.1e-6],bO:[.65e-6,1.881e-6,.085e-6],bM:10e-6,HR:8000,HM:1200,SUN:22};
+function sunTr(h,cs){
+  const am=Math.min(cs>0?1/(cs+.025):40,40), r=Math.exp(-h/ATM.HR)*ATM.HR*am, m=Math.exp(-h/ATM.HM)*ATM.HM*am;
+  return [0,1,2].map(k=>Math.exp(-((ATM.bR[k]+ATM.bO[k])*r+ATM.bM*1.11*m)));
+}
+function skyJS(d,s,hc,capMie){
+  const RE=ATM.RE, Rc=RE+hc, Ra=RE+60e3, b=Rc*d[1], c=Rc*Rc-Ra*Ra, tmax=-b+Math.sqrt(b*b-c);
+  const mu=d[0]*s[0]+d[1]*s[1]+d[2]*s[2], PI=Math.PI, g=.88, k=1+g*g-2*g*mu;
+  const pr=3/(16*PI)*(1+mu*mu); let pm=3/(8*PI)*(1-g*g)*(1+mu*mu)/((2+g*g)*k*Math.sqrt(k));
+  if(capMie) pm=Math.min(pm,.3); // the aureole is tiny; a sparse average must not land on it
+  const sR=[0,0,0],sM=[0,0,0]; let oR=0,oM=0,tp=0;
+  for(let i=0;i<8;i++){
+    const f=(i+1)/8,t=tmax*f*f,dt=t-tp,tm=t-.5*dt; tp=t;
+    const px=d[0]*tm,py=Rc+d[1]*tm,pz=d[2]*tm, len=Math.hypot(px,py,pz), h=Math.max(len-RE,0);
+    const cs=(px*s[0]+py*s[1]+pz*s[2])/len;
+    const hr=Math.exp(-h/ATM.HR)*dt, hm=Math.exp(-h/ATM.HM)*dt, ts=sunTr(h,cs);
+    for(let j=0;j<3;j++){
+      const tv=Math.exp(-((ATM.bR[j]+ATM.bO[j])*(oR+.5*hr)+ATM.bM*1.11*(oM+.5*hm)));
+      sR[j]+=hr*tv*ts[j]; sM[j]+=hm*tv*ts[j];
+    }
+    oR+=hr; oM+=hm;
+  }
+  return [0,1,2].map(j=>ATM.SUN*(ATM.bR[j]*pr*sR[j]+ATM.bM*pm*sM[j])+[.0004,.0007,.0015][j]);
+}
+const lum=c=>.2126*c[0]+.7152*c[1]+.0722*c[2];
+
+// ---------- GL plumbing ----------
+const canvas=$('gl');
+const gl=canvas.getContext('webgl2',{antialias:false,alpha:false,depth:false,stencil:false,powerPreference:'high-performance'});
+const boot=$('boot');
+function fail(msg){
+  boot.classList.remove('gone'); boot.classList.add('failed'); document.body.classList.add('nogl');
+  $('boot-msg').textContent=msg+' The explanation of the one-liner still works: open How it works.';
+  throw new Error(msg);
+}
+if(!gl) fail('This page needs WebGL2, which this browser has turned off. Try another browser or device.');
+// software rendering (no usable GPU): start small so the first frames arrive quickly
+const RENDERER=(()=>{try{let r=String(gl.getParameter(gl.RENDERER));
+  if(/webkit webgl/i.test(r)){const d=gl.getExtension('WEBGL_debug_renderer_info'); if(d) r=String(gl.getParameter(d.UNMASKED_RENDERER_WEBGL));}
+  return r;}catch(e){return '';}})();
+const SOFTWARE=/swiftshader|llvmpipe|softpipe|software|basic render/i.test(RENDERER);
+const glErr=[];
+function prog(fs,name){
+  const mk=(t,src)=>{const o=gl.createShader(t);gl.shaderSource(o,src);gl.compileShader(o);
+    if(!gl.getShaderParameter(o,gl.COMPILE_STATUS)){glErr.push(name+': '+gl.getShaderInfoLog(o));return null;}return o;};
+  const v=mk(gl.VERTEX_SHADER,VS), f=mk(gl.FRAGMENT_SHADER,fs); if(!v||!f) return null;
+  const p=gl.createProgram();gl.attachShader(p,v);gl.attachShader(p,f);gl.linkProgram(p);
+  if(!gl.getProgramParameter(p,gl.LINK_STATUS)){glErr.push(name+' (link): '+gl.getProgramInfoLog(p));return null;}
+  const u={};const n=gl.getProgramParameter(p,gl.ACTIVE_UNIFORMS);for(let i=0;i<n;i++){const a=gl.getActiveUniform(p,i);u[a.name]=gl.getUniformLocation(p,a.name);}
+  return {p,u};
+}
+// a shader that won't compile disables its half of the page, not the whole page
+const P_ORIG=prog(FS_ORIG,'original'), P_BAKE=prog(FS_BAKE,'noise'), P_TRACE=prog(FS_TRACE,'cloud'), P_COMP=prog(FS_COMP,'composite');
+const CLOUDS=!!(P_BAKE&&P_TRACE&&P_COMP), ORIG=!!P_ORIG;
+if(glErr.length) console.warn('Folded Sky: shader errors\n'+glErr.join('\n'));
+if(!CLOUDS&&!ORIG) fail('Neither shader would compile on this GPU and browser. Try another browser or device.');
+gl.bindVertexArray(gl.createVertexArray());
+
+// float targets when the GPU can render to them, plain 8-bit otherwise (values are already tone-mapped)
+let FMT = gl.getExtension('EXT_color_buffer_float') ? {i:gl.RGBA16F,t:gl.HALF_FLOAT} : {i:gl.RGBA8,t:gl.UNSIGNED_BYTE};
+function makeTarget(w,h){
+  const t=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,t);
+  gl.texImage2D(gl.TEXTURE_2D,0,FMT.i,w,h,0,gl.RGBA,FMT.t,null);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  const f=gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER,f);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,t,0);
+  const ok=gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+  if(!ok&&FMT.i!==gl.RGBA8){ gl.deleteTexture(t); gl.deleteFramebuffer(f); FMT={i:gl.RGBA8,t:gl.UNSIGNED_BYTE}; return makeTarget(w,h); }
+  return {t,f};
+}
+let RT=[null,null], cur=0;
+function freeTargets(){ for(const r of RT) if(r){gl.deleteTexture(r.t);gl.deleteFramebuffer(r.f);} RT=[null,null]; }
+
+// CPU fallback for the noise volume (64^3), used only if the GPU bake can't render into a 3D texture
+function makeNoiseCPU(N){
+  const data=new Uint8Array(N*N*N*2);
+  const hash=(x,y,z,s)=>{let n=(Math.imul(x,73856093)^Math.imul(y,19349663)^Math.imul(z,83492791)^Math.imul(s,2654435761))|0;n=Math.imul(n^(n>>>13),1274126177);n^=n>>>16;return (n>>>0)/4294967296;};
+  const G=[[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],[1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1],[0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]];
+  const fade=t=>t*t*t*(t*(t*6-15)+10);
+  const perlin=(x,y,z,P,seed)=>{const xi=Math.floor(x),yi=Math.floor(y),zi=Math.floor(z),xf=x-xi,yf=y-yi,zf=z-zi,u=fade(xf),v=fade(yf),w=fade(zf);let r=0;
+    for(let dz=0;dz<2;dz++)for(let dy=0;dy<2;dy++)for(let dx=0;dx<2;dx++){const g=G[(hash((xi+dx)%P,(yi+dy)%P,(zi+dz)%P,seed)*12)|0];r+=(g[0]*(xf-dx)+g[1]*(yf-dy)+g[2]*(zf-dz))*(dx?u:1-u)*(dy?v:1-v)*(dz?w:1-w);}return r;};
+  const worley=(x,y,z,F,seed)=>{const px=x*F,py=y*F,pz=z*F,cx=Math.floor(px),cy=Math.floor(py),cz=Math.floor(pz);let md=1e9;
+    for(let dz=-1;dz<=1;dz++)for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const ix=cx+dx,iy=cy+dy,iz=cz+dz,wx=((ix%F)+F)%F,wy=((iy%F)+F)%F,wz=((iz%F)+F)%F;
+      const d=(ix+hash(wx,wy,wz,seed)-px)**2+(iy+hash(wx,wy,wz,seed+1)-py)**2+(iz+hash(wx,wy,wz,seed+2)-pz)**2;if(d<md)md=d;}return Math.max(0,1-Math.sqrt(md));};
+  const cl=v=>Math.round(Math.min(1,Math.max(0,v))*255);
+  let i=0;
+  for(let z=0;z<N;z++)for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+    const u=x/N,v=y/N,w=z/N;let p=0,a=1,n=0;
+    for(let o=0;o<4;o++){const P=4<<o;p+=a*perlin(u*P,v*P,w*P,P,7+o);n+=a;a*=.5;}
+    p=Math.min(1,Math.max(0,(p/n*.5+.5-.2)/.6));
+    const wf=.625*worley(u,v,w,4,11)+.25*worley(u,v,w,8,23)+.125*worley(u,v,w,16,37);
+    const wd=.625*worley(u,v,w,8,51)+.25*worley(u,v,w,16,61)+.125*worley(u,v,w,32,71);
+    data[i++]=cl((wf+p*(1-wf)-.55)/.36); data[i++]=cl((wd-.24)/.5);
+  }
+  return data;
+}
+function bakeNoise(){
+  const N=128, tex=gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_3D,tex);
+  gl.texStorage3D(gl.TEXTURE_3D,8,gl.RG8,N,N,N);
+  const fb=gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER,fb);
+  gl.useProgram(P_BAKE.p); gl.uniform1f(P_BAKE.u.uN,N); gl.viewport(0,0,N,N);
+  let ok=true;
+  for(let z=0;z<N;z++){
+    gl.framebufferTextureLayer(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,tex,0,z);
+    if(z===0&&gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE){ok=false;break;}
+    gl.uniform1f(P_BAKE.u.uLayer,z); gl.drawArrays(gl.TRIANGLES,0,3);
+  }
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.deleteFramebuffer(fb);
+  let t=tex;
+  if(!ok){
+    gl.deleteTexture(tex); t=gl.createTexture(); gl.bindTexture(gl.TEXTURE_3D,t);
+    gl.texImage3D(gl.TEXTURE_3D,0,gl.RG8,64,64,64,0,gl.RG,gl.UNSIGNED_BYTE,makeNoiseCPU(64));
+  }
+  gl.bindTexture(gl.TEXTURE_3D,t);
+  gl.generateMipmap(gl.TEXTURE_3D);
+  gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);
+  gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  for(const w of [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T,gl.TEXTURE_WRAP_R]) gl.texParameteri(gl.TEXTURE_3D,w,gl.REPEAT);
+  return t;
+}
+
+// ---------- state ----------
+const SUN_AZ=0.9, WIND=[.94,0,.34];
+const S={mode:'cmp',split:.5,yaw:2.25,pitch:-.17,paused:false,auto:true,res:.7,t:0,last:performance.now(),
+  sun:24,alt:5.8,cov:.45,den:1,wind:1,steps:40,frame:0,windOff:[0,0,0],evolve:0,still:0,prevX0:0,dragging:false,
+  prevCam:null,consts:null,constKey:''};
+window.FS=S;
+// kick(n): keep at most n frames of accumulated history (0 = start over)
+const kick=n=>{S.still=Math.min(S.still,n);};
+if(SOFTWARE){$('res').value='0.3';$('steps').value='24';}
+let tex=null;
+
+function sunDir(){const el=S.sun*Math.PI/180;return [Math.cos(el)*Math.sin(SUN_AZ),Math.sin(el),Math.cos(el)*Math.cos(SUN_AZ)];}
+function camMat(yaw,pitch){
+  const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
+  const f=[sy*cp,sp,cy*cp], r=[cy,0,-sy], u=[f[1]*r[2]-f[2]*r[1],f[2]*r[0]-f[0]*r[2],f[0]*r[1]-f[1]*r[0]];
+  return new Float32Array([...r,...u,...f]);
+}
+// sun, sky light and exposure only change with the sun and the altitude
+function constants(){
+  const key=S.sun+'|'+S.alt; if(key===S.constKey) return S.consts; S.constKey=key;
+  const s=sunDir(), sT0=sunTr(0,s[1]), sC=sunTr(2800,s[1]).map(v=>v*ATM.SUN);
+  const acc=[0,0,0]; let wsum=0;
+  for(const el of [.05,.18,.36,.6,.9,1.3]) for(let k=0;k<16;k++){
+    const az=(k+.5)/16*2*Math.PI, d=[Math.cos(el)*Math.sin(az),Math.sin(el),Math.cos(el)*Math.cos(az)], L=skyJS(d,s,2800,true), w=Math.cos(el);
+    for(let j=0;j<3;j++)acc[j]+=L[j]*w; wsum+=w;
+  }
+  const ambTop=acc.map(v=>v/wsum*1.25);
+  const ambBot=[0,1,2].map(j=>.09*(sT0[j]*ATM.SUN*Math.max(s[1],0)/Math.PI+ambTop[j]));
+  const lit=Math.max(...sC)*.11+lum(ambTop)*1.2+.004;
+  const exp=Math.min(7,1.0/lit);
+  const sunRad=sunTr(S.alt*1000,s[1]).map(v=>v*ATM.SUN*60);
+  return S.consts={s,sT0,sC,ambTop,ambBot,exp,sunRad};
+}
+function halton(i,b){let f=1,r=0;while(i>0){f/=b;r+=f*(i%b);i=Math.floor(i/b);}return r;}
+
+function resize(){
+  const dpr=Math.min(devicePixelRatio||1,1.5)*S.res;
+  const w=Math.max(2,Math.round(canvas.clientWidth*dpr)), h=Math.max(2,Math.round(canvas.clientHeight*dpr));
+  if(canvas.width!==w||canvas.height!==h||!RT[0]){
+    canvas.width=w; canvas.height=h; freeTargets(); RT=[makeTarget(w,h),makeTarget(w,h)]; kick(0);
+  }
+}
+addEventListener('resize',resize);
+
+function drawOrig(x0,x1){
+  gl.scissor(x0,0,x1-x0,canvas.height);
+  gl.useProgram(P_ORIG.p);
+  gl.uniform2f(P_ORIG.u.r,canvas.width,canvas.height);
+  gl.uniform1f(P_ORIG.u.t,S.t);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+}
+function traceClouds(x0,cam,dt){
+  const W=canvas.width,H=canvas.height,C=constants(),u=P_TRACE.u,dst=RT[cur],src=RT[1-cur];
+  gl.bindFramebuffer(gl.FRAMEBUFFER,dst.f); gl.viewport(0,0,W,H); gl.scissor(x0,0,W-x0,H);
+  gl.useProgram(P_TRACE.p);
+  // running mean while the view holds still, with a floor so drifting cloud doesn't smear
+  if(S.dragging) kick(4);
+  const alpha=Math.max(S.paused?.012:.04,1/(1+S.still)); S.still++;
+  const fi=(S.frame%16)+1, v=S.paused?0:S.wind*18*dt;
+  gl.uniform2f(u.uRes,W,H); gl.uniform2f(u.uJit,halton(fi,2)-.5,halton(fi,3)-.5);
+  gl.uniform1f(u.uFrame,S.frame); gl.uniform1f(u.uCov,S.cov); gl.uniform1f(u.uDen,S.den);
+  gl.uniform1f(u.uSteps,S.steps); gl.uniform1f(u.uExp,C.exp); gl.uniform1f(u.uHc,S.alt*1000);
+  gl.uniform1f(u.uAlpha,alpha); gl.uniform1f(u.uHistMinX,S.prevX0);
+  gl.uniform3fv(u.uSun,C.s); gl.uniform3fv(u.uSunT0,C.sT0); gl.uniform3fv(u.uSunC,C.sC);
+  gl.uniform3fv(u.uAmbTop,C.ambTop); gl.uniform3fv(u.uAmbBot,C.ambBot);
+  gl.uniform3fv(u.uWindOff,S.windOff); gl.uniform3f(u.uWindDelta,WIND[0]*v,0,WIND[2]*v);
+  gl.uniform3f(u.uEvolve,S.evolve*.3,S.evolve,0);
+  gl.uniformMatrix3fv(u.uCam,false,cam); gl.uniformMatrix3fv(u.uPrevCam,false,S.prevCam||cam);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_3D,tex); gl.uniform1i(u.uNoise,0);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D,src.t); gl.uniform1i(u.uHist,1);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+  S.prevX0=x0; cur=1-cur;
+  return dst;
+}
+function composite(x0,img,cam){
+  const W=canvas.width,H=canvas.height,C=constants(),u=P_COMP.u;
+  gl.viewport(0,0,W,H); gl.scissor(x0,0,W-x0,H);
+  gl.useProgram(P_COMP.p);
+  gl.uniform2f(u.uScreen,W,H); gl.uniformMatrix3fv(u.uCam,false,cam);
+  gl.uniform3fv(u.uSun,C.s); gl.uniform3fv(u.uSunRad,C.sunRad); gl.uniform1f(u.uExp,C.exp); gl.uniform1f(u.uFrame,S.frame);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D,img.t); gl.uniform1i(u.uImg,1);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+}
+
+let fpsN=0,fpsT=performance.now(),started=performance.now();
+function frame(now){
+  const dt=Math.min(.1,(now-S.last)/1000); S.last=now;
+  if(!S.paused){
+    S.t+=dt; const v=S.wind*18*dt;
+    S.windOff[0]=(S.windOff[0]+WIND[0]*v)%80000; S.windOff[2]=(S.windOff[2]+WIND[2]*v)%80000;
+    S.evolve=(S.evolve+dt*.006)%1;
+  }
+  resize();
+  const W=canvas.width, cam=camMat(S.yaw,S.pitch);
+  const sx=S.mode==='cmp'?Math.round(S.split*W):S.mode==='orig'?W:0;
+  gl.enable(gl.SCISSOR_TEST);
+  let img=null;
+  if(sx<W) img=traceClouds(Math.max(0,sx-6),cam,dt);
+  gl.viewport(0,0,W,canvas.height);
+  if(sx>0) drawOrig(0,sx);
+  if(img) composite(sx,img,cam);
+  gl.disable(gl.SCISSOR_TEST);
+  S.prevCam=cam; S.frame++;
+  fpsN++;
+  if(now-fpsT>1000){
+    const fps=Math.round(fpsN*1000/(now-fpsT)); $('fps').textContent=fps+' fps'; fpsN=0; fpsT=now;
+    if(S.auto&&now-started>2500){
+      if(fps<26&&S.res>.35) setRes(Math.round((S.res-.05)*100)/100);
+      else if(fps>52&&S.res<.85) setRes(Math.round((S.res+.05)*100)/100);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+function setRes(v){ S.res=v; $('res').value=v; $('res-o').textContent=Math.round(v*100)+'%'; }
+
+let dots=0; const dotT=setInterval(()=>{const d=$('dots'); if(d)d.textContent='.'.repeat(1+(dots++%3));},350);
+setTimeout(()=>{
+  tex=CLOUDS?bakeNoise():null;
+  clearInterval(dotT); boot.classList.add('gone');
+  S.last=performance.now(); started=S.last;
+  requestAnimationFrame(frame);
+},40);
+
+// ---------- UI ----------
+function setMode(m){
+  if(!CLOUDS) m='orig'; else if(!ORIG) m='new';
+  if(S.mode==='orig'&&m!=='orig') kick(0);
+  S.mode=m;
+  for(const [id,k] of [['m-orig','orig'],['m-new','new'],['m-cmp','cmp']])$(id).setAttribute('aria-pressed',String(k===m));
+  $('split').classList.toggle('on',m==='cmp');
+  $('sliders').classList.toggle('hidden-ctls',m==='orig');
+  try{localStorage.setItem('fs-mode',m);}catch(e){}
+}
+['orig','new','cmp'].forEach(m=>$('m-'+m).addEventListener('click',()=>setMode(m)));
+try{setMode(localStorage.getItem('fs-mode')||'cmp');}catch(e){setMode('cmp');}
+if(!CLOUDS||!ORIG){
+  for(const id of (CLOUDS?['m-orig','m-cmp']:['m-new','m-cmp'])) $(id).hidden=true;
+  $('note').hidden=false;
+  $('note').textContent=CLOUDS?'The original shader would not compile here; showing the rebuild only.':'The rebuilt renderer would not start on this GPU; showing the original only.';
+}
+
+const fmt={sun:v=>v+'°',alt:v=>(+v).toFixed(1)+' km',cov:v=>(+v).toFixed(2),den:v=>(+v).toFixed(2),wind:v=>(+v).toFixed(1),steps:v=>v,res:v=>Math.round(v*100)+'%'};
+const keepFor={sun:2,alt:0,cov:2,den:2,wind:99,steps:2,res:99};
+for(const k of Object.keys(fmt)){
+  const el=$(k), show=()=>{$(k+'-o').textContent=fmt[k](el.value);};
+  el.addEventListener('input',()=>{
+    S[k]=+el.value; show(); kick(keepFor[k]);
+    if(k==='res'){S.auto=false;$('auto').setAttribute('aria-pressed','false');}
+  });
+  S[k]=+el.value; show();
+}
+$('auto').addEventListener('click',()=>{S.auto=!S.auto;$('auto').setAttribute('aria-pressed',String(S.auto));});
+$('tune').addEventListener('click',()=>{const o=$('sliders').classList.toggle('open');$('tune').setAttribute('aria-pressed',String(o));});
+$('pause').addEventListener('click',()=>{S.paused=!S.paused; if(!S.paused)kick(25);$('pause').setAttribute('aria-pressed',String(S.paused));$('pause').textContent=S.paused?'Play':'Pause';});
+addEventListener('keydown',e=>{if(e.code==='Space'&&!/INPUT|BUTTON/.test(document.activeElement.tagName)){e.preventDefault();$('pause').click();}});
+// look around by dragging the sky
+let drag=null;
+canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,yaw:S.yaw,pitch:S.pitch};S.dragging=true;canvas.setPointerCapture(e.pointerId);canvas.classList.add('dragging');});
+canvas.addEventListener('pointermove',e=>{if(!drag)return;const k=2.2/canvas.clientHeight;
+  S.yaw=drag.yaw+(e.clientX-drag.x)*k; S.pitch=Math.max(-1.35,Math.min(1.4,drag.pitch+(e.clientY-drag.y)*k));});
+const endDrag=()=>{drag=null;S.dragging=false;canvas.classList.remove('dragging');};
+canvas.addEventListener('pointerup',endDrag); canvas.addEventListener('pointercancel',endDrag);
+
+// compare divider
+const split=$('split'), grip=split.querySelector('.grip');
+const placeSplit=()=>{split.style.left=(S.split*100)+'%';};
+placeSplit();
+let sd=false;
+grip.addEventListener('pointerdown',e=>{sd=true;grip.setPointerCapture(e.pointerId);e.preventDefault();});
+grip.addEventListener('pointermove',e=>{if(!sd)return;S.split=Math.max(.05,Math.min(.95,e.clientX/innerWidth));placeSplit();});
+grip.addEventListener('pointerup',()=>sd=false);
+grip.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){S.split=Math.max(.05,S.split-.02);placeSplit();}if(e.key==='ArrowRight'){S.split=Math.min(.95,S.split+.02);placeSplit();}});
+</script>
+
+</body></html>
