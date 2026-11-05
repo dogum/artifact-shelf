@@ -201,12 +201,17 @@
   /* ── item page ── */
   const frame = $('.stage-frame');
   if (frame) {
+    // A link to a spot inside a piece (…/a/<slug>/#goal-895) is handed on to the piece,
+    // unless the hash names something on this page.
+    let hash = '';
+    try { if (location.hash.length > 1 && !document.getElementById(decodeURIComponent(location.hash.slice(1)))) hash = location.hash; } catch {}
+    if (hash) { const f0 = $('iframe', frame); if (f0) f0.src = frame.dataset.src + hash; }
     const start = () => {
       if ($('iframe', frame)) return $('iframe', frame);
       frame.innerHTML = '';
       const f = document.createElement('iframe');
       f.className = 'stage-iframe';
-      f.src = frame.dataset.src;
+      f.src = frame.dataset.src + hash;
       f.title = frame.dataset.title;
       f.allow = 'fullscreen; autoplay; clipboard-write; gamepad; accelerometer; gyroscope; geolocation; camera';
       f.allowFullscreen = true;
