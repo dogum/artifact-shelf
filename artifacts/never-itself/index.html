@@ -3389,11 +3389,14 @@ if (incoming) {
   $("[data-incoming-dismiss]").addEventListener("click", () => (box.hidden = true));
   $("[data-incoming-load]").addEventListener("click", async () => {
     box.hidden = true;
-    setDay(incoming.day, { start: posOf(incoming.start) });
-    $(".en-fig").scrollIntoView({ behavior: quiet.matches ? "auto" : "smooth", block: "center" });
-    await wait(quiet.matches ? 0 : 700);
-    pad.start = posOf(incoming.start);
-    await owning(() => typeOut(incoming.cipher, { rate: 7 }));
+    // hold the machine from the moment it is set, through the scroll and the playback
+    await owning(async () => {
+      setDay(incoming.day, { start: posOf(incoming.start) });
+      $(".en-fig").scrollIntoView({ behavior: quiet.matches ? "auto" : "smooth", block: "center" });
+      await wait(quiet.matches ? 0 : 700);
+      pad.start = posOf(incoming.start);
+      await typeOut(incoming.cipher, { rate: 7 });
+    });
   });
 }
 
