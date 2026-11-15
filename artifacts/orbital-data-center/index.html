@@ -4104,12 +4104,10 @@ addEventListener("resize", () => requestAnimationFrame(drawSky));
     gapLabel.setAttribute("x", ((a[0] + b[0]) / 2).toFixed(1));
     gapLabel.setAttribute("y", (Math.min(a[1], b[1]) - sq - 8).toFixed(1));
     gapLabel.textContent = `${Math.round(metres)} m`;
-    // the closest any two neighbours come at this moment
+    // the closest any two nodes come at this moment; as the grid turns, diagonal pairs can be the closest
     let near = Infinity;
-    for (let k = 0; k < P.length; k++) {
-      if (k % side + 1 < side) near = Math.min(near, Math.hypot(P[k][0] - P[k + 1][0], P[k][1] - P[k + 1][1]));
-      if (k + side < P.length) near = Math.min(near, Math.hypot(P[k][0] - P[k + side][0], P[k][1] - P[k + side][1]));
-    }
+    for (let k = 0; k < P.length; k++)
+      for (let q = k + 1; q < P.length; q++) near = Math.min(near, Math.hypot(P[k][0] - P[q][0], P[k][1] - P[q][1]));
     readout.textContent = `nearest neighbours ${Math.round(near / S)} m · this link ${Math.round(metres)} m`;
     phaseIn.value = String(phase);
     phaseSay.textContent = `${Math.round(phase)}°`;
