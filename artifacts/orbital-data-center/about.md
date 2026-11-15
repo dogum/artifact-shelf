@@ -1,41 +1,44 @@
 ---
-title: Orbital Compute Node
-summary: An isometric cutaway of a 1 MW orbital data center node, about 2030, showing how sunlight becomes compute and how every watt leaves as infrared.
+title: Orbital Data Center
+summary: Eighty-one GPU nodes flying as one data center 1,400 km up, followed from Starship's payload bay to the cluster in a 3D drawing you can turn.
 shelf: explainers
-tags: [isometric, svg, webgl, spacecraft, thermal, data-centers]
+tags: [webgl, isometric, spacecraft, starship, data-centers, thermal]
 made: 2026-10-21
+updated: 2026-11-15
 status: published
 featured: false
 autorun: true
-capture_wait: 1500
-capture_click: "[data-thermal-toggle]"
+capture_wait: 3000
+capture_click: "[data-poster]"
 capture_motion: reduce
 ---
 
-A drawing of one node of an orbital data center as it might fly around 2030: about 1.15 MW of GPUs in a 15 t spacecraft, 1,400 km up in a dawn-dusk orbit. The thin-film array is the floor of the drawing and faces the Sun, which is below it, so everything above the array sits in its shade. The figure follows one idea: power is easy to collect in orbit, and the hard part is getting rid of the heat.
+A data center in orbit as it might fly around 2030: 81 compute nodes, each about 1.15 MW of GPUs in a 15.9 t spacecraft, flying in formation 1,400 km up in a dawn-dusk orbit. The page follows one node from Starship's payload bay, through its unfolding and its climb, to its place in the cluster, then opens it up. Two findings shape the sequence: three folded nodes fill the bay at less than half of Starship's 100 t, and the radiator wings have to stay folded until the climb is over.
 
 ## How to use it
 
-- Hover the node, or tap it on a phone, to lift the lid of the compute bay. Inside are the compute sleds, with battery and converter packs on either side, where their mass shields the chips.
-- Hover a part, or press the numbered buttons under the card, to highlight one assembly and read its numbers in the corner.
-- Use the arrow keys to step through the assemblies, Space to open or close the bay, and Escape to reset.
-- The 0.8×, 1.0× and 1.2× buttons (or the keys 1, 2 and 3) set the GPU clock. The readout follows: chip power, heat to reject and the radiator temperature.
-- Thermal (or the T key) switches to a false-colour view from 260 K to 360 K: chips, cold-plate water, the ammonia loop and the radiator wall. Change the clock while it is on and the new coolant temperature climbs the radiator panels from the bottom manifold.
+- In Fig 1, press Play or pick a step: In the bay, Release, Unfold, Climb, Radiators, Cluster. The slider scrubs the whole sequence.
+- Drag the drawing to turn it. Pinch, hold ⌘ or Ctrl while scrolling, or use the − and + buttons to zoom. Double-click to go back to the step's own view. The arrow keys step through, and Space plays or pauses.
+- Point at any part to read what it is. In the cluster, it also says which of the 81 nodes it belongs to.
+- Fig 2 shows the formation seen square to the Sun over one orbit. Drag the slider to stop it at any point and read the distance between neighbours.
+- Fig 3 is the node cutaway: hover to lift the compute bay's lid, use the numbered buttons to pick an assembly, the 0.8×, 1.0× and 1.2× buttons to set the GPU clock, and Thermal (or T) for a false-colour view from 260 K to 360 K.
 
 ## How it works
 
-The drawing is built in Node with the Anatomy isometric kit. Every part is a solid of its own: prisms, turned profiles and pipes split into depth-sorted chunks. Painter's order is not set by hand. Each part records its true 3D shape, and the build ray-casts every pair that overlaps on screen, in every frame of the lid lifting, then solves the sort keys. The same recorded shapes feed an audit that passes with nothing left over: no pipe or cable passes through anything at rest or in any frame of the lid lifting, every pipe and cable ends on a real mount, and every part rests on another part. That audit is why the compute bay is six-sided with a lid. A closed cylinder cannot be lifted off its contents, because its lower wall would sweep through the stack.
+Fig 1 is drawn by a small hand-written WebGL2 renderer that copies the Anatomy kit's drawing style in 3D. The camera is orthographic, so the picture stays an isometric drawing at any angle. Each part is shaded between five tones of paper by how it faces a light that turns with the camera. A second pass draws ink outlines wherever the part under a pixel changes, the depth jumps or the surface turns sharply, read from a buffer of part ids, normals and depth. Thin detail lines (panel ribs, tile seams, hull welds) are drawn on top and tested against depth. The same id buffer answers what the pointer is over.
 
-The numbers come from a coupled sizing model of one node: orbit geometry, radiator, array, drag, radiation and cost, solved together. Its most robust design across thousands of possible futures was a dawn-dusk orbit at 1,400 km, a thin-film array at 600 W/kg, stock-temperature chips at a 1.2× clock and 10% cold spares. This drawing keeps that design, swaps the model's droplet radiator for deployable panels at 3 kg/m², and flies a small droplet sheet as a pilot. Chip power follows a DVFS model: voltage tracks clock, dynamic power goes as f·v² and leakage as v. The radiator area is fixed at the design point, so a slower clock lets the wall run cooler, as the fourth root of the heat.
+Every part of the node is built in the browser in metres, and every part that moves while the node unfolds has a pose for any point in the sequence. The spine's masts grow one bay at a time from canisters in its centre section. The four booms unroll and pull the array's folded quarters out with them. Each radiator wing slides out to its root, unfolds every panel at mid-height, then opens like an accordion while a lazy-tongs scissor behind it stretches with it. The deployed node is merged into one mesh and drawn 81 times with instancing for the cluster.
 
-The thermal view is a second WebGL layer, drawn on the plane of the radiator face. Every pixel on a panel finds its height, reads the coolant inlet temperature from a short history (the coolant takes about 2.6 s to climb a panel here, sped up for viewing), subtracts the loop's temperature drop, and cools the face slightly between flow tubes. The temperatures come from the same model as the readout: 355 K at the chips, 340 K and 328 K in the cold-plate water, 336 K and 324 K in the ammonia, and a wall that averages 330 K at the design clock. Parts that can cover the wall are drawn in a separate SVG above that layer. The build picks them by ray-casting every overlapping pair, then checks that nothing above the layer sits behind a panel, and a pixel diff with the thermal view off matches the single-layer drawing.
+The numbers come from the node's sizing model, extended for launch, climb and formation. A folded node is 7.3 m long, so the 22 m bay holds three (47.7 t), where Starship's mass limit would allow six. The climb from 270 km to 1,400 km costs the difference of the two orbital speeds, 585 m/s, which two 12 kW krypton Hall thrusters at 1,500 s supply in about 60 days for 620 kg of propellant. At 270 km the open radiator would take about 2.8 N of drag against 1.8 N of thrust, so it opens only at the top. The formation is a solution of Hill's equations: every node rides a 2:1 ellipse about the cluster's centre once an orbit, so the grid turns as one, and the distance between neighbours swings between 130 and 260 m.
 
-The droplet sheet is a WebGL shader drawn in the same isometric camera as the SVG. It sits on the plane x = const of the pilot frame, between a back SVG (the node) and a front SVG (the generator, collector and posts). The coolant marks on the pipes are dashes phased by screen arc length along each whole route, so they run through every chunk joint.
+Fig 3 is the original isometric cutaway of one node, built in Node with the Anatomy kit, with every overlapping pair of parts ray-cast to set the painter's order and an audit that checks no pipe runs through anything. Its thermal view is a WebGL layer on the radiator face.
 
 ## Notes
 
-- The radiation dose at 1,400 km is the least certain number here. Published dose figures exist for about 650 km (Google's Suncatcher work); at 1,400 km the node sits near the inner proton belt, and the real dose is probably far higher than the model's bracket.
-- Power runs from converters on the array hub up three cables to an umbilical panel on the bay. Coolant runs from cold plates in each sled to a heat exchanger in the pump package, then out to both radiator wings in an ammonia loop.
-- Hardware references: ISS radiator panels (honeycomb, 22 flow tubes per panel, flex hoses between panels, scissor deployment), the ISS pump module with its bellows accumulator, roll-out solar array booms, Starlink's argon Hall thrusters and current laser terminals.
-- The Sun-from-below layout follows from the orbit. In a dawn-dusk orbit the Sun stays near the orbit normal, so the array never needs to turn, and the radiator wall stands edge-on to both the Sun and the Earth.
-- Built with [Anatomy](https://github.com/wheresryan22/anatomy) (MIT), an agent skill for isometric figures.
+- The payload bay is drawn as a plain cylinder 8 m across and 22 m tall, the extended volume in SpaceX's 2020 Starship payload guide. The real volume narrows into the nose, so three nodes is the optimistic count. The ship is drawn a little longer than the real one to fit it.
+- The clamshell nose and the dispenser rails are illustration. SpaceX has published neither a door nor a dispenser for payloads this size; Starlink satellites leave through a slot in the side.
+- The cluster's 81 nodes, its size and the 800 Gbps links follow Google's Project Suncatcher study, which plans 81 satellites within a kilometre at 100 to 200 m spacing. Each node here has four laser telescopes, two on each radiator post, one per neighbour.
+- Drag at 270 km uses an air density of 5 × 10⁻¹¹ kg/m³. The real value swings several times over with solar activity.
+- The radiation dose at 1,400 km is the least certain number in the model: the node sits near the inner proton belt.
+- Changes to Fig 3 in this version: each laser terminal now carries two telescopes, and the node's mass includes 620 kg of krypton for the climb, which takes it from 15.3 t to 15.9 t.
+- The node cutaway is built with [Anatomy](https://github.com/wheresryan22/anatomy) (MIT), an agent skill for isometric figures. The 3D renderer follows its drawing rules.
