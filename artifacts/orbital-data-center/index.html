@@ -3519,24 +3519,25 @@ function OrbitalScene(canvas, { theme = "light", stages, cluster } = {}) {
 
   // ---------------------------------------------------------------- the state at T
   const ORBIT_S = 2.4; // seconds of animation per orbit in the cluster view
+  // every step's motion ends by 0.68 of the step: a step played on its own stops at 0.7, and the view moves on from 0.72
   function stateAt(T) {
     const stage = Math.min(5, Math.floor(T));
     const p = Math.min(1, T - stage);
     const S = { ...NODE3.STOWED };
     if (T >= 2) {
       const q = Math.min(1, T - 2);
-      S.spine = span(q, 0, 0.4);
-      S.booms = span(q, 0.3, 1);
+      S.spine = span(q, 0, 0.3);
+      S.booms = span(q, 0.22, 0.68);
     }
     if (T >= 4) {
       const q = Math.min(1, T - 4);
-      S.wings = span(q, 0, 0.85);
-      S.pilot = span(q, 0.75, 1);
+      S.wings = span(q, 0, 0.58);
+      S.pilot = span(q, 0.52, 0.68);
     }
     const open = T < 1 ? 0 : span(Math.min(1, T - 1), 0, 0.3);
     // the ship backs away from the node: out of the bay in stage 1, then off into the distance
-    const away = T < 1 ? 0 : T < 2 ? 18 * span(T - 1, 0.3, 1) : T < 3 ? 18 + 220 * span(T - 2, 0, 1) : 600;
-    return { stage, p, S, open, away, climb: T < 3 ? 0 : T < 4 ? span(T - 3, 0.05, 0.95) : 1, cluster: T < 5 ? 0 : span(T - 5, 0, 0.5) };
+    const away = T < 1 ? 0 : T < 2 ? 18 * span(T - 1, 0.3, 0.68) : T < 3 ? 18 + 220 * span(T - 2, 0, 1) : 600;
+    return { stage, p, S, open, away, climb: T < 3 ? 0 : T < 4 ? span(T - 3, 0.05, 0.68) : 1, cluster: T < 5 ? 0 : span(T - 5, 0, 0.5) };
   }
 
   // ---------------------------------------------------------------- camera
@@ -3866,7 +3867,7 @@ addEventListener("resize", () => requestAnimationFrame(drawSky));
       dirty = true;
     }
     // the cluster keeps turning once it is there
-    const moving = playing || stepOf(T) === 5 || (stepOf(T) === 3 && T - 3 > 0.05 && T - 3 < 0.95);
+    const moving = playing || stepOf(T) === 5 || (stepOf(T) === 3 && T - 3 > 0.05 && T - 3 < 0.68);
     if (dirty || moving) {
       SC.draw(T, still.matches ? 0.6 : clock);
       dirty = false;
