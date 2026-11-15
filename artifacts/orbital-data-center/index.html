@@ -589,13 +589,16 @@ body.iso { background: var(--od-bg, #f2f2ef); }
 .od-btn:hover { border-color: var(--anatomy-mid); }
 .od-play { min-width: 66px; }
 .od-zoom { display: flex; gap: 4px; }
+.od-speed { display: flex; gap: 4px; }
+.od-speed .od-btn { padding: 5px 8px; min-width: 34px; color: var(--anatomy-muted); border-color: var(--anatomy-faint); }
+.od-speed .od-btn[aria-pressed="true"] { color: var(--anatomy-strong); border-color: var(--anatomy-strong); }
 .od-zoom .od-btn { width: 30px; padding: 5px 0; }
 .od-steps { display: flex; flex-wrap: wrap; gap: 6px; }
 .od-step { font: inherit; font-size: 12px; padding: 5px 10px 5px 8px; border: 1px solid var(--anatomy-faint); background: transparent; color: var(--anatomy-text); border-radius: 4px; cursor: pointer; }
 .od-step span { color: var(--anatomy-muted); margin-right: 6px; }
 .od-step[aria-pressed="true"] { border-color: var(--anatomy-strong); color: var(--anatomy-strong); }
 .od-step[aria-pressed="true"] span { color: var(--od-accent); }
-.od-scrub { flex: 1 1 220px; accent-color: var(--od-accent); }
+.od-scrub { flex: 1 1 140px; accent-color: var(--od-accent); }
 .od-say { margin: 12px 0 0; font-size: 13px; line-height: 1.5; color: var(--anatomy-text); min-height: 3em; max-width: 820px; }
 .od-hint { margin: 4px 0 0; font-size: 11px; color: var(--anatomy-muted); }
 .od-phase { font-size: 12px; color: var(--anatomy-text); min-width: 4ch; }
@@ -633,6 +636,8 @@ body.iso { background: var(--od-bg, #f2f2ef); }
   .od-narrow { display: inline; }
   .od-fig .iso-plate { padding-bottom: 44px; }
   .od-long { display: none; }
+  .od-scrub { flex-basis: 100%; }
+  .od-zoom { margin-left: auto; }
   .od-totals dd { font-size: 19px; }
 }
 </style><div class="od">
@@ -654,7 +659,7 @@ body.iso { background: var(--od-bg, #f2f2ef); }
     <dl class="od-totals"><div><dt>Nodes</dt><dd>81</dd></div><div><dt>Starship flights</dt><dd>27</dd></div><div><dt>GPU power</dt><dd>93 MW</dd></div><div><dt>Heat to reject</dt><dd>106 MW</dd></div><div><dt>Mass in orbit</dt><dd>1,289 t</dd></div><div><dt>Array</dt><dd>0.56 km²</dd></div></dl>
   </section>
 
-  <figure class="iso-figure od-fig od-fig1"><div class="iso-plate"><div class="iso-plate-corners" aria-hidden="true"><span class="iso-plate-corner" data-corner="fig">Fig 1</span><span class="iso-plate-corner" data-corner="title">One node, from the bay to the cluster</span><span class="iso-plate-corner" data-corner="readout" data-readout></span></div><div class="od-stage" tabindex="0" aria-label="A 3D drawing of the sequence. Drag to turn it, pinch or use the zoom buttons, double-click to reset the view, and use the step buttons or the arrow keys to move through the steps."><canvas class="od-gl"></canvas><div class="od-gauge" data-gauge aria-hidden="true"><b>altitude</b><div class="od-gauge-bar"><i data-gauge-mark></i><span style="bottom:0%">270 km</span><span style="bottom:29.2%">600</span><span style="bottom:64.6%">1,000</span><span style="bottom:100%">1,400 km</span></div><output data-gauge-say></output></div><p class="od-hover" data-hover aria-hidden="true"></p><p class="od-nogl">This drawing needs WebGL 2.</p></div><div class="od-controls"><button type="button" class="od-btn od-play" data-play aria-pressed="false">Play</button><div class="od-steps" role="group" aria-label="Steps"><button type="button" class="od-step" data-step="0" aria-pressed="false"><span>01</span>In the bay</button><button type="button" class="od-step" data-step="1" data-poster aria-pressed="false"><span>02</span>Release</button><button type="button" class="od-step" data-step="2" aria-pressed="false"><span>03</span>Unfold</button><button type="button" class="od-step" data-step="3" aria-pressed="false"><span>04</span>Climb</button><button type="button" class="od-step" data-step="4" aria-pressed="false"><span>05</span>Radiators</button><button type="button" class="od-step" data-step="5" aria-pressed="false"><span>06</span>Cluster</button></div><input type="range" class="od-scrub" data-scrub min="0" max="5.999" step="0.001" value="0" aria-label="Progress through the sequence" /><span class="od-zoom"><button type="button" class="od-btn" data-zoom-out aria-label="Zoom out">−</button><button type="button" class="od-btn" data-zoom-in aria-label="Zoom in">+</button></span></div><p class="od-say" data-say aria-live="polite"></p><p class="od-hint"><span class="od-wide">Drag to turn · ⌘-scroll or the buttons to zoom · double-click to reset</span><span class="od-narrow">Drag to turn · pinch to zoom · double-tap to reset</span></p></div></figure>
+  <figure class="iso-figure od-fig od-fig1"><div class="iso-plate"><div class="iso-plate-corners" aria-hidden="true"><span class="iso-plate-corner" data-corner="fig">Fig 1</span><span class="iso-plate-corner" data-corner="title">One node, from the bay to the cluster</span><span class="iso-plate-corner" data-corner="readout" data-readout></span></div><div class="od-stage" tabindex="0" aria-label="A 3D drawing of the sequence. Drag to turn it, pinch or use the zoom buttons, double-click to reset the view, and use the step buttons or the arrow keys to move through the steps."><canvas class="od-gl"></canvas><div class="od-gauge" data-gauge aria-hidden="true"><b>altitude</b><div class="od-gauge-bar"><i data-gauge-mark></i><span style="bottom:0%">270 km</span><span style="bottom:29.2%">600</span><span style="bottom:64.6%">1,000</span><span style="bottom:100%">1,400 km</span></div><output data-gauge-say></output></div><p class="od-hover" data-hover aria-hidden="true"></p><p class="od-nogl">This drawing needs WebGL 2.</p></div><div class="od-controls"><button type="button" class="od-btn od-play" data-play aria-pressed="false">Play</button><div class="od-steps" role="group" aria-label="Steps"><button type="button" class="od-step" data-step="0" aria-pressed="false"><span>01</span>In the bay</button><button type="button" class="od-step" data-step="1" data-poster aria-pressed="false"><span>02</span>Release</button><button type="button" class="od-step" data-step="2" aria-pressed="false"><span>03</span>Unfold</button><button type="button" class="od-step" data-step="3" aria-pressed="false"><span>04</span>Climb</button><button type="button" class="od-step" data-step="4" aria-pressed="false"><span>05</span>Radiators</button><button type="button" class="od-step" data-step="5" aria-pressed="false"><span>06</span>Cluster</button></div><input type="range" class="od-scrub" data-scrub min="0" max="5.999" step="0.001" value="0" aria-label="Progress through the sequence" /><span class="od-speed" role="group" aria-label="Speed"><button type="button" class="od-btn" data-speed="0.5" aria-pressed="false">0.5×</button><button type="button" class="od-btn" data-speed="1" aria-pressed="true">1×</button><button type="button" class="od-btn" data-speed="2" aria-pressed="false">2×</button></span><span class="od-zoom"><button type="button" class="od-btn" data-zoom-out aria-label="Zoom out">−</button><button type="button" class="od-btn" data-zoom-in aria-label="Zoom in">+</button></span></div><p class="od-say" data-say aria-live="polite"></p><p class="od-hint"><span class="od-wide">Drag to turn · ⌘-scroll or the buttons to zoom · double-click to reset</span><span class="od-narrow">Drag to turn · pinch to zoom · double-tap to reset</span></p></div></figure>
 
   <section class="od-sec" aria-labelledby="od-bay-h">
     <div class="od-sec-head">
@@ -3518,7 +3523,7 @@ function OrbitalScene(canvas, { theme = "light", stages, cluster } = {}) {
   stowed.set([0, 1].map((k) => M4.mul(SHIP.PLACE, M4.trans([0, SHIP.SLOTS[k], -3.95]))));
 
   // ---------------------------------------------------------------- the state at T
-  const ORBIT_S = 2.4; // seconds of animation per orbit in the cluster view
+  const ORBIT_S = 15; // seconds of animation per orbit in the cluster view at 1×, the same pace as Fig 2
   // every step's motion ends by 0.68 of the step: a step played on its own stops at 0.7, and the view moves on from 0.72
   function stateAt(T) {
     const stage = Math.min(5, Math.floor(T));
@@ -3571,7 +3576,7 @@ function OrbitalScene(canvas, { theme = "light", stages, cluster } = {}) {
     // follow the stage view; the reader's turn and zoom ride on top
     cam.target = V3.add(v.target, user.pan);
     // a phone's square stage fills sooner: come in a little closer
-    cam.span = (v.span * (canvas.clientWidth < 600 && T >= 2 ? 0.8 : 1)) / user.zoom;
+    cam.span = (v.span * (canvas.clientWidth < 600 ? 1 - 0.2 * span(T, 1.72, 2) : 1)) / user.zoom;
     cam.azimuth = v.azimuth + user.azimuth;
     cam.elevation = Math.max(-85, Math.min(85, v.elevation + user.elevation));
     R.cam.target = cam.target;
@@ -3810,11 +3815,19 @@ addEventListener("resize", () => requestAnimationFrame(drawSky));
   let shown = -1;
   let touched = false;
   let dirty = true;
+  let orbiting = true; // the cluster turns once it is there, until the reader pauses it
+  let speed = 1;
   const stepOf = (t) => Math.min(5, Math.floor(t));
+  // anything on screen in motion: the sequence playing, or the cluster turning
+  const moving = () => !still.matches && (playing || (stepOf(T) === 5 && orbiting));
+  function label() {
+    const on = moving();
+    play.textContent = on ? "Pause" : "Play";
+    play.setAttribute("aria-pressed", String(on));
+  }
   function setPlaying(on) {
     playing = on;
-    play.textContent = on ? "Pause" : T >= 5 + HOLD - 0.01 ? "Replay" : "Play";
-    play.setAttribute("aria-pressed", String(on));
+    label();
     wake();
   }
   function show(t) {
@@ -3850,12 +3863,12 @@ addEventListener("resize", () => requestAnimationFrame(drawSky));
     if (hold !== undefined) stopAt = hold;
     dirty = true;
     show(T);
+    label();
     wake();
   }
   function tick(now) {
-    const dt = last ? Math.min(0.05, (now - last) / 1000) : 1 / 60;
+    const dt = (last ? Math.min(0.05, (now - last) / 1000) : 1 / 60) * speed;
     last = now;
-    clock += dt;
     if (playing) {
       const k = stepOf(T);
       T += dt / SECONDS[k];
@@ -3866,13 +3879,14 @@ addEventListener("resize", () => requestAnimationFrame(drawSky));
       show(T);
       dirty = true;
     }
-    // the cluster keeps turning once it is there
-    const moving = playing || stepOf(T) === 5 || (stepOf(T) === 3 && T - 3 > 0.05 && T - 3 < 0.68);
-    if (dirty || moving) {
+    // the clock behind the cluster's turn and the plume runs only while something moves
+    const on = moving();
+    if (on) clock += dt;
+    if (dirty || on) {
       SC.draw(T, still.matches ? 0.6 : clock);
       dirty = false;
     }
-    frame = visible && (moving || dirty) && !still.matches ? requestAnimationFrame(tick) : 0;
+    frame = visible && (on || dirty) && !still.matches ? requestAnimationFrame(tick) : 0;
   }
   function wake() {
     if (!frame && visible) {
@@ -3890,22 +3904,30 @@ addEventListener("resize", () => requestAnimationFrame(drawSky));
   }, { rootMargin: "80px 0px" }).observe(stage);
   if (still.matches) goTo(5 + HOLD, { hold: 5 + HOLD });
 
+  // one button for all motion: Pause stops the sequence and the cluster's turn; Play goes on to the end and
+  // lets the cluster turn again
   play.addEventListener("click", () => {
     touched = true;
-    if (playing) return setPlaying(false);
-    if (T >= stopAt - 0.001) {
-      if (T >= 5 + HOLD - 0.01) goTo(0);
-      stopAt = 5 + HOLD;
+    if (still.matches) return goTo(5 + HOLD, { hold: 5 + HOLD });
+    if (moving()) {
+      orbiting = false;
+      return setPlaying(false);
     }
-    stopAt = Math.max(stopAt, 5 + HOLD);
-    setPlaying(!still.matches);
-    if (still.matches) goTo(5 + HOLD);
+    orbiting = true;
+    stopAt = 5 + HOLD;
+    setPlaying(T < 5 + HOLD - 0.01);
   });
+  const speedButtons = [...plate.querySelectorAll("[data-speed]")];
+  speedButtons.forEach((b) => b.addEventListener("click", () => {
+    speed = +b.dataset.speed;
+    speedButtons.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+  }));
   stepButtons.forEach((b, i) => b.addEventListener("click", () => {
     touched = true;
     // bring the whole drawing into view when a step is picked from below it
     if (stage.getBoundingClientRect().top < 0) stage.scrollIntoView({ block: "start", behavior: still.matches ? "auto" : "smooth" });
     if (still.matches) return goTo(i + HOLD, { hold: i + HOLD });
+    orbiting = true;
     goTo(i, { hold: i + HOLD });
     setPlaying(true);
   }));

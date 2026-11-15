@@ -17,7 +17,7 @@ A data center in orbit as it might fly around 2030: 81 compute nodes, each about
 
 ## How to use it
 
-- In Fig 1, press Play or pick a step: In the bay, Release, Unfold, Climb, Radiators, Cluster. The slider scrubs the whole sequence.
+- In Fig 1, press Play or pick a step: In the bay, Release, Unfold, Climb, Radiators, Cluster. The slider scrubs the whole sequence. Pause stops all motion, the cluster's turn included, and the 0.5×, 1× and 2× buttons set the speed.
 - Drag the drawing to turn it. Pinch, hold ⌘ or Ctrl while scrolling, or use the − and + buttons to zoom. Double-click to go back to the step's own view. The arrow keys step through, and Space plays or pauses.
 - Point at any part to read what it is. In the cluster, it also says which of the 81 nodes it belongs to.
 - Fig 2 shows the formation seen square to the Sun over one orbit. Drag the slider to stop it at any point and read the distance between neighbours.
