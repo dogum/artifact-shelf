@@ -3169,7 +3169,7 @@ const NODE3 = (() => {
     const phi = (Math.PI / 2) * (1 - open); // 90° folded flat, 0 flat in the wall
     const mu = Math.PI * (1 - fold); // mid-height fold, 180° closed
     const out = [];
-    let p = [xRoot, yRoot];
+    let p = [xRoot, s * yRoot];
     const edges = [p];
     for (let k = 0; k < panels; k++) {
       const sx = k % 2 ? -1 : 1;
@@ -3234,7 +3234,7 @@ const NODE3 = (() => {
     const d = V3.sub(b, a);
     const L = Math.max(1e-4, V3.len(d));
     const u = V3.mul(d, 1 / L);
-    const [, v, w] = basisOf(u);
+    const [v, w] = basisOf(u);
     return M4.frame(a, V3.mul(u, L), V3.mul(v, r), V3.mul(w, r));
   };
   const TONGS = { L: 3.9, z: (WALL.z0 + ZM) / 2, x: -0.32 };
