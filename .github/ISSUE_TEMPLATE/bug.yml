@@ -1,0 +1,24 @@
+name: Something's broken
+description: A page, an artifact or a tool that doesn't work as it should.
+labels: ["bug"]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: Page
+      description: The address where it happens.
+      placeholder: https://dogum.github.io/artifact-shelf/a/...
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected and what you saw. A screenshot helps.
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: Safari 18 on iPhone 15, Chrome 131 on Windows 11

@@ -28,6 +28,8 @@ artifacts/<slug>/about.md     front matter + writeup; schema and voice rules in 
 media/<slug>/                 poster.webp, poster-640.webp, og.jpg, capture.json (committed)
 media/_site/og.jpg            the site's share card
 pages/about.md                About page
+pages/contribute.md           Contribute page (how to send an artifact); built only if present
+CONTRIBUTING.md               the contributor guide; .github/ has issue forms, PR template, pr.yml
 shelf.config.json             title, url/base, author, shelves, projects (other repos)
 src/build.mjs                 the generator
 src/lib/                      frontmatter, markdown, detect (tech sniffing), collection (loading), html
@@ -46,7 +48,8 @@ skills/artifact-shelf/        the companion Claude skill ("shelve this"), shippe
 - **Relative links everywhere.** Templates get a linker `L(path)` per page; never hardcode
   `/artifact-shelf/`. Absolute URLs (canonical, OG, sitemap, feed) come from `site.abs()`.
   The 404 page is the one exception and uses absolute paths on purpose.
-- **Artifacts are the owner's work.** Don't restyle or refactor `artifacts/*/index.html`.
+- **Artifacts are their authors' work.** Most are Greg's; contributed ones carry `author:` in
+  their front matter. Don't restyle or refactor `artifacts/*/index.html`.
   Small fixes that a public page needs (a private link, a hard-coded personal location) are
   allowed; record each one under Notes in that artifact's `about.md`.
 - **Status:** `published` is listed everywhere; `unlisted` is built but not listed or in the
@@ -59,6 +62,12 @@ skills/artifact-shelf/        the companion Claude skill ("shelve this"), shippe
   `claude.ai/artifact/…` links goes into a published artifact, writeup or the README.
   `origins.local.json` maps slugs to their claude.ai originals and is gitignored. Keep it
   that way.
+- **Contributions** come in as PRs from forks (checked by `.github/workflows/pr.yml`, never
+  deployed) or as `submission` issues. CONTRIBUTING.md is the public guide and `pages/contribute.md`
+  the site's Contribute page; keep both in step with the tools. When shelving a piece from an
+  issue, set `author:` from the issue's Credit field and mention the issue in the PR.
+  Review a contributed artifact like any other: run the privacy and `window.claude` checks,
+  play it, then check the writeup against docs/WRITEUPS.md.
 - **Writing voice:** plain and specific; see docs/WRITEUPS.md. No "it's not X, it's Y",
   no delve/seamless/stunning, no exclamation marks, no invented backstory.
 - **Look at it.** The owner is visual. After UI changes, take screenshots (desktop

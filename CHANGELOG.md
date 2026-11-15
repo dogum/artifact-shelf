@@ -4,6 +4,12 @@ All notable changes to this project are documented here. Versions follow [semant
 
 ## [Unreleased]
 
+### Contributing
+- Other people can put artifacts on the shelf. CONTRIBUTING.md covers what fits, the pull request steps and licensing; a Contribute page on the site (from `pages/contribute.md`, linked in the header and footer) says the same for visitors.
+- `author:` in an artifact's front matter (`Name` or `Name | https://…`) credits someone other than the site owner: "by Name" on the item page and its label, and the author in its structured data, feed entry, `index.json` and `llms.txt`. `npm run add -- f.html --author "…"` sets it.
+- Issue forms for submitting an artifact without git, reporting a bug and suggesting an idea, plus a pull request template.
+- `.github/workflows/pr.yml` runs the check, takes missing posters, builds and smoke-tests every pull request (forks included) and uploads a portable preview of the site. It never deploys.
+
 ### Site
 - A link to an item page with a hash (`a/the-office/#goal-895`) passes the hash on to the piece in the stage, so links to a spot inside a piece open there. A hash that names something on the item page itself stays with the page.
 - Artifact pages let the stage's frame use the share sheet (`web-share`), so a piece's own Share button works on phones.

@@ -99,6 +99,7 @@ export function header(ctx, L) {
       <a href="${L('')}#shelves">Shelves</a>
       <a href="${L('')}#index">Index</a>
       <a href="${L('about/')}">About</a>
+      ${ctx.hasContribute ? html`<a href="${L('contribute/')}">Contribute</a>` : ''}
     </nav>
     <div class="site-tools">
       <a class="tool tool--dice" href="${L('random/')}" title="Pick one at random">${icons.dice()}<span>Surprise me</span></a>
@@ -115,9 +116,10 @@ export function footer(ctx, L) {
     <div class="foot-inner">
       <a class="brand brand--foot" href="${L('')}">${brandMark}<span class="brand-name">${config.title}</span></a>
       <p class="foot-stats">${listed.length} artifacts · ${formatBytes(bytes)} of hand-made HTML · every one a single file</p>
-      <p class="foot-made">${config.madeWith}. Built by <a href="${config.author.url}">${config.author.name}</a>.</p>
+      <p class="foot-made">${config.madeWith}. Built by <a href="${config.author.url}">${config.author.name}</a>${ctx.hasContribute ? html`, with pieces from <a href="${L('contribute/')}">anyone who sends one</a>` : ''}.</p>
       <nav class="foot-links" aria-label="Elsewhere">
         <a href="${L('about/')}">About</a>
+        ${ctx.hasContribute ? html`<a href="${L('contribute/')}">Contribute</a>` : ''}
         ${ctx.projects && ctx.projects.length ? html`<a href="${L('')}#projects">Projects</a>` : ''}
         <a href="${L('feed.xml')}">${icons.feed({ size: 15 })} Feed</a>
         <a href="${L('llms.txt')}">llms.txt</a>

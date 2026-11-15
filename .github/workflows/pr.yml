@@ -1,0 +1,53 @@
+name: Check pull request
+
+# Runs on every PR, including from forks. It builds the site with the PR's changes
+# and never deploys; deploy.yml does that after a merge to main.
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Check artifacts and writeups
+        run: node tools/check.mjs
+
+      - name: Find artifacts that need posters
+        id: posters
+        run: echo "slugs=$(node tools/capture.mjs --list)" >> "$GITHUB_OUTPUT"
+
+      - name: Capture missing posters
+        if: steps.posters.outputs.slugs != ''
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          node tools/capture.mjs
+
+      - name: Build and smoke-test
+        run: node tools/smoke.mjs
+
+      # A portable build (opens from disk), so a reviewer can download it and click around.
+      - name: Build a portable preview
+        run: node src/build.mjs --portable
+
+      - name: Upload the preview
+        uses: actions/upload-artifact@v5
+        with:
+          name: site-preview
+          path: dist
+          retention-days: 7

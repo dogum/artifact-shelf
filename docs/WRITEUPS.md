@@ -49,6 +49,7 @@ capture_click: "#start"
 | `capture_time` | no | Pin the clock for the poster, e.g. `2026-06-21T16:30:00Z`. For anything that shows the time, the sun or the sky. |
 | `capture_timezone` | no | Time zone for the poster browser, e.g. `America/New_York`. |
 | `capture_motion` | no | `reduce` runs the poster browser with reduced motion. For pages that animate into the state the poster should show: the capture browser renders slowly, so a fade or a tour can be caught halfway. |
+| `author` | no | Who made it, as `Name` or `Name \| https://…`. Leave it out for the site owner's own pieces. When it names someone else, the page shows "by Name" and the structured data, feed and `index.json` credit them. |
 | `repo` | no | The bigger project this belongs to: `owner/name` or a URL. Shows a "Part of … on GitHub" link on the page. If it matches an entry in `projects` in `shelf.config.json`, that project's name is used. |
 | `links` | no | Extra links shown beside it, as `["Label \| https://…"]`. |
 
@@ -85,6 +86,7 @@ Do not use:
 - "Whether you're a … or a …"
 - rhetorical questions, "Imagine …", exclamation marks
 - invented backstory or motives. If you don't know why it was made, don't say.
+  For a contributed piece, this goes double: describe the artifact, not the person.
 - stacked em-dashes. One per paragraph at most.
 
 Good: "Each creature is a cloud of 4,000 points whose positions come from a

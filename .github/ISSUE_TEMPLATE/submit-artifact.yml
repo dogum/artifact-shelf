@@ -1,0 +1,76 @@
+name: Submit an artifact
+description: Send a single-file HTML artifact for the shelf. No fork or git needed.
+title: "Submit: "
+labels: ["submission"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sending something in. Anything that runs as one HTML file in a browser can fit: simulations, explainers, generative art, games, toys and small tools. [CONTRIBUTING.md](https://github.com/dogum/artifact-shelf/blob/main/CONTRIBUTING.md#what-fits-on-the-shelf) has the short list of what doesn't.
+
+        You don't need a polished description. A few honest lines are enough, and I'll write the page from them. If you'd rather do it all yourself, open a pull request instead; the steps are in CONTRIBUTING.md.
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      description: The artifact's name, with the capitalisation you want.
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Link to the HTML
+      description: A published claude.ai artifact link, a gist, a CodePen, or a raw file URL. Private claude.ai links won't open for anyone else. No link? Leave this empty and attach the file as a .zip below.
+      placeholder: https://
+    validations:
+      required: false
+  - type: dropdown
+    id: shelf
+    attributes:
+      label: Shelf
+      options:
+        - Simulations
+        - Explainers
+        - Generative Art
+        - Games
+        - Toys
+        - Tools
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: about
+    attributes:
+      label: What it is and how to use it
+      description: A few plain sentences. What you're looking at, the controls (real keys and buttons), and how it works if you know. I'll turn it into the writeup.
+    validations:
+      required: true
+  - type: input
+    id: credit
+    attributes:
+      label: Credit
+      description: The name to show on the page, and an optional link (GitHub, your site).
+      placeholder: Your Name | https://github.com/you
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Credits and notes
+      description: Anything borrowed (a shader, a dataset, a library you adapted) and where it came from. Anything else I should know.
+  - type: textarea
+    id: file
+    attributes:
+      label: Attach the file
+      description: Needed if you left the link empty. GitHub doesn't accept .html attachments, so zip it first and drag the .zip here.
+  - type: checkboxes
+    id: agree
+    attributes:
+      label: Before you send it
+      options:
+        - label: I made this (with or without an AI model) and have the right to share everything in it.
+          required: true
+        - label: It can be shared under the MIT License, like the rest of the repo, unless I named another open license above.
+          required: true
+        - label: It holds no personal details, tracking, ads or private links.
+          required: true

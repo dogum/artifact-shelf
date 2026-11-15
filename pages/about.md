@@ -24,4 +24,4 @@ Every artifact page has the same toolbar under the running piece:
 
 The site is generated from a folder of artifacts by one Node script with no dependencies. Each artifact lives in its own folder next to an `about.md` that holds its label and writeup. The script turns those into this site, plus a sitemap, an Atom feed, a JSON catalog and an `llms.txt`. Posters are screenshots taken with a headless browser.
 
-The whole thing is open source. If you make artifacts too, fork the repository, empty the `artifacts/` folder, drop yours in, and you'll have a shelf of your own.
+The whole thing is open source. If you make artifacts too, there are two ways to use it: [send one to this shelf](../contribute/), where it gets your name on its page, or fork the repository, empty the `artifacts/` folder, drop yours in, and you'll have a shelf of your own.

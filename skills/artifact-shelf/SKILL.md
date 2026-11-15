@@ -64,7 +64,12 @@ Then fill in `about.md` exactly as `docs/WRITEUPS.md` describes:
 - Voice: plain and specific. No "it's not X, it's Y", no delve / seamless / stunning,
   no exclamation marks, no invented backstory.
 
-Set `status: published` only when the user has said it can go public.
+- `author: Name | https://…` when the piece is not the shelf owner's own: a contributor
+  shelving their work in a fork, or a piece sent in through a submission issue. Use the
+  name and link exactly as the person gave them.
+
+Set `status: published` only when the user has said it can go public. A contributor
+working in their own fork sets it before opening the PR.
 
 ## 5. Check, capture, build
 
