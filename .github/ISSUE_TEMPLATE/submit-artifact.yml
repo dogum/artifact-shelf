@@ -6,9 +6,9 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for sending something. Anything that runs as one HTML file in a browser can fit: simulations, explainers, generative art, games, toys and small tools. See [CONTRIBUTING.md](https://github.com/dogum/artifact-shelf/blob/main/CONTRIBUTING.md#what-fits-on-the-shelf) for what fits.
+        Thanks for sending something in. Anything that runs as one HTML file in a browser can fit: simulations, explainers, generative art, games, toys and small tools. [CONTRIBUTING.md](https://github.com/dogum/artifact-shelf/blob/main/CONTRIBUTING.md#what-fits-on-the-shelf) has the short list of what doesn't.
 
-        Prefer to do it yourself? Open a pull request instead; the steps are in CONTRIBUTING.md.
+        You don't need a polished description. A few honest lines are enough, and I'll write the page from them. If you'd rather do it all yourself, open a pull request instead; the steps are in CONTRIBUTING.md.
   - type: input
     id: title
     attributes:

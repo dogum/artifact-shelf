@@ -34,9 +34,9 @@ I make small interactive pages in claude.ai and elsewhere, and an artifact link 
 
 ## Add your artifact
 
-The shelf takes pieces from anyone. If you made something that runs as a single HTML file, it can go here with your name on its page, in its structured data and in the feed.
+Everything here so far is mine, but it doesn't have to stay that way. If you've made something that runs as a single HTML file, it can go on a shelf here with your name on its page, in its structured data and in the feed.
 
-- **No git:** [send it through an issue](https://github.com/dogum/artifact-shelf/issues/new?template=submit-artifact.yml) with a link to the file and a few lines about it. I write it up and add it.
+- **No git:** [send it through an issue](https://github.com/dogum/artifact-shelf/issues/new?template=submit-artifact.yml) with a link to the file and a few lines about it. I'll write it up and add it.
 - **Pull request:** fork, then `npm run add -- thing.html --shelf toys --author "Your Name | https://github.com/you"`, write the `about.md`, and open a PR. A GitHub Action builds the whole site with your piece on it.
 
 [CONTRIBUTING.md](CONTRIBUTING.md) has what fits, the full steps and how licensing works. Fixes and ideas for the site itself are welcome too.
