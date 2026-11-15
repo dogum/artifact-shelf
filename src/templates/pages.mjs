@@ -4,7 +4,9 @@ import { icons, poster, tag, shelfRow, shelfGrid, pad, fmtDate } from './parts.m
 
 /* ---------- structured data ---------- */
 
-const person = (config) => ({ '@type': 'Person', name: config.author.name, url: config.author.url });
+const person = (config) => personLd(config.author);
+const personLd = (a) => ({ '@type': 'Person', name: a.name, url: a.url });
+const byline = (it) => (it.author.url ? html`<a href="${it.author.url}">${it.author.name}</a>` : it.author.name);
 
 function crumbs(ctx, trail) {
   return {
@@ -34,8 +36,8 @@ function itemLd(ctx, it) {
     datePublished: it.made,
     dateModified: it.updated || it.made,
     fileSize: formatBytes(it.tech.bytes),
-    author: person(config),
-    creator: person(config),
+    author: personLd(it.author),
+    creator: personLd(it.author),
     image: m.og ? site.abs(m.og) : m.poster ? site.abs(m.poster) : undefined,
     screenshot: m.poster ? site.abs(m.poster) : undefined,
     isPartOf: { '@type': 'CollectionPage', name: config.title, url: site.abs('') },
@@ -244,7 +246,7 @@ export function itemPage(ctx, L, it) {
   </nav>
 
   <header class="item-head">
-    <p class="eyebrow"><span class="dot"></span>No. ${pad(it.no)} · ${it.shelfInfo.name} · ${fmtDate(it.made, 'long')}</p>
+    <p class="eyebrow"><span class="dot"></span><span>No. ${pad(it.no)} · ${it.shelfInfo.name} · ${fmtDate(it.made, 'long')}${it.guest ? html` · by ${byline(it)}` : ''}</span></p>
     <h1 class="item-title">${it.title}</h1>
     <p class="lede">${it.summary}</p>
     ${it.repoUrl ? html`<p class="item-project">
@@ -286,6 +288,7 @@ export function itemPage(ctx, L, it) {
         <div class="label-top"><span>No.&nbsp;${pad(it.no)}</span><a href="${L(`shelf/${it.shelf}/`)}">${it.shelfInfo.name}</a></div>
         <p class="label-title">${it.title}</p>
         <dl class="label-dl">
+          ${it.guest ? html`<div><dt>By</dt><dd>${byline(it)}</dd></div>` : ''}
           <div><dt>Made</dt><dd><time datetime="${it.made}">${fmtDate(it.made)}</time></dd></div>
           ${it.updated ? html`<div><dt>Updated</dt><dd><time datetime="${it.updated}">${fmtDate(it.updated)}</time></dd></div>` : ''}
           <div><dt>Made of</dt><dd>${it.medium.join(', ')}</dd></div>
@@ -395,19 +398,20 @@ export function tagPage(ctx, L, t) {
 
 /* ---------- about, random, 404 ---------- */
 
-export function aboutPage(ctx, L, about) {
+// A plain prose page from pages/<id>.md: About, Contribute.
+export function aboutPage(ctx, L, about, { id = 'about', label = 'About', projects = true } = {}) {
   const { config } = ctx;
   const body = html`<main id="main" class="about-page">
-  <nav class="crumbs" aria-label="Breadcrumb"><a href="${L('')}">${config.title}</a><span aria-hidden="true">/</span><span aria-current="page">About</span></nav>
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="${L('')}">${config.title}</a><span aria-hidden="true">/</span><span aria-current="page">${label}</span></nav>
   <header class="list-head">
-    <p class="eyebrow"><span class="dot"></span>About</p>
+    <p class="eyebrow"><span class="dot"></span>${label}</p>
     <h1 class="list-title">${about.title}</h1>
     <p class="lede">${about.summary}</p>
   </header>
   <article class="prose prose--about">${raw(about.html)}</article>
-  ${projectCards(ctx, L, { id: 'about-projects' })}
+  ${projects ? projectCards(ctx, L, { id: 'about-projects' }) : ''}
 </main>`;
-  return { path: 'about/index.html', canonical: 'about/', title: about.title, description: about.summary, body };
+  return { path: `${id}/index.html`, canonical: `${id}/`, title: about.title, description: about.summary, body };
 }
 
 export function randomPage(ctx, L) {

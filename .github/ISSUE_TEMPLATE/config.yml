@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: How to contribute
+    url: https://github.com/dogum/artifact-shelf/blob/main/CONTRIBUTING.md
+    about: What fits on the shelf, and how to add a piece with a pull request.

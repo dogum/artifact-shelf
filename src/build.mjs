@@ -106,16 +106,20 @@ function placeholderSvg(it) {
 const siteOg = ['og.jpg', 'og.png'].map((f) => `media/_site/${f}`).find((f) => fs.existsSync(path.join(ROOT, f)));
 const siteOgUrl = siteOg ? site.abs(siteOg) : null;
 
-/* ---------- the about page source ---------- */
+/* ---------- prose pages: pages/about.md, pages/contribute.md ---------- */
 
-const aboutSrc = fs.existsSync(path.join(ROOT, 'pages/about.md'))
-  ? parseFrontmatter(fs.readFileSync(path.join(ROOT, 'pages/about.md'), 'utf8'))
-  : { data: { title: 'About', summary: config.description }, body: '' };
-const about = { title: aboutSrc.data.title || 'About', summary: aboutSrc.data.summary || config.description, html: renderMarkdown(aboutSrc.body).html };
+function proseSrc(name, fallbackTitle) {
+  const f = path.join(ROOT, `pages/${name}.md`);
+  if (!fs.existsSync(f)) return null;
+  const { data, body } = parseFrontmatter(fs.readFileSync(f, 'utf8'));
+  return { title: data.title || fallbackTitle, summary: data.summary || config.description, html: renderMarkdown(body).html };
+}
+const about = proseSrc('about', 'About') || { title: 'About', summary: config.description, html: '' };
+const contribute = proseSrc('contribute', 'Contribute');
 
 /* ---------- context shared by templates ---------- */
 
-const ctx = { config, site, assets, media, siteImage: siteOgUrl, ...shelf };
+const ctx = { config, site, assets, media, siteImage: siteOgUrl, hasContribute: !!contribute, ...shelf };
 const pages = [];
 const render = (page, L) => {
   write(page.path, layout(ctx, L, page));
@@ -151,6 +155,10 @@ for (const t of shelf.tags) {
   const L = linker('about/index.html');
   render(aboutPage(ctx, L, about), L);
 }
+if (contribute) {
+  const L = linker('contribute/index.html');
+  render(aboutPage(ctx, L, contribute, { id: 'contribute', label: 'Contribute', projects: false }), L);
+}
 {
   const L = linker('random/index.html');
   render(randomPage(ctx, L), L);
@@ -183,6 +191,7 @@ const newest = listed.map(lastmod).sort().pop() || new Date().toISOString().slic
 const urls = [
   ['', newest, '1.0'],
   ['about/', newest, '0.4'],
+  ...(contribute ? [['contribute/', newest, '0.3']] : []),
   ...shelf.shelves.map((s) => [`shelf/${s.id}/`, s.items.map(lastmod).sort().pop(), '0.7']),
   ...shelf.tags.filter((t) => t.items.length > 1).map((t) => [`tag/${t.id}/`, t.items.map(lastmod).sort().pop(), '0.4']),
   ...listed.map((it) => [`a/${it.slug}/`, lastmod(it), '0.9']),
@@ -213,7 +222,7 @@ ${listed.slice(0, 50).map((it) => {
     <id>${xmlEsc(site.abs(`a/${it.slug}/`))}</id>
     <published>${it.made}T12:00:00Z</published>
     <updated>${lastmod(it)}T12:00:00Z</updated>
-    <category term="${xmlEsc(it.shelfInfo.name)}"/>
+${it.guest ? `    <author><name>${xmlEsc(it.author.name)}</name>${it.author.url ? `<uri>${xmlEsc(it.author.url)}</uri>` : ''}</author>\n` : ''}    <category term="${xmlEsc(it.shelfInfo.name)}"/>
     <summary>${xmlEsc(it.summary)}</summary>
     <content type="html">${xmlEsc(img + `<p>${esc(it.summary)}</p>` + it.html)}</content>
   </entry>`;
@@ -234,6 +243,7 @@ write('index.json', JSON.stringify({
     summary: it.summary,
     shelf: it.shelf,
     tags: it.tags,
+    author: it.author,
     made: it.made,
     updated: it.updated,
     url: site.abs(`a/${it.slug}/`),
@@ -252,12 +262,12 @@ write('llms.txt', `# ${config.title}
 
 Every artifact is one self-contained HTML file. Each item page explains what the artifact is, how to use it and how it works. The artifact itself runs at \`a/<slug>/play/\` and can be downloaded from \`a/<slug>/<slug>.html\`. A JSON catalog is at ${site.abs('index.json')}.
 
-${shelf.shelves.map((s) => `## ${s.name}\n\n${s.items.map((it) => `- [${it.title}](${site.abs(`a/${it.slug}/`)}): ${it.summary}`).join('\n')}`).join('\n\n')}
+${shelf.shelves.map((s) => `## ${s.name}\n\n${s.items.map((it) => `- [${it.title}](${site.abs(`a/${it.slug}/`)}): ${it.summary}${it.guest ? ` (by ${it.author.name})` : ''}`).join('\n')}`).join('\n\n')}
 
 ${(shelf.projects || []).length ? `## Projects\n\n${shelf.projects.map((p) => `- [${p.name}](https://github.com/${p.repo}): ${p.blurb}`).join('\n')}\n\n` : ''}## Optional
 
 - [About](${site.abs('about/')}): what this collection is and how it is built
-- [Source](${config.repo}): the repository, including every artifact's HTML
+${contribute ? `- [Contribute](${site.abs('contribute/')}): how to put your own artifact on the shelf\n` : ''}- [Source](${config.repo}): the repository, including every artifact's HTML
 `);
 
 write('site.webmanifest', JSON.stringify({

@@ -3,6 +3,7 @@
 //
 //   node tools/add.mjs ~/Downloads/thing.html                 slug from the <title>
 //   node tools/add.mjs thing.html --slug orbit-toy --shelf toys
+//   node tools/add.mjs thing.html --author "Ada | https://github.com/ada"   a contributed piece
 //   node tools/add.mjs --fix <slug>                            wrap a claude.ai fragment in place
 //
 // New artifacts start as status: draft with a stub about.md, so nothing goes
@@ -35,7 +36,7 @@ if (argv[0] === '--fix') {
 }
 
 const input = argv.find((a, i) => !a.startsWith('--') && !argv[i - 1]?.startsWith('--'));
-if (!input) die('usage: npm run add -- <file.html> [--slug name] [--shelf id] [--title "Title"]');
+if (!input) die('usage: npm run add -- <file.html> [--slug name] [--shelf id] [--title "Title"] [--author "Name | https://…"]');
 if (!fs.existsSync(input)) die(`can't find ${input}`);
 
 let source = fs.readFileSync(input, 'utf8');
@@ -43,6 +44,7 @@ const tech0 = detect(source);
 const title = flag('title') || tech0.title?.replace(/\.(tsx|jsx|html)$/i, '') || path.basename(input, path.extname(input));
 const slug = flag('slug') || slugify(title) || slugify(path.basename(input, path.extname(input)));
 const shelfId = flag('shelf') || 'toys';
+const author = flag('author');
 if (!config.shelves.some((s) => s.id === shelfId)) die(`shelf must be one of: ${config.shelves.map((s) => s.id).join(', ')}`);
 
 const dir = path.join(ROOT, 'artifacts', slug);
@@ -58,7 +60,7 @@ fs.writeFileSync(path.join(dir, 'about.md'), `---
 title: ${/[:#\[\]{}"']/.test(title) ? JSON.stringify(title) : title}
 summary: TODO one sentence, 110–155 characters. What it is and why it's worth a click.
 shelf: ${shelfId}
-tags: [${medium(tech).map((m) => slugify(m)).join(', ')}]
+${author ? `author: ${author}\n` : ''}tags: [${medium(tech).map((m) => slugify(m)).join(', ')}]
 made: ${today}
 status: draft
 autorun: true

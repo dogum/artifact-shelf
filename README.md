@@ -13,7 +13,7 @@ Simulations, explainers, generative art, games and toys, each one a single HTML 
 [![Runtime dependencies: 0](https://img.shields.io/badge/runtime_dependencies-0-2f7d4a)](package.json)
 [![Claude Code plugin](https://img.shields.io/badge/Claude_Code-plugin-d8935c)](#shelving-with-claude)
 
-**[Visit the shelf](https://dogum.github.io/artifact-shelf/)** · **[Make your own shelf](#make-your-own-shelf)** · **[Changelog](CHANGELOG.md)**
+**[Visit the shelf](https://dogum.github.io/artifact-shelf/)** · **[Add your artifact](#add-your-artifact)** · **[Make your own shelf](#make-your-own-shelf)** · **[Changelog](CHANGELOG.md)**
 
 </div>
 
@@ -32,6 +32,15 @@ I make small interactive pages in claude.ai and elsewhere, and an artifact link 
 | Toys | [Lamplight Shadow Theater](https://dogum.github.io/artifact-shelf/a/lamplight-shadow-theater/): hand shadows on a webcam come alive as animals<br>[Stave](https://dogum.github.io/artifact-shelf/a/stave/): a typeface drawn on twelve tuned strings |
 | Tools | [Recipe Diagram](https://dogum.github.io/artifact-shelf/a/recipe-diagram/): a plain-text recipe drawn as a flow table, with scaling and a cook mode<br>[Mirror Cube Solver](https://dogum.github.io/artifact-shelf/a/mirror-cube-solver/): paint a mirror cube's shape, get a solution on a 3D model |
 
+## Add your artifact
+
+The shelf takes pieces from anyone. If you made something that runs as a single HTML file, it can go here with your name on its page, in its structured data and in the feed.
+
+- **No git:** [send it through an issue](https://github.com/dogum/artifact-shelf/issues/new?template=submit-artifact.yml) with a link to the file and a few lines about it. I write it up and add it.
+- **Pull request:** fork, then `npm run add -- thing.html --shelf toys --author "Your Name | https://github.com/you"`, write the `about.md`, and open a PR. A GitHub Action builds the whole site with your piece on it.
+
+[CONTRIBUTING.md](CONTRIBUTING.md) has what fits, the full steps and how licensing works. Fixes and ideas for the site itself are welcome too.
+
 ## What each artifact gets
 
 <img src="docs/img/shelves.jpg" alt="Two shelves of artifacts standing on wooden ledges, each with a paper tag clipped to the edge" width="840">
@@ -49,6 +58,8 @@ I make small interactive pages in claude.ai and elsewhere, and an artifact link 
 <img src="docs/img/phone.jpg" alt="Three phone screens: the home page, the shelves in dark mode, and an artifact page" width="840">
 
 **Phones and dark mode.** Shelves scroll sideways on a phone, and the display window waits for a tap ("Run it here") instead of starting on its own. Dark mode swaps the plaster wall for a dark one and the birch ledges for walnut.
+
+**Credit.** A piece someone else made shows their name and link on its page, in its `WebApplication` structured data, its feed entry and `index.json`. Set `author:` in its front matter.
 
 **Everything a search engine wants.** Real text on every page, a canonical URL, Open Graph cards with a screenshot, `WebApplication` structured data, a sitemap, an Atom feed, a JSON catalog (`index.json`) and `llms.txt`. With JavaScript off, everything still reads and links.
 
@@ -84,7 +95,7 @@ The repo works as a template. Nothing in the generator is specific to these arti
    | `backlink` | `false` to drop the small "back to the shelf" pill on artifacts opened on their own |
    | `verification.google` | Your Search Console code, once you have it |
 
-4. **Rewrite `pages/about.md`** in your own words, and change the name in `LICENSE`. `CLAUDE.md` describes this repo for coding agents; edit it or delete it.
+4. **Rewrite `pages/about.md`** in your own words, and change the name in `LICENSE`. `pages/contribute.md`, `CONTRIBUTING.md` and `.github/` invite other people to send artifacts to this repo; rewrite them for yours, or delete `pages/contribute.md` and the Contribute links disappear from the site. `CLAUDE.md` describes this repo for coding agents; edit it or delete it.
 
 5. **Add an artifact.**
 
@@ -146,6 +157,7 @@ artifacts/<slug>/
   about.md               front matter and writeup
 media/<slug>/            poster.webp, poster-640.webp, og.jpg, capture.json (from npm run capture)
 pages/about.md           the About page
+pages/contribute.md      the Contribute page (optional)
 shelf.config.json        title, URL, author, shelves, projects
 src/
   build.mjs              the generator
@@ -156,10 +168,12 @@ tools/                   add, check, capture, serve, smoke
 skills/artifact-shelf/   the companion Claude skill
 .claude-plugin/          plugin.json and marketplace.json for it
 docs/WRITEUPS.md         how to write an about.md
+CONTRIBUTING.md          how other people add artifacts and change the site
+.github/                 deploy and PR-check workflows, issue forms, PR template
 ```
 
 The output is plain HTML and CSS with one small script for enhancements: the live hover previews, the index filter and the view transitions. Each artifact is served twice, once inside its page and once on its own at `a/<slug>/play/`, and the original file is kept at `a/<slug>/<slug>.html` for the Download button.
 
 ## License
 
-Code: [MIT](LICENSE). Each artifact is © its author and shared under the same license unless its page says otherwise. Code and data from third parties inside a piece (a credited shader, an inlined kit, a public data feed) stay under their owners' terms; each page's Notes say where they come from. Fonts: Bricolage Grotesque and DM Mono, SIL Open Font License.
+Code: [MIT](LICENSE). Each artifact is © its author (named on its page) and shared under the same license unless its page says otherwise. Code and data from third parties inside a piece (a credited shader, an inlined kit, a public data feed) stay under their owners' terms; each page's Notes say where they come from. Fonts: Bricolage Grotesque and DM Mono, SIL Open Font License.

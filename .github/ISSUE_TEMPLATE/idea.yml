@@ -1,0 +1,19 @@
+name: Idea for the site
+description: A feature or change to the gallery itself (not a new artifact).
+labels: ["idea"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What you'd change and who it helps.
+    validations:
+      required: true
+  - type: dropdown
+    id: help
+    attributes:
+      label: Would you send a pull request for it?
+      options:
+        - "Yes"
+        - Maybe, with some pointers
+        - "No, just suggesting"

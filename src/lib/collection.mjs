@@ -63,6 +63,7 @@ export function loadShelf(root, config, { includeDrafts = false } = {}) {
         timezone: data.capture_timezone || null,
         motion: data.capture_motion === 'reduce' ? 'reduce' : null,
       },
+      author: parsePerson(data.author, config.author),
       repo: data.repo ? String(data.repo) : null,
       links: (Array.isArray(data.links) ? data.links : data.links ? [data.links] : []).map(parseLink).filter(Boolean),
       body,
@@ -83,6 +84,9 @@ export function loadShelf(root, config, { includeDrafts = false } = {}) {
     if (!item.made) report(slug, 'error', 'made: YYYY-MM-DD is required');
     if (!STATUSES.includes(item.status)) report(slug, 'error', `status must be one of ${STATUSES.join(', ')}`);
     if (item.tags.length < 2) report(slug, 'warn', 'add a few tags (3–6) so it connects to other artifacts');
+    if (data.author && !item.author) report(slug, 'error', 'author must be "Name" or "Name | https://…"');
+    if (!item.author) item.author = { ...config.author };
+    item.guest = item.author.name !== config.author.name;
     if (item.words < 80) report(slug, 'warn', `writeup is ${item.words} words; search engines need more to go on (aim for 150+)`);
 
     if (item.status === 'draft' && !includeDrafts) continue;
@@ -150,6 +154,14 @@ export function repoUrl(repo) {
   if (/^github\.com\//.test(r)) return 'https://' + r.replace(/\/+$/, '');
   if (/^[\w.-]+\/[\w.-]+$/.test(r)) return `https://github.com/${r}`;
   return null;
+}
+
+// author: "Name" or "Name | https://…". Missing → the site owner.
+function parsePerson(v, fallback) {
+  if (v === undefined || v === null || v === '') return { ...fallback };
+  const [name, url] = String(v).split('|').map((x) => x.trim());
+  if (!name || (url && !/^https?:\/\//.test(url))) return null;
+  return url ? { name, url } : { name };
 }
 
 // links: ["Label | https://…", …]
