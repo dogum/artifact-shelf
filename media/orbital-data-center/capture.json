@@ -1,8 +1,8 @@
 {
-  "hash": "ba4f208588ea9a5c",
-  "captured": "2026-11-05T13:01:50.547Z",
-  "wait": 1500,
-  "click": "[data-thermal-toggle]",
+  "hash": "91ef674c1b06d68e",
+  "captured": "2026-11-15T14:39:01.287Z",
+  "wait": 3000,
+  "click": "[data-poster]",
   "time": null,
   "motion": "reduce"
 }
