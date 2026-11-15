@@ -4,7 +4,7 @@ Everything on the shelf so far is mine, but it doesn't have to stay that way. If
 
 There are three ways in, from least to most git:
 
-1. **[Send an artifact through an issue](https://github.com/dogum/artifact-shelf/issues/new?template=submit-artifact.yml).** Fill in a form with a link to the file and a few lines about it. I'll do the rest and credit you. No fork, no Node.
+1. **[Send an artifact through an issue](https://github.com/dogum/artifact-shelf/issues/new?template=submit-artifact.yml).** Fill in a form with a link to the file (or the file in a .zip) and a few lines about it. I'll do the rest and credit you. No fork, no Node.
 2. **[Open a pull request](#adding-an-artifact-with-a-pull-request)** that adds the artifact and its writeup. This is the fastest way onto the shelf, and the checks run on your PR so you know it builds.
 3. **[Improve the site](#changing-the-site)**: a bug fix, an accessibility fix, a better tool. Open an issue first for anything large.
 

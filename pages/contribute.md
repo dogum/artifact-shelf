@@ -18,7 +18,7 @@ If you're not sure, send it anyway and ask.
 
 ## Two ways to send one
 
-**The easy way.** [Open a submission](https://github.com/dogum/artifact-shelf/issues/new?template=submit-artifact.yml) on GitHub with a link to your file (a published artifact, a gist or a CodePen), the shelf you think it belongs on, a few lines about what it does, and the name you'd like credited. I'll write it up, add it and reply on the issue when it's live.
+**The easy way.** [Open a submission](https://github.com/dogum/artifact-shelf/issues/new?template=submit-artifact.yml) on GitHub with a link to your file (a published artifact, a gist or a CodePen) or the file itself in a .zip, the shelf you think it belongs on, a few lines about what it does, and the name you'd like credited. I'll write it up, add it and reply on the issue when it's live.
 
 **The pull request way.** Fork the [repository](https://github.com/dogum/artifact-shelf) and add your file with one command:
 

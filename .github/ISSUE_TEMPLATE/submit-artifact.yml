@@ -20,10 +20,10 @@ body:
     id: link
     attributes:
       label: Link to the HTML
-      description: A published claude.ai artifact link, a gist, a CodePen, or a raw file URL. Private claude.ai links won't open for anyone else. You can also attach the file below as a .zip.
+      description: A published claude.ai artifact link, a gist, a CodePen, or a raw file URL. Private claude.ai links won't open for anyone else. No link? Leave this empty and attach the file as a .zip below.
       placeholder: https://
     validations:
-      required: true
+      required: false
   - type: dropdown
     id: shelf
     attributes:
@@ -61,8 +61,8 @@ body:
   - type: textarea
     id: file
     attributes:
-      label: Attach the file (optional)
-      description: GitHub doesn't accept .html attachments, so zip it first and drag the .zip here.
+      label: Attach the file
+      description: Needed if you left the link empty. GitHub doesn't accept .html attachments, so zip it first and drag the .zip here.
   - type: checkboxes
     id: agree
     attributes:
