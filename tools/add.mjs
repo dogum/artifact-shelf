@@ -60,7 +60,7 @@ fs.writeFileSync(path.join(dir, 'about.md'), `---
 title: ${/[:#\[\]{}"']/.test(title) ? JSON.stringify(title) : title}
 summary: TODO one sentence, 110–155 characters. What it is and why it's worth a click.
 shelf: ${shelfId}
-${author ? `author: ${author}\n` : ''}tags: [${medium(tech).map((m) => slugify(m)).join(', ')}]
+${author ? `author: ${/[:#\[\]{}"']/.test(author) ? JSON.stringify(author) : author}\n` : ''}tags: [${medium(tech).map((m) => slugify(m)).join(', ')}]
 made: ${today}
 status: draft
 autorun: true

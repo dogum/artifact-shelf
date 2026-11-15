@@ -112,8 +112,15 @@ function proseSrc(name, fallbackTitle) {
   const f = path.join(ROOT, `pages/${name}.md`);
   if (!fs.existsSync(f)) return null;
   const { data, body } = parseFrontmatter(fs.readFileSync(f, 'utf8'));
-  return { title: data.title || fallbackTitle, summary: data.summary || config.description, html: renderMarkdown(body).html };
+  return { title: data.title || fallbackTitle, summary: data.summary || config.description, html: portableHrefs(renderMarkdown(body).html) };
 }
+// Links written in markdown skip L(), so in a portable build give folder links an index.html.
+function portableHrefs(h) {
+  if (!portable) return h;
+  return h.replace(/href="(?![a-z]+:|\/\/|#|\/)([^"#?]*\/)([#?][^"]*)?"/gi, (m, p, rest = '') => `href="${p}index.html${rest}"`);
+}
+for (const it of shelf.items) it.html = portableHrefs(it.html);
+
 const about = proseSrc('about', 'About') || { title: 'About', summary: config.description, html: '' };
 const contribute = proseSrc('contribute', 'Contribute');
 
